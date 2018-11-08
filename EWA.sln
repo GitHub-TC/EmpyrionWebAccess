@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmpyrionModWebHost", "EmpyrionModWebHost\EmpyrionModWebHost.csproj", "{BD4AFD67-1BE4-4E0C-83BE-3F2A21CC2702}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTestPlatform", "ClientTestPlatform\ClientTestPlatform.csproj", "{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWAExtenderCommunication", "EWAExtenderCommunication\EWAExtenderCommunication.csproj", "{C356799B-60CF-4505-A492-D6F70891BCA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWALoader", "EWALoader\EWALoader.csproj", "{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWAModClient", "EWAModClient\EWAModClient.csproj", "{CC76932D-33EF-4A9D-AFDE-4954AFE57676}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD4AFD67-1BE4-4E0C-83BE-3F2A21CC2702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD4AFD67-1BE4-4E0C-83BE-3F2A21CC2702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD4AFD67-1BE4-4E0C-83BE-3F2A21CC2702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD4AFD67-1BE4-4E0C-83BE-3F2A21CC2702}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C356799B-60CF-4505-A492-D6F70891BCA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C356799B-60CF-4505-A492-D6F70891BCA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C356799B-60CF-4505-A492-D6F70891BCA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C356799B-60CF-4505-A492-D6F70891BCA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC76932D-33EF-4A9D-AFDE-4954AFE57676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC76932D-33EF-4A9D-AFDE-4954AFE57676}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC76932D-33EF-4A9D-AFDE-4954AFE57676}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC76932D-33EF-4A9D-AFDE-4954AFE57676}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2470295-2ACD-4924-88E2-B5F0EEFB40F6}
+	EndGlobalSection
+EndGlobal

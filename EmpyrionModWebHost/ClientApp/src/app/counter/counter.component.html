@@ -1,0 +1,11 @@
+<h1>Counter</h1>
+
+<p>This is a simple example of an Angular component.</p>
+
+<p>Current count: <strong>{{ currentCount }}</strong></p>
+
+<button (click)="incrementCounter()">Increment</button>
+
+<input type="text" [(ngModel)]="message">
+<button (click)="send()">Send</button>
+<p *ngFor="let m of messages">{{m}}</p>

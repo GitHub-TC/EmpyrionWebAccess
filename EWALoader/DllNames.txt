@@ -1,0 +1,5 @@
+# - pro Zeile ein Pfad zu einer DLL Moddatei
+# - der Pfad kann relativ zu diesem Verzeichnis angegeben werden
+# - Leerzeilen sind erlaubt
+# - Kommentarzeilen beginnnen mit einen #
+Client\EWAModClient.dll
