@@ -2,6 +2,7 @@
 using EWAExtenderCommunication;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ClientTestPlatform
 {
@@ -18,6 +19,9 @@ namespace ClientTestPlatform
             var gameAPIMockup = new GameAPIMockup();
 
             Client.Game_Start(gameAPIMockup);
+
+            while(Client.InServer == null) Thread.Sleep(1000);
+
             Client.InServer.Callback = Msg => { if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg); };
 
             while (Console.ReadKey().KeyChar == ' ')

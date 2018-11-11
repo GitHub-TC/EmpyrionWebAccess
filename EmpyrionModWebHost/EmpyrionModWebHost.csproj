@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Composition" Version="1.0.31" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,16 +27,32 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\chat\ChatModel.ts" />
+    <None Remove="ClientApp\src\app\chat\mock-chat.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EWAExtenderCommunication\EWAExtenderCommunication.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="EmpyrionNetAPIAccess">
+      <HintPath>..\dependencies\EmpyrionNetAPIAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="EmpyrionNetAPIDefinitions">
+      <HintPath>..\dependencies\EmpyrionNetAPIDefinitions.dll</HintPath>
+    </Reference>
     <Reference Include="Mif">
       <HintPath>..\dependencies\Mif.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\chat\ChatModel.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\chat\mock-chat.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

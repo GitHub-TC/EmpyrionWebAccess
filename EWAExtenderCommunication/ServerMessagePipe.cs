@@ -4,9 +4,6 @@ using System.IO.Pipes;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
-using Eleon.Modding;
-using System.Reflection;
-using System.Linq;
 
 namespace EWAExtenderCommunication
 {
@@ -19,6 +16,7 @@ namespace EWAExtenderCommunication
         public Action<string> log { get; set; }
         public string PipeName { get; }
         public Action<object> Callback { get; set; }
+        public bool Exit { get; private set; }
 
         public ServerMessagePipe(string aPipeName)
         {
@@ -27,10 +25,12 @@ namespace EWAExtenderCommunication
             mServerCommThread.Start();
         }
 
+        public bool Connected { get => mServerPipe != null && mServerPipe.IsConnected; }
+
         private void ServerCommunicationLoop()
         {
             var ShownErrors = new List<string>();
-            while (mServerCommThread.ThreadState != ThreadState.AbortRequested)
+            while (!Exit)
             {
                 try
                 {
@@ -42,7 +42,7 @@ namespace EWAExtenderCommunication
                     if (!ShownErrors.Contains(Error.Message))
                     {
                         ShownErrors.Add(Error.Message);
-                        log?.Invoke($"Failed ExecServerCommunication. {PipeName}[{mServerCommThread.ThreadState}] Reason: " + Error.Message);
+                        log?.Invoke($"Failed ExecServerCommunication. {PipeName} Reason: " + Error.Message);
                     }
                 }
             }
@@ -50,14 +50,14 @@ namespace EWAExtenderCommunication
 
         private void ExecServerCommunication()
         {
-            using (mServerPipe = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.WriteThrough))
+            using (mServerPipe = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
             {
                 mServerPipe.WaitForConnection();
                 log?.Invoke($"ServerPipe: {PipeName} connected");
-                while (mServerPipe.IsConnected && mServerCommThread.ThreadState != ThreadState.AbortRequested)
+                while (mServerPipe.IsConnected && !Exit)
                 {
                     var Message = ReadNextMessage();
-                    Callback?.Invoke(Message);
+                    if (Message != null) Callback?.Invoke(Message);
                 }
             }
         }
@@ -66,12 +66,25 @@ namespace EWAExtenderCommunication
         {
             using (var MemBuffer = new MemoryStream())
             {
+                var MessageLength = 0;
+                var Size = mServerPipe.ReadByte(); if (!mServerPipe.IsConnected || Exit) return null;
+                Size += mServerPipe.ReadByte() << 8; if (!mServerPipe.IsConnected || Exit) return null;
+                Size += mServerPipe.ReadByte() << 16; if (!mServerPipe.IsConnected || Exit) return null;
+                Size += mServerPipe.ReadByte() << 24; if (!mServerPipe.IsConnected || Exit) return null;
+
+                if (mMessageBuffer.Length < Size) mMessageBuffer = new byte[Size];
+
+                if (Size < 0) return null;
+
                 do
                 {
-                    var BytesRead = mServerPipe.Read(mMessageBuffer, 0, mMessageBuffer.Length);
+                    var BytesRead = mServerPipe.Read(mMessageBuffer, 0, Size);
+                    MessageLength += BytesRead;
                     MemBuffer.Write(mMessageBuffer, 0, BytesRead);
                 }
-                while (!mServerPipe.IsMessageComplete && mServerCommThread.ThreadState != ThreadState.AbortRequested);
+                while (MessageLength < Size && !Exit);
+
+                if (MessageLength == 0) return null;
 
                 try
                 {
@@ -90,20 +103,19 @@ namespace EWAExtenderCommunication
         {
             try
             {
-                mServerCommThread?.Abort();
+                Exit = true;
 
-                new Thread(() => {
+                if (!mServerPipe.IsConnected)
+                {
                     try
                     {
-                        var ClientPipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous);
-                        ClientPipe.Connect(1);
-                        ClientPipe.Close();
+                        using (var ClientPipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous))
+                        {
+                            ClientPipe.Connect(1);
+                        }
                     }
                     catch { }
-                }).Start();
-
-                mServerCommThread = null;
-                mServerPipe = null;
+                }
             }
             catch (Exception Error)
             {

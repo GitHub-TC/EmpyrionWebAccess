@@ -1,0 +1,41 @@
+table, td, tr, th {
+  border: 1px solid black;
+}
+
+tr.Y{
+  background-color: yellow;
+}
+
+tr.G {
+  background-color:lawngreen;
+}
+
+tr.F {
+  color: blue;
+}
+
+tr.CB {
+  background-color:aqua;
+}
+
+td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+td.chatText {
+  white-space: normal;
+}
+
+td, th {
+  padding-left: .2em;
+  padding-right: .2em;
+}
+
+th{
+  background-color: whitesmoke;
+}
+
+.chatText{
+  width: 100%;
+}

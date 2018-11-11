@@ -85,7 +85,7 @@ namespace EWAModClient
         {
             GameAPI = dediAPI;
             GameAPI.Console_Write($"ModClientDll: start");
-            
+
             CurrentConfig = new ConfigurationManager<Configuration>()
             {
                 ConfigFilename = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "Configuration.xml")
@@ -102,7 +102,7 @@ namespace EWAModClient
                 { typeof(ClientHostComData    ), M => HandleClientHostCommunication ((ClientHostComData)M) }
             };
 
-            new Thread(() => { while (!Exit) { Thread.Sleep(1000); CheckHostProcess(); }}).Start();
+            new Thread(() => { while (!Exit) { Thread.Sleep(1000); CheckHostProcess(); } }).Start();
 
             GameAPI.Console_Write($"ModClientDll: started");
         }
@@ -194,10 +194,6 @@ namespace EWAModClient
             if (CurrentConfig.Current.AutostartModHostAfterNSeconds == 0) return;
             try { if (mHostProcess != null && !mHostProcess.HasExited) return; } catch { }
 
-            if (!CurrentConfig.Current.AutostartModHost 
-                && InServer  != null && InServer .Connected
-                && OutServer != null && OutServer.Connected) return;
-
             if (!mHostProcessAlive.HasValue) mHostProcessAlive = DateTime.Now;
             if ((DateTime.Now - mHostProcessAlive.Value).TotalSeconds <= CurrentConfig.Current.AutostartModHostAfterNSeconds) return;
 
@@ -240,9 +236,9 @@ namespace EWAModClient
         {
             switch (aMsg.Command)
             {
-                case ClientHostCommand.RestartHost          : break;
-                case ClientHostCommand.ExposeShutdownHost   : ExposeShutdownHost = true; break;
-                case ClientHostCommand.Console_Write        : GameAPI.Console_Write(aMsg.Data as string); break;
+                case ClientHostCommand.RestartHost: break;
+                case ClientHostCommand.ExposeShutdownHost: ExposeShutdownHost = true; break;
+                case ClientHostCommand.Console_Write: GameAPI.Console_Write(aMsg.Data as string); break;
             }
         }
 
@@ -250,6 +246,7 @@ namespace EWAModClient
         {
             var obj = TypedMsg.GetEmpyrionObject();
             GameAPI.Console_Write($"HandleGameEvent: {TypedMsg.eventId} => {obj}");
+            if (obj == null) return;
             GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, obj);
         }
 

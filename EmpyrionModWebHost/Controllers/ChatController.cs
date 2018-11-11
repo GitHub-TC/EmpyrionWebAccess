@@ -1,6 +1,8 @@
 ﻿using Eleon.Modding;
+using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Composition;
@@ -11,7 +13,13 @@ namespace EmpyrionModWebHost.Controllers
 {
     public class ChatDataModel
     {
-        public string Message;
+        public string mark;
+        public string type;
+        public string timestamp;
+        public string faction;
+        public string toPlayer;
+        public string playerName;
+        public string message;
     }
 
 
@@ -30,7 +38,7 @@ namespace EmpyrionModWebHost.Controllers
     }
 
 //    [Export(typeof(IEWAPlugin))]
-    public class ChatManager : IEWAPlugin
+    public class ChatManager : EmpyrionModBase, IEWAPlugin
     {
         public ModGameAPI GameAPI { get; private set; }
         
@@ -39,39 +47,52 @@ namespace EmpyrionModWebHost.Controllers
             ChatHub = aChatHub;
         }
 
-        public void Game_Event(CmdId eventId, ushort seqNr, object data)
+        private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)
         {
-            if (eventId != CmdId.Event_ChatMessage) return;
-
-            var Msg = data as Eleon.Modding.ChatInfo;
-            ChatHub?.Clients.All.SendAsync("Send", $"back:{Msg.playerId}:{Msg.msg}").Start();
+            var chat = new ChatDataModel()
+            {
+                mark = GetMarkChatline(aChatInfo),
+                type = GetChatType(aChatInfo.type),
+                faction = GetFactionName(aChatInfo.recipientFactionId),
+                toPlayer = GetPlayerName(aChatInfo.recipientEntityId),
+                playerName = GetPlayerName(aChatInfo.playerId),
+                timestamp = DateTime.Now.ToShortTimeString(),
+                message = aChatInfo.msg,
+            };
+            ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(chat)).Wait();
         }
 
-        public void Game_Exit()
+        private string GetMarkChatline(ChatInfo aChatInfo)
         {
+            return "N";
         }
 
-        public void Game_Start(ModGameAPI dediAPI)
+        private string GetPlayerName(int aPlayerId)
+        {
+            return aPlayerId.ToString();
+        }
+
+        private string GetFactionName(int aFactionId)
+        {
+            return aFactionId.ToString();
+        }
+
+        private string GetChatType(byte type)
+        {
+            return "N";
+        }
+
+        public void ChatMessage(String aMessage)
+        {
+            Request_ConsoleCommand(new PString($"SAY '{aMessage}'"));
+        }
+
+        public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
-        }
+            LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-        public void Game_Update()
-        {
-        }
-
-        public void SendChat(ChatDataModel aChatDataModel)
-        {
-            GameAPI?.Game_Request(CmdId.Request_InGameMessage_AllPlayers, 1, new ChatInfo() { msg = aChatDataModel.Message });
-        }
-
-        public void ChatMessage(String msg)
-        {
-            String command = "SAY '" + msg + "'";
-            GameAPI.Game_Request(
-                CmdId.Request_ConsoleCommand, 
-                (ushort)CmdId.Request_InGameMessage_AllPlayers, 
-                new Eleon.Modding.PString(command));
+            Event_ChatMessage += ChatManager_Event_ChatMessage;
         }
 
         public IHubContext<ChatHub> ChatHub { get; internal set; }
