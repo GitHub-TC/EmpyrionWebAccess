@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace EWAExtenderCommunication
 {
@@ -12,16 +11,25 @@ namespace EWAExtenderCommunication
     [Serializable]
     public class EmpyrionGameEventData
     {
-        public static Dictionary<string, Type> EleonModdingTypes = AppDomain.CurrentDomain.GetAssemblies()
-                               .SelectMany(t => t.GetTypes())
-                               .Where(t => t.Namespace == "Eleon.Modding")
-                               .ToDictionary(t => t.FullName);
+        private static Dictionary<string, Type> _mEleonModdingTypes;
+
+        public static Dictionary<string, Type> EleonModdingTypes
+        {
+            get {
+                if (_mEleonModdingTypes == null) _mEleonModdingTypes = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(t => t.GetTypes())
+                        .Where(t => t.Namespace == "Eleon.Modding")
+                        .ToDictionary(t => t.FullName);
+
+                return _mEleonModdingTypes;
+            }
+        }
 
         public CmdId eventId;
         public ushort seqNr;
 
-        public string serializedDataType;
-        public byte[] serializedData;
+        byte[] serializedData;
+        string serializedDataType;
 
         class ProtoBufCall<T>
         {
@@ -29,22 +37,21 @@ namespace EWAExtenderCommunication
             public T Deserialize(Stream aStream) { return ProtoBuf.Serializer.Deserialize<T>(aStream); }
         }
 
-        public void SetEmpyrionObject(object aObject)
+        public void SetEmpyrionObject(object data)
         {
-            if (aObject == null) return;
+            if (data == null) return;
 
             try
             {
                 using (var MemBuffer = new MemoryStream())
                 {
                     Type TypedProtoBufCall = typeof(ProtoBufCall<>);
-                    var serializedDataType = aObject.GetType();
-                    this.serializedDataType = serializedDataType.FullName;
-                    TypedProtoBufCall = TypedProtoBufCall.MakeGenericType(new[] { serializedDataType });
+                    serializedDataType = data.GetType().FullName;
+                    TypedProtoBufCall = TypedProtoBufCall.MakeGenericType(new[] { data.GetType() });
 
                     object ProtoBufCallInstance = Activator.CreateInstance(TypedProtoBufCall);
                     MethodInfo MI = TypedProtoBufCall.GetMethod("Serialize");
-                    MI.Invoke(ProtoBufCallInstance, new[] { MemBuffer, aObject });
+                    MI.Invoke(ProtoBufCallInstance, new[] { MemBuffer, data });
 
                     MemBuffer.Seek(0, SeekOrigin.Begin);
                     serializedData = MemBuffer.ToArray();
@@ -52,23 +59,24 @@ namespace EWAExtenderCommunication
             }
             catch (Exception Error)
             {
-                Console.WriteLine($"SetEmpyrionObject:{Error}");
+                Console.WriteLine($"OnSerializingMethod:{Error}");
             }
         }
 
         public object GetEmpyrionObject()
         {
+            if (serializedData == null) return null;
+
             try
             {
-                if (serializedData == null) return null;
-                if (!EleonModdingTypes.TryGetValue(serializedDataType, out Type EleonType))
-                {
-                    Console.WriteLine($"GetEmpyrionObject:?:{serializedDataType}");
-                    return null;
-                }
-
                 using (var MemBuffer = new MemoryStream(serializedData))
                 {
+                    if (!EleonModdingTypes.TryGetValue(serializedDataType, out Type EleonType))
+                    {
+                        Console.WriteLine($"GetEmpyrionObject:?:{serializedDataType}");
+                        return null;
+                    }
+
                     Type TypedProtoBufCall = typeof(ProtoBufCall<>);
                     TypedProtoBufCall = TypedProtoBufCall.MakeGenericType(new[] { EleonType });
 
@@ -79,7 +87,7 @@ namespace EWAExtenderCommunication
             }
             catch (Exception Error)
             {
-                Console.WriteLine($"SetEmpyrionObject:{Error}");
+                Console.WriteLine($"OnDeserializedMethod:{Error}");
                 return null;
             }
         }

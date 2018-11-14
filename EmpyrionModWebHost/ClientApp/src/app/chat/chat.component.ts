@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
-import { ChatModel } from './ChatModel'
-import { CHAT } from './mock-chat';
+import { ChatModel } from '../model/chat-model'
+import { CHAT } from '../model/chat-mock';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.css']
+  styleUrls: ['./chat.component.less']
 })
 export class ChatComponent implements OnInit {
   public hubConnection: HubConnection;
 
-  public messages: ChatModel[] = [];
-  public message: string;
+  messages: ChatModel[] = [];
+  message: string;
 
   constructor() { }
 

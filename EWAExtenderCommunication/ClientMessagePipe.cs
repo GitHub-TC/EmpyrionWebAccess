@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.IO.Pipes;
 using System.Threading;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using SharedMemory;
 
 namespace EWAExtenderCommunication
 {
@@ -12,7 +12,8 @@ namespace EWAExtenderCommunication
     {
         Thread mCommThread;
         Queue<object> mSendCommands = new Queue<object>();
-        NamedPipeClientStream mClientPipe;
+        CircularBuffer mClient;
+
         public Action<string> log { get; set; }
 
         public string PipeName { get; }
@@ -25,29 +26,46 @@ namespace EWAExtenderCommunication
             mCommThread.Start();
         }
 
-        public bool Connected { get => mClientPipe != null && mClientPipe.IsConnected; }
-
         private void CommunicationLoop()
         {
+            var ShownErrors = new List<string>();
             while (!Exit)
             {
                 try
                 {
-                    log?.Invoke($"Try CommunicationLoop Connect {PipeName} Connected:{mClientPipe?.IsConnected}");
-                    using (mClientPipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous))
+                    log?.Invoke($"Try CommunicationLoop Connect {PipeName}");
+                    using (mClient = new CircularBuffer(PipeName, 4, 10 * 1024 * 1024))
                     {
-                        ConnectOrExit();
-                        do
+                        if (!Exit)
                         {
-                            SendMessageViaPipe(WaitForNextMessage());
-                        } while (mClientPipe != null && mClientPipe.IsConnected && !Exit);
+                            new Thread(() =>
+                            {
+                                while (!Exit)
+                                {
+                                    Thread.Sleep(500);
+                                    SendMessage(new ClientHostComData() { Command = ClientHostCommand.Ping });
+                                }
+                            }).Start();
+
+                            var PipeError = false;
+                            do
+                            {
+                                PipeError = SendMessageViaPipe(WaitForNextMessage());
+                            } while (!PipeError && !Exit);
+                        }
                     }
                 }
                 catch (ThreadAbortException) { }
                 catch (Exception Error)
                 {
-                    log?.Invoke($"MainError {PipeName} Connected:{mClientPipe?.IsConnected} Reason: {Error.Message}");
-                    if (!Exit) Thread.Sleep(10000);
+                    if (!ShownErrors.Contains(Error.Message))
+                    {
+                        ShownErrors.Add(Error.Message);
+                        log?.Invoke($"MainError {PipeName} Reason: {Error}");
+                    }
+
+                    if (!Exit) Thread.Sleep(1000);
+                    lock (mSendCommands) mSendCommands.Clear();
                 }
             }
         }
@@ -63,49 +81,34 @@ namespace EWAExtenderCommunication
             return null;
         }
 
-        private void SendMessageViaPipe(object SendMessage)
+        private bool SendMessageViaPipe(object SendMessage)
         {
-            if (SendMessage == null || !mClientPipe.IsConnected || Exit) return;
+            if (SendMessage == null || Exit) return false;
 
-            using (var MemBuffer = new MemoryStream())
+            try
             {
-                try
+                using (var memStream = new MemoryStream())
                 {
-                    new BinaryFormatter().Serialize(MemBuffer, SendMessage);
-
-                    var Size = MemBuffer.Length;
-                    mClientPipe.WriteByte((byte)(Size & 0xff));
-                    mClientPipe.WriteByte((byte)(Size >> 8 & 0xff));
-                    mClientPipe.WriteByte((byte)(Size >> 16 & 0xff));
-                    mClientPipe.WriteByte((byte)(Size >> 24 & 0xff));
-
-                    mClientPipe.Write(MemBuffer.ToArray(), 0, (int)MemBuffer.Length);
-                    mClientPipe.Flush();
-                }
-                catch (SerializationException Error)
-                {
-                    log?.Invoke("Failed to serialize. Reason: " + Error.Message);
-                }
-                catch (Exception Error)
-                {
-                    log?.Invoke($"CommError {PipeName} Connected:{mClientPipe?.IsConnected} Reason: {Error.Message}");
+                    new BinaryFormatter().Serialize(memStream, SendMessage);
+                    mClient.Write(memStream.ToArray());
                 }
             }
-        }
-
-        private void ConnectOrExit()
-        {
-            do
+            catch (SerializationException Error)
             {
-                try { mClientPipe.Connect(1000); }
-                catch (IOException) { Thread.Sleep(1000); }
-                catch (TimeoutException) { Thread.Sleep(1000); }
-            } while ((mClientPipe == null || !mClientPipe.IsConnected) && !Exit);
+                log?.Invoke("Failed to serialize. Reason: " + Error.Message);
+            }
+            catch (Exception Error)
+            {
+                log?.Invoke($"CommError {PipeName} Reason: {Error.Message}");
+                return true;
+            }
+
+            return false;
         }
 
         public void SendMessage(object aMessage)
         {
-            if (mClientPipe == null || !mClientPipe.IsConnected) return;
+            if (mClient == null) return;
             lock (mSendCommands)
             {
                 mSendCommands.Enqueue(aMessage);

@@ -1,15 +1,19 @@
-<table>
-  <thead>
-  <th>R</th>
-  <th>Date</th>
-  <th>Fac.</th>
-  <th>Name</th>
-  <th class="chatText">Text</th></thead>
-  <tr *ngFor="let m of messages" [ngClass]="getLineClass(m)"><td>{{m.type}}</td><td nowrap="nowrap">{{m.timestamp}}</td><td>{{m.faction}}</td><td>{{m.playerName}}</td><td class="chatText">{{m.message}}</td></tr>
-</table>
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th>R</th>
+        <th>Date</th>
+        <th>Fac.</th>
+        <th>Name</th>
+        <th class="chatText">Text</th>
+      </tr>
+    </thead>
+    <tr *ngFor="let m of messages" [ngClass]="getLineClass(m)"><td>{{m.type}}</td><td nowrap="nowrap">{{m.timestamp}}</td><td>{{m.faction}}</td><td>{{m.playerName}}</td><td class="chatText">{{m.message}}</td></tr>
+  </table>
+</div>
 <div style="float: right">
   <input type="text" style="width:20em" [(ngModel)]="message">
   <button (click)="send()">Send</button>
 </div>
-
 

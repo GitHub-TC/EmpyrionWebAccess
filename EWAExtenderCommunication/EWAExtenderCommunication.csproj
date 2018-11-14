@@ -37,6 +37,9 @@
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>
     </Reference>
+    <Reference Include="SharedMemory">
+      <HintPath>..\dependencies\SharedMemory.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
   </ItemGroup>
