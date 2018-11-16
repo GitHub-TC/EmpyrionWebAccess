@@ -9,18 +9,24 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatComponent } from './chat/chat.component';
 import { ActivePlayfieldsComponent } from './active-playfields/active-playfields.component';
-import { PlayerComponent } from './player/player.component';
 import { SysteminfoComponent } from './systeminfo/systeminfo.component';
 import { ChatListComponent } from './chat-list/chat-list.component';
+import { PlayerBackpackComponent } from './player-backpack/player-backpack.component';
+import { PlayerDetailsComponent } from './player-details/player-details.component';
+import { PlayerListComponent } from './player-list/player-list.component';
+import { FactionPipe } from './pipes/faction.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChatComponent,
     ActivePlayfieldsComponent,
-    PlayerComponent,
     SysteminfoComponent,
-    ChatListComponent
+    ChatListComponent,
+    PlayerBackpackComponent,
+    PlayerDetailsComponent,
+    PlayerListComponent,
+    FactionPipe
   ],
   imports: [
     BrowserModule,

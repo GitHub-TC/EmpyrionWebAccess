@@ -45,6 +45,7 @@ namespace EmpyrionModWebHost.Controllers
         public ChatManager(IHubContext<ChatHub> aChatHub)
         {
             ChatHub = aChatHub;
+            FactionInfo
         }
 
         private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)

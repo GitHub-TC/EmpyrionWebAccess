@@ -1,0 +1,58 @@
+<div class="divPlayer">
+  <table mat-table [dataSource]="players" class="mat-elevation-z8">
+    <ng-container matColumnDef="online">
+      <th mat-header-cell *matHeaderCellDef> O </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-icon class="onlineState" *ngIf="element.online" >account_circle</mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="playerName">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.playerName}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="origin">
+      <th mat-header-cell *matHeaderCellDef> Origin </th>
+      <td mat-cell *matCellDef="let element"> {{element.origin}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="faction">
+      <th mat-header-cell *matHeaderCellDef> Faction </th>
+      <td mat-cell *matCellDef="let element"> {{element.factionId | faction: "abbrev"}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="playfield">
+      <th mat-header-cell *matHeaderCellDef> Playfield </th>
+      <td mat-cell *matCellDef="let element"> {{element.playfield}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="posX">
+      <th mat-header-cell *matHeaderCellDef> E/W </th>
+      <td mat-cell *matCellDef="let element"> {{element.pos?.x}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="posY">
+      <th mat-header-cell *matHeaderCellDef> Height </th>
+      <td mat-cell *matCellDef="let element"> {{element.pos?.y}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="posZ">
+      <th mat-header-cell *matHeaderCellDef> N/S </th>
+      <td mat-cell *matCellDef="let element"> {{element.pos?.z}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="entityId">
+      <th mat-header-cell *matHeaderCellDef> PrivateID </th>
+      <td mat-cell *matCellDef="let element"> {{element.entityId}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="steamId">
+      <th mat-header-cell *matHeaderCellDef> SteamId </th>
+      <td mat-cell *matCellDef="let element"> {{element.steamId}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

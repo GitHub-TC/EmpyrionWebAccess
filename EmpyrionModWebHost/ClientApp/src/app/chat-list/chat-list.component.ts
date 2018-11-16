@@ -14,8 +14,8 @@ export class ChatListComponent implements OnInit {
   @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
 
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
-  messages: ChatModel[];
 
+  messages: ChatModel[];
   message: string;
   autoscroll: boolean = true;
 
