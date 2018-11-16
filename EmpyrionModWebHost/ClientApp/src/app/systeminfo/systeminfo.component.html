@@ -1,15 +1,25 @@
 <mat-card>
   <mat-card-content style="height:70px">
-    <div style="float:left">
-      <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
-    </div>
-    <div style="float:left">
-      <div class="EWAName">Empyrion Web Access</div>
-      <div class="GameStat"><mat-icon style="vertical-align:bottom">network_check</mat-icon> Playfieldserver: Active:5 Total:8 = 12GB</div>
-      <div class="ComputerStat"><mat-icon style="vertical-align:bottom">computer</mat-icon> CPU:I7-6850K RAM:20/32GB HDD:200/400GB</div>
-    </div>
-    <div style="float:right">
-      Online
-    </div>
+    <table>
+      <tr>
+        <td>
+          <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
+        </td>
+        <td>
+          <table>
+            <tr>
+              <td><div class="EWAName">Empyrion Web Access</div></td>
+              <td>Online</td>
+            </tr>
+            <tr>
+              <td colspan="2"><mat-icon style="vertical-align:bottom">network_check</mat-icon> Playfieldserver: Active:5 Total:8 = 12GB</td>
+            </tr>
+            <tr>
+              <td colspan="2"><mat-icon style="vertical-align:bottom">computer</mat-icon> CPU:I7-6850K RAM:20/32GB HDD:200/400GB</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </mat-card-content>
 </mat-card>

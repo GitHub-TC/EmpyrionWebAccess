@@ -1,16 +1,9 @@
+import { ItemStackModel } from "./itemstack-model";
+
 export class PVector3 {
   x: number;
   y: number;
   z: number;
-}
-
-export class ItemStackModel
-{
-  id: number;
-  count: number;
-  slotIdx: number;
-  ammo: number;
-  decay: number;
 }
 
 export class PlayerModel {

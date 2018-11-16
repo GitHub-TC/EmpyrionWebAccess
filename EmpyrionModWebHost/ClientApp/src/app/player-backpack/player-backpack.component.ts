@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ItemStackModel } from '../model/itemstack-model';
+import { ITEMS } from '../model/itemstack-mock';
 
 @Component({
   selector: 'app-player-backpack',
@@ -6,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./player-backpack.component.less']
 })
 export class PlayerBackpackComponent implements OnInit {
+  Items: ItemStackModel[] = ITEMS;
 
   constructor() { }
 

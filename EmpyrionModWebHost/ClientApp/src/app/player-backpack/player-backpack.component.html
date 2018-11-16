@@ -1,3 +1,6 @@
-<p>
-  player-backpack works!
-</p>
+<div class="Item" *ngFor="let i of Items">
+  <div class="image">
+    <img src="../../assets/Items/{{i.id}}.png" />
+  </div>
+  <div class="counts">{{i.count}}</div>
+</div>

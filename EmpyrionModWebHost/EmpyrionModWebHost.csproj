@@ -31,6 +31,8 @@
     <None Remove="ClientApp\src\app\chat\mock-chat.ts" />
     <None Remove="ClientApp\src\app\model\faction-mock.ts" />
     <None Remove="ClientApp\src\app\model\faction-model.ts" />
+    <None Remove="ClientApp\src\app\model\itemstack-mock.ts" />
+    <None Remove="ClientApp\src\app\model\itemstack-model.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
   </ItemGroup>
@@ -55,13 +57,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-mock.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-model.ts" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ClientApp\src\app\model\itemstack-mock.js">
+      <DependentUpon>itemstack-mock.ts</DependentUpon>
+    </None>
     <None Update="ClientApp\src\app\model\faction-mock.js">
       <DependentUpon>faction-mock.ts</DependentUpon>
     </None>
