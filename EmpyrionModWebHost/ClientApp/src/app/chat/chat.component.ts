@@ -11,9 +11,13 @@ import { CHAT } from '../model/chat-mock';
 })
 export class ChatComponent implements OnInit {
   public hubConnection: HubConnection;
+  displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
   messages: ChatModel[] = [];
   message: string;
+  chatTarget: string = "All";
+  chatToAll: boolean = true;
+  autoscroll: boolean = true;
 
   constructor() { }
 

@@ -1,9 +1,46 @@
+.divChat{
+  height: calc(100vh - 160px);
+  display: block;
+  overflow-y: auto;
+}
+
+.line-section {
+  align-content: center;
+  align-items: center;
+}
+
 table {
-  border-collapse: collapse;
+  width: 100%;
+  line-height: 1.2;
 }
 
 table, td, tr, th {
-  border: 1px solid black;
+  border: 1px solid black !important;
+}
+
+tr {
+  height: 20px !important;
+}
+
+td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+td.chatText {
+  white-space: normal;
+}
+
+td, th {
+  padding-left: .5em !important;
+  padding-right: .5em !important;
+}
+
+th {
+  background-color: whitesmoke;
+  border: 1px solid black !important;
+  border-top: 1px solid black !important;
+  border-bottom: 1px solid black !important;
 }
 
 tr.Y {
@@ -22,24 +59,3 @@ tr.CB {
   background-color: aqua;
 }
 
-td {
-  vertical-align: top;
-  white-space: nowrap;
-}
-
-td.chatText {
-  white-space: normal;
-}
-
-td, th {
-  padding-left: .2em;
-  padding-right: .2em;
-}
-
-th {
-  background-color: whitesmoke;
-}
-
-.chatText {
-  width: 100%;
-}

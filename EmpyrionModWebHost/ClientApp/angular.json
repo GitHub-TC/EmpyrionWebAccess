@@ -23,7 +23,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
-              "src/empyrion.ico",
+              "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
@@ -87,7 +87,7 @@
             ],
             "scripts": [],
             "assets": [
-              "src/empyrion.ico",
+              "src/favicon.ico",
               "src/assets"
             ]
           }

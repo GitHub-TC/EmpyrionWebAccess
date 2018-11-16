@@ -1,19 +1,66 @@
-<div>
-  <table>
-    <thead>
-      <tr>
-        <th>R</th>
-        <th>Date</th>
-        <th>Fac.</th>
-        <th>Name</th>
-        <th class="chatText">Text</th>
-      </tr>
-    </thead>
-    <tr *ngFor="let m of messages" [ngClass]="getLineClass(m)"><td>{{m.type}}</td><td nowrap="nowrap">{{m.timestamp}}</td><td>{{m.faction}}</td><td>{{m.playerName}}</td><td class="chatText">{{m.message}}</td></tr>
-  </table>
-</div>
-<div style="float: right">
-  <input type="text" style="width:20em" [(ngModel)]="message">
-  <button (click)="send()">Send</button>
-</div>
+<div class="container">
+  <div class="row align-items-start">
+    <div class="col">
+      head
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="divChat mat-elevation-z8">
+        <table mat-table [dataSource]="messages">
 
+          <!-- Position Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef> R </th>
+            <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.timestamp}} </td>
+          </ng-container>
+
+          <!-- Weight Column -->
+          <ng-container matColumnDef="faction">
+            <th mat-header-cell *matHeaderCellDef> Fac. </th>
+            <td mat-cell *matCellDef="let element"> {{element.faction}} </td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="playerName">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.playerName}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef> Text </th>
+            <td mat-cell class="chatText" *matCellDef="let element"> {{element.message}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="getLineClass(row)"></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-end">
+    <div class="col" style="padding-top:.5em">
+      <mat-card>
+        <mat-card-content>
+          <section class="line-section">
+            <mat-checkbox [(ngModel)]="chatToAll" style="float:left;">Chat to all</mat-checkbox>
+            <mat-checkbox [(ngModel)]="autoscroll" style="float:right;">Autoscroll</mat-checkbox>
+          </section>
+          <section class="line-section">
+            <mat-form-field style="width:100%">
+              <input matInput [(ngModel)]="message" #messageinput maxlength="256" placeholder="Message">
+              <mat-hint align="start"><strong>Chat to: {{chatTarget}}</strong> </mat-hint>
+              <mat-hint align="end">{{messageinput.value.length}}</mat-hint>
+            </mat-form-field>
+          </section>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
