@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 
 import { ChatModel } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
+import { MatTable } from '@angular/material';
 
 @Component({
   selector: 'app-chat-list',
@@ -10,6 +11,8 @@ import { ChatService } from '../services/chat.service'
   styleUrls: ['./chat-list.component.less'],
 })
 export class ChatListComponent implements OnInit {
+  @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
+
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
   messages: ChatModel[];
 
@@ -22,6 +25,8 @@ export class ChatListComponent implements OnInit {
   ngOnInit() {
     this.mChatService.GetMessages().subscribe(messages => {
       this.messages = messages;
+
+      if(this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
     });
   }
 
