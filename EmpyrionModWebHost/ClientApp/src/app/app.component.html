@@ -11,12 +11,12 @@
         </div>
         <div class="row align-items-center">
           <div class="col">
-            <app-chat-list></app-chat-list>
+            <app-chat-list #chatList></app-chat-list>
           </div>
         </div>
         <div class="row align-items-end">
           <div class="col" style="padding-top:.5em">
-            <app-chat></app-chat>
+            <app-chat [chatList]="chatList"></app-chat>
           </div>
         </div>
       </div>

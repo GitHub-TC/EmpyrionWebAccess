@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { ChatModel } from '../model/chat-model'
-import { CHAT } from '../model/chat-mock';
+
+import { ChatService } from '../services/chat.service'
+import { ChatListComponent } from '../chat-list/chat-list.component';
 
 @Component({
   selector: 'app-chat',
@@ -10,36 +11,20 @@ import { CHAT } from '../model/chat-mock';
   styleUrls: ['./chat.component.less']
 })
 export class ChatComponent implements OnInit {
-  public hubConnection: HubConnection;
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
-  messages: ChatModel[] = [];
-  message: string;
+  message: string = "";
   chatTarget: string = "All";
   chatToAll: boolean = true;
-  autoscroll: boolean = true;
+  @Input() chatList: ChatListComponent;
 
-  constructor() { }
+  constructor(private mChatService: ChatService) { }
 
   ngOnInit() {
-    this.messages = CHAT;
-
-    let builder = new HubConnectionBuilder();
-
-    // as per setup in the startup.cs
-    this.hubConnection = builder.withUrl('/hubs/chat').build();
-
-    // message coming from the server
-    this.hubConnection.on("Send", (message) => {
-      this.messages.push(JSON.parse(message));
-    });
-
-    // starting the connection
-    this.hubConnection.start();
   }
 
-  send() {
-    this.hubConnection.invoke("SendMessage", "x", this.message);
+  SendMessage() {
+    this.mChatService.SendMessage(this.message);
     this.message = "";
   }
 

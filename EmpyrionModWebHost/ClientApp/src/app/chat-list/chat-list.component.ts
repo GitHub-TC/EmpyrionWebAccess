@@ -1,26 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { ChatModel } from '../model/chat-model'
-import { CHAT } from '../model/chat-mock';
+
+import { ChatService } from '../services/chat.service'
 
 @Component({
   selector: 'app-chat-list',
   templateUrl: './chat-list.component.html',
-  styleUrls: ['./chat-list.component.less']
+  styleUrls: ['./chat-list.component.less'],
 })
 export class ChatListComponent implements OnInit {
-
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
+  messages: ChatModel[];
 
-  messages: ChatModel[] = [];
   message: string;
   autoscroll: boolean = true;
 
-  constructor() { }
+  constructor(private mChatService: ChatService) {
+  }
 
   ngOnInit() {
-    this.messages = CHAT;
-
+    this.mChatService.GetMessages().subscribe(messages => {
+      this.messages = messages;
+    });
   }
 
   getLineClass(aMsg: ChatModel) {
