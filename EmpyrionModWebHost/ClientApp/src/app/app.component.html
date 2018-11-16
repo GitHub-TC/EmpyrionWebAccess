@@ -2,6 +2,24 @@
   <div class="row">
     <div class="col-4"><app-player></app-player></div>
     <div class="col"><app-active-playfields></app-active-playfields></div>
-    <div class="col-5"><app-systeminfo></app-systeminfo><app-chat></app-chat></div>
+    <div class="col-5" style="padding-right:0px">
+      <div class="container">
+        <div class="row align-items-start">
+          <div class="col">
+            <app-systeminfo></app-systeminfo>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col">
+            <app-chat-list></app-chat-list>
+          </div>
+        </div>
+        <div class="row align-items-end">
+          <div class="col" style="padding-top:.5em">
+            <app-chat></app-chat>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

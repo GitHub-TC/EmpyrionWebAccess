@@ -11,6 +11,7 @@ import { ChatComponent } from './chat/chat.component';
 import { ActivePlayfieldsComponent } from './active-playfields/active-playfields.component';
 import { PlayerComponent } from './player/player.component';
 import { SysteminfoComponent } from './systeminfo/systeminfo.component';
+import { ChatListComponent } from './chat-list/chat-list.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { SysteminfoComponent } from './systeminfo/systeminfo.component';
     ChatComponent,
     ActivePlayfieldsComponent,
     PlayerComponent,
-    SysteminfoComponent
+    SysteminfoComponent,
+    ChatListComponent
   ],
   imports: [
     BrowserModule,
