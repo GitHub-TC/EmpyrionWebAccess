@@ -14,6 +14,7 @@ export class PlayerService {
 
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(PLAYER);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();
+  mCurrentPlayer: PlayerModel;
 
   constructor() {
     let builder = new HubConnectionBuilder();
@@ -34,4 +35,15 @@ export class PlayerService {
     return this.playersObservable;
   }
 
+  GetPlayer(aSelect: (PlayerModel) => boolean) {
+    return this.players.getValue().find(aSelect);
+  }
+
+  get CurrentPlayer() {
+    return this.mCurrentPlayer;
+  }
+
+  set CurrentPlayer(aPlayer: PlayerModel) {
+    this.mCurrentPlayer = aPlayer;
+  }
 }

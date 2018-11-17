@@ -4,6 +4,7 @@ import { ChatModel } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
 import { MatTable } from '@angular/material';
+import { PlayerService } from '../services/player.service';
 
 @Component({
   selector: 'app-chat-list',
@@ -19,7 +20,7 @@ export class ChatListComponent implements OnInit {
   message: string;
   autoscroll: boolean = true;
 
-  constructor(private mChatService: ChatService) {
+  constructor(private mChatService: ChatService, private mPlayerService: PlayerService) {
   }
 
   ngOnInit() {
@@ -28,6 +29,10 @@ export class ChatListComponent implements OnInit {
 
       if(this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
     });
+  }
+
+  ChatTo(aMsg: ChatModel) {
+    this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.playerName == aMsg.playerName));
   }
 
   getLineClass(aMsg: ChatModel) {

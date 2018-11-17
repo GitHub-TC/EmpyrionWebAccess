@@ -1,9 +1,13 @@
-import { ItemStackModel } from "./itemstack-model";
-
 export class PVector3 {
   x: number;
   y: number;
   z: number;
+}
+
+export class PositionModel {
+  playfield?: string;
+  pos?: PVector3;
+  rot?: PVector3;
 }
 
 export class PlayerModel {
@@ -17,15 +21,11 @@ export class PlayerModel {
   died?: number;
   credits?: number;
   foodMax?: number;
-  toolbar?: ItemStackModel[];
   exp?: number;
   upgrade?: number;
   bpRemainingTime?: number;
-  bpResourcesInFactory?: number[][];
   bpInFactory?: string;
-  producedPrefabs?: string[];
   ping?: number;
-  bag?: ItemStackModel[];
   permission?: number;
   food?: number;
   stamina?: number;

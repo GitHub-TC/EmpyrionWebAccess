@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatNativeDateModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -34,6 +35,7 @@ import { FactionPipe } from './pipes/faction.pipe';
     NgbModule,
     MaterialModule,
     MatNativeDateModule,
+    BrowserAnimationsModule,
     AppRoutingModule
   ],
   providers: [],

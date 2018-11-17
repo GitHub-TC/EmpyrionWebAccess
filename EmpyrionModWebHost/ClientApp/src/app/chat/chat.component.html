@@ -1,13 +1,13 @@
 <mat-card>
   <mat-card-content>
     <section class="line-section">
-      <mat-checkbox [(ngModel)]="chatToAll" style="float:left;">Chat to all</mat-checkbox>
+      <mat-checkbox [(ngModel)]="ChatService.ChatToAll" style="float:left;">Chat to all</mat-checkbox>
       <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;">Autoscroll</mat-checkbox>
     </section>
     <section class="line-section">
       <mat-form-field style="width:100%">
         <input matInput [(ngModel)]="message" maxlength="256" placeholder="Message" (keyup.enter)="SendMessage()" >
-        <mat-hint align="start"><strong>Chat to: {{chatTarget}}</strong> </mat-hint>
+        <mat-hint align="start"><strong>Chat to: {{ChatService.ChatTarget}}</strong> </mat-hint>
         <mat-hint align="end">{{message.length}}</mat-hint>
       </mat-form-field>
     </section>

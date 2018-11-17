@@ -4,6 +4,8 @@ import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
 import { ChatModel } from '../model/chat-model'
 import { CHAT } from '../model/chat-mock';
+import { Player } from '@angular/core/src/render3/interfaces/player';
+import { PlayerModel } from '../model/player-model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +15,8 @@ export class ChatService {
 
   private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(CHAT);
   public readonly messagesObservable: Observable<ChatModel[]> = this.messages.asObservable();
+
+  private mChatToPlayer: PlayerModel;
 
   constructor() {
     let builder = new HubConnectionBuilder();
@@ -31,6 +35,22 @@ export class ChatService {
 
   GetMessages(): Observable<ChatModel[]> {
     return this.messagesObservable;
+  }
+
+  ChatToPlayer(aPlayer: PlayerModel) {
+    this.mChatToPlayer = aPlayer;
+  }
+
+  get ChatTarget() {
+    return this.mChatToPlayer ? "@" + this.mChatToPlayer.playerName : "All";
+  }
+
+  get ChatToAll() {
+    return !this.mChatToPlayer;
+  }
+
+  set ChatToAll(aToAll: boolean) {
+    this.mChatToPlayer = null;
   }
 
   SendMessage(aMessage: string): void {

@@ -10,7 +10,8 @@ export class FactionPipe implements PipeTransform {
   }
 
   transform(value: number, args?: any): any {
-    return this.mFactionService.GetFaction(value)[args ? args : "name"];
+    let fac = this.mFactionService.GetFaction(value);
+    return fac ? fac[args ? args : "name"] : null;
   }
 
 }

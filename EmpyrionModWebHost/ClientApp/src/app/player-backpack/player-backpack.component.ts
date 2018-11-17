@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ItemStackModel } from '../model/itemstack-model';
-import { ITEMS } from '../model/itemstack-mock';
+import { Component, OnInit, Input } from '@angular/core';
+
+import { BackpackModel, EmptyBackpack } from '../model/backpack-model';
+
+import { BackpackService } from '../services/backpack.service';
 
 @Component({
   selector: 'app-player-backpack',
@@ -8,11 +10,17 @@ import { ITEMS } from '../model/itemstack-mock';
   styleUrls: ['./player-backpack.component.less']
 })
 export class PlayerBackpackComponent implements OnInit {
-  Items: ItemStackModel[] = ITEMS;
+  backpack: BackpackModel = EmptyBackpack;
 
-  constructor() { }
+  constructor(private mBackpackService: BackpackService) { }
 
   ngOnInit() {
+  }
+
+  @Input() set EntityPlayerId(aEntityPlayerId: number) {
+    console.log(aEntityPlayerId);
+    this.backpack = this.mBackpackService.GetBackpack(aEntityPlayerId);
+    if (!this.backpack) this.backpack = EmptyBackpack;
   }
 
 }

@@ -18,13 +18,13 @@ export class ChatComponent implements OnInit {
   chatToAll: boolean = true;
   @Input() chatList: ChatListComponent;
 
-  constructor(private mChatService: ChatService) { }
+  constructor(public ChatService: ChatService) { }
 
   ngOnInit() {
   }
 
   SendMessage() {
-    this.mChatService.SendMessage(this.message);
+    this.ChatService.SendMessage(this.message);
     this.message = "";
   }
 

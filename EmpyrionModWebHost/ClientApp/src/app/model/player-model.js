@@ -6,6 +6,12 @@ var PVector3 = /** @class */ (function () {
     return PVector3;
 }());
 exports.PVector3 = PVector3;
+var PositionModel = /** @class */ (function () {
+    function PositionModel() {
+    }
+    return PositionModel;
+}());
+exports.PositionModel = PositionModel;
 var PlayerModel = /** @class */ (function () {
     function PlayerModel() {
     }

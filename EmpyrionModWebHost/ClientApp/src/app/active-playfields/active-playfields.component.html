@@ -1,3 +1,23 @@
-<p>
-  active-playfields works!
-</p>
+<mat-expansion-panel class="activePlayfield"
+                      *ngFor="let playfield of playfields"
+                      [expanded]="!IsClosed(playfield.name)"
+                      (opened)="Open(playfield.name)"
+                      (closed)="Close(playfield.name)">
+  <mat-expansion-panel-header style="margin-top:0px; padding-left:5px; padding-right:10px; background-color:ghostwhite;" [collapsedHeight]="'40px'" [expandedHeight]="'40px'" >
+    <mat-panel-title>
+      {{playfield.name}}
+    </mat-panel-title>
+    <mat-panel-description>
+      ({{playfield.players.length}})
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+  <div class="activePlayer" *ngFor="let player of playfield.players">
+    <div style="position: absolute; left:5px; width:3em; overflow:hidden">({{player.factionId | faction: "abbrev"}})</div>
+    <div style="position: absolute; left:3.5em">{{player.playerName}}</div>
+    <div style="position: absolute; right:0px">
+      <mat-icon style="font-size:medium; cursor: pointer;" (click)="SavePosition(player)" title="Save position of {{player.playerName}}">flag</mat-icon>
+      <mat-icon style="font-size:medium; cursor: pointer;" (click)="ChatTo(player)" title="Chat to {{player.playerName}}">chat</mat-icon>
+    </div>
+    <br />
+  </div>
+</mat-expansion-panel>

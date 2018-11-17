@@ -1,6 +1,9 @@
-<div class="Item" *ngFor="let i of Items">
-  <div class="image">
-    <img src="../../assets/Items/{{i.id}}.png" />
+<div class="BackPack">
+  <div class="Item" *ngFor="let i of backpack.backpack">
+    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" />
+    <div class="counts">
+      <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
+      {{i.count}}
+    </div>
   </div>
-  <div class="counts">{{i.count}}</div>
 </div>

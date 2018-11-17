@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { PlayerService } from '../services/player.service';
 
@@ -10,7 +10,7 @@ import { PlayerModel } from '../model/player-model';
   styleUrls: ['./player-list.component.less']
 })
 export class PlayerListComponent implements OnInit {
-  displayedColumns = ['online', 'playerName', 'origin', 'faction', 'playfield', 'posX', 'posY', 'posZ', 'entityId', 'steamId'];
+  displayedColumns = ['online', 'playerName', 'origin', 'faction', 'playfield', 'pos', 'entityId', 'steamId'];
   players: PlayerModel[];
 
   message: string;
@@ -23,6 +23,18 @@ export class PlayerListComponent implements OnInit {
     this.mPlayerService.GetPlayers().subscribe(players => {
       this.players = players;
     });
+  }
+
+  get CurrentPlayerId() {
+    return this.mPlayerService.CurrentPlayer ? this.mPlayerService.CurrentPlayer.entityId : 0;
+  }
+
+  get CurrentPlayer() {
+    return this.mPlayerService.CurrentPlayer;
+  }
+
+  @Input() set CurrentPlayer(aPlayer: PlayerModel) {
+    this.mPlayerService.CurrentPlayer = aPlayer;
   }
 
 }
