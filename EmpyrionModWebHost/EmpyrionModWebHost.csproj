@@ -14,9 +14,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Composition" Version="1.0.31" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
@@ -36,6 +40,7 @@
     <None Remove="ClientApp\src\app\model\faction-model.ts" />
     <None Remove="ClientApp\src\app\model\itemstack-mock.ts" />
     <None Remove="ClientApp\src\app\model\itemstack-model.ts" />
+    <None Remove="ClientApp\src\app\model\ODataResponse.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
   </ItemGroup>
@@ -67,6 +72,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\activeplayfield-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\ODataResponse.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-model.ts" />
   </ItemGroup>

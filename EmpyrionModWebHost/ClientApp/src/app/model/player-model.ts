@@ -46,4 +46,10 @@ export class PlayerModel {
   oxygen?: number;
   oxygenMax?: number;
   origin?: number;
+  posX?: number;
+  posY?: number;
+  posZ?: number;
+  rotX?: number;
+  rotY?: number;
+  rotZ?: number;
 }

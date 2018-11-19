@@ -1,8 +1,8 @@
 import { ItemStackModel } from "./itemstack-model";
 
 export class BackpackModel {
-  entityPlayerId: number;
-  backpack: ItemStackModel[];
+  steamId?: string;
+  backpack?: ItemStackModel[];
 }
 
-export const EmptyBackpack: BackpackModel = { entityPlayerId: 43, backpack: [] };
+export const EmptyBackpack: BackpackModel = { steamId: "ST42", backpack: [] };

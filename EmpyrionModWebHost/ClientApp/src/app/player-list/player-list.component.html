@@ -29,7 +29,7 @@
 
     <ng-container matColumnDef="pos">
       <th mat-header-cell *matHeaderCellDef> Position </th>
-      <td mat-cell *matCellDef="let element"><mat-icon style="font-size:medium; cursor: pointer;">flag</mat-icon> E/W:{{element.pos?.x}} H:{{element.pos?.y}} N/S:{{element.pos?.z}} </td>
+      <td mat-cell *matCellDef="let element"><mat-icon style="font-size:medium; cursor: pointer;">flag</mat-icon> E/W:{{element.posX}} H:{{element.posY}} N/S:{{element.posZ}} </td>
     </ng-container>
 
     <ng-container matColumnDef="entityId">
@@ -44,7 +44,7 @@
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-        [ngClass]="{'highlight': mPlayerService.CurrentPlayer == row}"
+        [ngClass]="{'highlight': mPlayerService.CurrentPlayer?.steamId == row.steamId}"
         (click)="mPlayerService.CurrentPlayer = row"></tr>
   </table>
 </div>

@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
@@ -37,7 +34,6 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-//    [Export(typeof(IEWAPlugin))]
     public class ChatManager : EmpyrionModBase, IEWAPlugin
     {
         public ModGameAPI GameAPI { get; private set; }

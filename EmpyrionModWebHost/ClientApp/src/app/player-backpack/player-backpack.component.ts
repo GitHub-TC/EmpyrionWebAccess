@@ -17,10 +17,11 @@ export class PlayerBackpackComponent implements OnInit {
   ngOnInit() {
   }
 
-  @Input() set EntityPlayerId(aEntityPlayerId: number) {
-    console.log(aEntityPlayerId);
-    this.backpack = this.mBackpackService.GetBackpack(aEntityPlayerId);
-    if (!this.backpack) this.backpack = EmptyBackpack;
+  @Input() set PlayerSteamId(aPlayerSteamId: string) {
+    console.log(aPlayerSteamId);
+    this.backpack = EmptyBackpack;
+    this.backpack.steamId = aPlayerSteamId;
+    this.mBackpackService.GetBackpack(aPlayerSteamId).subscribe(B => this.backpack = B);
   }
 
 }

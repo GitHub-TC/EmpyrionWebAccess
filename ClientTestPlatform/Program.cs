@@ -24,22 +24,29 @@ namespace ClientTestPlatform
 
             Client.InServer.Callback = Msg => { if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg); };
 
+            var R = new Random();
+
             while (Console.ReadKey().KeyChar == ' ')
             {
-                Client.Game_Event(Eleon.Modding.CmdId.Event_ChatMessage, 1,
-                    new ChatInfo() { playerId=42, type=1, msg = "abc" });
+                //Client.Game_Event(Eleon.Modding.CmdId.Event_ChatMessage, 1,
+                //    new ChatInfo() { playerId=42, type=1, msg = "abc" });
 
                 Client.Game_Event(Eleon.Modding.CmdId.Event_Player_Info, 1, 
-                    new PlayerInfo() { playerName = "abc" });
-                Client.Game_Event(Eleon.Modding.CmdId.Event_AlliancesAll, 1, 
-                    new Eleon.Modding.AlliancesTable() { alliances = new HashSet<int>(new[] { 1, 3, 4 } )  });
+                    new PlayerInfo() { entityId=42, steamId="123abc",
+                        playerName = "abc" + R.Next().ToString(),
+                        pos = new PVector3(R.Next(), R.Next(), R.Next()),
+                        toolbar = new [] { new ItemStack(1000 + R.Next(1,1000), R.Next(1, 1000)) },
+                        bag = new[] { new ItemStack(1000 + R.Next(1, 1000), R.Next(1, 1000)) },
+                    });
+                //Client.Game_Event(Eleon.Modding.CmdId.Event_AlliancesAll, 1, 
+                //    new Eleon.Modding.AlliancesTable() { alliances = new HashSet<int>(new[] { 1, 3, 4 } )  });
 
-                var GSL = new Eleon.Modding.GlobalStructureList();
-                var GS = GSL.globalStructures = new Dictionary<string, List<GlobalStructureInfo>>();
-                GS.Add("a", new List<GlobalStructureInfo>(
-                            new[] { new GlobalStructureInfo() { id = 1, name = "S1" } }
-                            ));
-                Client.Game_Event(Eleon.Modding.CmdId.Event_GlobalStructure_List, 1, GSL);
+                //var GSL = new Eleon.Modding.GlobalStructureList();
+                //var GS = GSL.globalStructures = new Dictionary<string, List<GlobalStructureInfo>>();
+                //GS.Add("a", new List<GlobalStructureInfo>(
+                //            new[] { new GlobalStructureInfo() { id = 1, name = "S1" } }
+                //            ));
+                //Client.Game_Event(Eleon.Modding.CmdId.Event_GlobalStructure_List, 1, GSL);
                 Client.Game_Update();
             }
 

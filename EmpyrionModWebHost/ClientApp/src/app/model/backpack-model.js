@@ -6,5 +6,5 @@ var BackpackModel = /** @class */ (function () {
     return BackpackModel;
 }());
 exports.BackpackModel = BackpackModel;
-exports.EmptyBackpack = { entityPlayerId: 43, backpack: [] };
+exports.EmptyBackpack = { steamId: "ST42", backpack: [] };
 //# sourceMappingURL=backpack-model.js.map

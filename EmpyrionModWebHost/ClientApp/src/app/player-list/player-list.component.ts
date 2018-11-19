@@ -25,8 +25,8 @@ export class PlayerListComponent implements OnInit {
     });
   }
 
-  get CurrentPlayerId() {
-    return this.mPlayerService.CurrentPlayer ? this.mPlayerService.CurrentPlayer.entityId : 0;
+  get CurrentPlayerSteamId() {
+    return this.mPlayerService.CurrentPlayer ? this.mPlayerService.CurrentPlayer.steamId : 0;
   }
 
   get CurrentPlayer() {

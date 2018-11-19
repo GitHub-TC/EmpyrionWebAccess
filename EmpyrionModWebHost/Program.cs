@@ -1,16 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Composition.Convention;
-using System.Composition.Hosting;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using Eleon.Modding;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost
 {
@@ -23,7 +14,6 @@ namespace EmpyrionModWebHost
     public class Program
     {
         public static ModHostDLL Host { get; set; }
-        public static CompositionHost CompositionContainer { get; private set; }
 
         public static T GetManager<T>() where T : class
         {
@@ -43,19 +33,5 @@ namespace EmpyrionModWebHost
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
-
-        private static void Compose()
-        {
-            var rules = new ConventionBuilder();
-            rules.ForTypesDerivedFrom<ModHostDLL>()
-                .Export<ModHostDLL>()
-                .Shared();
-
-            var configuration = new ContainerConfiguration()
-                .WithAssemblies(new[] { Assembly.GetExecutingAssembly() }, rules);
-            CompositionContainer = configuration.CreateContainer();
-
-            //Host = CompositionContainer.GetExport<ModHostDLL>();
-        }
     }
 }

@@ -6,4 +6,4 @@ var FactionModel = /** @class */ (function () {
     return FactionModel;
 }());
 exports.FactionModel = FactionModel;
-//# sourceMappingURL=fraction-model.js.map
+//# sourceMappingURL=faction-model.js.map
