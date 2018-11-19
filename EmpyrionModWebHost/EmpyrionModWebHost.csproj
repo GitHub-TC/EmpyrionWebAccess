@@ -77,18 +77,6 @@
     <TypeScriptCompile Include="ClientApp\src\app\model\player-model.ts" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ClientApp\src\app\model\itemstack-mock.js">
-      <DependentUpon>itemstack-mock.ts</DependentUpon>
-    </None>
-    <None Update="ClientApp\src\app\model\faction-mock.js">
-      <DependentUpon>faction-mock.ts</DependentUpon>
-    </None>
-    <None Update="ClientApp\src\app\model\faction-mock.js.map">
-      <DependentUpon>faction-mock.js</DependentUpon>
-    </None>
-  </ItemGroup>
-
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
