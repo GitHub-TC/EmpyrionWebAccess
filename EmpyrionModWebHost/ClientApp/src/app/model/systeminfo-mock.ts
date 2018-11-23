@@ -3,6 +3,7 @@ import { SystemInfoModel } from "./systeminfo-model";
 export const SYSTEMINFO: SystemInfoModel = {
   online: true,
   version: "0.0.1",
+  versionESG: "8.3.1",
   activePlayers: 2,
   activePlayfields: 1,
   diskFreeSpace: 5.324 * 1024 * 1024 * 1024,

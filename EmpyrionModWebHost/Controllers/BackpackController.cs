@@ -7,6 +7,7 @@ using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -15,6 +16,7 @@ using Newtonsoft.Json;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    [Authorize]
     public class BackpackHub : Hub
     {
         private BackpackManager BackpackManager { get; set; }
@@ -87,6 +89,7 @@ namespace EmpyrionModWebHost.Controllers
         public IHubContext<BackpackHub> BackpackHub { get; internal set; }
     }
 
+    [Authorize]
     public class BackpacksController : ODataController
     {
         private BackpackContext _db;

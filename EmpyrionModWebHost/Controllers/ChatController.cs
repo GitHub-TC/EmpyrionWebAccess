@@ -3,6 +3,7 @@ using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
@@ -21,6 +22,7 @@ namespace EmpyrionModWebHost.Controllers
     }
 
 
+    [Authorize]
     public class ChatHub : Hub
     {
         private ChatManager ChatManager { get; set; }
@@ -99,6 +101,7 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
+    [Authorize]
     public class ChatsController: ODataController
     {
         public ChatContext DB { get; }

@@ -1,11 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // <-- NgModel lives here
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatNativeDateModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,9 +18,17 @@ import { PlayerDetailsComponent } from './player-details/player-details.componen
 import { PlayerListComponent } from './player-list/player-list.component';
 import { FactionPipe } from './pipes/faction.pipe';
 
+import { JwtInterceptor, ErrorInterceptor, fakeBackendProvider } from './_helpers';
+import { HomeComponent } from './home';
+import { LoginComponent } from './login';
+import { TokenInterceptor } from './_helpers/TokenInterceptor';
+
+
 @NgModule({
   declarations: [
     AppComponent,
+    HomeComponent,
+    LoginComponent,
     ChatComponent,
     ActivePlayfieldsComponent,
     SysteminfoComponent,
@@ -33,6 +41,7 @@ import { FactionPipe } from './pipes/faction.pipe';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     NgbModule,
     MaterialModule,
     MatNativeDateModule,
@@ -40,7 +49,13 @@ import { FactionPipe } from './pipes/faction.pipe';
     BrowserAnimationsModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    // provider used to create fake backend
+    fakeBackendProvider
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -3,6 +3,7 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System;
@@ -18,7 +19,9 @@ namespace EmpyrionModWebHost.Controllers
     public class SysteminfoDataModel
     {
         public bool online;
+        public string copyright;
         public string version;
+        public string versionESG;
         public int activePlayers;
         public int activePlayfields;
         public int totalPlayfieldserver;
@@ -32,6 +35,7 @@ namespace EmpyrionModWebHost.Controllers
     }
 
 
+    [Authorize]
     public class SysteminfoHub : Hub
     {
         private SysteminfoManager SysteminfoManager { get; set; }
@@ -71,7 +75,7 @@ namespace EmpyrionModWebHost.Controllers
 
             PlayerManager = Program.GetManager<PlayerManager>();
 
-            IntervallTask(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait());
+            IntervallTask(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
             IntervallTask(5000, UpdateEmpyrionInfos);
             IntervallTask(5000, UpdateComputerInfos);
             IntervallTask(2000, UpdatePerformanceInfos);
@@ -106,6 +110,7 @@ namespace EmpyrionModWebHost.Controllers
             if (ToEmpyrion == null) return;
 
             ToEmpyrion.SendMessage(new ClientHostComData() { Command = ClientHostCommand.ProcessInformation });
+            if (ProcessInformation == null) return;
 
             CurrentSysteminfo.activePlayers    = PlayerManager.OnlinePlayersCount;
             var activePlayfields = Request_Playfield_List().Result.playfields;
@@ -125,7 +130,9 @@ namespace EmpyrionModWebHost.Controllers
             var CurrentAssembly = Assembly.GetAssembly(this.GetType());
 
             CurrentSysteminfo.serverName = EmpyrionConfiguration.DedicatedYaml.ServerName;
-            CurrentSysteminfo.version = $"{CurrentAssembly.GetAttribute<AssemblyTitleAttribute>()?.Title} by {CurrentAssembly.GetAttribute<AssemblyCompanyAttribute>()?.Company} Version:{CurrentAssembly.GetAttribute<AssemblyFileVersionAttribute>()?.Version}";
+            CurrentSysteminfo.version = CurrentAssembly.GetAttribute<AssemblyFileVersionAttribute>()?.Version;
+            CurrentSysteminfo.versionESG = EmpyrionConfiguration.Version;
+            CurrentSysteminfo.copyright = CurrentAssembly.GetAttribute<AssemblyCopyrightAttribute>()?.Copyright;
         }
 
         private void IntervallTask(int aIntervall, Action aAction)
@@ -158,6 +165,7 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
+    [Authorize]
     public class SysteminfoController : ODataController
     {
         public IHubContext<SysteminfoHub> SysteminfoHub { get; }

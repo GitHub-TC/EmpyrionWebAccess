@@ -2,7 +2,7 @@
   <mat-card-content>
     <section class="line-section">
       <mat-checkbox [(ngModel)]="ChatService.ChatToAll" (disabled)="ChatService.ChatToAll" style="float:left;">Chat to all</mat-checkbox>
-      <mat-checkbox [(ngModel)]="chatAsUser" style="float:left;padding-left:1em">Chat as {{SessionService.CurrentSession.name}}</mat-checkbox>
+      <mat-checkbox [(ngModel)]="chatAsUser" style="float:left;padding-left:1em">Chat as {{currentUser.username}}</mat-checkbox>
       <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;">Autoscroll</mat-checkbox>
     </section>
     <section class="line-section">

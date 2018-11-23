@@ -1,0 +1,44 @@
+<div class="container-fluid" style="padding-top:5px">
+  <div class="row">
+    <div class="col-5" style="padding-left:0px; padding-right:0px">
+      <div class="container">
+        <div class="row align-items-start">
+          <div class="col" style="padding-left:2px; padding-right:2px;">
+            <app-player-list #playerlist></app-player-list>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col">
+          </div>
+        </div>
+        <div class="row align-items-end">
+          <div class="col" style="padding-top:.5em; background-color: black;padding-left:2px; padding-right:2px;">
+            <app-player-backpack [PlayerSteamId]="playerlist.CurrentPlayerSteamId"></app-player-backpack>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="padding-right:0px; padding-left:0px">
+      <app-active-playfields [(CurrentPlayer)]="playerlist.CurrentPlayer"></app-active-playfields>
+    </div>
+    <div class="col-5" style="padding-left:0px; padding-right:0px">
+      <div class="container">
+        <div class="row align-items-start" style="padding-bottom:5px">
+          <div class="col">
+            <app-systeminfo></app-systeminfo>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col">
+            <app-chat-list #chatList></app-chat-list>
+          </div>
+        </div>
+        <div class="row align-items-end">
+          <div class="col" style="padding-top:5px">
+            <app-chat [chatList]="chatList"></app-chat>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

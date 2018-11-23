@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    [Authorize]
     public class PlayerHub : Hub
     {
         private PlayerManager PlayerManager { get; set; }
@@ -140,6 +142,7 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
+    [Authorize]
     public class PlayersController : ODataController
     {
         public PlayerManager PlayerManager { get; }

@@ -2,6 +2,7 @@
 export class SystemInfoModel {
   online?: boolean;
   version?: string;
+  versionESG?: string;
   activePlayers?: number;
   activePlayfields?: number;
   totalPlayfieldserver?: number;

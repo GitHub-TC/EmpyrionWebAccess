@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { FactionModel } from '../model/faction-model';
 import { FACTION } from '../model/faction-mock';
+import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,10 @@ export class FactionService {
 
   private factions: BehaviorSubject<FactionModel[]> = new BehaviorSubject(FACTION);
   public readonly factionsObservable: Observable<FactionModel[]> = this.factions.asObservable();
+    error: any;
 
-  constructor() {
-    let builder = new HubConnectionBuilder();
-
-    // as per setup in the startup.cs
-    this.hubConnection = builder.withUrl('/hubs/faction').build();
+  constructor(private builder: AuthHubConnectionBuilder) {
+    this.hubConnection = builder.withAuthUrl('/hubs/faction').build();
 
     // message coming from the server
     this.hubConnection.on("FactionUpdate", (message) => {
@@ -26,7 +25,11 @@ export class FactionService {
     });
 
     // starting the connection
-    this.hubConnection.start();
+    try {
+      this.hubConnection.start();
+    } catch (Error) {
+      this.error = Error;
+    }
   }
 
   GetFaction(aId: number): FactionModel {

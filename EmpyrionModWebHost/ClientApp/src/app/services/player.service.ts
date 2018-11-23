@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
-import 'rxjs/add/operator/map';
+import { map } from 'rxjs/operators'
 
 import { PlayerModel } from '../model/player-model';
 
 import { PLAYER } from '../model/player-mock';
+import { AuthenticationService } from '../_services';
+import { User } from '../_models';
+import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 @Injectable({
   providedIn: 'root'
@@ -19,19 +22,21 @@ export class PlayerService {
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(this.mPlayers);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();
   mCurrentPlayer: PlayerModel;
+  error: any;
 
-  constructor(private http: HttpClient) {
-    let builder = new HubConnectionBuilder();
-
-    // as per setup in the startup.cs
-    this.hubConnection = builder.withUrl('/hubs/player').build();
+  constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
+    this.hubConnection = builder.withAuthUrl('/hubs/player').build();
 
     // message coming from the server
     this.hubConnection.on("UpdatePlayer",  D => this.UpdatePlayersData([JSON.parse(D)]));
     this.hubConnection.on("UpdatePlayers", D => this.UpdatePlayersData( JSON.parse(D)));
 
     // starting the connection
-    this.hubConnection.start();
+    try {
+      this.hubConnection.start();
+    } catch (Error) {
+      this.error = Error;
+    }
   }
 
   private UpdatePlayersData(players: PlayerModel[]) {
@@ -52,9 +57,12 @@ export class PlayerService {
 
   GetPlayers(): Observable<PlayerModel[]> {
     this.http.get<ODataResponse<PlayerModel[]>>("odata/Players")
-      .map(S => S.value)
-      .subscribe(P => this.players.next(this.mPlayers = P));
-
+      .pipe(map(S => S.value))
+      .subscribe(
+        P => this.players.next(this.mPlayers = P),
+        error => this.error = error // error path
+      );
+    
     return this.playersObservable;
   }
 

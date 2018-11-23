@@ -10,9 +10,13 @@
 
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    <Authors>ASTIC/TC</Authors>
+    <Company />
+    <Copyright>ASTIC/TC</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
@@ -47,8 +51,6 @@
     <None Remove="ClientApp\src\app\model\ODataResponse.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
-    <None Remove="ClientApp\src\app\model\session-mock.ts" />
-    <None Remove="ClientApp\src\app\model\session-model.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
   </ItemGroup>
@@ -79,9 +81,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-mock.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\model\session-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-model.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\model\session-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-mock.ts" />

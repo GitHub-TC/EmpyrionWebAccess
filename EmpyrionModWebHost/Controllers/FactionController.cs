@@ -1,7 +1,9 @@
 ﻿using Eleon.Modding;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
@@ -11,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    [Authorize]
     public class FactionHub : Hub
     {
         private FactionManager FactionManager { get; set; }
@@ -61,8 +64,8 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Route("api/[controller]")]
-    public class FactionsController
+    [Authorize]
+    public class FactionsController : ODataController
     {
         public IHubContext<FactionHub> FactionHub { get; }
         public FactionManager FactionManager { get; }

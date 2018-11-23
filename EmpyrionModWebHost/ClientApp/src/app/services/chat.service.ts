@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, BehaviorSubject } from 'rxjs';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { map } from 'rxjs/operators'
+import { HubConnection } from '@aspnet/signalr';
 
 import { ChatModel } from '../model/chat-model'
 import { CHAT } from '../model/chat-mock';
-import { Player } from '@angular/core/src/render3/interfaces/player';
 import { PlayerModel } from '../model/player-model';
-import { SessionService } from './session.service';
+import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +21,10 @@ export class ChatService {
   public readonly messagesObservable: Observable<ChatModel[]> = this.messages.asObservable();
 
   private mChatToPlayer: PlayerModel;
+    error: any;
   
-  constructor(private http: HttpClient) {
-    let builder = new HubConnectionBuilder();
-
-    // as per setup in the startup.cs
-    this.hubConnection = builder.withUrl('/hubs/chat').build();
+  constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
+    this.hubConnection = builder.withAuthUrl('/hubs/chat').build();
 
     // message coming from the server
     this.hubConnection.on("Send", (message) => {
@@ -34,13 +32,20 @@ export class ChatService {
     });
 
     // starting the connection
-    this.hubConnection.start();
+    try {
+      this.hubConnection.start();
+    } catch (Error) {
+      this.error = Error;
+    }
   }
 
   GetMessages(): Observable<ChatModel[]> {
     this.http.get<ODataResponse<ChatModel[]>>("odata/Chats")
-      .map(S => S.value)
-      .subscribe(M => this.messages.next(this.mMessages = M));
+      .pipe(map(S => S.value))
+      .subscribe(
+        M => this.messages.next(this.mMessages = M),
+        error => this.error = error // error path
+      );
 
     return this.messagesObservable;
   }

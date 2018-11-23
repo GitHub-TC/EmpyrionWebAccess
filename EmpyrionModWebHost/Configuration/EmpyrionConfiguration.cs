@@ -28,6 +28,23 @@ namespace EmpyrionModWebHost
         }
 
         public static DedicatedYamlStruct DedicatedYaml { get; set; } = new DedicatedYamlStruct(Path.Combine(ProgramPath, DedicatedFilename));
+        public static string Version
+        {
+            get {
+                try
+                {
+                    return File.ReadAllLines(Path.Combine(ProgramPath, "BuildNumber.txt"))
+                        .Skip(1).FirstOrDefault()?
+                        .Replace("\"", "").Replace(";", "")
+                        .Trim();
+                }
+                catch
+                {
+                    return "???";
+                }
+            }
+        }
+
 
         public class DedicatedYamlStruct
         {
