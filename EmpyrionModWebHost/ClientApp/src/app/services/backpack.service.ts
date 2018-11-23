@@ -8,8 +8,8 @@ import { BACKPACKs } from '../model/backpack-mock';
 
 interface BackpackODataModel {
   Id?: string;
-  timestamp?: string;
-  content?: string;
+  Timestamp?: string;
+  Content?: string;
 }
 
 @Injectable({
@@ -38,7 +38,7 @@ export class BackpackService {
 
   private UpdateBackpackData(backpack: BackpackODataModel) {
     if (backpack.Id != this.mBackpack.steamId) return;
-    this.mBackpack.backpack = JSON.parse(backpack.content);
+    this.mBackpack.backpack = JSON.parse(backpack.Content);
     this.backpack.next(this.mBackpack);
   }
 
@@ -46,9 +46,9 @@ export class BackpackService {
     this.mBackpack = { steamId: aPlayerSteamId, backpack: [] };
     this.backpack.next(this.mBackpack);
 
-    this.http.get<BackpackODataModel>("odata/Backpacks('" + aPlayerSteamId + "')")
+    if (aPlayerSteamId) this.http.get<BackpackODataModel>("odata/Backpacks('" + aPlayerSteamId + "')")
       .subscribe(B => {
-        this.mBackpack.backpack = JSON.parse(B.content);
+        this.mBackpack.backpack = JSON.parse(B.Content);
         this.backpack.next(this.mBackpack);
       });
 

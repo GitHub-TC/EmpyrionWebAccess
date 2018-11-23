@@ -50,7 +50,7 @@ export class ChatService {
   }
 
   get ChatTarget() {
-    return this.mChatToPlayer ? "@" + this.mChatToPlayer.playerName : "All";
+    return this.mChatToPlayer ? "@" + this.mChatToPlayer.PlayerName : "All";
   }
 
   get ChatToAll() {
@@ -61,7 +61,10 @@ export class ChatService {
     this.mChatToPlayer = null;
   }
 
-  SendMessage(aAsUser:string, aMessage: string): void {
-    this.hubConnection.invoke("SendMessage", this.ChatToAll ? null : this.ChatTarget, aAsUser, aMessage);
+  SendMessage(aAsUser: string, aMessage: string): void {
+    let chatTarget = null;
+    if (this.mChatToPlayer) chatTarget = "p:" + this.mChatToPlayer.EntityId;
+
+    this.hubConnection.invoke("SendMessage", chatTarget, aAsUser, aMessage);
   }
 }

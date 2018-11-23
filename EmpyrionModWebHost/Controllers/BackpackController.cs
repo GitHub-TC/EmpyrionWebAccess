@@ -40,7 +40,7 @@ namespace EmpyrionModWebHost.Controllers
                 var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
                 var BackpackContent = JsonConvert.SerializeObject(aBackpackInfo);
 
-                if (!IsNewBackpack && Backpack.Content == BackpackContent) return;
+                if (Backpack?.Content == BackpackContent) return;
 
                 if (IsNewBackpack)
                 {

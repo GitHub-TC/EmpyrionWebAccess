@@ -1,25 +1,27 @@
 <mat-card>
   <mat-card-content style="height:80px; margin-top:-18px">
-    <div class="logo">
-      <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
-    </div>
-    <div class="gameinfo">
-      <div class="EWAName">Empyrion Web Access</div>
-      <div class="ServerName">{{CurrentSystemInfo.serverName}}</div>
-      <div>
-        <mat-icon style="vertical-align:bottom">network_check</mat-icon>
-        PL:4
-        PF: Active:5 Total:8 = 12GB
+    <div style="display:inline-block; position:relative; width:100%;">
+      <div class="logo">
+        <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
       </div>
-      <div>
-        <mat-icon style="vertical-align:bottom">computer</mat-icon>
-        CPU:{{CurrentSystemInfo.cpuTotalLoad}}%
-        RAM:{{(CurrentSystemInfo.ramTotalMB - CurrentSystemInfo.ramAvailableMB) / 1024 | number : "1.1-1"}}/{{CurrentSystemInfo.ramTotalMB / 1024 | number : "1.0-0"}}GB
-        HDD:{{CurrentSystemInfo.diskUsedSpace / (1024 * 1024 * 1024) | number : "1.1-1"}}/{{(CurrentSystemInfo.diskUsedSpace + CurrentSystemInfo.diskFreeSpace) / (1024 * 1024 * 1024) | number : "1.0-0"}}GB
+      <div class="gameinfo">
+        <div class="EWAName">Empyrion Web Access</div>
+        <div class="ServerName">{{CurrentSystemInfo.serverName}}</div>
+        <div style="font-size:smaller !important;">
+          <mat-icon style="vertical-align:bottom" title="Players">person</mat-icon>
+          {{CurrentSystemInfo.activePlayers}}
+          <mat-icon style="vertical-align:bottom; margin-left:1em" title="Playfields">network_check</mat-icon>
+          {{CurrentSystemInfo.activePlayfields}} ({{CurrentSystemInfo.totalPlayfieldserver}}) = {{CurrentSystemInfo.totalPlayfieldserverRamMB / (1024 * 1024 * 1024) | number : "1.1-1"}}GB
+        </div>
+        <div style="font-size:smaller !important;">
+          <mat-icon style="vertical-align:bottom" title="CPU">computer</mat-icon> {{CurrentSystemInfo.cpuTotalLoad | number : "1.0-0"}}%
+          <mat-icon style="vertical-align:bottom" title="RAM">memory</mat-icon> {{(CurrentSystemInfo.ramTotalMB - CurrentSystemInfo.ramAvailableMB) / 1024 | number : "1.1-1"}}<b>/</b>{{CurrentSystemInfo.ramTotalMB / 1024 | number : "1.0-0"}}GB
+          <mat-icon style="vertical-align:bottom" title="HDD">storage</mat-icon> {{CurrentSystemInfo.diskUsedSpace / (1024 * 1024 * 1024) | number : "1.1-1"}}<b>/</b>{{(CurrentSystemInfo.diskUsedSpace + CurrentSystemInfo.diskFreeSpace) / (1024 * 1024 * 1024) | number : "1.0-0"}}GB
+        </div>
       </div>
-    </div>
-    <div class="systeminfo">
-      <div [ngClass]="(CurrentSystemInfo.online ? '' : 'offline')">{{CurrentSystemInfo.online ? "online" : "offline"}}</div>
+      <div class="systeminfo">
+        <div [ngClass]="(CurrentSystemInfo.online ? 'online' : 'offline')">{{CurrentSystemInfo.online ? "online" : "offline"}}</div>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>

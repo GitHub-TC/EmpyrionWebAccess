@@ -127,14 +127,17 @@ namespace EmpyrionModWebHost.Controllers
 
         public override void Initialize(ModGameAPI dediAPI)
         {
-            GameAPI = dediAPI;
+            GameAPI  = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
             Event_Player_Info += PlayerManager_Event_Player_Info;
-            Event_Player_Connected      += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
+            Event_Player_Connected += ID =>
+               {
+                   UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
+                   PlayerManager_Event_Player_Info(Request_Player_Info(ID).Result);
+               };
             Event_Player_Disconnected   += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
         }
-
     }
 
     public class PlayersController : ODataController

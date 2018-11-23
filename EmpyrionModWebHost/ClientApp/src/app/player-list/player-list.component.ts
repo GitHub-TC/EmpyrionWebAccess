@@ -3,6 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PlayerService } from '../services/player.service';
 
 import { PlayerModel } from '../model/player-model';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-player-list',
@@ -10,13 +11,13 @@ import { PlayerModel } from '../model/player-model';
   styleUrls: ['./player-list.component.less']
 })
 export class PlayerListComponent implements OnInit {
-  displayedColumns = ['online', 'playerName', 'origin', 'faction', 'playfield', 'pos', 'entityId', 'steamId'];
+  displayedColumns = ['Online', 'PlayerName', 'Origin', 'Faction', 'Playfield', 'Pos', 'EntityId', 'SteamId'];
   players: PlayerModel[];
 
   message: string;
   autoscroll: boolean = true;
 
-  constructor(private mPlayerService: PlayerService) {
+  constructor(private mPlayerService: PlayerService, private mChatService: ChatService) {
   }
 
   ngOnInit() {
@@ -26,7 +27,7 @@ export class PlayerListComponent implements OnInit {
   }
 
   get CurrentPlayerSteamId() {
-    return this.mPlayerService.CurrentPlayer ? this.mPlayerService.CurrentPlayer.steamId : 0;
+    return this.mPlayerService.CurrentPlayer ? this.mPlayerService.CurrentPlayer.SteamId : 0;
   }
 
   get CurrentPlayer() {
@@ -37,7 +38,7 @@ export class PlayerListComponent implements OnInit {
     this.mPlayerService.CurrentPlayer = aPlayer;
   }
 
-  isSticky(column: string): boolean {
-    return column === 'playerName' ? true : false;
+  ChatTo(aPlayer: PlayerModel) {
+    this.mChatService.ChatToPlayer(aPlayer);
   }
 }

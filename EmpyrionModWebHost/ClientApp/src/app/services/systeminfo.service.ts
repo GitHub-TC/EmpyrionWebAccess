@@ -3,13 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 import { SystemInfoModel } from '../model/systeminfo-model';
 import { SYSTEMINFO } from '../model/systeminfo-mock';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, interval } from 'rxjs';
+import { map } from 'rxjs/operators'
 
 @Injectable({
   providedIn: 'root'
 })
 export class SystemInfoService {
   public hubConnection: HubConnection;
+  private LastSystemUpdateTime: Date = new Date();
 
   private mCurrentSystemInfo: SystemInfoModel = SYSTEMINFO;
 
@@ -23,16 +25,23 @@ export class SystemInfoService {
     this.hubConnection = builder.withUrl('/hubs/systeminfo').build();
 
     // message coming from the server
-    this.hubConnection.on("UpdateSystemInfo", D => this.SystemInfos.next(this.mCurrentSystemInfo = JSON.parse(D)));
+    this.hubConnection.on("Update", D => {
+      this.LastSystemUpdateTime = new Date();
+      this.SystemInfos.next(this.mCurrentSystemInfo = JSON.parse(D));
+    });
 
     // starting the connection
     this.hubConnection.start();
+
+    interval(1000).pipe().subscribe(() => {
+      if (this.mCurrentSystemInfo.online && (new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 10000) {
+        this.mCurrentSystemInfo.online = false;
+        this.SystemInfos.next(this.mCurrentSystemInfo);
+      }
+    });
   }
 
   GetSystemInfos(): Observable<SystemInfoModel> {
-    this.http.get<SystemInfoModel>("odata/SystemInfos")
-      .subscribe(S => this.SystemInfos.next(this.mCurrentSystemInfo = S));
-
     return this.SystemInfosObservable;
   }
 

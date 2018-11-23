@@ -34,14 +34,14 @@ export class ChatListComponent implements OnInit {
   }
 
   ChatTo(aMsg: ChatModel) {
-    this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.playerName == aMsg.PlayerName));
+    this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.SteamId == aMsg.PlayerSteamId));
   }
 
   getLineClass(aMsg: ChatModel) {
+    if (aMsg.PlayerName == "Server") return "G";
     if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return "Y";
     if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return "CB";
     if (aMsg.Type == ChatType.Faction) return "F";
-    if (aMsg.PlayerName == "Server") return "G";
     return "";
   }
 

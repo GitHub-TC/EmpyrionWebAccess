@@ -16,6 +16,12 @@
   color: darkviolet;
 }
 
+.online {
+  border-radius: 4px;
+  background-color: greenyellow;
+  padding: 2px;
+}
+
 .offline {
   border-radius: 4px;
   background-color: red;
@@ -23,20 +29,23 @@
   animation: fading 2s infinite;
 }
 
-.logo{
-  display:inline-block;
-  float:left;
-  padding-top:10px;
+.logo {
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+  top: -10px;
 }
 
 .gameinfo {
   display: inline-block;
-  float: left;
+  position: absolute;
+  top: -13px;
+  left: 100px;
 }
 
 .systeminfo {
-  display: inline-block;
-  float: right;
+  position: absolute;
+  right: 0px;
 }
 
 @keyframes fading {

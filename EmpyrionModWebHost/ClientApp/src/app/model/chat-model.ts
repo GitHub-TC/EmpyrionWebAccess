@@ -1,12 +1,12 @@
 export enum ChatType {
-  Global = 3,
-  Faction = 5,
   Private = 1,
+  Global  = 3,
+  Faction = 5,
 };
 
 export class ChatModel {
   Id?: number;
-  Type?: number;
+  Type?: ChatType;
   Timestamp?: Date;
   FactionId?: number;
   FactionName?: string;

@@ -36,7 +36,7 @@ export class PlayerService {
 
   private UpdatePlayersData(players: PlayerModel[]) {
     players.map(P => {
-      let playerfound = this.mPlayers.findIndex(P => P.steamId == P.steamId);
+      let playerfound = this.mPlayers.findIndex(P => P.SteamId == P.SteamId);
       if (playerfound == -1)
         this.mPlayers.push(P);
       else {

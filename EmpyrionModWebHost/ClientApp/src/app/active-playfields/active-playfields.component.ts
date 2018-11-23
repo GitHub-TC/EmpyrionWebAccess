@@ -24,9 +24,9 @@ export class ActivePlayfieldsComponent implements OnInit {
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {
       let PF: ActivePlayfieldModel[] = [];
-      players.filter(P => P.online).map(P => {
-        let FoundPF = PF.find(F => F.name == P.playfield);
-        if (!FoundPF) PF.push(FoundPF = { name: P.playfield, players: [] });
+      players.filter(P => P.Online).map(P => {
+        let FoundPF = PF.find(F => F.name == P.Playfield);
+        if (!FoundPF) PF.push(FoundPF = { name: P.Playfield, players: [] });
         FoundPF.players.push(P);
       });
       this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
@@ -34,7 +34,8 @@ export class ActivePlayfieldsComponent implements OnInit {
   }
 
   SavePosition(aPlayer: PlayerModel) {
-    this.mPositionService.CurrentPosition = { playfield: aPlayer.playfield, pos: aPlayer.pos, rot: aPlayer.rot };
+    this.mPositionService.CurrentPosition = {
+      playfield: aPlayer.Playfield, pos: { x: aPlayer.PosX, y: aPlayer.PosY, z: aPlayer.PosZ }, rot: { x: aPlayer.RotX, y: aPlayer.RotY, z: aPlayer.RotZ } };
   }
 
   ChatTo(aPlayer: PlayerModel) {

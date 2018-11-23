@@ -1,57 +1,57 @@
 <div class="divPlayer">
   <table mat-table [dataSource]="players" class="mat-elevation-z8">
-    <ng-container matColumnDef="online" [sticky]="true">
+    <ng-container matColumnDef="Online" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef> O </th>
-      <td mat-cell *matCellDef="let element">
-        <mat-icon class="onlineState" *ngIf="element.online" style="cursor:pointer" title="Edit">account_circle</mat-icon>
+      <td mat-cell *matCellDef="let player">
+        <mat-icon class="onlineState" *ngIf="player.Online" style="cursor:pointer" title="Edit">account_circle</mat-icon>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="playerName" [sticky]="true">
+    <ng-container matColumnDef="PlayerName" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element">
-        <div *ngIf="!element.online">{{element.playerName}}</div>
-        <div *ngIf="element.online" style="white-space:nowrap">
-          <div style="display:inline-block; margin-top:2px">{{element.playerName}}</div>
+      <td mat-cell *matCellDef="let player">
+        <div *ngIf="!player.Online">{{player.PlayerName}}</div>
+        <div *ngIf="player.Online" style="white-space:nowrap">
+          <div style="display:inline-block; margin-top:2px">{{player.PlayerName}}</div>
           <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;"><mat-icon class="warp" style="cursor:pointer" title="Warp">gamepad</mat-icon></div>
-          <div style="display:inline-block; margin-top:2px; margin-left:-5px"><mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{element.playerName}}">chat</mat-icon></div>
+          <div style="display:inline-block; margin-top:2px; margin-left:-5px"><mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon></div>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="origin">
+    <ng-container matColumnDef="Origin">
       <th mat-header-cell *matHeaderCellDef> Origin </th>
-      <td mat-cell *matCellDef="let element"> {{element.origin}} </td>
+      <td mat-cell *matCellDef="let player"> {{player.Origin}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="faction">
+    <ng-container matColumnDef="Faction">
       <th mat-header-cell *matHeaderCellDef> Faction </th>
-      <td mat-cell *matCellDef="let element"> {{element.factionId | faction: "abbrev"}} </td>
+      <td mat-cell *matCellDef="let player"> {{player.FactionId | faction: "abbrev"}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="playfield">
+    <ng-container matColumnDef="Playfield">
       <th mat-header-cell *matHeaderCellDef> Playfield </th>
-      <td mat-cell *matCellDef="let element"> {{element.playfield}} </td>
+      <td mat-cell *matCellDef="let player"> {{player.Playfield}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="pos">
+    <ng-container matColumnDef="Pos">
       <th mat-header-cell *matHeaderCellDef> Position </th>
-      <td mat-cell *matCellDef="let element"><mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{element.playerName}}">flag</mat-icon> E/W:{{element.posX}} H:{{element.posY}} N/S:{{element.posZ}} </td>
+      <td mat-cell *matCellDef="let player"><mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}">flag</mat-icon> E/W:{{player.PosX | number : "1.1-1"}} H:{{player.PosY | number : "1.1-1"}} N/S:{{player.PosZ | number : "1.1-1"}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="entityId">
+    <ng-container matColumnDef="EntityId">
       <th mat-header-cell *matHeaderCellDef> PrivateID </th>
-      <td mat-cell *matCellDef="let element"> {{element.entityId}} </td>
+      <td mat-cell *matCellDef="let player"> {{player.EntityId}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="steamId">
+    <ng-container matColumnDef="SteamId">
       <th mat-header-cell *matHeaderCellDef> SteamId </th>
-      <td mat-cell *matCellDef="let element"> {{element.steamId}} </td>
+      <td mat-cell *matCellDef="let player"> {{player.SteamId}} </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-        [ngClass]="{'highlight': mPlayerService.CurrentPlayer?.steamId == row.steamId}"
+        [ngClass]="{'highlight': mPlayerService.CurrentPlayer?.SteamId == row.SteamId}"
         (click)="mPlayerService.CurrentPlayer = row"></tr>
   </table>
 </div>

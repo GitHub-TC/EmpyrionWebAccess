@@ -5,6 +5,7 @@ export class SystemInfoModel {
   activePlayers?: number;
   activePlayfields?: number;
   totalPlayfieldserver?: number;
+  totalPlayfieldserverRamMB?: number;
   diskFreeSpace?: number;
   diskUsedSpace?: number;
   cpuTotalLoad?: number;
