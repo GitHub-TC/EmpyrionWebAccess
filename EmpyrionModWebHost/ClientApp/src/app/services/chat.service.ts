@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, BehaviorSubject } from 'rxjs';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
@@ -6,6 +7,7 @@ import { ChatModel } from '../model/chat-model'
 import { CHAT } from '../model/chat-mock';
 import { Player } from '@angular/core/src/render3/interfaces/player';
 import { PlayerModel } from '../model/player-model';
+import { SessionService } from './session.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +15,14 @@ import { PlayerModel } from '../model/player-model';
 export class ChatService {
   public hubConnection: HubConnection;
 
-  private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(CHAT);
+  private mMessages: ChatModel[] = CHAT;
+
+  private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mMessages);
   public readonly messagesObservable: Observable<ChatModel[]> = this.messages.asObservable();
 
   private mChatToPlayer: PlayerModel;
-
-  constructor() {
+  
+  constructor(private http: HttpClient) {
     let builder = new HubConnectionBuilder();
 
     // as per setup in the startup.cs
@@ -34,6 +38,10 @@ export class ChatService {
   }
 
   GetMessages(): Observable<ChatModel[]> {
+    this.http.get<ODataResponse<ChatModel[]>>("odata/Chats")
+      .map(S => S.value)
+      .subscribe(M => this.messages.next(this.mMessages = M));
+
     return this.messagesObservable;
   }
 
@@ -53,9 +61,7 @@ export class ChatService {
     this.mChatToPlayer = null;
   }
 
-  SendMessage(aMessage: string): void {
-    let msg: ChatModel = { mark: "N CB", type: "G", timestamp: "08-15:55", faction: "123", playerName: "play", message: aMessage };
-    this.messages.next(this.messages.getValue().concat(msg));
-    //this.hubConnection.invoke("SendMessage", "x", aMessage);
+  SendMessage(aAsUser:string, aMessage: string): void {
+    this.hubConnection.invoke("SendMessage", this.ChatToAll ? null : this.ChatTarget, aAsUser, aMessage);
   }
 }

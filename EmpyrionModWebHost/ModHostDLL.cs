@@ -2,11 +2,9 @@
 using EWAExtenderCommunication;
 using System;
 using System.Collections.Generic;
-using Microsoft.Composition;
-using System.Composition;
 using Microsoft.AspNetCore.Mvc;
-using EmpyrionModWebHost.Controllers;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace EmpyrionModWebHost
 {
@@ -34,6 +32,7 @@ namespace EmpyrionModWebHost
 
             FromEmpyrion.Callback = Msg => { if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg); };
 
+            Parallel.ForEach(Plugins.OfType<IClientHostCommunication>() , P => SaveApiCall(() => P.ToEmpyrion = ToEmpyrion, P, "ToEmpyrion"));
             Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Start(this), P, "Game_Start"));
         }
 
@@ -47,6 +46,7 @@ namespace EmpyrionModWebHost
             //Console.WriteLine($"{aMsg.Command} = {aMsg.Data}");
             switch (aMsg.Command)
             {
+                default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
                 case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit")); break;
                 case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
             }
@@ -78,7 +78,7 @@ namespace EmpyrionModWebHost
             return true;
         }
 
-        private void SaveApiCall(Action aCall, ModInterface aMod, string aErrorInfo)
+        private void SaveApiCall(Action aCall, object aMod, string aErrorInfo)
         {
             try
             {

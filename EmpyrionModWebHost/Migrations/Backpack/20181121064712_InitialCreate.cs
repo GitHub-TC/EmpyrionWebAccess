@@ -12,12 +12,12 @@ namespace EmpyrionModWebHost.Migrations.Backpack
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    timestamp = table.Column<DateTime>(nullable: false),
-                    content = table.Column<string>(nullable: true)
+                    Timestamp = table.Column<DateTime>(nullable: false),
+                    Content = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Backpacks", x => new { x.Id, x.timestamp });
+                    table.PrimaryKey("PK_Backpacks", x => new { x.Id, x.Timestamp });
                 });
         }
 

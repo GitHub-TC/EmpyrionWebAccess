@@ -1,10 +1,5 @@
-﻿using Eleon.Modding;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace EmpyrionModWebHost.Models
 {
@@ -16,7 +11,8 @@ namespace EmpyrionModWebHost.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Filename=./Players.db");
+            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Players.db");
         }
 
         public DbSet<Player> Players { get; set; }
@@ -26,41 +22,42 @@ namespace EmpyrionModWebHost.Models
     {
         // Als ID wird die SteamID genutzt
         public string Id { get; set; }
-        public int entityId { get; set; }
-        public string steamId { get; set; }
-        public int clientId { get; set; }
-        public float radiation { get; set; }
-        public float radiationMax { get; set; }
-        public float bodyTemp { get; set; }
-        public float bodyTempMax { get; set; }
-        public int kills { get; set; }
-        public int died { get; set; }
-        public double credits { get; set; }
-        public float foodMax { get; set; }
-        public int exp { get; set; }
-        public int upgrade { get; set; }
-        public int ping { get; set; }
-        public int permission { get; set; }
-        public float food { get; set; }
-        public float stamina { get; set; }
-        public string steamOwnerId { get; set; }
-        public string playerName { get; set; }
-        public string playfield { get; set; }
-        public string startPlayfield { get; set; }
-        public float staminaMax { get; set; }
-        public byte factionGroup { get; set; }
-        public int factionId { get; set; }
-        public byte factionRole { get; set; }
-        public float health { get; set; }
-        public float healthMax { get; set; }
-        public float oxygen { get; set; }
-        public float oxygenMax { get; set; }
-        public byte origin { get; set; }
-        public float posX { get; set; }
-        public float posY { get; set; }
-        public float posZ { get; set; }
-        public float rotX { get; set; }
-        public float rotY { get; set; }
-        public float rotZ { get; set; }
+        public int EntityId { get; set; }
+        public string SteamId { get; set; }
+        public int ClientId { get; set; }
+        public float Radiation { get; set; }
+        public float RadiationMax { get; set; }
+        public float BodyTemp { get; set; }
+        public float BodyTempMax { get; set; }
+        public int Kills { get; set; }
+        public int Died { get; set; }
+        public double Credits { get; set; }
+        public float FoodMax { get; set; }
+        public int Exp { get; set; }
+        public int Upgrade { get; set; }
+        public int Ping { get; set; }
+        public int Permission { get; set; }
+        public float Food { get; set; }
+        public float Stamina { get; set; }
+        public string SteamOwnerId { get; set; }
+        public string PlayerName { get; set; }
+        public string Playfield { get; set; }
+        public string StartPlayfield { get; set; }
+        public float StaminaMax { get; set; }
+        public byte FactionGroup { get; set; }
+        public int FactionId { get; set; }
+        public byte FactionRole { get; set; }
+        public float Health { get; set; }
+        public float HealthMax { get; set; }
+        public float Oxygen { get; set; }
+        public float OxygenMax { get; set; }
+        public byte Origin { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        public float RotX { get; set; }
+        public float RotY { get; set; }
+        public float RotZ { get; set; }
+        public bool Online { get; set; }
     }
 }

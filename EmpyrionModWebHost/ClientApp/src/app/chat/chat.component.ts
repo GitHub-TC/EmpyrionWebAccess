@@ -1,9 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { ChatModel } from '../model/chat-model'
-
 import { ChatService } from '../services/chat.service'
 import { ChatListComponent } from '../chat-list/chat-list.component';
+import { SessionService } from '../services/session.service';
 
 @Component({
   selector: 'app-chat',
@@ -16,19 +15,16 @@ export class ChatComponent implements OnInit {
   message: string = "";
   chatTarget: string = "All";
   chatToAll: boolean = true;
+  chatAsUser: boolean = true;
   @Input() chatList: ChatListComponent;
 
-  constructor(public ChatService: ChatService) { }
+  constructor(public SessionService: SessionService, public ChatService: ChatService) { }
 
   ngOnInit() {
   }
 
   SendMessage() {
-    this.ChatService.SendMessage(this.message);
+    this.ChatService.SendMessage(this.chatAsUser ? this.SessionService.CurrentSession.name : null, this.message);
     this.message = "";
-  }
-
-  getLineClass(aMsg: ChatModel) {
-    return aMsg.mark;
   }
 }

@@ -1,12 +1,6 @@
-﻿using Eleon.Modding;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace EmpyrionModWebHost.Models
 {
@@ -18,13 +12,14 @@ namespace EmpyrionModWebHost.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Filename=./Backpacks.db");
+            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Backpacks.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Backpack>()
-                .HasKey(B => new { B.Id, B.timestamp });
+                .HasKey(B => new { B.Id, B.Timestamp });
         }
 
         public DbSet<Backpack> Backpacks { get; set; }
@@ -34,8 +29,8 @@ namespace EmpyrionModWebHost.Models
     {
         // Als ID wird die SteamID genutzt
         public string Id { get; set; }
-        public DateTime timestamp { get; set; }
-        public string content { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string Content { get; set; }
 
     }
 }

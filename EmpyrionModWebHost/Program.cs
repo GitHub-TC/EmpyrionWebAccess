@@ -1,5 +1,6 @@
 using System.Linq;
 using Eleon.Modding;
+using EWAExtenderCommunication;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
@@ -8,6 +9,12 @@ namespace EmpyrionModWebHost
     public interface IEWAPlugin : ModInterface
     {
 
+    }
+
+    public interface IClientHostCommunication
+    {
+        ClientMessagePipe ToEmpyrion { set; }
+        void ClientHostMessage(ClientHostComData aMessage);
     }
 
 

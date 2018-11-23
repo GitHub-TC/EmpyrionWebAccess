@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 
-import { ChatModel } from '../model/chat-model'
+import { ChatModel, ChatType } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
 import { MatTable } from '@angular/material';
@@ -18,6 +18,8 @@ export class ChatListComponent implements OnInit {
 
   messages: ChatModel[];
   message: string;
+  ChatKeywords: string[] = ["admin", "server", "playfield", "wipe"];
+  ModKeywords: string[] = ["/", "am:", "cb:"];
   autoscroll: boolean = true;
 
   constructor(private mChatService: ChatService, private mPlayerService: PlayerService) {
@@ -32,11 +34,15 @@ export class ChatListComponent implements OnInit {
   }
 
   ChatTo(aMsg: ChatModel) {
-    this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.playerName == aMsg.playerName));
+    this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.playerName == aMsg.PlayerName));
   }
 
   getLineClass(aMsg: ChatModel) {
-    return aMsg.mark;
+    if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return "Y";
+    if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return "CB";
+    if (aMsg.Type == ChatType.Faction) return "F";
+    if (aMsg.PlayerName == "Server") return "G";
+    return "";
   }
 
 }

@@ -22,6 +22,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.1" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.5.0" />
+    <PackageReference Include="YamlDotNet.NetCore" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +46,10 @@
     <None Remove="ClientApp\src\app\model\ODataResponse.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
+    <None Remove="ClientApp\src\app\model\session-mock.ts" />
+    <None Remove="ClientApp\src\app\model\session-model.ts" />
+    <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
+    <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,11 +69,18 @@
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>
     </Reference>
+    <Reference Include="System">
+      <HintPath>C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-mock.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\session-mock.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\session-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\faction-mock.ts" />

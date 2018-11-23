@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using EmpyrionModWebHost.Extensions;
 using Eleon.Modding;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 
 namespace EmpyrionModWebHost.Controllers
@@ -22,10 +24,33 @@ namespace EmpyrionModWebHost.Controllers
     {
         public IHubContext<PlayerHub> PlayerHub { get; internal set; }
         public ModGameAPI GameAPI { get; private set; }
-
         public PlayerManager(IHubContext<PlayerHub> aPlayerHub)
         {
             PlayerHub = aPlayerHub;
+        }
+
+        public void QueryPlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aAction)
+        {
+            using (var DB = new PlayerContext())
+            {
+                DB.Database.EnsureCreated();
+                aSelect(DB).ForEach(P => aAction(P));
+            }
+
+        }
+
+        async void UpdatePlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aChange)
+        {
+            Player[] ChangedPlayers;
+            using (var DB = new PlayerContext())
+            {
+                DB.Database.EnsureCreated();
+                ChangedPlayers = aSelect(DB).ToArray();
+                ChangedPlayers.ForEach(P => aChange(P));
+                await DB.SaveChangesAsync();
+            }
+
+            PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
         }
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -37,47 +62,66 @@ namespace EmpyrionModWebHost.Controllers
                 var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
 
                 Player.Id = aPlayerInfo.steamId;
-                Player.entityId = aPlayerInfo.entityId;
-                Player.steamId = aPlayerInfo.steamId;
-                Player.clientId = aPlayerInfo.clientId;
-                Player.radiation = aPlayerInfo.radiation;
-                Player.radiationMax = aPlayerInfo.radiationMax;
-                Player.bodyTemp = aPlayerInfo.bodyTemp;
-                Player.bodyTempMax = aPlayerInfo.bodyTempMax;
-                Player.kills = aPlayerInfo.kills;
-                Player.died = aPlayerInfo.died;
-                Player.credits = aPlayerInfo.credits;
-                Player.foodMax = aPlayerInfo.foodMax;
-                Player.exp = aPlayerInfo.exp;
-                Player.upgrade = aPlayerInfo.upgrade;
-                Player.ping = aPlayerInfo.ping;
-                Player.permission = aPlayerInfo.permission;
-                Player.food = aPlayerInfo.food;
-                Player.stamina = aPlayerInfo.stamina;
-                Player.steamOwnerId = aPlayerInfo.steamOwnerId;
-                Player.playerName = aPlayerInfo.playerName;
-                Player.playfield = aPlayerInfo.playfield;
-                Player.startPlayfield = aPlayerInfo.startPlayfield;
-                Player.staminaMax = aPlayerInfo.staminaMax;
-                Player.factionGroup = aPlayerInfo.factionGroup;
-                Player.factionId = aPlayerInfo.factionId;
-                Player.factionRole = aPlayerInfo.factionRole;
-                Player.health = aPlayerInfo.health;
-                Player.healthMax = aPlayerInfo.healthMax;
-                Player.oxygen = aPlayerInfo.oxygen;
-                Player.oxygenMax = aPlayerInfo.oxygenMax;
-                Player.origin = aPlayerInfo.origin;
-                Player.posX = aPlayerInfo.pos.x;
-                Player.posY = aPlayerInfo.pos.y;
-                Player.posZ = aPlayerInfo.pos.z;
-                Player.rotX = aPlayerInfo.rot.x;
-                Player.rotY = aPlayerInfo.rot.y;
-                Player.rotZ = aPlayerInfo.rot.z;
+                Player.EntityId = aPlayerInfo.entityId;
+                Player.SteamId = aPlayerInfo.steamId;
+                Player.ClientId = aPlayerInfo.clientId;
+                Player.Radiation = aPlayerInfo.radiation;
+                Player.RadiationMax = aPlayerInfo.radiationMax;
+                Player.BodyTemp = aPlayerInfo.bodyTemp;
+                Player.BodyTempMax = aPlayerInfo.bodyTempMax;
+                Player.Kills = aPlayerInfo.kills;
+                Player.Died = aPlayerInfo.died;
+                Player.Credits = aPlayerInfo.credits;
+                Player.FoodMax = aPlayerInfo.foodMax;
+                Player.Exp = aPlayerInfo.exp;
+                Player.Upgrade = aPlayerInfo.upgrade;
+                Player.Ping = aPlayerInfo.ping;
+                Player.Permission = aPlayerInfo.permission;
+                Player.Food = aPlayerInfo.food;
+                Player.Stamina = aPlayerInfo.stamina;
+                Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
+                Player.PlayerName = aPlayerInfo.playerName;
+                Player.Playfield = aPlayerInfo.playfield;
+                Player.StartPlayfield = aPlayerInfo.startPlayfield;
+                Player.StaminaMax = aPlayerInfo.staminaMax;
+                Player.FactionGroup = aPlayerInfo.factionGroup;
+                Player.FactionId = aPlayerInfo.factionId;
+                Player.FactionRole = aPlayerInfo.factionRole;
+                Player.Health = aPlayerInfo.health;
+                Player.HealthMax = aPlayerInfo.healthMax;
+                Player.Oxygen = aPlayerInfo.oxygen;
+                Player.OxygenMax = aPlayerInfo.oxygenMax;
+                Player.Origin = aPlayerInfo.origin;
+                Player.PosX = aPlayerInfo.pos.x;
+                Player.PosY = aPlayerInfo.pos.y;
+                Player.PosZ = aPlayerInfo.pos.z;
+                Player.RotX = aPlayerInfo.rot.x;
+                Player.RotY = aPlayerInfo.rot.y;
+                Player.RotZ = aPlayerInfo.rot.z;
 
                 if (IsNewPlayer) DB.Players.Add(Player);
                 DB.SaveChanges();
 
                 PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
+            }
+        }
+
+        public Player GetPlayer(int aPlayerId)
+        {
+            using (var DB = new PlayerContext())
+            {
+                DB.Database.EnsureCreated();
+                return DB.Players.FirstOrDefault( P => P.EntityId == aPlayerId);
+            }
+        }
+
+        public int OnlinePlayersCount {
+            get {
+                using (var DB = new PlayerContext())
+                {
+                    DB.Database.EnsureCreated();
+                    return DB.Players.Count(P => P.Online);
+                }
             }
         }
 
@@ -87,27 +131,36 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
             Event_Player_Info += PlayerManager_Event_Player_Info;
+            Event_Player_Connected      += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
+            Event_Player_Disconnected   += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
         }
 
     }
 
     public class PlayersController : ODataController
     {
-        private PlayerContext _db;
-
         public PlayerManager PlayerManager { get; }
+        public PlayerContext DB { get; }
 
-        public PlayersController(PlayerContext context)
+        public static IEdmModel GetEdmModel()
         {
-            _db = context;
-            _db.Database.EnsureCreated();
+            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            builder.EntitySet<Player>("Players");
+            return builder.GetEdmModel();
+        }
+
+
+        public PlayersController(PlayerContext aPlayerContext)
+        {
+            DB = aPlayerContext;
+            DB.Database.EnsureCreated();
             PlayerManager = Program.GetManager<PlayerManager>();
         }
 
         [EnableQuery]
         public IActionResult Get()
         {
-            return Ok(_db.Players);
+            return Ok(DB.Players);
         }
 
         //[EnableQuery]

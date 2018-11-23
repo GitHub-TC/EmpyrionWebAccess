@@ -37,4 +37,7 @@ export class PlayerListComponent implements OnInit {
     this.mPlayerService.CurrentPlayer = aPlayer;
   }
 
+  isSticky(column: string): boolean {
+    return column === 'playerName' ? true : false;
+  }
 }

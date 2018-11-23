@@ -153,7 +153,9 @@ namespace EWAModClient
                         CreateNoWindow = true,
                         WorkingDirectory = ProgramPath,
                         Arguments = Environment.GetCommandLineArgs().Aggregate(
-                            $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} -ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
+                            $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
+                            $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
+                            $"-GameDir \"{Directory.GetCurrentDirectory()}\"",
                             (C, A) => C + " " + A),
                     }
                 };
@@ -207,10 +209,24 @@ namespace EWAModClient
         {
             switch (aMsg.Command)
             {
-                case ClientHostCommand.RestartHost: break;
-                case ClientHostCommand.ExposeShutdownHost: ExposeShutdownHost = true; break;
-                case ClientHostCommand.Console_Write: GameAPI.Console_Write(aMsg.Data as string); break;
+                case ClientHostCommand.RestartHost          : break;
+                case ClientHostCommand.ExposeShutdownHost   : ExposeShutdownHost = true; break;
+                case ClientHostCommand.Console_Write        : GameAPI.Console_Write(aMsg.Data as string); break;
+                case ClientHostCommand.ProcessInformation   : if (aMsg.Data == null) ReturnProcessInformation(); break;
             }
+        }
+
+        private void ReturnProcessInformation()
+        {
+            OutServer.SendMessage(new ClientHostComData()
+            {
+                Command = ClientHostCommand.ProcessInformation,
+                Data = new ProcessInformation()
+                {
+                    Id               = Process.GetCurrentProcess().Id,
+                    CurrentDirecrory = Directory.GetCurrentDirectory(),
+                }
+            });
         }
 
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)

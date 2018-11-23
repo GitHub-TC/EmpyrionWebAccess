@@ -1,22 +1,23 @@
 ﻿using Eleon.Modding;
+using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
+using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
-    public class ChatDataModel
+
+    enum ChatType
     {
-        public string mark;
-        public string type;
-        public string timestamp;
-        public string faction;
-        public string toPlayer;
-        public string playerName;
-        public string message;
+        Global = 3,
+        Faction = 5,
+        Private = 1,
     }
 
 
@@ -24,20 +25,19 @@ namespace EmpyrionModWebHost.Controllers
     {
         private ChatManager ChatManager { get; set; }
 
-        public async Task SendMessage(string user, string message)
+        public void SendMessage(string aChatTarget, string aChatAsUser, string aMessage)
         {
             ChatManager = Program.GetManager<ChatManager>();
-
-            Console.WriteLine($"Chat: {user}:{message}");
-            ChatManager?.ChatMessage(message);
-            await Clients.All.SendAsync("Send", "back:" + message);
+            ChatManager?.ChatMessage(aChatTarget, aChatAsUser, aMessage);
         }
     }
 
     public class ChatManager : EmpyrionModBase, IEWAPlugin
     {
         public ModGameAPI GameAPI { get; private set; }
-        
+        public IHubContext<ChatHub> ChatHub { get; private set; }
+        public PlayerManager PlayerManager { get; private set; }
+
         public ChatManager(IHubContext<ChatHub> aChatHub)
         {
             ChatHub = aChatHub;
@@ -45,66 +45,82 @@ namespace EmpyrionModWebHost.Controllers
 
         private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)
         {
-            var chat = new ChatDataModel()
+            var player = PlayerManager.GetPlayer(aChatInfo.playerId);
+
+            AddChatToDB(new Chat()
             {
-                mark = GetMarkChatline(aChatInfo),
-                type = GetChatType(aChatInfo.type),
-                faction = GetFactionName(aChatInfo.recipientFactionId),
-                toPlayer = GetPlayerName(aChatInfo.recipientEntityId),
-                playerName = GetPlayerName(aChatInfo.playerId),
-                timestamp = DateTime.Now.ToShortTimeString(),
-                message = aChatInfo.msg,
-            };
-            ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(chat)).Wait();
+                Timestamp     = DateTime.Now,
+                PlayerSteamId = player?.SteamId,
+                PlayerName    = player?.PlayerName,
+                FactionId     = player == null ? 0 : player.FactionId,
+                FactionName   = "???",
+                Type          = aChatInfo.type,
+                Message       = aChatInfo.msg,
+            });
         }
 
-        private string GetMarkChatline(ChatInfo aChatInfo)
+        public async void AddChatToDB(Chat aChat)
         {
-            return "N";
+            using(var DB = new ChatContext())
+            {
+                DB.Database.EnsureCreated();
+                DB.Add(aChat);
+                DB.SaveChanges();
+            }
+
+            await ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(aChat));
         }
 
-        private string GetPlayerName(int aPlayerId)
+        public async Task ChatMessage(string aChatTarget, string aChatAsUser, string aMessage)
         {
-            return aPlayerId.ToString();
-        }
+            if (string.IsNullOrEmpty(aMessage)) return;
 
-        private string GetFactionName(int aFactionId)
-        {
-            return aFactionId.ToString();
-        }
+            AddChatToDB(new Chat()
+            {
+                Timestamp     = DateTime.Now,
+                PlayerSteamId = "",
+                PlayerName    = string.IsNullOrEmpty(aChatAsUser) ? "Server" : aChatAsUser,
+                FactionId     = 0,
+                FactionName   = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : aChatAsUser,
+                Type          = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
+                Message       = aMessage,
+            });
 
-        private string GetChatType(byte type)
-        {
-            return "N";
-        }
-
-        public void ChatMessage(String aMessage)
-        {
-            Request_ConsoleCommand(new PString($"SAY '{aMessage}'"));
+            await Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ")}{aMessage.Replace("'", "\\'")}'"));
         }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
+            PlayerManager = Program.GetManager<PlayerManager>();
 
             Event_ChatMessage += ChatManager_Event_ChatMessage;
         }
-
-        public IHubContext<ChatHub> ChatHub { get; internal set; }
     }
 
-    [Route("api/[controller]")]
-    public class ChatController
+    public class ChatsController: ODataController
     {
-        public IHubContext<ChatHub> ChatHub { get; }
+        public ChatContext DB { get; }
         public ChatManager ChatManager { get; }
 
-        public ChatController(IHubContext<ChatHub> aChatHub)
+        public ChatsController(ChatContext aChatContext)
         {
-            ChatHub = aChatHub;
+            DB = aChatContext;
             ChatManager = Program.GetManager<ChatManager>();
-            ChatManager.ChatHub = aChatHub;
+        }
+
+        [EnableQuery]
+        public IActionResult Get()
+        {
+            return Ok(DB.Chats);
+        }
+
+        public static IEdmModel GetEdmModel()
+        {
+            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            builder.EntitySet<Chat>("Chats");
+            return builder.GetEdmModel();
         }
 
     }

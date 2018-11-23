@@ -6,9 +6,11 @@ using Eleon.Modding;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 
 namespace EmpyrionModWebHost.Controllers
@@ -33,34 +35,34 @@ namespace EmpyrionModWebHost.Controllers
             {
                 DB.Database.EnsureCreated();
                 var Backpack = DB.Backpacks
-                    .OrderByDescending(B => B.timestamp)
+                    .OrderByDescending(B => B.Timestamp)
                     .FirstOrDefault(B => B.Id == aPlayerSteamId);
-                var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.timestamp).TotalMinutes >= 1;
+                var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
                 var BackpackContent = JsonConvert.SerializeObject(aBackpackInfo);
 
-                if (!IsNewBackpack && Backpack.content == BackpackContent) return;
+                if (!IsNewBackpack && Backpack.Content == BackpackContent) return;
 
                 if (IsNewBackpack)
                 {
                     Backpack = new Backpack()
                     {
                         Id          = aPlayerSteamId,
-                        timestamp   = DateTime.Now,
-                        content     = BackpackContent
+                        Timestamp   = DateTime.Now,
+                        Content     = BackpackContent
                     };
                     DB.Backpacks.Add(Backpack);
                 }
 
                 DB.SaveChanges();
 
-                Backpack = DB.Backpacks.FirstOrDefault(B => B.Id == aPlayerSteamId && B.timestamp == DateTime.MinValue);
+                Backpack = DB.Backpacks.FirstOrDefault(B => B.Id == aPlayerSteamId && B.Timestamp == DateTime.MinValue);
                 IsNewBackpack = Backpack == null;
                 if(IsNewBackpack) Backpack = new Backpack() {
                                                                 Id = aPlayerSteamId,
-                                                                timestamp = DateTime.MinValue,
+                                                                Timestamp = DateTime.MinValue,
                                                             };
 
-                Backpack.content = BackpackContent;
+                Backpack.Content = BackpackContent;
                 if (IsNewBackpack) DB.Backpacks.Add(Backpack);
 
                 DB.SaveChanges();
@@ -91,6 +93,13 @@ namespace EmpyrionModWebHost.Controllers
 
         public BackpackManager BackpackManager { get; }
 
+        public static IEdmModel GetEdmModel()
+        {
+            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            builder.EntitySet<Backpack>("Backpacks");
+            return builder.GetEdmModel();
+        }
+
         public BackpacksController(BackpackContext context)
         {
             _db = context;
@@ -107,7 +116,7 @@ namespace EmpyrionModWebHost.Controllers
         [EnableQuery]
         public IActionResult Get(string key)
         {
-            return Ok(_db.Backpacks.FirstOrDefault(B => B.Id == key && B.timestamp == DateTime.MinValue));
+            return Ok(_db.Backpacks.FirstOrDefault(B => B.Id == key && B.Timestamp == DateTime.MinValue));
         }
 
         //[EnableQuery]

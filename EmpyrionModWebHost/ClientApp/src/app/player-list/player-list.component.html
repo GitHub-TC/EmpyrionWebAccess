@@ -1,15 +1,22 @@
 <div class="divPlayer">
   <table mat-table [dataSource]="players" class="mat-elevation-z8">
-    <ng-container matColumnDef="online">
+    <ng-container matColumnDef="online" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef> O </th>
       <td mat-cell *matCellDef="let element">
-        <mat-icon class="onlineState" *ngIf="element.online" style="cursor:pointer" title="Warp">account_circle</mat-icon>
+        <mat-icon class="onlineState" *ngIf="element.online" style="cursor:pointer" title="Edit">account_circle</mat-icon>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="playerName">
+    <ng-container matColumnDef="playerName" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.playerName}} </td>
+      <td mat-cell *matCellDef="let element">
+        <div *ngIf="!element.online">{{element.playerName}}</div>
+        <div *ngIf="element.online" style="white-space:nowrap">
+          <div style="display:inline-block; margin-top:2px">{{element.playerName}}</div>
+          <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;"><mat-icon class="warp" style="cursor:pointer" title="Warp">gamepad</mat-icon></div>
+          <div style="display:inline-block; margin-top:2px; margin-left:-5px"><mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{element.playerName}}">chat</mat-icon></div>
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="origin">
@@ -29,7 +36,7 @@
 
     <ng-container matColumnDef="pos">
       <th mat-header-cell *matHeaderCellDef> Position </th>
-      <td mat-cell *matCellDef="let element"><mat-icon style="font-size:medium; cursor: pointer;">flag</mat-icon> E/W:{{element.posX}} H:{{element.posY}} N/S:{{element.posZ}} </td>
+      <td mat-cell *matCellDef="let element"><mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{element.playerName}}">flag</mat-icon> E/W:{{element.posX}} H:{{element.posY}} N/S:{{element.posZ}} </td>
     </ng-container>
 
     <ng-container matColumnDef="entityId">

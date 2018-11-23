@@ -9,8 +9,17 @@ namespace EWAExtenderCommunication
         Game_Update,
         Console_Write,
         ExposeShutdownHost,
-        Ping
+        Ping,
+        ProcessInformation
     }
+
+    [Serializable]
+    public class ProcessInformation
+    {
+        public int Id { get; set; }
+        public string CurrentDirecrory { get; set; }
+    }
+
 
     [Serializable]
     public class ClientHostComData

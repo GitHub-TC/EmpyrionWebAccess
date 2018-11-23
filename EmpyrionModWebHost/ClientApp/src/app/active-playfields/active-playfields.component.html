@@ -15,8 +15,8 @@
     <div style="position: absolute; left:5px; width:3em; overflow:hidden">({{player.factionId | faction: "abbrev"}})</div>
     <div style="position: absolute; left:3.5em">{{player.playerName}}</div>
     <div style="position: absolute; right:0px">
-      <mat-icon style="font-size:medium; cursor: pointer;" (click)="SavePosition(player)" title="Save position of {{player.playerName}}">flag</mat-icon>
-      <mat-icon style="font-size:medium; cursor: pointer;" (click)="ChatTo(player)" title="Chat to {{player.playerName}}">chat</mat-icon>
+      <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" (click)="SavePosition(player)" title="Save position of {{player.playerName}}">flag</mat-icon>
+      <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{player.playerName}}">chat</mat-icon>
     </div>
     <br />
   </div>

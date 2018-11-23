@@ -6,6 +6,7 @@ import { PlayerModel } from '../model/player-model';
 import { ACTIVEPLAYFIELDS } from '../model/activeplayfield-mock';
 import { PositionService } from '../services/position.service';
 import { ChatService } from '../services/chat.service';
+import { PlayerService } from '../services/player.service';
 
 @Component({
   selector: 'app-active-playfields',
@@ -16,37 +17,20 @@ export class ActivePlayfieldsComponent implements OnInit {
   playfields: ActivePlayfieldModel[] = ACTIVEPLAYFIELDS;
   mCurrentPlayer: PlayerModel;
 
-  panels = [
-    {
-      title: 'panel 1',
-      content: 'content 1',
-      buttons: [
-        {
-          displayText: 'button1'
-        },
-        {
-          displayText: 'button2'
-        },
-      ]
-    },
-    {
-      title: 'panel 2',
-      content: 'content 2',
-      buttons: [
-        {
-          displayText: 'button2'
-        },
-        {
-          displayText: 'button2'
-        },
-      ]
-    },
-  ];
   mPlayfieldsOpen: string[] = [];
 
-  constructor(private mPositionService: PositionService, private mChatService: ChatService) { }
+  constructor(private mPositionService: PositionService, private mChatService: ChatService, private mPlayerService: PlayerService) { }
 
   ngOnInit() {
+    this.mPlayerService.GetPlayers().subscribe(players => {
+      let PF: ActivePlayfieldModel[] = [];
+      players.filter(P => P.online).map(P => {
+        let FoundPF = PF.find(F => F.name == P.playfield);
+        if (!FoundPF) PF.push(FoundPF = { name: P.playfield, players: [] });
+        FoundPF.players.push(P);
+      });
+      this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
+    });
   }
 
   SavePosition(aPlayer: PlayerModel) {

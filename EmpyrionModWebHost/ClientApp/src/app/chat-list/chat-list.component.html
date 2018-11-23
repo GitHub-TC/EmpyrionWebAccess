@@ -2,30 +2,30 @@
   <table mat-table [dataSource]="messages" class="mat-elevation-z8">
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef> R </th>
-      <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.Type}} </td>
     </ng-container>
 
     <ng-container matColumnDef="timestamp">
       <th mat-header-cell *matHeaderCellDef> Date </th>
-      <td mat-cell *matCellDef="let element"> {{element.timestamp}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.Timestamp | date : "dd-hh:mm"}} </td>
     </ng-container>
 
     <ng-container matColumnDef="faction">
       <th mat-header-cell *matHeaderCellDef> Fac. </th>
-      <td mat-cell *matCellDef="let element"> {{element.faction}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.FactionName}} </td>
     </ng-container>
 
     <ng-container matColumnDef="playerName">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element" style="cursor: pointer;" (click)="ChatTo(element)" title="Chat to {{element.playerName}}">
-        <mat-icon style="font-size:small; margin-right:-10px;">chat</mat-icon>
-        {{element.playerName}}
+      <td mat-cell *matCellDef="let element" style="cursor: pointer;" (click)="ChatTo(element)" title="Chat to {{element.PlayerName}}">
+        <mat-icon style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
+        {{element.PlayerName}}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="message">
       <th mat-header-cell *matHeaderCellDef> Text </th>
-      <td mat-cell class="chatText" *matCellDef="let element"> {{element.message}} </td>
+      <td mat-cell class="chatText" *matCellDef="let element"> {{element.Message}} </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

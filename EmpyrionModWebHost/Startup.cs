@@ -34,9 +34,13 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(PlayerManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(BackpackManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(FactionManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(SysteminfoManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
+            services.AddDbContext<FactionContext>();
+            services.AddDbContext<ChatContext>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -66,14 +70,18 @@ namespace EmpyrionModWebHost
                 routes.MapHub<ChatHub>("/hubs/chat");
                 routes.MapHub<PlayerHub>("/hubs/player");
                 routes.MapHub<BackpackHub>("/hubs/backpack");
+                routes.MapHub<FactionHub>("/hubs/faction");
+                routes.MapHub<SysteminfoHub>("/hubs/systeminfo");
             });
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(name: "default", template: "{controller}/{action=Index}/{id?}");
                 routes.Select().Expand().Filter().OrderBy().MaxTop(1000).Count();
-                routes.MapODataServiceRoute("player", "odata", GetEdmPlayerModel());
-                routes.MapODataServiceRoute("backpack", "odata", GetEdmBackpackModel());
+                routes.MapODataServiceRoute("player",   "odata", PlayersController  .GetEdmModel());
+                routes.MapODataServiceRoute("backpack", "odata", BackpacksController.GetEdmModel());
+                routes.MapODataServiceRoute("faction",  "odata", FactionsController .GetEdmModel());
+                routes.MapODataServiceRoute("chat",     "odata", ChatsController    .GetEdmModel());
             });
 
             app.UseSpa(spa =>
@@ -88,22 +96,6 @@ namespace EmpyrionModWebHost
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
-        }
-
-        private static IEdmModel GetEdmPlayerModel()
-        {
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-            builder.EntitySet<Player>("Players");
-            return builder.GetEdmModel();
-
-        }
-
-        private static IEdmModel GetEdmBackpackModel()
-        {
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-            builder.EntitySet<Backpack>("Backpacks");
-            return builder.GetEdmModel();
-
         }
 
     }

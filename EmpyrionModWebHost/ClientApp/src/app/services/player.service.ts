@@ -14,7 +14,7 @@ import { PLAYER } from '../model/player-mock';
 export class PlayerService {
   public hubConnection: HubConnection;
 
-  private mPlayers: PlayerModel[];
+  private mPlayers: PlayerModel[] = PLAYER;
 
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(this.mPlayers);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();
@@ -27,22 +27,25 @@ export class PlayerService {
     this.hubConnection = builder.withUrl('/hubs/player').build();
 
     // message coming from the server
-    this.hubConnection.on("UpdatePlayer", D => this.UpdatePlayerData(JSON.parse(D)));
+    this.hubConnection.on("UpdatePlayer",  D => this.UpdatePlayersData([JSON.parse(D)]));
+    this.hubConnection.on("UpdatePlayers", D => this.UpdatePlayersData( JSON.parse(D)));
 
     // starting the connection
     this.hubConnection.start();
   }
 
-  private UpdatePlayerData(player: PlayerModel) {
-    let playerfound = this.mPlayers.findIndex(P => P.steamId == player.steamId);
-    if (playerfound == -1)
-      this.mPlayers.push(player);
-    else {
-      let newList = this.mPlayers.slice(0, playerfound);
-      newList.push(player);
-      newList = newList.concat(this.mPlayers.slice(playerfound + 1));
-      this.mPlayers = newList;
-    };
+  private UpdatePlayersData(players: PlayerModel[]) {
+    players.map(P => {
+      let playerfound = this.mPlayers.findIndex(P => P.steamId == P.steamId);
+      if (playerfound == -1)
+        this.mPlayers.push(P);
+      else {
+        let newList = this.mPlayers.slice(0, playerfound);
+        newList.push(P);
+        newList = newList.concat(this.mPlayers.slice(playerfound + 1));
+        this.mPlayers = newList;
+      };
+    });
 
     this.players.next(this.mPlayers);
   }
