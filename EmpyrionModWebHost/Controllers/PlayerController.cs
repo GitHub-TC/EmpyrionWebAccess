@@ -136,9 +136,17 @@ namespace EmpyrionModWebHost.Controllers
             Event_Player_Connected += ID =>
                {
                    UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
-                   PlayerManager_Event_Player_Info(Request_Player_Info(ID).Result);
+                   PlayerManager_Event_Player_Info(Request_Player_Info(ID).TimeoutAfter(2000).Result);
                };
             Event_Player_Disconnected   += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
+
+            TaskExtensions.Intervall(10000, () => {
+                var onlinePlayers = Request_Player_List().TimeoutAfter(2000).Result;
+                if (onlinePlayers == null) return;
+
+                if(onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
+                else                           UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId)), P => P.Online = true);
+            });
         }
 
     }

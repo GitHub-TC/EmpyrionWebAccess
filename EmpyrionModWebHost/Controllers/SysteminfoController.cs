@@ -75,10 +75,10 @@ namespace EmpyrionModWebHost.Controllers
 
             PlayerManager = Program.GetManager<PlayerManager>();
 
-            IntervallTask(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
-            IntervallTask(5000, UpdateEmpyrionInfos);
-            IntervallTask(5000, UpdateComputerInfos);
-            IntervallTask(2000, UpdatePerformanceInfos);
+            TaskExtensions.Intervall(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
+            TaskExtensions.Intervall(5000, UpdateEmpyrionInfos);
+            TaskExtensions.Intervall(5000, UpdateComputerInfos);
+            TaskExtensions.Intervall(2000, UpdatePerformanceInfos);
 
             CpuTotalLoad = new PerformanceCounter
             {
@@ -113,7 +113,7 @@ namespace EmpyrionModWebHost.Controllers
             if (ProcessInformation == null) return;
 
             CurrentSysteminfo.activePlayers    = PlayerManager.OnlinePlayersCount;
-            var activePlayfields = Request_Playfield_List().Result.playfields;
+            var activePlayfields               = Request_Playfield_List().TimeoutAfter(2000).Result.playfields;
             CurrentSysteminfo.activePlayfields = activePlayfields == null ? 0 : activePlayfields.Count;
 
             var ESGProcess        = Process.GetProcessById(ProcessInformation.Id);
@@ -121,7 +121,7 @@ namespace EmpyrionModWebHost.Controllers
 
             if (ESGChildProcesses != null)
             {
-                CurrentSysteminfo.totalPlayfieldserver = ESGChildProcesses.Count();
+                CurrentSysteminfo.totalPlayfieldserver      = ESGChildProcesses.Count();
                 CurrentSysteminfo.totalPlayfieldserverRamMB = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
         }
@@ -133,24 +133,6 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.version = CurrentAssembly.GetAttribute<AssemblyFileVersionAttribute>()?.Version;
             CurrentSysteminfo.versionESG = EmpyrionConfiguration.Version;
             CurrentSysteminfo.copyright = CurrentAssembly.GetAttribute<AssemblyCopyrightAttribute>()?.Copyright;
-        }
-
-        private void IntervallTask(int aIntervall, Action aAction)
-        {
-            new Thread(() => {
-                while (true)
-                {
-                    try
-                    {
-                        aAction();
-                    }
-                    catch (Exception Error)
-                    {
-                        Console.WriteLine(Error);
-                    }
-                    Thread.Sleep(aIntervall);
-                }
-            }).Start();
         }
 
         public void ClientHostMessage(ClientHostComData aMessage)

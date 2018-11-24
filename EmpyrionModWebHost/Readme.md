@@ -1,4 +1,7 @@
-﻿Create your own self signed certificate with windows admin powershell:
+﻿First user login direct creates the first unser in the database.
+
+============================================================================================
+Create your own self signed certificate with windows admin powershell:
 
 New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname EmpyrionWebAccess -NotAfter (Get-Date).AddYears(10)
 --> CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4
