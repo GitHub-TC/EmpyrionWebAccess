@@ -13,6 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,6 +54,13 @@
     <None Remove="ClientApp\src\app\model\player-model.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
+    <None Remove="EmpyrionWebAccess.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="EmpyrionWebAccess.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

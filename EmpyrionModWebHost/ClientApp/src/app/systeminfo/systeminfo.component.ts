@@ -18,7 +18,7 @@ export class SysteminfoComponent implements OnInit {
   currentUser: User;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private authenticationService: AuthenticationService,
     private mSystemInfoService: SystemInfoService) {
       this.authenticationService.currentUser.subscribe(x => this.currentUser = x);

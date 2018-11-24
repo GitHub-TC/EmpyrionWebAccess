@@ -151,7 +151,7 @@ namespace EWAModClient
                     {
                         UseShellExecute = CurrentConfig.Current.WithShellWindow,
                         CreateNoWindow = true,
-                        WorkingDirectory = ProgramPath,
+                        WorkingDirectory = Path.GetDirectoryName(HostFilename),
                         Arguments = Environment.GetCommandLineArgs().Aggregate(
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
                             $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
