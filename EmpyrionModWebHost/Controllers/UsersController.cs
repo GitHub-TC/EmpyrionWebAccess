@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Eleon.Modding;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
+using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -15,6 +17,19 @@ using System.Text;
 
 namespace EmpyrionModWebHost.Controllers
 {
+
+    public class UserManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
+    {
+        public void CreateAndUpdateDatabase()
+        {
+            using (var DB = new UserContext()) DB.Database.EnsureCreated();
+        }
+
+        public override void Initialize(ModGameAPI dediAPI)
+        {
+        }
+    }
+
     [Authorize]
     [ApiController]
     [Route("[controller]")]

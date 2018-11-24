@@ -22,7 +22,7 @@ namespace EmpyrionModWebHost.Controllers
         private PlayerManager PlayerManager { get; set; }
     }
 
-    public class PlayerManager : EmpyrionModBase, IEWAPlugin
+    public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public IHubContext<PlayerHub> PlayerHub { get; internal set; }
         public ModGameAPI GameAPI { get; private set; }
@@ -31,11 +31,15 @@ namespace EmpyrionModWebHost.Controllers
             PlayerHub = aPlayerHub;
         }
 
+        public void CreateAndUpdateDatabase()
+        {
+            using (var DB = new PlayerContext()) DB.Database.EnsureCreated();
+        }
+
         public void QueryPlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aAction)
         {
             using (var DB = new PlayerContext())
             {
-                DB.Database.EnsureCreated();
                 aSelect(DB).ForEach(P => aAction(P));
             }
 
@@ -46,7 +50,6 @@ namespace EmpyrionModWebHost.Controllers
             Player[] ChangedPlayers;
             using (var DB = new PlayerContext())
             {
-                DB.Database.EnsureCreated();
                 ChangedPlayers = aSelect(DB).ToArray();
                 ChangedPlayers.ForEach(P => aChange(P));
                 await DB.SaveChangesAsync();
@@ -59,7 +62,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             using (var DB = new PlayerContext())
             {
-                DB.Database.EnsureCreated();
                 var Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
                 var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
 
@@ -112,7 +114,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             using (var DB = new PlayerContext())
             {
-                DB.Database.EnsureCreated();
                 return DB.Players.FirstOrDefault( P => P.EntityId == aPlayerId);
             }
         }
@@ -121,7 +122,6 @@ namespace EmpyrionModWebHost.Controllers
             get {
                 using (var DB = new PlayerContext())
                 {
-                    DB.Database.EnsureCreated();
                     return DB.Players.Count(P => P.Online);
                 }
             }
@@ -140,6 +140,7 @@ namespace EmpyrionModWebHost.Controllers
                };
             Event_Player_Disconnected   += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
         }
+
     }
 
     [Authorize]
@@ -159,7 +160,6 @@ namespace EmpyrionModWebHost.Controllers
         public PlayersController(PlayerContext aPlayerContext)
         {
             DB = aPlayerContext;
-            DB.Database.EnsureCreated();
             PlayerManager = Program.GetManager<PlayerManager>();
         }
 

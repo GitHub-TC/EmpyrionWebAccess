@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { HubConnection } from '@aspnet/signalr';
 import { SystemInfoModel } from '../model/systeminfo-model';
 import { SYSTEMINFO } from '../model/systeminfo-mock';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { map } from 'rxjs/operators'
-import { AuthenticationService } from '../_services';
-import { User } from '../_models';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 @Injectable({
@@ -16,7 +14,7 @@ export class SystemInfoService {
   public hubConnection: HubConnection;
   private LastSystemUpdateTime: Date = new Date();
 
-  private mCurrentSystemInfo: SystemInfoModel = SYSTEMINFO;
+  private mCurrentSystemInfo: SystemInfoModel = {};// SYSTEMINFO;
 
   private SystemInfos: BehaviorSubject<SystemInfoModel> = new BehaviorSubject(this.mCurrentSystemInfo);
   public readonly SystemInfosObservable: Observable<SystemInfoModel> = this.SystemInfos.asObservable();

@@ -2,8 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { ChatService } from '../services/chat.service'
 import { ChatListComponent } from '../chat-list/chat-list.component';
-import { AuthenticationService } from '../_services';
-import { User } from '../_models';
+import { AuthenticationService } from '../services/authentication.service';
+import { User } from '../model/user';
 
 @Component({
   selector: 'app-chat',

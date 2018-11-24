@@ -1,18 +1,20 @@
 import { Component } from '@angular/core';
 import { first } from 'rxjs/operators';
 
-import { User } from '../_models';
-import { UserService, AuthenticationService } from '../_services';
+import { AuthenticationService } from '../services/authentication.service';
+import { User } from '../model/user';
 
-@Component({ templateUrl: 'home.component.html' })
+@Component({
+  templateUrl: 'home.component.html',
+  styleUrls: ['./home.component.less']
+})
 export class HomeComponent {
-    users: User[] = [];
+  currentUser: User = { id: 0, username: null, password: null };
 
-    constructor(private userService: UserService) { }
+  constructor(private authenticationService: AuthenticationService) {
+  }
 
-    ngOnInit() {
-        this.userService.getAll().pipe(first()).subscribe(users => {
-            this.users = users;
-        });
-    }
+  ngOnInit() {
+    this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
+  }
 }

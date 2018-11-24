@@ -19,6 +19,8 @@ namespace EmpyrionModWebHost
         {
             Plugins = aPlugins;
 
+            Parallel.ForEach(Plugins.OfType<IDatabaseConnect>(), P => SaveApiCall(() => P.CreateAndUpdateDatabase(), P, "CreateAndUpdateDatabase"));
+
             InServerMessageHandler = new Dictionary<Type, Action<object>> {
                 { typeof(EmpyrionGameEventData), M => HandleGameEvent               ((EmpyrionGameEventData)M) },
                 { typeof(ClientHostComData    ), M => HandleClientHostCommunication ((ClientHostComData)M) }

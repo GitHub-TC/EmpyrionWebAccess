@@ -15,7 +15,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 export class ChatService {
   public hubConnection: HubConnection;
 
-  private mMessages: ChatModel[] = CHAT;
+  private mMessages: ChatModel[] = [];// CHAT;
 
   private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mMessages);
   public readonly messagesObservable: Observable<ChatModel[]> = this.messages.asObservable();

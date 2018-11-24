@@ -7,8 +7,8 @@ import { map } from 'rxjs/operators'
 import { PlayerModel } from '../model/player-model';
 
 import { PLAYER } from '../model/player-mock';
-import { AuthenticationService } from '../_services';
-import { User } from '../_models';
+import { AuthenticationService } from '../services/authentication.service';
+import { User } from '../model/user';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 @Injectable({
@@ -17,7 +17,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 export class PlayerService {
   public hubConnection: HubConnection;
 
-  private mPlayers: PlayerModel[] = PLAYER;
+  private mPlayers: PlayerModel[] = []; // PLAYER;
 
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(this.mPlayers);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();

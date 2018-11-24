@@ -34,7 +34,7 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    public class ChatManager : EmpyrionModBase, IEWAPlugin
+    public class ChatManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public ModGameAPI GameAPI { get; private set; }
         public IHubContext<ChatHub> ChatHub { get; private set; }
@@ -43,6 +43,11 @@ namespace EmpyrionModWebHost.Controllers
         public ChatManager(IHubContext<ChatHub> aChatHub)
         {
             ChatHub = aChatHub;
+        }
+
+        public void CreateAndUpdateDatabase()
+        {
+            using (var DB = new ChatContext()) DB.Database.EnsureCreated();
         }
 
         private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)
@@ -65,7 +70,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             using(var DB = new ChatContext())
             {
-                DB.Database.EnsureCreated();
                 DB.Add(aChat);
                 DB.SaveChanges();
             }

@@ -1,4 +1,4 @@
-<div class="container-fluid" style="padding-top:5px">
+<div class="container-fluid" style="padding-top:5px" *ngIf="currentUser.token">
   <div class="row">
     <div class="col-5" style="padding-left:0px; padding-right:0px">
       <div class="container">
@@ -20,12 +20,13 @@
     </div>
     <div class="col" style="padding-right:0px; padding-left:0px">
       <app-active-playfields [(CurrentPlayer)]="playerlist.CurrentPlayer"></app-active-playfields>
+      <div class="version">EWA {{SystemInfo.CurrentSystemInfo.version}} by {{SystemInfo.CurrentSystemInfo.copyright}}</div>
     </div>
     <div class="col-5" style="padding-left:0px; padding-right:0px">
       <div class="container">
         <div class="row align-items-start" style="padding-bottom:5px">
           <div class="col">
-            <app-systeminfo></app-systeminfo>
+            <app-systeminfo #SystemInfo ></app-systeminfo>
           </div>
         </div>
         <div class="row align-items-center">

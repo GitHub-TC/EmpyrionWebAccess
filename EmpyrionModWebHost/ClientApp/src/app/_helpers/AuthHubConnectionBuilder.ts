@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HubConnectionBuilder } from '@aspnet/signalr';
 
-import { AuthenticationService } from '../_services';
-import { User } from '../_models';
+import { AuthenticationService } from '../services/authentication.service';
+import { User } from '../model/user';
 
 @Injectable({
   providedIn: 'root'

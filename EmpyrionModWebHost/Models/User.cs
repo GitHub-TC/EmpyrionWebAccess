@@ -24,6 +24,8 @@ namespace EmpyrionModWebHost.Models
 
     public class UserContext : DbContext
     {
+        public UserContext(){}
+
         public UserContext(DbContextOptions<UserContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

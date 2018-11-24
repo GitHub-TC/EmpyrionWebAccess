@@ -22,7 +22,7 @@ namespace EmpyrionModWebHost.Controllers
         private BackpackManager BackpackManager { get; set; }
     }
 
-    public class BackpackManager : EmpyrionModBase, IEWAPlugin
+    public class BackpackManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public ModGameAPI GameAPI { get; private set; }
 
@@ -31,11 +31,15 @@ namespace EmpyrionModWebHost.Controllers
             BackpackHub = aBackpackHub;
         }
 
+        public void CreateAndUpdateDatabase()
+        {
+            using (var DB = new BackpackContext()) DB.Database.EnsureCreated();
+        }
+
         public void UpdateBackpack(string aPlayerSteamId, ItemStack[] aBackpackInfo)
         {
             using (var DB = new BackpackContext())
             {
-                DB.Database.EnsureCreated();
                 var Backpack = DB.Backpacks
                     .OrderByDescending(B => B.Timestamp)
                     .FirstOrDefault(B => B.Id == aPlayerSteamId);
@@ -106,7 +110,6 @@ namespace EmpyrionModWebHost.Controllers
         public BackpacksController(BackpackContext context)
         {
             _db = context;
-            _db.Database.EnsureCreated();
             BackpackManager = Program.GetManager<BackpackManager>();
         }
 

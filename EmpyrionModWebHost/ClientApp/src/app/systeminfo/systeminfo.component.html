@@ -22,8 +22,14 @@
       </div>
       <div class="systeminfo">
         <div [ngClass]="(CurrentSystemInfo.online ? 'online' : 'offline')">{{CurrentSystemInfo.online ? "online" : "offline"}}</div>
-        <div style="margin-top:5px; margin-left:5px"><mat-icon title="Logout" (click)="logout()">exit_to_app</mat-icon></div>
-        <div class="version">EWA {{CurrentSystemInfo.version}}</div>
+        <mat-menu #appMenu="matMenu">
+          <button mat-menu-item (click)="router.navigate(['user'])">User</button>
+          <button mat-menu-item (click)="logout()">Logout</button>
+        </mat-menu>
+
+        <button mat-icon-button [matMenuTriggerFor]="appMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
       </div>
     </div>
   </mat-card-content>

@@ -19,9 +19,10 @@ import { PlayerListComponent } from './player-list/player-list.component';
 import { FactionPipe } from './pipes/faction.pipe';
 
 import { JwtInterceptor, ErrorInterceptor, fakeBackendProvider } from './_helpers';
-import { HomeComponent } from './home';
-import { LoginComponent } from './login';
+import { LoginComponent } from './login/login.component';
+import { HomeComponent } from './home/home.component';
 import { TokenInterceptor } from './_helpers/TokenInterceptor';
+import { UserManagerComponent } from './user-manager/user-manager.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { TokenInterceptor } from './_helpers/TokenInterceptor';
     PlayerBackpackComponent,
     PlayerDetailsComponent,
     PlayerListComponent,
-    FactionPipe
+    FactionPipe,
+    UserManagerComponent
   ],
   imports: [
     BrowserModule,

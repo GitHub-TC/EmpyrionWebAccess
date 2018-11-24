@@ -20,7 +20,7 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    public class FactionManager : EmpyrionModBase, IEWAPlugin
+    public class FactionManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public IHubContext<FactionHub> FactionHub { get; internal set; }
         public ModGameAPI GameAPI { get; private set; }
@@ -28,6 +28,11 @@ namespace EmpyrionModWebHost.Controllers
         public FactionManager(IHubContext<FactionHub> aFactionHub)
         {
             FactionHub = aFactionHub;
+        }
+
+        public void CreateAndUpdateDatabase()
+        {
+            using (var DB = new FactionContext()) DB.Database.EnsureCreated();
         }
 
         public void AddFactionToDB(Faction aFaction)
@@ -45,7 +50,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             using (var DB = new PlayerContext())
             {
-                DB.Database.EnsureCreated();
                 return DB.Find<Faction>(aFactionId);
             }
         }

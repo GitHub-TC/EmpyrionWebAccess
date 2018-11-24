@@ -30,7 +30,6 @@ namespace EmpyrionModWebHost.Services
         public UserService(UserContext context)
         {
             _context = context;
-            _context.Database.EnsureCreated();
         }
 
         public User Authenticate(string username, string password)
@@ -40,7 +39,11 @@ namespace EmpyrionModWebHost.Services
 
             var user = _context.Users.SingleOrDefault(x => x.Username == username);
 
-            if (user == null) user = Create(new User() { Username="ASTIC" }, "test");
+            if (user == null && _context.Users.Count() == 0)
+            {
+                // Empty User.DB insert first login as first user
+                user = Create(new User() { Username = username }, password);
+            }
 
             // check if username exists
             if (user == null)

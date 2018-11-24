@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output } from '@angular/core';
 
 import { SystemInfoService } from '../services/systeminfo.service';
 
 import { SystemInfoModel } from '../model/systeminfo-model';
 import { SYSTEMINFO } from '../model/systeminfo-mock';
-import { AuthenticationService } from '../_services';
 import { Router } from '@angular/router';
-import { User } from '../_models';
+import { AuthenticationService } from '../services/authentication.service';
+import { User } from '../model/user';
 
 @Component({
   selector: 'app-systeminfo',
@@ -14,7 +14,7 @@ import { User } from '../_models';
   styleUrls: ['./systeminfo.component.less']
 })
 export class SysteminfoComponent implements OnInit {
-  CurrentSystemInfo: SystemInfoModel = SYSTEMINFO;
+  @Output() CurrentSystemInfo: SystemInfoModel = SYSTEMINFO;
   currentUser: User;
 
   constructor(

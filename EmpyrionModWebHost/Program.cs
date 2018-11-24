@@ -1,5 +1,6 @@
 using System.Linq;
 using Eleon.Modding;
+using EmpyrionModWebHost.Migrations;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +16,11 @@ namespace EmpyrionModWebHost
     {
         ClientMessagePipe ToEmpyrion { set; }
         void ClientHostMessage(ClientHostComData aMessage);
+    }
+
+    public interface IDatabaseConnect
+    {
+        void CreateAndUpdateDatabase();
     }
 
 

@@ -1,6 +1,7 @@
 using AutoMapper;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Controllers;
+using EmpyrionModWebHost.Migrations;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using Microsoft.AspNet.OData.Builder;
@@ -41,12 +42,13 @@ namespace EmpyrionModWebHost
             services.AddAutoMapper();
             services.AddSignalR();
 
-            services.AddSingleton(typeof(ModHostDLL));
+            services.AddSingleton<ModHostDLL>();
             services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(PlayerManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(BackpackManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(FactionManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(SysteminfoManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(UserManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
