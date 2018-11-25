@@ -40,7 +40,7 @@ export class PlayerWarpDialogContentComponent implements OnInit {
   error: any;
 
   constructor(private http: HttpClient,
-    private mPositionService: PositionService,
+    public mPositionService: PositionService,
     public dialogRef: MatDialogRef<PlayerWarpDialogContentComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.WarpData = JSON.parse(JSON.stringify(data.WarpData));

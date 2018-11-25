@@ -12,7 +12,7 @@ export class UserManagerComponent implements OnInit {
   users: User[] = [];
   newUser: User = { id: 0, username: "", password: "" };
 
-  constructor(private mUserService: UserService, public router: Router) { }
+  constructor(public mUserService: UserService, public router: Router) { }
 
   ngOnInit() {
     this.mUserService.getAll().subscribe(U => {
