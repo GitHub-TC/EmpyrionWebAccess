@@ -35,7 +35,12 @@ export class ActivePlayfieldsComponent implements OnInit {
 
   SavePosition(aPlayer: PlayerModel) {
     this.mPositionService.CurrentPosition = {
-      playfield: aPlayer.Playfield, pos: { x: aPlayer.PosX, y: aPlayer.PosY, z: aPlayer.PosZ }, rot: { x: aPlayer.RotX, y: aPlayer.RotY, z: aPlayer.RotZ } };
+      description: "Player: " + aPlayer.PlayerName,
+      entityId : aPlayer.EntityId,
+      playfield: aPlayer.Playfield,
+      pos: { x: aPlayer.PosX, y: aPlayer.PosY, z: aPlayer.PosZ },
+      rot: { x: aPlayer.RotX, y: aPlayer.RotY, z: aPlayer.RotZ }
+    };
   }
 
   ChatTo(aPlayer: PlayerModel) {

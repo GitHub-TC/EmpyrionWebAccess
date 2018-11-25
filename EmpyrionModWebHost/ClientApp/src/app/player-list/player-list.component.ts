@@ -4,6 +4,7 @@ import { PlayerService } from '../services/player.service';
 
 import { PlayerModel } from '../model/player-model';
 import { ChatService } from '../services/chat.service';
+import { PositionService } from '../services/position.service';
 
 @Component({
   selector: 'app-player-list',
@@ -17,7 +18,10 @@ export class PlayerListComponent implements OnInit {
   message: string;
   autoscroll: boolean = true;
 
-  constructor(private mPlayerService: PlayerService, private mChatService: ChatService) {
+  constructor(
+    private mPlayerService: PlayerService,
+    private mPositionService: PositionService,
+    private mChatService: ChatService) {
   }
 
   ngOnInit() {
@@ -36,6 +40,16 @@ export class PlayerListComponent implements OnInit {
 
   @Input() set CurrentPlayer(aPlayer: PlayerModel) {
     this.mPlayerService.CurrentPlayer = aPlayer;
+  }
+
+  SavePosition(aPlayer: PlayerModel) {
+    this.mPositionService.CurrentPosition = {
+      description: "Player: " + aPlayer.PlayerName,
+      entityId: aPlayer.EntityId,
+      playfield: aPlayer.Playfield,
+      pos: { x: aPlayer.PosX, y: aPlayer.PosY, z: aPlayer.PosZ },
+      rot: { x: aPlayer.RotX, y: aPlayer.RotY, z: aPlayer.RotZ }
+    };
   }
 
   ChatTo(aPlayer: PlayerModel) {

@@ -75,10 +75,10 @@ namespace EmpyrionModWebHost.Controllers
 
             PlayerManager = Program.GetManager<PlayerManager>();
 
-            TaskExtensions.Intervall(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
-            TaskExtensions.Intervall(5000, UpdateEmpyrionInfos);
-            TaskExtensions.Intervall(5000, UpdateComputerInfos);
-            TaskExtensions.Intervall(2000, UpdatePerformanceInfos);
+            TaskWait.Intervall(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
+            TaskWait.Intervall(5000, UpdateEmpyrionInfosAsync);
+            TaskWait.Intervall(5000, UpdateComputerInfos);
+            TaskWait.Intervall(2000, UpdatePerformanceInfos);
 
             CpuTotalLoad = new PerformanceCounter
             {
@@ -103,7 +103,7 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.diskFreeSpace = GameDrive.TotalFreeSpace;
         }
 
-        private void UpdateEmpyrionInfos()
+        private void UpdateEmpyrionInfosAsync()
         {
             CurrentSysteminfo.online = (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10;
 
@@ -113,7 +113,7 @@ namespace EmpyrionModWebHost.Controllers
             if (ProcessInformation == null) return;
 
             CurrentSysteminfo.activePlayers    = PlayerManager.OnlinePlayersCount;
-            var activePlayfields               = Request_Playfield_List().TimeoutAfter(2000).Result.playfields;
+            var activePlayfields               = TaskWait.For(2, Request_Playfield_List()).Result.playfields;
             CurrentSysteminfo.activePlayfields = activePlayfields == null ? 0 : activePlayfields.Count;
 
             var ESGProcess        = Process.GetProcessById(ProcessInformation.Id);

@@ -5,7 +5,9 @@ export class PVector3 {
 }
 
 export class PositionModel {
+  description?: string;
   playfield?: string;
+  entityId?: number;
   pos?: PVector3;
   rot?: PVector3;
 }

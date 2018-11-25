@@ -21,3 +21,17 @@ netsh http add urlacl url=https://[IP-Adress]:443/ user=[domain/computer]\[user]
 
 ============================================================================================
 Configure your URL for the web server in the appsettings.json
+
+
+============================================================================================
+============================================================================================
+============================================================================================
+
+https://github.com/GitHub-TC/EmpyrionWebAccess
+
+The internal plugins work with
+Ist similiar to the original EmpyrionAPITools - only with async await and .NET 4.6
+https://github.com/GitHub-TC/EmpyrionNetAPIAccess
+
+(coming soon) mod managing via
+https://github.com/GitHub-TC/EmpyrionModHost

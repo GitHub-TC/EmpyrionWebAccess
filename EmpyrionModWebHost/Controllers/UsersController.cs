@@ -81,7 +81,6 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult Register([FromBody]UserDto userDto)
         {
@@ -101,6 +100,7 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -117,12 +117,11 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(userDto);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserDto userDto)
+        [HttpPost("update")]
+        public IActionResult Update([FromBody]UserDto userDto)
         {
             // map dto to entity and set id
             var user = _mapper.Map<User>(userDto);
-            user.Id = id;
 
             try
             {

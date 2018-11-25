@@ -129,26 +129,33 @@ namespace EmpyrionModWebHost.Controllers
 
         public override void Initialize(ModGameAPI dediAPI)
         {
-            GameAPI  = dediAPI;
+            GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Player_Info += PlayerManager_Event_Player_Info;
-            Event_Player_Connected += ID =>
-               {
-                   UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
-                   PlayerManager_Event_Player_Info(Request_Player_Info(ID).TimeoutAfter(2000).Result);
-               };
-            Event_Player_Disconnected   += ID => UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
+            Event_Player_Info         += PlayerManager_Event_Player_Info;
+            Event_Player_Connected    += PlayerConnected;
+            Event_Player_Disconnected += PlayerDisconnected;
 
-            TaskExtensions.Intervall(10000, () => {
-                var onlinePlayers = Request_Player_List().TimeoutAfter(2000).Result;
+            TaskWait.Intervall(10000, () =>
+            {
+                var onlinePlayers = TaskWait.For(2, Request_Player_List()).Result;
                 if (onlinePlayers == null) return;
 
-                if(onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
-                else                           UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId)), P => P.Online = true);
+                if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
+                else UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId)), P => P.Online = true);
             });
         }
 
+        private void PlayerDisconnected(Id ID)
+        {
+            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
+        }
+
+        private void PlayerConnected(Id ID)
+        {
+            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
+            PlayerManager_Event_Player_Info(TaskWait.For(2, Request_Player_Info(ID)).Result);
+        }
     }
 
     [Authorize]

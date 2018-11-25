@@ -23,6 +23,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { TokenInterceptor } from './_helpers/TokenInterceptor';
 import { UserManagerComponent } from './user-manager/user-manager.component';
+import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './player-warp-dialog/player-warp-dialog.component';
 
 
 @NgModule({
@@ -38,7 +39,9 @@ import { UserManagerComponent } from './user-manager/user-manager.component';
     PlayerDetailsComponent,
     PlayerListComponent,
     FactionPipe,
-    UserManagerComponent
+    UserManagerComponent,
+    PlayerWarpDialogComponent,
+    PlayerWarpDialogContentComponent
   ],
   imports: [
     BrowserModule,
@@ -50,6 +53,10 @@ import { UserManagerComponent } from './user-manager/user-manager.component';
     HttpClientModule,
     BrowserAnimationsModule,
     AppRoutingModule
+  ],
+  entryComponents: [
+    PlayerWarpDialogComponent,
+    PlayerWarpDialogContentComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

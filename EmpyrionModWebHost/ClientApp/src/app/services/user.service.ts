@@ -30,7 +30,19 @@ export class UserService {
   createNewUser(newUser: User) {
     this.http.post<any>('users/register', { Username: newUser.username, Password: newUser.password })
       .pipe()
-      .subscribe(() => this.getAll());
+      .subscribe(
+        () => this.getAll(),
+        error => this.error = error // error path
+      );
+  }
+
+  saveUser(aUser: User): any {
+    this.http.post<any>('users/update', { Id: aUser.id, Username: aUser.username, Password: aUser.password })
+      .pipe()
+      .subscribe(
+        () => this.getAll(),
+        error => this.error = error // error path
+      );
   }
 
   deleteUser(aUser: User): any {

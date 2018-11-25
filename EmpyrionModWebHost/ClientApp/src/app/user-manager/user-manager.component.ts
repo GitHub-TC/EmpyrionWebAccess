@@ -24,6 +24,10 @@ export class UserManagerComponent implements OnInit {
     this.mUserService.deleteUser(aUser);
   }
 
+  saveUser(aUser: User) {
+    this.mUserService.saveUser(aUser);
+  }
+
   createNewUser() {
     this.mUserService.createNewUser(this.newUser);
     this.newUser = { id: 0, username: "", password: "" };

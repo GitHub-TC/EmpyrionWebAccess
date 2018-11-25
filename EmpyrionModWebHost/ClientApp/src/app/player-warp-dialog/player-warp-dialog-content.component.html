@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Warp {{WarpData.description}}</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-select placeholder="Playfield" [(value)]="WarpData.playfield">
+      <mat-option *ngFor="let pl of Playfields" [value]="pl">
+        {{pl}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>X: (East/West) </mat-label>
+    <input matInput type="number" [(ngModel)]="WarpData.pos.x" />
+  </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>Y: (Height) </mat-label>
+    <input matInput type="number" [(ngModel)]="WarpData.pos.y" />
+  </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>Z: (North/South) </mat-label>
+    <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition?.description">Load {{mPositionService.CurrentPosition.description}}</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="setToZeroPosition()">Zero</button>
+  <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
+  <button mat-button (click)="execWarp()">Warp</button>
+</mat-dialog-actions>
