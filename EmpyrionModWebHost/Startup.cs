@@ -42,6 +42,8 @@ namespace EmpyrionModWebHost
             services.AddAutoMapper();
             services.AddSignalR();
 
+            services.AddSingleton<LifetimeEventsHostedService>();
+
             services.AddSingleton<ModHostDLL>();
             services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(PlayerManager));

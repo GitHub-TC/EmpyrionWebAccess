@@ -1,4 +1,5 @@
 ﻿using Eleon.Modding;
+using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
@@ -43,7 +44,7 @@ namespace EmpyrionModWebHost.Controllers
                 DB.SaveChanges();
             }
 
-            FactionHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(aFaction)).Wait();
+            FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(aFaction)).Wait();
         }
 
         public Faction GetFaction(int aFactionId)
@@ -64,6 +65,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private void FactionManager_Event_Faction_Changed(FactionChangeInfo aFactionChange)
         {
+            var factions = TaskWait.For(2, Request_Get_Factions(new Id(aFactionChange.factionId))).Result;
         }
 
     }
@@ -71,14 +73,20 @@ namespace EmpyrionModWebHost.Controllers
     [Authorize]
     public class FactionsController : ODataController
     {
+        public FactionContext DB { get; }
         public IHubContext<FactionHub> FactionHub { get; }
         public FactionManager FactionManager { get; }
 
-        public FactionsController(IHubContext<FactionHub> aFactionHub)
+        public FactionsController(FactionContext aFactionContext)
         {
-            FactionHub = aFactionHub;
+            DB = aFactionContext;
             FactionManager = Program.GetManager<FactionManager>();
-            FactionManager.FactionHub = aFactionHub;
+        }
+
+        [EnableQuery]
+        public IActionResult Get()
+        {
+            return Ok(DB.Factions);
         }
 
         public static IEdmModel GetEdmModel()

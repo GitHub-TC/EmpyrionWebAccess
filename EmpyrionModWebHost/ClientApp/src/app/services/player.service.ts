@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
+import { HubConnection } from '@aspnet/signalr';
 import { map } from 'rxjs/operators'
 
-import { PlayerModel } from '../model/player-model';
-
-import { PLAYER } from '../model/player-mock';
-import { AuthenticationService } from '../services/authentication.service';
-import { User } from '../model/user';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
+
+import { PlayerModel } from '../model/player-model';
+import { PLAYER } from '../model/player-mock';
 
 @Injectable({
   providedIn: 'root'

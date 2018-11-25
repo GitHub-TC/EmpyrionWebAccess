@@ -20,7 +20,20 @@ netsh http add urlacl url=https://[computername]:443/ user=[domain/computer]\[us
 netsh http add urlacl url=https://[IP-Adress]:443/ user=[domain/computer]\[user]
 
 ============================================================================================
-Configure your URL for the web server in the appsettings.json
+Configure your URL (and other custom settings) for the web server in the appsettings.json in the [Savegame]\MODs\EWA path
+
+{
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://localhost:5010"
+      },
+      "HttpsDefaultCert": {
+        "Url": "https://localhost:5011"
+      }
+    }
+  }
+}
 
 
 ============================================================================================

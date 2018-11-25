@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace EmpyrionModWebHost
 {
@@ -25,6 +26,14 @@ namespace EmpyrionModWebHost
                 { typeof(EmpyrionGameEventData), M => HandleGameEvent               ((EmpyrionGameEventData)M) },
                 { typeof(ClientHostComData    ), M => HandleClientHostCommunication ((ClientHostComData)M) }
             };
+
+            Program.AppLifetime.AppLifetime.ApplicationStopping.Register(OnStopping);
+        }
+
+        private void OnStopping()
+        {
+            ToEmpyrion?.Close();
+            FromEmpyrion?.Close();
         }
 
         public void InitComunicationChannels()
@@ -49,7 +58,10 @@ namespace EmpyrionModWebHost
             switch (aMsg.Command)
             {
                 default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
-                case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit")); break;
+                case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit"));
+                                                    Thread.Sleep(1000);
+                                                    Program.Application.StopAsync().Wait(30000);
+                                                    break;
                 case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
             }
         }

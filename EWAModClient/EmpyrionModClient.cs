@@ -162,6 +162,7 @@ namespace EWAModClient
 
                 mHostProcess.Start();
                 CurrentConfig.Current.HostProcessId = mHostProcess.Id;
+                CurrentConfig.Save();
                 GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{mHostProcess.Id}'");
             }
             catch (Exception Error)

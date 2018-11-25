@@ -1,9 +1,12 @@
+using System.IO;
 using System.Linq;
 using Eleon.Modding;
 using EmpyrionModWebHost.Migrations;
+using EmpyrionModWebHost.Services;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace EmpyrionModWebHost
 {
@@ -26,25 +29,36 @@ namespace EmpyrionModWebHost
 
     public class Program
     {
+        public static IWebHost Application { get; private set; }
+        public static LifetimeEventsHostedService AppLifetime { get; private set; }
         public static ModHostDLL Host { get; set; }
 
         public static T GetManager<T>() where T : class
         {
             return Host.Plugins?.Where(P => P is T).FirstOrDefault() as T;
-        } 
+        }
 
         public static void Main(string[] args)
         {
-            var App = CreateWebHostBuilder(args).Build();
+            Application = CreateWebHostBuilder(args).Build();
 
-            Host = App.Services.GetService(typeof(ModHostDLL)) as ModHostDLL;
+            AppLifetime =  Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;
+
+            Host = Application.Services.GetService(typeof(ModHostDLL)) as ModHostDLL;
             Host.InitComunicationChannels();
 
-            App.Run();
+            Application.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            WebHost
+            .CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config.AddJsonFile("appsettings.json", optional: true)
+                      .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "appsettings.json"), optional: true);
+                config.AddEnvironmentVariables();
+            })
+            .UseStartup<Startup>();
     }
 }

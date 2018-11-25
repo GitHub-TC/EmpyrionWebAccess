@@ -58,7 +58,7 @@ namespace EmpyrionModWebHost.Extensions
         public static void Intervall(int aIntervall, Action aAction)
         {
             new Thread(() => {
-                while (true)
+                while (!Program.AppLifetime.Exit)
                 {
                     try
                     {
