@@ -11,7 +11,7 @@
 
     <ng-container matColumnDef="faction">
       <th mat-header-cell *matHeaderCellDef> Fac. </th>
-      <td mat-cell *matCellDef="let chat"> {{chat.FactionName}} </td>
+      <td mat-cell *matCellDef="let chat">{{Faction(chat)?.Abbrev}}</td>
     </ng-container>
 
     <ng-container matColumnDef="playerName">

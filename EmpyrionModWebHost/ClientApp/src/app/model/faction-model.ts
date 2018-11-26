@@ -1,6 +1,6 @@
 export class FactionModel {
-  origin: number;
-  factionId: number;
-  name: string;
-  abbrev: string;
+  Origin: number;
+  FactionId: number;
+  Name: string;
+  Abbrev: string;
 }

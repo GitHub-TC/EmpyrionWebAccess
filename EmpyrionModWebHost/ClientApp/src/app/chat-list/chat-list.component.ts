@@ -5,6 +5,8 @@ import { ChatModel, ChatType } from '../model/chat-model'
 import { ChatService } from '../services/chat.service'
 import { MatTable } from '@angular/material';
 import { PlayerService } from '../services/player.service';
+import { FactionService } from '../services/faction.service';
+import { FactionModel } from '../model/faction-model';
 
 @Component({
   selector: 'app-chat-list',
@@ -21,20 +23,31 @@ export class ChatListComponent implements OnInit {
   ChatKeywords: string[] = ["admin", "server", "playfield", "wipe"];
   ModKeywords: string[] = ["/", "am:", "cb:"];
   autoscroll: boolean = true;
+  mFactions: FactionModel[];
 
-  constructor(private mChatService: ChatService, private mPlayerService: PlayerService) {
+  constructor(
+    private mFactionService: FactionService,
+    private mChatService: ChatService,
+    private mPlayerService: PlayerService) {
   }
 
   ngOnInit() {
     this.mChatService.GetMessages().subscribe(messages => {
       this.messages = messages;
 
-      if(this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
+      if (this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
     });
+
+    this.mFactionService.GetFactions().subscribe(F => this.mFactions = F );
   }
 
   ChatTo(aMsg: ChatModel) {
     this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.SteamId == aMsg.PlayerSteamId));
+  }
+
+  Faction(aMsg: ChatModel) {
+    if (aMsg.FactionId) return this.mFactions.find(F => F.FactionId == aMsg.FactionId);
+    return { Abbrev: aMsg.FactionName }
   }
 
   getLineClass(aMsg: ChatModel) {

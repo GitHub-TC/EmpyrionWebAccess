@@ -75,7 +75,16 @@ namespace EmpyrionModWebHost.Controllers
 
             PlayerManager = Program.GetManager<PlayerManager>();
 
-            TaskWait.Intervall(2000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
+            TaskWait.Intervall(2000,  () => SysteminfoHub?.Clients.All.SendAsync("UPC", JsonConvert.SerializeObject(new {
+                o       = CurrentSysteminfo.online,
+                ap      = CurrentSysteminfo.activePlayers,
+                apf     = CurrentSysteminfo.activePlayfields,
+                c       = CurrentSysteminfo.cpuTotalLoad,
+                r       = CurrentSysteminfo.ramAvailableMB,
+                tpf     = CurrentSysteminfo.totalPlayfieldserver,
+                tpfm    = CurrentSysteminfo.totalPlayfieldserverRamMB,
+            })).Wait(1000));
+            TaskWait.Intervall(30000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
             TaskWait.Intervall(5000, UpdateEmpyrionInfosAsync);
             TaskWait.Intervall(5000, UpdateComputerInfos);
             TaskWait.Intervall(2000, UpdatePerformanceInfos);

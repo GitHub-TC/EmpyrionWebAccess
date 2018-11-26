@@ -5,6 +5,8 @@ import { PlayerService } from '../services/player.service';
 import { PlayerModel } from '../model/player-model';
 import { ChatService } from '../services/chat.service';
 import { PositionService } from '../services/position.service';
+import { FactionService } from '../services/faction.service';
+import { FactionModel } from '../model/faction-model';
 
 @Component({
   selector: 'app-player-list',
@@ -17,8 +19,10 @@ export class PlayerListComponent implements OnInit {
 
   message: string;
   autoscroll: boolean = true;
+  mFactions: FactionModel[];
 
   constructor(
+    private mFactionService: FactionService,
     private mPlayerService: PlayerService,
     private mPositionService: PositionService,
     private mChatService: ChatService) {
@@ -28,6 +32,7 @@ export class PlayerListComponent implements OnInit {
     this.mPlayerService.GetPlayers().subscribe(players => {
       this.players = players;
     });
+    this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
   }
 
   get CurrentPlayerSteamId() {
@@ -54,5 +59,9 @@ export class PlayerListComponent implements OnInit {
 
   ChatTo(aPlayer: PlayerModel) {
     this.mChatService.ChatToPlayer(aPlayer);
+  }
+
+  Faction(aPlayer: PlayerModel) {
+    return this.mFactions.find(F => F.FactionId == aPlayer.FactionId);
   }
 }

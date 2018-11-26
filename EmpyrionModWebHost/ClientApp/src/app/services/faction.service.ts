@@ -35,16 +35,10 @@ export class FactionService implements OnInit {
   }
 
   ngOnInit(): void {
-    this.http.get<ODataResponse<FactionModel[]>>("odata/Factions")
-      .pipe(map(S => S.value))
-      .subscribe(
-        F => this.factions.next(this.mFactions = F),
-        error => this.error = error // error path
-      );
   }
 
   private UpdateFactionData(aFaction: FactionModel) {
-    let factionfound = this.mFactions.findIndex(T => aFaction.origin == T.origin);
+    let factionfound = this.mFactions.findIndex(T => aFaction.FactionId == T.FactionId);
     if (factionfound == -1)
       this.mFactions.push(aFaction);
     else {
@@ -58,15 +52,20 @@ export class FactionService implements OnInit {
   }
 
   GetFactions(): Observable<FactionModel[]> {
+    let locationsSubscription = this.http.get<ODataResponse<FactionModel[]>>("odata/Factions")
+      .pipe(map(S => S.value))
+      .subscribe(
+        F => this.factions.next(this.mFactions = F),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+
     return this.factionsObservable;
   }
-
 
   GetFaction(aId: number): FactionModel {
-    return this.factions.getValue().find(F => F.factionId == aId);
+    return this.factions.getValue().find(F => F.FactionId == aId);
   }
 
-  GetPlayers(): Observable<FactionModel[]> {
-    return this.factionsObservable;
-  }
 }

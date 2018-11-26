@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators'
@@ -12,7 +12,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 @Injectable({
   providedIn: 'root'
 })
-export class ChatService {
+export class ChatService implements OnInit {
   public hubConnection: HubConnection;
 
   private mMessages: ChatModel[] = [];// CHAT;
@@ -39,13 +39,18 @@ export class ChatService {
     }
   }
 
+  ngOnInit(): void {
+  }
+
   GetMessages(): Observable<ChatModel[]> {
-    this.http.get<ODataResponse<ChatModel[]>>("odata/Chats")
+    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats")
       .pipe(map(S => S.value))
       .subscribe(
         M => this.messages.next(this.mMessages = M),
         error => this.error = error // error path
       );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
 
     return this.messagesObservable;
   }

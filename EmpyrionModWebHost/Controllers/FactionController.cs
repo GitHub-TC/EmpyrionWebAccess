@@ -25,7 +25,7 @@ namespace EmpyrionModWebHost.Controllers
     {
         public IHubContext<FactionHub> FactionHub { get; internal set; }
         public ModGameAPI GameAPI { get; private set; }
-        
+
         public FactionManager(IHubContext<FactionHub> aFactionHub)
         {
             FactionHub = aFactionHub;
@@ -38,7 +38,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public void AddFactionToDB(Faction aFaction)
         {
-            using(var DB = new FactionContext())
+            using (var DB = new FactionContext())
             {
                 DB.Add(aFaction);
                 DB.SaveChanges();
@@ -61,11 +61,38 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
             Event_Faction_Changed += FactionManager_Event_Faction_Changed;
+
+            UpdateFactions();
+        }
+
+        private void UpdateFactions()
+        {
+            TaskWait.Intervall(10000, () =>
+            {
+                var factions = TaskWait.For(2, Request_Get_Factions(new Id(1))).Result.factions;
+
+                using (var DB = new FactionContext())
+                {
+                    foreach (var faction in factions)
+                    {
+                        var Faction = DB.Find<Faction>(faction.factionId) ?? new Faction();
+                        var IsNewFaction = Faction.FactionId == 0;
+
+                        if (IsNewFaction) Faction.FactionId = faction.factionId;
+                        Faction.Name   = faction.name;
+                        Faction.Origin = faction.origin;
+                        Faction.Abbrev = faction.abbrev;
+
+                        if (IsNewFaction) DB.Factions.Add(Faction);
+                    }
+
+                    if(DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("UpdateFactions", JsonConvert.SerializeObject(DB.Factions)).Wait();
+                }
+            });
         }
 
         private void FactionManager_Event_Faction_Changed(FactionChangeInfo aFactionChange)
         {
-            var factions = TaskWait.For(2, Request_Get_Factions(new Id(aFactionChange.factionId))).Result;
         }
 
     }

@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading;
+using System.IO;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -48,14 +50,15 @@ namespace EmpyrionModWebHost.Controllers
         async void UpdatePlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aChange)
         {
             Player[] ChangedPlayers;
+            int count;
             using (var DB = new PlayerContext())
             {
                 ChangedPlayers = aSelect(DB).ToArray();
                 ChangedPlayers.ForEach(P => aChange(P));
-                await DB.SaveChangesAsync();
+                count = await DB.SaveChangesAsync();
             }
 
-            PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
+            if(count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
         }
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -104,9 +107,9 @@ namespace EmpyrionModWebHost.Controllers
                 Player.RotZ = aPlayerInfo.rot.z;
 
                 if (IsNewPlayer) DB.Players.Add(Player);
-                DB.SaveChanges();
+                var count = DB.SaveChanges();
 
-                PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
+                if(count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
             }
         }
 
@@ -132,10 +135,17 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Player_Info         += PlayerManager_Event_Player_Info;
-            Event_Player_Connected    += PlayerConnected;
+            Event_Player_Info += PlayerManager_Event_Player_Info;
+            Event_Player_Connected += PlayerConnected;
             Event_Player_Disconnected += PlayerDisconnected;
 
+            UpdateOnlinePlayers();
+
+            SyncronizePlayersWithSaveGameDirectory();
+        }
+
+        private void UpdateOnlinePlayers()
+        {
             TaskWait.Intervall(10000, () =>
             {
                 var onlinePlayers = TaskWait.For(2, Request_Player_List()).Result;
@@ -144,6 +154,25 @@ namespace EmpyrionModWebHost.Controllers
                 if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
                 else UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId)), P => P.Online = true);
             });
+        }
+
+        private static void SyncronizePlayersWithSaveGameDirectory()
+        {
+            new Thread(() =>
+            {
+                var KnownPlayers = Directory
+                    .GetFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"))
+                    .Select(F => Path.GetFileNameWithoutExtension(F));
+                using (var DB = new PlayerContext())
+                {
+                    DB.Players
+                        .Where(P => !KnownPlayers.Contains(P.SteamId))
+                        .ForEach(P => DB.Players.Remove(P));
+
+                    DB.SaveChanges();
+                }
+
+            }).Start();
         }
 
         private void PlayerDisconnected(Id ID)

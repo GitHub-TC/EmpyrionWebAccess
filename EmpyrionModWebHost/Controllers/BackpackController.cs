@@ -71,9 +71,9 @@ namespace EmpyrionModWebHost.Controllers
                 Backpack.Content = BackpackContent;
                 if (IsNewBackpack) DB.Backpacks.Add(Backpack);
 
-                DB.SaveChanges();
+                var count = DB.SaveChanges();
 
-                BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
+                if(count > 0) BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
             }
         }
 

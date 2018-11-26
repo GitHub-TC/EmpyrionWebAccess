@@ -16,7 +16,6 @@ import { ChatListComponent } from './chat-list/chat-list.component';
 import { PlayerBackpackComponent } from './player-backpack/player-backpack.component';
 import { PlayerDetailsComponent } from './player-details/player-details.component';
 import { PlayerListComponent } from './player-list/player-list.component';
-import { FactionPipe } from './pipes/faction.pipe';
 
 import { JwtInterceptor, ErrorInterceptor, fakeBackendProvider } from './_helpers';
 import { LoginComponent } from './login/login.component';
@@ -38,7 +37,6 @@ import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './p
     PlayerBackpackComponent,
     PlayerDetailsComponent,
     PlayerListComponent,
-    FactionPipe,
     UserManagerComponent,
     PlayerWarpDialogComponent,
     PlayerWarpDialogContentComponent

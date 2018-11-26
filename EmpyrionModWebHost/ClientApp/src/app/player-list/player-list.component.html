@@ -37,7 +37,7 @@
 
     <ng-container matColumnDef="Faction">
       <th mat-header-cell *matHeaderCellDef> Faction </th>
-      <td mat-cell *matCellDef="let player"> {{player.FactionId | faction: "abbrev"}} </td>
+      <td mat-cell *matCellDef="let player">{{Faction(player)?.Abbrev}}</td>
     </ng-container>
 
     <ng-container matColumnDef="Playfield">

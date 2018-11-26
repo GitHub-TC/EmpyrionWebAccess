@@ -1,7 +1,7 @@
 import { FactionModel } from './faction-model'
 
 export const FACTION: FactionModel[] = [
-  { origin: 1, factionId: 12, name: "Alles voll", abbrev:"RAT" },
-  { origin: 1, factionId: 43, name: "Numa", abbrev: "ROB" },
-  { origin: 2, factionId: 44, name: "Immer wieder", abbrev: "AvA" },
+  { Origin: 1, FactionId: 12, Name: "Alles voll", Abbrev:"RAT" },
+  { Origin: 1, FactionId: 43, Name: "Numa", Abbrev: "ROB" },
+  { Origin: 2, FactionId: 44, Name: "Immer wieder", Abbrev: "AvA" },
 ];

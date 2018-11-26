@@ -7,6 +7,8 @@ import { ACTIVEPLAYFIELDS } from '../model/activeplayfield-mock';
 import { PositionService } from '../services/position.service';
 import { ChatService } from '../services/chat.service';
 import { PlayerService } from '../services/player.service';
+import { FactionService } from '../services/faction.service';
+import { FactionModel } from '../model/faction-model';
 
 @Component({
   selector: 'app-active-playfields',
@@ -16,10 +18,16 @@ import { PlayerService } from '../services/player.service';
 export class ActivePlayfieldsComponent implements OnInit {
   playfields: ActivePlayfieldModel[] = ACTIVEPLAYFIELDS;
   mCurrentPlayer: PlayerModel;
+  mFactions: FactionModel[];
 
   mPlayfieldsOpen: string[] = [];
 
-  constructor(private mPositionService: PositionService, private mChatService: ChatService, private mPlayerService: PlayerService) { }
+  constructor(
+    private mFactionService: FactionService,
+    private mPositionService: PositionService,
+    private mChatService: ChatService,
+    private mPlayerService: PlayerService)
+  { }
 
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {
@@ -31,6 +39,7 @@ export class ActivePlayfieldsComponent implements OnInit {
       });
       this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
     });
+    this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
   }
 
   SavePosition(aPlayer: PlayerModel) {
@@ -45,6 +54,10 @@ export class ActivePlayfieldsComponent implements OnInit {
 
   ChatTo(aPlayer: PlayerModel) {
     this.mChatService.ChatToPlayer(aPlayer);
+  }
+
+  Faction(aPlayer: PlayerModel) {
+    return this.mFactions.find(F => F.FactionId == aPlayer.FactionId);
   }
 
   get CurrentPlayer() {

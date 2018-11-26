@@ -39,6 +39,7 @@ namespace EmpyrionModWebHost.Controllers
         public ModGameAPI GameAPI { get; private set; }
         public IHubContext<ChatHub> ChatHub { get; private set; }
         public PlayerManager PlayerManager { get; private set; }
+        public FactionManager FactionManager { get; private set; }
 
         public ChatManager(IHubContext<ChatHub> aChatHub)
         {
@@ -60,7 +61,7 @@ namespace EmpyrionModWebHost.Controllers
                 PlayerSteamId = player?.SteamId,
                 PlayerName    = player?.PlayerName,
                 FactionId     = player == null ? 0 : player.FactionId,
-                FactionName   = "???",
+                FactionName   = FactionManager.GetFaction(player.FactionId)?.Abbrev,
                 Type          = aChatInfo.type,
                 Message       = aChatInfo.msg,
             });
@@ -87,7 +88,7 @@ namespace EmpyrionModWebHost.Controllers
                 PlayerSteamId = "",
                 PlayerName    = string.IsNullOrEmpty(aChatAsUser) ? "Server" : aChatAsUser,
                 FactionId     = 0,
-                FactionName   = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : aChatAsUser,
+                FactionName   = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : "-ADM-",
                 Type          = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
                 Message       = aMessage,
             });
@@ -100,6 +101,7 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
             PlayerManager = Program.GetManager<PlayerManager>();
+            FactionManager = Program.GetManager<FactionManager>();
 
             Event_ChatMessage += ChatManager_Event_ChatMessage;
         }

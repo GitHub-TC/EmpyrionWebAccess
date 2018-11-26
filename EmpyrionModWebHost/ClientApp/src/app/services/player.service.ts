@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
@@ -12,7 +12,7 @@ import { PLAYER } from '../model/player-mock';
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerService {
+export class PlayerService implements OnInit {
   public hubConnection: HubConnection;
 
   private mPlayers: PlayerModel[] = []; // PLAYER;
@@ -37,6 +37,9 @@ export class PlayerService {
     }
   }
 
+  ngOnInit(): void {
+  }
+
   private UpdatePlayersData(players: PlayerModel[]) {
     players.map(P => {
       let playerfound = this.mPlayers.findIndex(T => P.SteamId == T.SteamId);
@@ -54,13 +57,15 @@ export class PlayerService {
   }
 
   GetPlayers(): Observable<PlayerModel[]> {
-    this.http.get<ODataResponse<PlayerModel[]>>("odata/Players")
+    let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
       .pipe(map(S => S.value))
       .subscribe(
         P => this.players.next(this.mPlayers = P),
         error => this.error = error // error path
-      );
-    
+    );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+
     return this.playersObservable;
   }
 
