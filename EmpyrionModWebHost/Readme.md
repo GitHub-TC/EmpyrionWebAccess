@@ -113,3 +113,125 @@ https://github.com/GitHub-TC/EmpyrionModHost
 * Scheduler: Für Zeitgesteuerte Aufgaben, Willkommensnachichten, Ankündigungen, ...
 * ...
 * was wir/ich sonst noch so brauchen :-)
+
+
+=============================================================================
+English Version
+=============================================================================
+
+
+# Empyrion Web Access
+
+## What's this?
+Empyrion Web Access is a MOD that allows access to the game as an admin via a web browser.
+The fact that the MOD gets along without a surface or remote desktop on the server, it is also suitable for use with game host.
+It starts and ends automatically with the game and can be used by any number of admins at the same time.
+
+Empyrion Web Access is free for non-commercial use. <br>
+About a Aufmersamkeit I would be happy but https://paypal.me/ASTICTC
+
+Have fun playing and server operation wishes
+ASTIC/TC
+
+## First login
+So that the integrated web server knows under which URL he should be attainable a text file "appsettings.json" in the
+Savegame directory can be created under \[Savegame\]\\MODs\\EWA.
+The following entry must be set up there:
+
+`` `
+{
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://localhost:5010"
+      },
+      "HttpsDefaultCert": {
+        "Url": "https://localhost:5011"
+      }
+    }
+  }
+}
+`` `
+Instead of "localhost" the name or the IP of the computer must be specified. The port can be chosen "almost" as desired, but must be enabled by the firewall.
+The default port for HTTP is 80 and for HTTPS 443.
+Note: The web server runs exclusively via HTTPS and uses the HTTP only for forwarding to HTTPS.
+
+If you now start the EGS server Empyrion Web Access should be at the address
+`` `
+https://[hostname][:port]
+`` `
+display a login mask.
+
+As the first user, the abbreviation and password are automatically stored and accepted in the user database. All users can be subsequently created, changed or deleted via the interface.
+
+## The main window
+### System/Game Information
+Top right information about the server (CPU, RAM, HDD), the game (online players, number of Playfield servers, the reserve server and their memory consumption) and the version is displayed.
+Also under the three right-most points is the menu for further windows and the logout.
+
+### chat area
+Here are all the chat messages of the game. The admin can also place chat messages in the game from here by entering the text in the "Message" input field and confirming with Enter/Return. If the check mark "Chat as NNNN" is set, an NNNN: is automatically set for the players in the game before the chat message.
+
+To chat directly with a player, you can select it with the chat icon. Its name is then displayed below the input field. To be able to chat again with all players then simply the hook at "Chat to all" be set again.
+
+### Active playfields and the players who are in it
+Here the active playfields are listed with their name and number of players.
+Players are shown with faction and name.
+
+The chat symbol is used to make direct contact with the player and to save the flag symbol, its current position (see Warp).
+
+### The list of known players
+Here are all players displayed that were in the runtime of EWA times online and their PLY file is still in the savegame.
+
+The player is shown here with his online status, name, faction, origin ...
+* The chat symbol is used to make direct contact with the player and to save the flag symbol, its current position (see Warp).
+* The warp icon (gamepad icon) is used to bring up the Warp window for the player to change the position of the player in the game.
+
+### inventory display
+Here the inventory of the selected player is displayed.
+
+
+## Start/Stop
+If there is a file "stop.txt" in the directory \[Empyrion\]\\Content\\Mods\\EWALoader\\Client the EWA will be stopped automatically.
+If the file is deleted or renamed, the EWA restarts.
+
+# Advanced configuration
+## Create your own self-signed certificate for the HTTPS connection
+The EWA already contains a self-signed certificate. But you can also make your own with PowerShell:
+
+1. New-SelfSignedCertificate -certstorelocation cert: \localmachine \my -dnsname EmpyrionWebAccess -NotAfter (get-date) .AddYears (10)
+-> CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4
+1. $ pwd = ConvertTo-SecureString -String "Pa $$ w0rd" -Force -AsPlainText
+Export-PfxCertificate -cert cert: \localMachine \my \CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4 -FilePath EmpyrionWebAccess.pfx -Password $ pwd
+1. Now the EmpyrionWebAccess.pfx file must be placed on the server and the file path and the password in the appsettings.json file in the \[Savegame\]\\MODs\\EWA directory must be entered
+
+## Release of ports
+Possibly. the ports and addresses must still be released for the user under whose EGS account is running. To do this, you need to issue the following commands in an Admin PowerShel Console.
+
+1. For HTTP
+   * netsh http add urlacl url = http://[computername] [: port]/user = [domain/computer]\[user]
+   * netsh http add urlacl url = http://[ipaddress] [: port]/user = [domain/computer]\[user]
+1. For HTTPS
+   * netsh http add urlacl url = https://[computername] [: port]/user = [domain/computer]\[user]
+   * netsh http add urlacl url = https://[ipaddress] [: port]/user = [domain/computer]\[user]
+
+
+# Further information and the source code can be found here
+https://github.com/GitHub-TC/EmpyrionWebAccess
+
+The internal plugins work with
+Is similiar to the original EmpyrionAPITools - only with async await and .NET 4.6 <br>
+https://github.com/GitHub-TC/EmpyrionNetAPIAccess
+
+mod managing via <br>
+https://github.com/GitHub-TC/EmpyrionModHost
+
+# What else is coming?
+* Backpack: recovery and manipulation
+* Structures: listing, warping, deleting, ...
+* MOD Manager: Setup, Activation/Deactivation, Update, ... for more EGS mods
+* Server: Start, Stop
+* Backup/Restore: of structures and players
+* Scheduler: For timed tasks, welcome stories, announcements, ...
+* ...
+* what else do we need :-)

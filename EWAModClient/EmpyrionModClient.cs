@@ -12,9 +12,9 @@ namespace EWAModClient
 {
     public class Configuration
     {
-        public string PathToModHost { get; set; } = @"T:\EWA\EmpyrionModWebHost\bin\publish\EmpyrionModWebHost.exe";
-        public bool AutostartModHost { get; set; } = false;
-        public int AutostartModHostAfterNSeconds { get; set; } = 30;
+        public string PathToModHost { get; set; } = @"..\EWA\EmpyrionModWebHost.exe";
+        public bool AutostartModHost { get; set; } = true;
+        public int AutostartModHostAfterNSeconds { get; set; } = 10;
         public bool AutoshutdownModHost { get; set; } = true;
         public string EmpyrionToModPipeName { get; set; } = "EmpyrionToEWAPipe{0}";
         public string ModToEmpyrionPipeName { get; set; } = "EWAToEmpyrionPipe{0}";
