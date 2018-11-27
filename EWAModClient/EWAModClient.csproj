@@ -61,6 +61,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)*.*" "C:\steamcmd\empyrion\Content\Mods\EWALoader\Client\*.*" /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetDir)*.*" "C:\steamcmd\empyrion\Content\Mods\EWALoader\Client\*.*" /Y
+xcopy "$(TargetDir)*.*" "$(TargetDir)..\..\EmpyrionModWebHost\bin\EWALoader\Client\*.*" /Y
+del /Q "$(TargetDir)..\..\EmpyrionModWebHost\bin\EWALoader\Client\*.pdb"</PostBuildEvent>
   </PropertyGroup>
 </Project>

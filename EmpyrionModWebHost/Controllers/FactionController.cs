@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
@@ -49,9 +50,9 @@ namespace EmpyrionModWebHost.Controllers
 
         public Faction GetFaction(int aFactionId)
         {
-            using (var DB = new PlayerContext())
+            using (var DB = new FactionContext())
             {
-                return DB.Find<Faction>(aFactionId);
+                return DB.Factions.FirstOrDefault(F => F.FactionId == aFactionId);
             }
         }
 
