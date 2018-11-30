@@ -58,7 +58,7 @@ namespace EmpyrionModWebHost.Controllers
                 count = await DB.SaveChangesAsync();
             }
 
-            if(count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
+            if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
         }
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -109,7 +109,7 @@ namespace EmpyrionModWebHost.Controllers
                 if (IsNewPlayer) DB.Players.Add(Player);
                 var count = DB.SaveChanges();
 
-                if(count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
+                if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
             }
         }
 
@@ -117,11 +117,12 @@ namespace EmpyrionModWebHost.Controllers
         {
             using (var DB = new PlayerContext())
             {
-                return DB.Players.FirstOrDefault( P => P.EntityId == aPlayerId);
+                return DB.Players.FirstOrDefault(P => P.EntityId == aPlayerId);
             }
         }
 
-        public int OnlinePlayersCount {
+        public int OnlinePlayersCount
+        {
             get {
                 using (var DB = new PlayerContext())
                 {
@@ -185,6 +186,41 @@ namespace EmpyrionModWebHost.Controllers
             UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
             PlayerManager_Event_Player_Info(TaskWait.For(2, Request_Player_Info(ID)).Result);
         }
+
+
+        public bool ChangePlayerInfo(PlayerInfoSet aSet)
+        {
+            using (var DB = new PlayerContext())
+            {
+                var player = DB.Players.FirstOrDefault(P => P.EntityId == aSet.entityId);
+                if (player == null) return false;
+
+                if (aSet.factionRole.HasValue) player.FactionRole = aSet.factionRole.Value;
+                if (aSet.factionId.HasValue) player.FactionId = aSet.factionId.Value;
+                if (aSet.factionGroup.HasValue) player.FactionGroup = aSet.factionGroup.Value;
+                if (aSet.origin.HasValue) player.Origin = (byte)aSet.origin.Value;
+                if (aSet.upgradePoints.HasValue) player.Upgrade = aSet.upgradePoints.Value;
+                if (aSet.experiencePoints.HasValue) player.Exp = aSet.experiencePoints.Value;
+                if (aSet.bodyTempMax.HasValue) player.BodyTempMax = aSet.bodyTempMax.Value;
+                if (aSet.bodyTemp.HasValue) player.BodyTemp = aSet.bodyTemp.Value;
+                if (aSet.radiationMax.HasValue) player.RadiationMax = aSet.radiationMax.Value;
+                if (aSet.oxygenMax.HasValue) player.OxygenMax = aSet.oxygenMax.Value;
+                if (aSet.oxygen.HasValue) player.Oxygen = aSet.oxygen.Value;
+                if (aSet.foodMax.HasValue) player.FoodMax = aSet.foodMax.Value;
+                if (aSet.food.HasValue) player.Food = aSet.food.Value;
+                if (aSet.staminaMax.HasValue) player.StaminaMax = aSet.staminaMax.Value;
+                if (aSet.stamina.HasValue) player.Stamina = aSet.stamina.Value;
+                if (aSet.healthMax.HasValue) player.HealthMax = aSet.healthMax.Value;
+                if (aSet.health.HasValue) player.Health = aSet.health.Value;
+                if (!string.IsNullOrEmpty(aSet.startPlayfield)) player.StartPlayfield = aSet.startPlayfield;
+                if (aSet.radiation.HasValue) player.Radiation = aSet.radiation.Value;
+
+                DB.SaveChanges();
+            }
+
+            return TaskWait.For(2, Request_Player_SetPlayerInfo(aSet)).IsCompletedSuccessfully;
+        }
+
     }
 
     [Authorize]
@@ -220,11 +256,19 @@ namespace EmpyrionModWebHost.Controllers
         //}
 
         //[EnableQuery]
-        //public IActionResult Put([FromBody]Player player)
+        //[Route("Set")]
+        //public IActionResult Set([FromBody]PlayerInfoSet player)
         //{
-        //    _db.Players.Add(player);
-        //    _db.SaveChanges();
-        //    return Created(player);
+        //    PlayerManager.ChangePlayerInfo(player);
+        //    return Ok();
         //}
+
+        [EnableQuery]
+        public IActionResult Post([FromBody]PlayerInfoSet player)
+        {
+            PlayerManager.ChangePlayerInfo(player);
+            return Ok();
+        }
     }
+
 }

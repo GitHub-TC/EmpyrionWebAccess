@@ -4,19 +4,17 @@ import { HttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { PositionService } from '../services/position.service';
 import { PositionModel } from '../model/player-model';
+import { PlayfieldService } from '../services/playfield.service';
 
 @Component({
   selector: 'app-player-warp-dialog',
   templateUrl: './player-warp-dialog.component.html',
   styleUrls: ['./player-warp-dialog.component.less']
 })
-export class PlayerWarpDialogComponent implements OnInit {
+export class PlayerWarpDialogComponent {
   @Input() WarpData: PositionModel;
 
-  constructor(private http: HttpClient, public dialog: MatDialog) {}
-
-  ngOnInit() {
-  }
+  constructor(public dialog: MatDialog) { }
 
   openDialog() {
     const dialogRef = this.dialog.open(PlayerWarpDialogContentComponent, {
@@ -35,11 +33,12 @@ export class PlayerWarpDialogComponent implements OnInit {
   styleUrls: ['./player-warp-dialog.component.less']
 })
 export class PlayerWarpDialogContentComponent implements OnInit {
-  Playfields: string[];
   @Input() WarpData: PositionModel;
+  Playfields: string[];
   error: any;
 
   constructor(private http: HttpClient,
+    private mPlayfields: PlayfieldService,
     public mPositionService: PositionService,
     public dialogRef: MatDialogRef<PlayerWarpDialogContentComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -49,12 +48,7 @@ export class PlayerWarpDialogContentComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.http.get<string[]>("gameplay/GetAllPlayfieldNames")
-      .pipe()
-      .subscribe(
-        L => this.Playfields = L,
-        error => this.error = error // error path
-      );
+    this.mPlayfields.PlayfieldNames.subscribe(PL => this.Playfields = PL);
   }
 
   setToZeroPosition() {
@@ -63,7 +57,9 @@ export class PlayerWarpDialogContentComponent implements OnInit {
   }
 
   copyPosition() {
+    let SaveEntityId = this.WarpData.entityId;
     this.WarpData = JSON.parse(JSON.stringify(this.mPositionService.CurrentPosition));
+    this.WarpData.entityId = SaveEntityId;
   }
 
   execWarp() {

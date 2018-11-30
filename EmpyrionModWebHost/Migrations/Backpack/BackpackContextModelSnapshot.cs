@@ -22,7 +22,9 @@ namespace EmpyrionModWebHost.Migrations.Backpack
 
                     b.Property<DateTime>("Timestamp");
 
-                    b.Property<string>("Content");
+                    b.Property<string>("BagContent");
+
+                    b.Property<string>("ToolbarContent");
 
                     b.HasKey("Id", "Timestamp");
 

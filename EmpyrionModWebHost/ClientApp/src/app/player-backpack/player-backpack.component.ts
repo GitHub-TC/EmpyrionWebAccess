@@ -19,8 +19,8 @@ export class PlayerBackpackComponent implements OnInit {
 
   @Input() set PlayerSteamId(aPlayerSteamId: string) {
     console.log(aPlayerSteamId);
-    this.backpack = EmptyBackpack;
-    this.backpack.steamId = aPlayerSteamId;
+    this.backpack         = EmptyBackpack;
+    this.backpack.SteamId = aPlayerSteamId;
     this.mBackpackService.GetBackpack(aPlayerSteamId).subscribe(B => this.backpack = B);
   }
 

@@ -10,7 +10,8 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 interface BackpackODataModel {
   Id?: string;
   Timestamp?: string;
-  Content?: string;
+  ToolbarContent?: string;
+  BagContent?: string;
 }
 
 @Injectable({
@@ -37,23 +38,21 @@ export class BackpackService {
     }
   }
 
-  private UpdateBackpackData(backpack: BackpackODataModel) {
-    if (backpack.Id != this.mBackpack.steamId) return;
-    this.mBackpack.backpack = JSON.parse(backpack.Content);
+  private UpdateBackpackData(B: BackpackODataModel) {
+    if (B.Id != this.mBackpack.SteamId) return;
+    this.mBackpack.Toolbar = B && B.ToolbarContent ? JSON.parse(B.ToolbarContent) : [];
+    this.mBackpack.Bag     = B && B.BagContent     ? JSON.parse(B.BagContent)     : [];
     this.backpack.next(this.mBackpack);
   }
 
   GetBackpack(aPlayerSteamId: string): Observable<BackpackModel> {
-    this.mBackpack = { steamId: aPlayerSteamId, backpack: [] };
+    this.mBackpack = { SteamId: aPlayerSteamId, Toolbar:[], Bag: [] };
     this.backpack.next(this.mBackpack);
 
     if (aPlayerSteamId) {
       let locationsSubscription = this.http.get<BackpackODataModel>("odata/Backpacks('" + aPlayerSteamId + "')")
         .subscribe(
-          B => {
-            this.mBackpack.backpack = JSON.parse(B.Content);
-            this.backpack.next(this.mBackpack);
-          },
+          B => this.UpdateBackpackData(B),
           error => this.error = error // error path
       );
       // Stop listening for location after 10 seconds

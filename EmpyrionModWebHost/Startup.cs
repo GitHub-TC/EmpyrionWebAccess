@@ -6,6 +6,7 @@ using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Routing.Conventions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -146,12 +147,15 @@ namespace EmpyrionModWebHost
 
             app.UseMvc(routes =>
             {
-                routes.MapRoute(name: "default", template: "{controller}/{action=Index}/{id?}");
                 routes.Select().Expand().Filter().OrderBy().MaxTop(1000).Count();
                 routes.MapODataServiceRoute("player",   "odata", PlayersController  .GetEdmModel());
                 routes.MapODataServiceRoute("backpack", "odata", BackpacksController.GetEdmModel());
                 routes.MapODataServiceRoute("faction",  "odata", FactionsController .GetEdmModel());
                 routes.MapODataServiceRoute("chat",     "odata", ChatsController    .GetEdmModel());
+                routes.EnableDependencyInjection();
+
+                routes.MapRoute(name: "default", template: "{controller}/{action=Index}/{id?}");
+
             });
 
             app.UseSpa(spa =>

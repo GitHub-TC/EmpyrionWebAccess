@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 
 import { PlayerService } from '../services/player.service';
 
@@ -7,6 +7,8 @@ import { ChatService } from '../services/chat.service';
 import { PositionService } from '../services/position.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
+import { MatTableDataSource, MatSort } from '@angular/material';
+import { PLAYER } from '../model/player-mock';
 
 @Component({
   selector: 'app-player-list',
@@ -15,7 +17,10 @@ import { FactionModel } from '../model/faction-model';
 })
 export class PlayerListComponent implements OnInit {
   displayedColumns = ['Online', 'PlayerName', 'Origin', 'Faction', 'Playfield', 'Pos', 'EntityId', 'SteamId'];
-  players: PlayerModel[];
+  players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
+  displayFilter: boolean;
+
+  @ViewChild(MatSort) sort: MatSort;
 
   message: string;
   autoscroll: boolean = true;
@@ -30,9 +35,24 @@ export class PlayerListComponent implements OnInit {
 
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {
-      this.players = players;
+      this.players.data = players;
     });
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
+  }
+
+  ngAfterViewInit() {
+    this.players.sort = this.sort;
+  }
+
+  applyFilter(filterValue: string) {
+    filterValue = filterValue.trim(); // Remove whitespace
+    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
+    this.players.filter = filterValue;
+  }
+
+  toggleFilterDisplay(FilterInput) {
+    this.displayFilter = !this.displayFilter;
+    if (this.displayFilter) setTimeout(() => FilterInput.focus(), 0);
   }
 
   get CurrentPlayerSteamId() {
@@ -62,6 +82,6 @@ export class PlayerListComponent implements OnInit {
   }
 
   Faction(aPlayer: PlayerModel) {
-    return this.mFactions.find(F => F.FactionId == aPlayer.FactionId);
+    return aPlayer ? this.mFactions.find(F => F.FactionId == aPlayer.FactionId) : "";
   }
 }

@@ -27,10 +27,10 @@ namespace EmpyrionModWebHost.Controllers
     {
         private ChatManager ChatManager { get; set; }
 
-        public void SendMessage(string aChatTarget, string aChatAsUser, string aMessage)
+        public void SendMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessage)
         {
             ChatManager = Program.GetManager<ChatManager>();
-            ChatManager?.ChatMessage(aChatTarget, aChatAsUser, aMessage);
+            ChatManager?.ChatMessage(aChatTarget, aChatTargetHint, aChatAsUser, aMessage);
         }
     }
 
@@ -78,7 +78,7 @@ namespace EmpyrionModWebHost.Controllers
             await ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(aChat));
         }
 
-        public async Task ChatMessage(string aChatTarget, string aChatAsUser, string aMessage)
+        public async Task ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
@@ -90,7 +90,7 @@ namespace EmpyrionModWebHost.Controllers
                 FactionId     = 0,
                 FactionName   = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : "-ADM-",
                 Type          = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
-                Message       = aMessage,
+                Message       = $"{aChatTargetHint}{aMessage}",
             });
 
             await Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ")}{aMessage.Replace("'", "\\'")}'"));

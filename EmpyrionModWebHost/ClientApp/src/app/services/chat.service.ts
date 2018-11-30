@@ -73,8 +73,12 @@ export class ChatService implements OnInit {
 
   SendMessage(aAsUser: string, aMessage: string): void {
     let chatTarget = null;
-    if (this.mChatToPlayer) chatTarget = "p:" + this.mChatToPlayer.EntityId;
+    let chatTargetHint = null;
+    if (this.mChatToPlayer) {
+      chatTarget = "p:" + this.mChatToPlayer.EntityId;
+      chatTargetHint = "@" + this.mChatToPlayer.PlayerName + ": ";
+    }
 
-    this.hubConnection.invoke("SendMessage", chatTarget, aAsUser, aMessage);
+    this.hubConnection.invoke("SendMessage", chatTarget, chatTargetHint, aAsUser, aMessage);
   }
 }

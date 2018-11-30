@@ -13,7 +13,8 @@ namespace EmpyrionModWebHost.Migrations.Backpack
                 {
                     Id = table.Column<string>(nullable: false),
                     Timestamp = table.Column<DateTime>(nullable: false),
-                    Content = table.Column<string>(nullable: true)
+                    ToolbarContent = table.Column<string>(nullable: true),
+                    BagContent = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

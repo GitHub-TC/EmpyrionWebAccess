@@ -143,10 +143,10 @@ The following entry must be set up there:
   "Kestrel": {
     "Endpoints": {
       "Http": {
-        "Url": "http://localhost:5010"
+        "Url": "http://localhost:5000"
       },
       "HttpsDefaultCert": {
-        "Url": "https://localhost:5011"
+        "Url": "https://localhost:5001"
       }
     }
   }

@@ -3,10 +3,11 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ChatModel, ChatType } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
-import { MatTable } from '@angular/material';
+import { MatTable, MatSort, MatTableDataSource } from '@angular/material';
 import { PlayerService } from '../services/player.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
+import { CHAT } from '../model/chat-mock';
 
 @Component({
   selector: 'app-chat-list',
@@ -18,7 +19,8 @@ export class ChatListComponent implements OnInit {
 
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
-  messages: ChatModel[];
+  displayFilter: boolean;
+  messages: MatTableDataSource<ChatModel> = new MatTableDataSource([]);
   message: string;
   ChatKeywords: string[] = ["admin", "server", "playfield", "wipe"];
   ModKeywords: string[] = ["/", "am:", "cb:"];
@@ -33,12 +35,23 @@ export class ChatListComponent implements OnInit {
 
   ngOnInit() {
     this.mChatService.GetMessages().subscribe(messages => {
-      this.messages = messages;
+      this.messages.data = messages;
 
       if (this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
     });
 
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F );
+  }
+
+  applyFilter(filterValue: string) {
+    filterValue = filterValue.trim(); // Remove whitespace
+    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
+    this.messages.filter = filterValue;
+  }
+
+  toggleFilterDisplay(FilterInput) {
+    this.displayFilter = !this.displayFilter;
+    if (this.displayFilter) setTimeout(() => FilterInput.focus(), 0);
   }
 
   ChatTo(aMsg: ChatModel) {
@@ -55,6 +68,7 @@ export class ChatListComponent implements OnInit {
     if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return "Y";
     if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return "CB";
     if (aMsg.Type == ChatType.Faction) return "F";
+    if (aMsg.Type == ChatType.Private) return "P";
     return "";
   }
 

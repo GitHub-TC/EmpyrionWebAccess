@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmpyrionModWebHost.Migrations.Backpack
 {
     [DbContext(typeof(BackpackContext))]
-    [Migration("20181121064712_InitialCreate")]
+    [Migration("20181129163346_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,9 @@ namespace EmpyrionModWebHost.Migrations.Backpack
 
                     b.Property<DateTime>("Timestamp");
 
-                    b.Property<string>("Content");
+                    b.Property<string>("BagContent");
+
+                    b.Property<string>("ToolbarContent");
 
                     b.HasKey("Id", "Timestamp");
 

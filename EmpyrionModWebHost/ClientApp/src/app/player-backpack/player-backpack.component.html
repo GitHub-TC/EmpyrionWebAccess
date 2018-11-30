@@ -1,5 +1,12 @@
 <div class="BackPack">
-  <div class="Item" *ngFor="let i of backpack.backpack">
+  <div class="Item" *ngFor="let i of backpack.Toolbar">
+    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" />
+    <div class="counts">
+      <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
+      {{i.count}}
+    </div>
+  </div>
+  <div class="Item" *ngFor="let i of backpack.Bag">
     <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" />
     <div class="counts">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>

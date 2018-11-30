@@ -55,3 +55,29 @@ export class PlayerModel {
   RotY?: number;
   RotZ?: number;
 }
+
+
+export class PlayerInfoSet {
+  entityId: number;
+  sendLastNLogs?: number;
+  factionRole?: number;
+  factionId?: number;
+  factionGroup?: number;
+  origin?: number;
+  upgradePoints?: number;
+  experiencePoints?: number;
+  bodyTempMax?: number;
+  bodyTemp?: number;
+  bpRemainingTime?: number;
+  radiationMax?: number;
+  oxygenMax?: number;
+  oxygen?: number;
+  foodMax?: number;
+  food?: number;
+  staminaMax?: number;
+  stamina?: number;
+  healthMax?: number;
+  health?: number;
+  startPlayfield: string;
+  radiation?: number;
+}

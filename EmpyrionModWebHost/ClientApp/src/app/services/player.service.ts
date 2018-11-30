@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators'
 
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
-import { PlayerModel } from '../model/player-model';
+import { PlayerModel, PlayerInfoSet } from '../model/player-model';
 import { PLAYER } from '../model/player-mock';
 
 @Injectable({
@@ -20,6 +20,10 @@ export class PlayerService implements OnInit {
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(this.mPlayers);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();
   mCurrentPlayer: PlayerModel;
+
+  private currentPlayer: BehaviorSubject<PlayerModel> = new BehaviorSubject(this.mCurrentPlayer);
+  public readonly currentPlayerObservable: Observable<PlayerModel> = this.currentPlayer.asObservable();
+
   error: any;
 
   constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
@@ -69,8 +73,42 @@ export class PlayerService implements OnInit {
     return this.playersObservable;
   }
 
+  saveUser(aPlayer: PlayerModel): any {
+    this.http.post<PlayerInfoSet>('odata/Players', {
+      entityId: aPlayer.EntityId,
+      factionRole: aPlayer.FactionRole,
+      factionId: aPlayer.FactionId,
+      factionGroup: aPlayer.FactionGroup,
+      origin: aPlayer.Origin,
+      upgradePoints: Math.floor(aPlayer.Upgrade),
+      experiencePoints: Math.floor(aPlayer.Exp),
+      bodyTempMax: Math.floor(aPlayer.BodyTempMax),
+      bodyTemp: Math.floor(aPlayer.BodyTemp),
+      oxygenMax: Math.floor(aPlayer.OxygenMax),
+      oxygen: Math.floor(aPlayer.Oxygen),
+      foodMax: Math.floor(aPlayer.FoodMax),
+      food: Math.floor(aPlayer.Food),
+      staminaMax: Math.floor(aPlayer.StaminaMax),
+      stamina: Math.floor(aPlayer.Stamina),
+      healthMax: Math.floor(aPlayer.HealthMax),
+      health: Math.floor(aPlayer.Health),
+      startPlayfield: aPlayer.StartPlayfield,
+      radiationMax: Math.floor(aPlayer.RadiationMax),
+      radiation: Math.floor(aPlayer.Radiation),
+    })
+      .pipe()
+      .subscribe(
+      () => { },
+        error => this.error = error // error path
+      );
+  }
+
   GetPlayer(aSelect: (PlayerModel) => boolean) {
     return this.players.getValue().find(aSelect);
+  }
+
+  GetCurrentPlayer() {
+    return this.currentPlayerObservable;
   }
 
   get CurrentPlayer() {
@@ -78,6 +116,6 @@ export class PlayerService implements OnInit {
   }
 
   set CurrentPlayer(aPlayer: PlayerModel) {
-    this.mCurrentPlayer = aPlayer;
+    this.currentPlayer.next(this.mCurrentPlayer = aPlayer);
   }
 }

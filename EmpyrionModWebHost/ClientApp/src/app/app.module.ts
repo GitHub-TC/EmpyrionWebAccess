@@ -23,6 +23,8 @@ import { HomeComponent } from './home/home.component';
 import { TokenInterceptor } from './_helpers/TokenInterceptor';
 import { UserManagerComponent } from './user-manager/user-manager.component';
 import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './player-warp-dialog/player-warp-dialog.component';
+import { ItemEditComponent } from './item-edit/item-edit.component';
+import { IntegersOnlyDirective } from './_helpers/IntegersOnly';
 
 
 @NgModule({
@@ -39,7 +41,9 @@ import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './p
     PlayerListComponent,
     UserManagerComponent,
     PlayerWarpDialogComponent,
-    PlayerWarpDialogContentComponent
+    PlayerWarpDialogContentComponent,
+    ItemEditComponent,
+    IntegersOnlyDirective
   ],
   imports: [
     BrowserModule,

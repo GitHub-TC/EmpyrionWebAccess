@@ -1,7 +1,14 @@
-<div class="divChat">
+<div [hidden]="!displayFilter">
+  <mat-form-field style="width:100%">
+    <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
+  </mat-form-field>
+</div>
+<div class="divChat" [ngClass]="{'withFilter': displayFilter}" >
   <table mat-table [dataSource]="messages" class="mat-elevation-z8">
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef>R</th>
+    <ng-container matColumnDef="type" [sticky]="true">
+      <th mat-header-cell *matHeaderCellDef style="width:1%">
+        <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
+      </th>
       <td mat-cell *matCellDef="let chat">{{ ['0', 'P', '2', 'G', '4', 'F'][chat.Type]}}</td>
     </ng-container>
     <ng-container matColumnDef="timestamp">
@@ -24,7 +31,7 @@
 
     <ng-container matColumnDef="message">
       <th mat-header-cell *matHeaderCellDef> Text </th>
-      <td mat-cell class="chatText" *matCellDef="let chat"> {{chat.Message}} </td>
+      <td mat-cell class="chatText" *matCellDef="let chat" style="width:100%"> {{chat.Message}} </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

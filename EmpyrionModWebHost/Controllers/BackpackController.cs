@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eleon.Modding;
+using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
@@ -33,10 +34,13 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new BackpackContext()) DB.Database.EnsureCreated();
+            using (var DB = new BackpackContext())
+            {
+                DB.Database.EnsureCreated();
+            }
         }
 
-        public void UpdateBackpack(string aPlayerSteamId, ItemStack[] aBackpackInfo)
+        public void UpdateBackpack(string aPlayerSteamId, ItemStack[] aToolbar, ItemStack[] aBag)
         {
             using (var DB = new BackpackContext())
             {
@@ -44,17 +48,19 @@ namespace EmpyrionModWebHost.Controllers
                     .OrderByDescending(B => B.Timestamp)
                     .FirstOrDefault(B => B.Id == aPlayerSteamId);
                 var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
-                var BackpackContent = JsonConvert.SerializeObject(aBackpackInfo);
+                var ToolbarContent = JsonConvert.SerializeObject(aToolbar);
+                var BagContent     = JsonConvert.SerializeObject(aBag);
 
-                if (Backpack?.Content == BackpackContent) return;
+                if (Backpack?.ToolbarContent == ToolbarContent && Backpack?.BagContent == BagContent) return;
 
                 if (IsNewBackpack)
                 {
                     Backpack = new Backpack()
                     {
-                        Id          = aPlayerSteamId,
-                        Timestamp   = DateTime.Now,
-                        Content     = BackpackContent
+                        Id              = aPlayerSteamId,
+                        Timestamp       = DateTime.Now,
+                        ToolbarContent  = ToolbarContent,
+                        BagContent      = BagContent
                     };
                     DB.Backpacks.Add(Backpack);
                 }
@@ -68,7 +74,8 @@ namespace EmpyrionModWebHost.Controllers
                                                                 Timestamp = DateTime.MinValue,
                                                             };
 
-                Backpack.Content = BackpackContent;
+                Backpack.ToolbarContent = ToolbarContent;
+                Backpack.BagContent     = BagContent;
                 if (IsNewBackpack) DB.Backpacks.Add(Backpack);
 
                 var count = DB.SaveChanges();
@@ -87,8 +94,22 @@ namespace EmpyrionModWebHost.Controllers
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
         {
-            UpdateBackpack(aPlayerInfo.steamId, aPlayerInfo.toolbar.Concat(aPlayerInfo.bag).ToArray());
+            UpdateBackpack(aPlayerInfo.steamId, aPlayerInfo.toolbar, aPlayerInfo.bag);
         }
+
+        public void SetPlayerInventory(BackpackModel aSet)
+        {
+            using (var DB = new PlayerContext())
+            {
+                var player = DB.Players.FirstOrDefault(P => P.SteamId == aSet.SteamId);
+                if (player == null) return;
+
+                var Items = new Inventory(player.EntityId, aSet.Toolbar, aSet.Bag);
+
+                TaskWait.For(2, Request_Player_SetInventory(Items)).Wait();
+            }
+        }
+
 
         public IHubContext<BackpackHub> BackpackHub { get; internal set; }
     }
@@ -125,12 +146,12 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(_db.Backpacks.FirstOrDefault(B => B.Id == key && B.Timestamp == DateTime.MinValue));
         }
 
-        //[EnableQuery]
-        //public IActionResult Put([FromBody]Backpack Backpack)
-        //{
-        //    _db.Backpacks.Add(Backpack);
-        //    _db.SaveChanges();
-        //    return Created(Backpack);
-        //}
+        [EnableQuery]
+        public IActionResult Post([FromBody]BackpackModel aInventory)
+        {
+            BackpackManager.SetPlayerInventory(aInventory);
+            return Ok();
+        }
+
     }
 }

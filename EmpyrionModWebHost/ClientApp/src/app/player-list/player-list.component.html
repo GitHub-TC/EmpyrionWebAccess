@@ -1,27 +1,36 @@
 <div class="divPlayer">
-  <table mat-table [dataSource]="players" class="mat-elevation-z8">
+  <div [hidden]="!displayFilter">
+    <mat-form-field style="width:100%" >
+      <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
+    </mat-form-field>
+  </div>
+
+  <table mat-table [dataSource]="players" class="mat-elevation-z8" matSort>
     <ng-container matColumnDef="Online" [sticky]="true">
-      <th mat-header-cell *matHeaderCellDef> O </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
+      </th>
       <td mat-cell *matCellDef="let player">
+        <a href="https://steamcommunity.com/profiles/{{player.SteamId}}" target="_blank">
+          <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
+        </a>
         <mat-icon class="onlineState" *ngIf="player.Online" style="cursor:pointer" title="Edit">account_circle</mat-icon>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="PlayerName" [sticky]="true">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
       <td mat-cell *matCellDef="let player">
         <div *ngIf="!player.Online">{{player.PlayerName}}</div>
         <div *ngIf="player.Online" style="white-space:nowrap">
           <div style="display:inline-block; margin-top:2px">{{player.PlayerName}}</div>
           <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
-            <app-player-warp-dialog
-                  [WarpData]=     "{
+            <app-player-warp-dialog [WarpData]="{
                                     entityId: player.EntityId,
                                     description: 'Player: ' + player.PlayerName,
                                     playfield:player.Playfield,
                                     pos: { x:player.PosX, y:player.PosY, z:player.PosZ }
-                                   }"
-            ></app-player-warp-dialog>
+                                   }"></app-player-warp-dialog>
           </div>
           <div style="display:inline-block; margin-top:2px; margin-left:-5px">
             <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
@@ -31,32 +40,32 @@
     </ng-container>
 
     <ng-container matColumnDef="Origin">
-      <th mat-header-cell *matHeaderCellDef> Origin </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Origin </th>
       <td mat-cell *matCellDef="let player"> {{player.Origin}} </td>
     </ng-container>
 
     <ng-container matColumnDef="Faction">
-      <th mat-header-cell *matHeaderCellDef> Faction </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Faction </th>
       <td mat-cell *matCellDef="let player">{{Faction(player)?.Abbrev}}</td>
     </ng-container>
 
     <ng-container matColumnDef="Playfield">
-      <th mat-header-cell *matHeaderCellDef> Playfield </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Playfield </th>
       <td mat-cell *matCellDef="let player"> {{player.Playfield}} </td>
     </ng-container>
 
     <ng-container matColumnDef="Pos">
       <th mat-header-cell *matHeaderCellDef> Position </th>
-      <td mat-cell *matCellDef="let player"><mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)" >flag</mat-icon> E/W:{{player.PosX | number : "1.1-1"}} H:{{player.PosY | number : "1.1-1"}} N/S:{{player.PosZ | number : "1.1-1"}} </td>
+      <td mat-cell *matCellDef="let player"><mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon> E/W:{{player.PosX | number : "1.1-1"}} H:{{player.PosY | number : "1.1-1"}} N/S:{{player.PosZ | number : "1.1-1"}} </td>
     </ng-container>
 
     <ng-container matColumnDef="EntityId">
-      <th mat-header-cell *matHeaderCellDef> PrivateID </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> PrivateID </th>
       <td mat-cell *matCellDef="let player"> {{player.EntityId}} </td>
     </ng-container>
 
     <ng-container matColumnDef="SteamId">
-      <th mat-header-cell *matHeaderCellDef> SteamId </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> SteamId </th>
       <td mat-cell *matCellDef="let player"> {{player.SteamId}} </td>
     </ng-container>
 
