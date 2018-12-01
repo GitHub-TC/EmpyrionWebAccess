@@ -1,0 +1,11 @@
+<div style="position:relative">
+  <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+  <mat-tab-group>
+    <mat-tab label="Settings">
+      <app-server-settings></app-server-settings>
+    </mat-tab>
+    <mat-tab label="MODs">
+      <app-server-mod-manager></app-server-mod-manager>
+    </mat-tab>
+  </mat-tab-group>
+</div>

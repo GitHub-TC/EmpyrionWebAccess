@@ -1,0 +1,25 @@
+<div style="position:relative">
+  <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+  <mat-tab-group>
+    <mat-tab label="Backpack">
+      <ng-template matTabContent>
+        <app-restore-backpack></app-restore-backpack>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Structures">
+      <ng-template matTabContent>
+        <app-restore-structure></app-restore-structure>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Player">
+      <ng-template matTabContent>
+        <app-restore-player></app-restore-player>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Playfields">
+      <ng-template matTabContent>
+        <app-restore-playfield></app-restore-playfield>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>

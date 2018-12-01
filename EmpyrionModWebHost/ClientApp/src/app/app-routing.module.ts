@@ -5,6 +5,8 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './_guards/auth.guard';
 import { UserManagerComponent } from './user-manager/user-manager.component';
+import { RestoreComponent } from './restore/restore.component';
+import { ServerComponent } from './server/server.component';
 
 const appRoutes: Routes = [
   {
@@ -19,6 +21,14 @@ const appRoutes: Routes = [
   {
     path: 'user',
     component: UserManagerComponent
+  },
+  {
+    path: 'restore',
+    component: RestoreComponent
+  },
+  {
+    path: 'server',
+    component: ServerComponent
   },
 
   // otherwise redirect to home

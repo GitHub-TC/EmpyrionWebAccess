@@ -25,6 +25,16 @@ import { UserManagerComponent } from './user-manager/user-manager.component';
 import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './player-warp-dialog/player-warp-dialog.component';
 import { ItemEditComponent } from './item-edit/item-edit.component';
 import { IntegersOnlyDirective } from './_helpers/IntegersOnly';
+import { StructuresComponent } from './structures/structures.component';
+import { RestoreComponent } from './restore/restore.component';
+import { ServerComponent } from './server/server.component';
+import { RestoreBackpackComponent } from './restore-backpack/restore-backpack.component';
+import { RestoreStructureComponent } from './restore-structure/restore-structure.component';
+import { RestorePlayerComponent } from './restore-player/restore-player.component';
+import { RestorePlayfieldComponent } from './restore-playfield/restore-playfield.component';
+import { FactoryComponent } from './factory/factory.component';
+import { ServerSettingsComponent } from './server-settings/server-settings.component';
+import { ServerModManagerComponent } from './server-mod-manager/server-mod-manager.component';
 
 
 @NgModule({
@@ -43,7 +53,17 @@ import { IntegersOnlyDirective } from './_helpers/IntegersOnly';
     PlayerWarpDialogComponent,
     PlayerWarpDialogContentComponent,
     ItemEditComponent,
-    IntegersOnlyDirective
+    IntegersOnlyDirective,
+    StructuresComponent,
+    RestoreComponent,
+    ServerComponent,
+    RestoreBackpackComponent,
+    RestoreStructureComponent,
+    RestorePlayerComponent,
+    RestorePlayfieldComponent,
+    FactoryComponent,
+    ServerSettingsComponent,
+    ServerModManagerComponent
   ],
   imports: [
     BrowserModule,

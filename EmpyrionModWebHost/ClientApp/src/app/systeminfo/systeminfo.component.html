@@ -24,6 +24,8 @@
         <div [ngClass]="(CurrentSystemInfo.online ? 'online' : 'offline')" class="state-pos">{{CurrentSystemInfo.online ? "online" : "offline"}}</div>
         <mat-menu #appMenu="matMenu">
           <button mat-menu-item (click)="router.navigate(['user'])">User</button>
+          <button mat-menu-item (click)="router.navigate(['restore'])">Restore</button>
+          <button mat-menu-item (click)="router.navigate(['server'])">Server</button>
           <button mat-menu-item (click)="logout()">Logout</button>
         </mat-menu>
 

@@ -8,23 +8,21 @@
           </div>
         </div>
         <div class="row align-items-end">
-          <div class="col" style="padding-left:0px; padding-right:0px">
-            <mat-tab-group>
-              <mat-tab>
-                <ng-template mat-tab-label style="position:relative">
-                  <div style="position:absolute; left:10px;">Backpack</div>
-                  <mat-icon style="cursor:pointer; position:absolute; right:.5em" (click)="saveUser()" title="Restore backpack">settings_backup_restore</mat-icon>
-                </ng-template>
+          <div class="col" style="padding-left:0px; padding-right:0px; position:relative;">
+            <button mat-icon-button [matMenuTriggerFor]="CurrentComponent?.contextMenu" style="position:absolute; top: -5px; right:-5px; cursor:pointer; z-index:99">
+              <mat-icon mat-menu-icon>more_vert</mat-icon>
+            </button>
+            <mat-tab-group (selectedTabChange)="DetailsTabChanged($event)">
+              <mat-tab label="Backpack">
                 <div style="background-color: black; padding-left:2px; padding-right:2px; margin-top:2px;">
                   <app-player-backpack [PlayerSteamId]="playerlist.CurrentPlayerSteamId"></app-player-backpack>
                 </div>
               </mat-tab>
-              <mat-tab>
-                <ng-template mat-tab-label style="position:relative">
-                  <div style="position:absolute; left:10px;">Playerdetails</div>
-                  <mat-icon style="cursor:pointer; position:absolute; right:.5em" (click)="PlayerDetails.SaveChanges()" title="Save">save</mat-icon>
-                </ng-template>
-                <app-player-details #PlayerDetails></app-player-details>
+              <mat-tab label="Playerdetails">
+                <app-player-details></app-player-details>
+              </mat-tab>
+              <mat-tab label="Factory">
+                <app-factory></app-factory>
               </mat-tab>
             </mat-tab-group>
           </div>

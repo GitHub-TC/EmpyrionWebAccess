@@ -115,6 +115,36 @@ namespace EmpyrionModWebHost.Controllers
     }
 
     [Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    public class BackpackApiController : ControllerBase
+    {
+        private BackpackContext _db;
+
+        public BackpackManager BackpackManager { get; }
+
+        public BackpackApiController(BackpackContext context)
+        {
+            _db = context;
+            BackpackManager = Program.GetManager<BackpackManager>();
+        }
+
+        [HttpPost("AddItem")]
+        public IActionResult AddItem([FromBody]IdItemStack aItem)
+        {
+            try
+            {
+                TaskWait.For(2, BackpackManager.Request_Player_AddItem(aItem)).Wait();
+                return Ok();
+            }
+            catch (Exception Error)
+            {
+                return NotFound(Error.Message);
+            }
+        }
+    }
+
+    [Authorize]
     public class BackpacksController : ODataController
     {
         private BackpackContext _db;
