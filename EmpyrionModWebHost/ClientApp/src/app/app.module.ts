@@ -35,7 +35,8 @@ import { RestorePlayfieldComponent } from './restore-playfield/restore-playfield
 import { FactoryComponent } from './factory/factory.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { ServerModManagerComponent } from './server-mod-manager/server-mod-manager.component';
-
+import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './select-item-dialog/select-item-dialog.component';
+import { MatSelectSearchComponent } from './mat-select-search/mat-select-search.component';
 
 @NgModule({
   declarations: [
@@ -63,7 +64,10 @@ import { ServerModManagerComponent } from './server-mod-manager/server-mod-manag
     RestorePlayfieldComponent,
     FactoryComponent,
     ServerSettingsComponent,
-    ServerModManagerComponent
+    ServerModManagerComponent,
+    SelectItemDialogComponent,
+    SelectItemDialogContentComponent,
+    MatSelectSearchComponent,
   ],
   imports: [
     BrowserModule,
@@ -78,7 +82,9 @@ import { ServerModManagerComponent } from './server-mod-manager/server-mod-manag
   ],
   entryComponents: [
     PlayerWarpDialogComponent,
-    PlayerWarpDialogContentComponent
+    PlayerWarpDialogContentComponent,
+    SelectItemDialogComponent,
+    SelectItemDialogContentComponent,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
@@ -92,3 +98,5 @@ import { ServerModManagerComponent } from './server-mod-manager/server-mod-manag
 export class AppModule {
   ngDoBootstrap(app) { }
 }
+
+

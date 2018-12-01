@@ -6,3 +6,8 @@ export class ItemStackModel {
   decay: number;
 }
 
+export class ItemInfoModel {
+  id: number;
+  name: string;
+}
+

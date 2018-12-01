@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Select Item</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-select placeholder="Item" [(value)]="SelectedItemInfo">
+      <mat-select-search [formControl]="filterCtrl"></mat-select-search>
+      <mat-option *ngFor="let i of filteredItems | async" [value]="i.id">
+        <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" />
+        ({{i.id}}) {{i.name}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>Count</mat-label>
+    <input matInput type="number" [(ngModel)]="ItemStack.count" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="AddItem()">Select item</button>
+</mat-dialog-actions>

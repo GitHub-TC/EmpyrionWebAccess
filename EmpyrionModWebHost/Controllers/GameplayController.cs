@@ -22,11 +22,59 @@ namespace EmpyrionModWebHost.Controllers
 
     public class GameplayManager : EmpyrionModBase, IEWAPlugin
     {
+        private const string IdDef = "Id:";
+        private const string NameDef = "Name:";
+
         public ModGameAPI GameAPI { get; private set; }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
+        }
+
+        static ItemInfo[] _mItemInfo;
+
+        public IEnumerable<ItemInfo> GetAllItems()
+        {
+            if (_mItemInfo != null) return _mItemInfo;
+
+            var ItemDef      = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf"))
+                .Where(L => L.Contains(IdDef));
+            var Localisation = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv"))
+                .Where(L => Char.IsLetter(L[0]))
+                .ToDictionary(L => L.Substring(0, L.IndexOf(",")), L => L.Substring(L.IndexOf(",") + 1));
+
+            _mItemInfo = ItemDef.Select(L =>
+            {
+                var IdPos           = L.IndexOf(IdDef);
+                var IdDelimiter     = L.IndexOf(",", IdPos);
+                var NamePos         = L.IndexOf(NameDef);
+                var NameDelimiter   = L.IndexOf(",", NamePos);
+                if (NameDelimiter == -1) NameDelimiter = L.Length;
+
+                return IdPos >= 0 && NamePos >= 0 && IdDelimiter >= 0
+                    ? new ItemInfo()
+                    {
+                        Id = int.TryParse(L.Substring(IdPos + IdDef.Length, IdDelimiter - IdPos - IdDef.Length), out int Result) ? Result : 0,
+                        Name = L.Substring(NamePos + NameDef.Length, NameDelimiter - NamePos - NameDef.Length).Trim()
+                    }
+                    : null;
+            })
+            .Select(I => {
+                if (I != null)
+                {
+                    if (Localisation.TryGetValue(I.Name + ",", out string Value))
+                    {
+                        var End   = Value.IndexOf(",");
+                        I.Name = Value.Substring(0, End);
+                    }
+                }
+                return I;
+            })
+            .Where(I => I != null)
+            .ToArray();
+
+            return _mItemInfo;
         }
     }
 
@@ -49,6 +97,12 @@ namespace EmpyrionModWebHost.Controllers
                 Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"))
                 .Select(D => Path.GetFileName(D))
                 );
+        }
+
+        [HttpGet("GetAllItems")]
+        public IActionResult GetAllItems()
+        {
+            return Ok(GameplayManager.GetAllItems());
         }
 
         public class WarpToData
