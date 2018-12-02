@@ -18,5 +18,4 @@
 <mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
   <button mat-menu-item (click)="AddItem()">Add item</button>
   <button mat-menu-item (click)="router.navigate(['restore'])">Restore backpack</button>
-  <button mat-menu-item (click)="Clear()">Clear backpack</button>
 </mat-menu>

@@ -145,7 +145,9 @@ namespace EmpyrionModWebHost.Controllers
     }
 
     [Authorize]
-    public class BackpacksController : ODataController
+    [ApiController]
+    [Route("[controller]")]
+    public class BackpacksController : ControllerBase
     {
         private BackpackContext _db;
 
@@ -164,20 +166,20 @@ namespace EmpyrionModWebHost.Controllers
             BackpackManager = Program.GetManager<BackpackManager>();
         }
 
-        [EnableQuery]
-        public IActionResult Get()
-        {
-            return Ok(_db.Backpacks);
-        }
-
-        [EnableQuery]
-        public IActionResult Get(string key)
+        [HttpGet("CurrentBackpack/{key}")]
+        public IActionResult CurrentBackpack(string key)
         {
             return Ok(_db.Backpacks.FirstOrDefault(B => B.Id == key && B.Timestamp == DateTime.MinValue));
         }
 
-        [EnableQuery]
-        public IActionResult Post([FromBody]BackpackModel aInventory)
+        [HttpGet("Backpacks/{key}")]
+        public IActionResult Backpacks(string key)
+        {
+            return Ok(_db.Backpacks.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
+        }
+
+        [HttpPost("SetBackpack")]
+        public IActionResult SetBackpack([FromBody]BackpackModel aInventory)
         {
             BackpackManager.SetPlayerInventory(aInventory);
             return Ok();

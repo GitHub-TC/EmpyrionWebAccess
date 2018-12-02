@@ -1,3 +1,29 @@
-<p>
-  restore-backpack  comming soon!
-</p>
+<h2>Restore backpack for: {{PlayerService.CurrentPlayer?.PlayerName}}</h2>
+<div class="container-fluid" style="padding-top:5px" *ngIf="PlayerService.CurrentPlayer">
+  <div class="row">
+    <div class="col col-lg-3">
+      <table mat-table [dataSource]="Backpacks" class="mat-elevation-z8">
+        <ng-container matColumnDef="Timestamp">
+          <th mat-header-cell *matHeaderCellDef>
+            Timestamp
+          </th>
+          <td mat-cell *matCellDef="let b">
+            {{b.timestamp | date : 'full'}}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['Timestamp']; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['Timestamp'];"
+            [ngClass]="{'highlight': SelectedBackpack == row}"
+            (click)="SetCurrentBackpack(row)"></tr>
+      </table>
+    </div>
+    <div class="col col-lg-5">
+      <div style="background-color:black;">
+        <app-player-backpack [backpack]="CurrentBackpack"></app-player-backpack>
+      </div>
+      <br />
+      <mat-icon style="font-size:5em; cursor: pointer; color:darkgreen;" (click)="RestoreCurrentBackpack()" title="Restorebackpack for {{PlayerService.CurrentPlayer?.PlayerName}}">settings_backup_restore</mat-icon>
+    </div>
+  </div>
+</div>

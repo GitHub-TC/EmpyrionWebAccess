@@ -4,6 +4,7 @@ using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System;
@@ -43,7 +44,7 @@ namespace EmpyrionModWebHost.Controllers
 
     public class SysteminfoManager : EmpyrionModBase, IEWAPlugin, IClientHostCommunication
     {
-        private SysteminfoDataModel CurrentSysteminfo = new SysteminfoDataModel();
+        public SysteminfoDataModel CurrentSysteminfo = new SysteminfoDataModel();
 
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -157,7 +158,9 @@ namespace EmpyrionModWebHost.Controllers
     }
 
     [Authorize]
-    public class SysteminfoController : ODataController
+    [ApiController]
+    [Route("[controller]")]
+    public class SysteminfoController : ControllerBase
     {
         public IHubContext<SysteminfoHub> SysteminfoHub { get; }
         public SysteminfoManager SysteminfoManager { get; }
@@ -167,6 +170,12 @@ namespace EmpyrionModWebHost.Controllers
             SysteminfoHub = aSysteminfoHub;
             SysteminfoManager = Program.GetManager<SysteminfoManager>();
             SysteminfoManager.SysteminfoHub = aSysteminfoHub;
+        }
+
+        [HttpGet("CurrentSysteminfo")]
+        public IActionResult GetCurrentSysteminfo()
+        {
+            return Ok(SysteminfoManager.CurrentSysteminfo);
         }
 
     }

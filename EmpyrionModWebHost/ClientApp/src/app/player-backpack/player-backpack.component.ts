@@ -18,7 +18,7 @@ import { PlayerModel } from '../model/player-model';
   styleUrls: ['./player-backpack.component.less']
 })
 export class PlayerBackpackComponent implements OnInit {
-  backpack: BackpackModel = EmptyBackpack;
+  @Input() backpack: BackpackModel = EmptyBackpack;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
 import { SystemInfoModel } from '../model/systeminfo-model';
@@ -54,6 +54,16 @@ export class SystemInfoService {
         this.SystemInfos.next(this.mCurrentSystemInfo);
       }
     });
+
+    let locationsSubscription = this.http.get<SystemInfoModel>("systeminfo/CurrentSysteminfo")
+      .pipe()
+      .subscribe(
+        I => this.SystemInfos.next(this.mCurrentSystemInfo = I),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+
   }
 
   GetSystemInfos(): Observable<SystemInfoModel> {

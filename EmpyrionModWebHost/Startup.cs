@@ -149,7 +149,6 @@ namespace EmpyrionModWebHost
             {
                 routes.Select().Expand().Filter().OrderBy().MaxTop(1000).Count();
                 routes.MapODataServiceRoute("player",   "odata", PlayersController  .GetEdmModel());
-                routes.MapODataServiceRoute("backpack", "odata", BackpacksController.GetEdmModel());
                 routes.MapODataServiceRoute("faction",  "odata", FactionsController .GetEdmModel());
                 routes.MapODataServiceRoute("chat",     "odata", ChatsController    .GetEdmModel());
                 routes.EnableDependencyInjection();

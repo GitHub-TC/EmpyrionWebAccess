@@ -2,17 +2,10 @@ import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { BackpackModel } from '../model/backpack-model';
+import { BackpackModel, BackpackODataModel } from '../model/backpack-model';
 import { BACKPACKs } from '../model/backpack-mock';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
-
-interface BackpackODataModel {
-  Id?: string;
-  Timestamp?: string;
-  ToolbarContent?: string;
-  BagContent?: string;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -39,9 +32,9 @@ export class BackpackService {
   }
 
   private UpdateBackpackData(B: BackpackODataModel) {
-    if (B.Id != this.mBackpack.SteamId) return;
-    this.mBackpack.Toolbar = B && B.ToolbarContent ? JSON.parse(B.ToolbarContent) : [];
-    this.mBackpack.Bag     = B && B.BagContent     ? JSON.parse(B.BagContent)     : [];
+    if (B.id != this.mBackpack.SteamId) return;
+    this.mBackpack.Toolbar = B && B.toolbarContent ? JSON.parse(B.toolbarContent) : [];
+    this.mBackpack.Bag     = B && B.bagContent     ? JSON.parse(B.bagContent)     : [];
     this.backpack.next(this.mBackpack);
   }
 
@@ -50,7 +43,7 @@ export class BackpackService {
     this.backpack.next(this.mBackpack);
 
     if (aPlayerSteamId) {
-      let locationsSubscription = this.http.get<BackpackODataModel>("odata/Backpacks('" + aPlayerSteamId + "')")
+      let locationsSubscription = this.http.get<BackpackODataModel>("backpacks/CurrentBackpack/" + aPlayerSteamId)
         .subscribe(
           B => this.UpdateBackpackData(B),
           error => this.error = error // error path
