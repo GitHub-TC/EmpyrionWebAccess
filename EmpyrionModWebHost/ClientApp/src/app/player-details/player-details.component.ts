@@ -4,7 +4,7 @@ import { PlayerModel } from '../model/player-model';
 import { PlayfieldService } from '../services/playfield.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
-import { MatMenu } from '@angular/material';
+import { MatMenu, MatMenuTrigger } from '@angular/material';
 
 @Component({
   selector: 'app-player-details',
@@ -17,6 +17,7 @@ export class PlayerDetailsComponent implements OnInit {
   Factions: FactionModel[];
   @Output() Changed: boolean;
   @ViewChild(MatMenu) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
 
   constructor(
     private mPlayfields: PlayfieldService,
@@ -39,8 +40,9 @@ export class PlayerDetailsComponent implements OnInit {
   }
 
   SaveChanges() {
-    this.mPlayerService.saveUser(this.Player);
+    this.contextMenuTrigger.closeMenu();
     this.Changed = false;
+    this.mPlayerService.saveUser(this.Player);
   }
 
   DiscardChanges() {

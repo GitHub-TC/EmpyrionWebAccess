@@ -40,10 +40,10 @@
         </mat-expansion-panel-header>
         <div *ngFor="let field of ['Health', 'Radiation', 'BodyTemp', 'Food', 'Oxygen', 'Stamina']">
           <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
+            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
           </mat-form-field>
           <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly [(ngModel)]="Player[field + 'Max']" type="number" placeholder="{{field}}Max" />
+            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field + 'Max']" type="number" placeholder="{{field}}Max" />
           </mat-form-field>
         </div>
       </mat-expansion-panel>
@@ -54,7 +54,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <mat-form-field>
-          <mat-select placeholder="Playfield" [(value)]="Player.StartPlayfield">
+          <mat-select placeholder="Playfield" (change)="Changed=true" [(value)]="Player.StartPlayfield">
             <mat-option *ngFor="let pl of Playfields" [value]="pl">
               {{pl}}
             </mat-option>
@@ -62,7 +62,7 @@
         </mat-form-field>
         <div *ngFor="let field of ['Credits', 'Exp', 'Upgrade']">
           <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
+            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
           </mat-form-field>
         </div>
       </mat-expansion-panel>
@@ -72,12 +72,12 @@
             Faction
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <mat-select placeholder="Faction" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
+        <mat-select placeholder="Faction" (change)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
           <mat-option *ngFor="let f of Factions" [value]="f.FactionId">
             ({{f.Abbrev}}) {{f.Name}}
           </mat-option>
         </mat-select>
-        <mat-select placeholder="Role" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
+        <mat-select placeholder="Role" (change)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
           <mat-option *ngFor="let role of [{ id:0, text:'Owner' }, { id:1, text:'Admin' }, { id:2, text:'Member' }]" [value]="role.id">
             {{role.text}}
           </mat-option>

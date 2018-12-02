@@ -1,21 +1,13 @@
-﻿using AutoMapper;
-using Eleon.Modding;
-using EmpyrionModWebHost.Configuration;
+﻿using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
-using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -131,5 +123,13 @@ namespace EmpyrionModWebHost.Controllers
 
             return Ok();
         }
+
+        [HttpPost("PlayerSetCredits/{aEntityId}/{aCredits}")]
+        public IActionResult PlayerSetCredits(int aEntityId, int aCredits)
+        {
+            GameplayManager.Request_Player_SetCredits(new IdCredits() { id = aEntityId, credits = aCredits });
+            return Ok();
+        }
+
     }
 }

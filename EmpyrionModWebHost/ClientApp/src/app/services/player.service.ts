@@ -100,6 +100,13 @@ export class PlayerService implements OnInit {
       .subscribe(
       () => { },
         error => this.error = error // error path
+    );
+
+    this.http.post('gameplay/PlayerSetCredits/' + aPlayer.EntityId + "/" + Math.floor(aPlayer.Credits), {})
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
       );
   }
 

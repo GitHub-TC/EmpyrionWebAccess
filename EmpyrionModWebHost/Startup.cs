@@ -53,6 +53,7 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(SysteminfoManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(UserManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(GameplayManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(StructureManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
