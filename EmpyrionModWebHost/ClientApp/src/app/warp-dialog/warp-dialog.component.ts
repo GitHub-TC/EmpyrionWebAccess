@@ -7,17 +7,17 @@ import { PositionModel } from '../model/player-model';
 import { PlayfieldService } from '../services/playfield.service';
 
 @Component({
-  selector: 'app-player-warp-dialog',
-  templateUrl: './player-warp-dialog.component.html',
-  styleUrls: ['./player-warp-dialog.component.less']
+  selector: 'app-warp-dialog',
+  templateUrl: './warp-dialog.component.html',
+  styleUrls: ['./warp-dialog.component.less']
 })
-export class PlayerWarpDialogComponent {
+export class WarpDialogComponent {
   @Input() WarpData: PositionModel;
 
   constructor(public dialog: MatDialog) { }
 
   openDialog() {
-    const dialogRef = this.dialog.open(PlayerWarpDialogContentComponent, {
+    const dialogRef = this.dialog.open(WarpDialogContentComponent, {
       data: { WarpData: this.WarpData }
     });
 
@@ -28,11 +28,11 @@ export class PlayerWarpDialogComponent {
 }
 
 @Component({
-  selector: 'app-player-warp-dialog-content',
-  templateUrl: 'player-warp-dialog-content.component.html',
-  styleUrls: ['./player-warp-dialog.component.less']
+  selector: 'app-warp-dialog-content',
+  templateUrl: 'warp-dialog-content.component.html',
+  styleUrls: ['./warp-dialog.component.less']
 })
-export class PlayerWarpDialogContentComponent implements OnInit {
+export class WarpDialogContentComponent implements OnInit {
   @Input() WarpData: PositionModel;
   Playfields: string[];
   error: any;
@@ -40,7 +40,7 @@ export class PlayerWarpDialogContentComponent implements OnInit {
   constructor(private http: HttpClient,
     private mPlayfields: PlayfieldService,
     public mPositionService: PositionService,
-    public dialogRef: MatDialogRef<PlayerWarpDialogContentComponent>,
+    public dialogRef: MatDialogRef<WarpDialogContentComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.WarpData = JSON.parse(JSON.stringify(data.WarpData));
     if (!this.WarpData.pos) this.WarpData.pos = { x: 0, y: 0, z: 0 };
@@ -57,13 +57,14 @@ export class PlayerWarpDialogContentComponent implements OnInit {
   }
 
   copyPosition() {
-    let SaveEntityId = this.WarpData.entityId;
-    this.WarpData = JSON.parse(JSON.stringify(this.mPositionService.CurrentPosition));
-    this.WarpData.entityId = SaveEntityId;
+    let SaveWarpData = this.WarpData;
+    this.WarpData = Object.assign({}, this.mPositionService.CurrentPosition);
+    this.WarpData.description = SaveWarpData.description;
+    this.WarpData.entityId    = SaveWarpData.entityId;
   }
 
   execWarp() {
-    this.http.post('gameplay/PlayerWarpTo/' + this.WarpData.entityId,
+    this.http.post('gameplay/WarpTo/' + this.WarpData.entityId,
       { Playfield: this.WarpData.playfield, PosX: this.WarpData.pos.x, PosY: this.WarpData.pos.y, PosZ: this.WarpData.pos.z })
       .pipe()
       .subscribe(

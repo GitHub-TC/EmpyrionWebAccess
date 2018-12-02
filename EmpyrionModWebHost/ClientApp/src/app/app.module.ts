@@ -22,7 +22,7 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { TokenInterceptor } from './_helpers/TokenInterceptor';
 import { UserManagerComponent } from './user-manager/user-manager.component';
-import { PlayerWarpDialogComponent, PlayerWarpDialogContentComponent } from './player-warp-dialog/player-warp-dialog.component';
+import { WarpDialogComponent, WarpDialogContentComponent } from './warp-dialog/warp-dialog.component';
 import { ItemEditComponent } from './item-edit/item-edit.component';
 import { IntegersOnlyDirective } from './_helpers/IntegersOnly';
 import { StructuresComponent } from './structures/structures.component';
@@ -51,8 +51,8 @@ import { MatSelectSearchComponent } from './mat-select-search/mat-select-search.
     PlayerDetailsComponent,
     PlayerListComponent,
     UserManagerComponent,
-    PlayerWarpDialogComponent,
-    PlayerWarpDialogContentComponent,
+    WarpDialogComponent,
+    WarpDialogContentComponent,
     ItemEditComponent,
     IntegersOnlyDirective,
     StructuresComponent,
@@ -81,8 +81,8 @@ import { MatSelectSearchComponent } from './mat-select-search/mat-select-search.
     AppRoutingModule
   ],
   entryComponents: [
-    PlayerWarpDialogComponent,
-    PlayerWarpDialogContentComponent,
+    WarpDialogComponent,
+    WarpDialogContentComponent,
     SelectItemDialogComponent,
     SelectItemDialogContentComponent,
   ],

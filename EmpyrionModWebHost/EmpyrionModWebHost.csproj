@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -52,6 +52,7 @@
     <None Remove="ClientApp\src\app\model\ODataResponse.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
+    <None Remove="ClientApp\src\app\model\structure-model.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
     <None Remove="EmpyrionWebAccess.pfx" />
@@ -88,6 +89,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\structure-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\itemstack-mock.ts" />

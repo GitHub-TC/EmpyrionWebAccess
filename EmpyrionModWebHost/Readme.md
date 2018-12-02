@@ -66,8 +66,18 @@ Der Spieler wird hier mit seinem Onlinestatus, Namen, Fraktion, Herkunft ... ang
 * Das Warpsymbol (Gamepadsymbol) dient dazu das Warpfenster für den Spieler aufzurufen mit dem die Position des Spielers im Spiel verändert werden kann.
 
 ### Inventaranzeige
-Hier wird das Inventar des ausgewählten Spielers angezeigt.
+Hier wird das Inventar des ausgewählten Spielers angezeigt. Von hier aus kann man
+* Items hinzufügen
+* Einen alten Zustand des Backpacks wiederherstellen
 
+### Spielerdetails
+Hier werden die Daten des ausgewählten Spielers angezeigt und können geändert werden.
+Hinweis: Noch offen sind: ban/unban und wipe
+
+## Strukturen
+Hier werden alle Strukturen des Spiels aufgelistet:
+* Sie können Teleportiert werden
+* Die Position kann in den Speicher für ein Warp übertragen werden
 
 ## Start/Stop
 Wenn in dem Verzeichnis \[Empyrion\]\\Content\\Mods\\EWALoader\\Client eine Datei "stop.txt" liegt wird der EWA automatisch gestoppt. 
@@ -187,9 +197,19 @@ The player is shown here with his online status, name, faction, origin ...
 * The chat symbol is used to make direct contact with the player and to save the flag symbol, its current position (see Warp).
 * The warp icon (gamepad icon) is used to bring up the Warp window for the player to change the position of the player in the game.
 
-### inventory display
-Here the inventory of the selected player is displayed.
+### Inventory display
+Here the inventory of the selected player is displayed. From here you can
+* Add items
+* Restore an old condition of the backpack
 
+### Player details
+Here, the data of the selected player is displayed and can be changed.
+Note: Still open: ban / unban and wipe
+
+## Structures
+Here are all the structures of the game listed:
+* They can be teleported
+* The position can be transferred to the memory for a warp
 
 ## Start/Stop
 If there is a file "stop.txt" in the directory \[Empyrion\]\\Content\\Mods\\EWALoader\\Client the EWA will be stopped automatically.

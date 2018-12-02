@@ -7,6 +7,7 @@ import { AuthGuard } from './_guards/auth.guard';
 import { UserManagerComponent } from './user-manager/user-manager.component';
 import { RestoreComponent } from './restore/restore.component';
 import { ServerComponent } from './server/server.component';
+import { StructuresComponent } from './structures/structures.component';
 
 const appRoutes: Routes = [
   {
@@ -29,6 +30,10 @@ const appRoutes: Routes = [
   {
     path: 'server',
     component: ServerComponent
+  },
+  {
+    path: 'structures',
+    component: StructuresComponent
   },
 
   // otherwise redirect to home

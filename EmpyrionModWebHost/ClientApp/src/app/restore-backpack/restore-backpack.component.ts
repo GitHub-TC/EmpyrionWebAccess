@@ -27,7 +27,7 @@ export class RestoreBackpackComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private PlayerService: PlayerService,
+    public PlayerService: PlayerService,
   ) { }
 
   ngOnInit() {

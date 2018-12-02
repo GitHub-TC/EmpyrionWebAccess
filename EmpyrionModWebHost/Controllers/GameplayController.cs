@@ -108,17 +108,50 @@ namespace EmpyrionModWebHost.Controllers
             public float RotZ { get; set; }
         }
 
-        [HttpPost("PlayerWarpTo/{aEntityId}")]
-        public async System.Threading.Tasks.Task<IActionResult> PlayerWarpToAsync(int aEntityId, [FromBody]WarpToData aWarpToData)
+        public class PlayfieldStructureInfo
         {
-            var playerInfo = await TaskWait.For(5, GameplayManager.Request_Player_Info(new Id(aEntityId)));
+            public string Playfield { get; set; }
+            public GlobalStructureInfo Data { get; set; }
+        }
+
+        public static PlayfieldStructureInfo SearchEntity(GlobalStructureList aGlobalStructureList, int aSourceId)
+        {
+            foreach (var TestPlayfieldEntites in aGlobalStructureList.globalStructures)
+            {
+                var FoundEntity = TestPlayfieldEntites.Value.FirstOrDefault(E => E.id == aSourceId);
+                if (FoundEntity.id != 0) return new PlayfieldStructureInfo() { Playfield = TestPlayfieldEntites.Key, Data = FoundEntity };
+            }
+            return null;
+        }
+
+        [HttpPost("WarpTo/{aEntityId}")]
+        public async System.Threading.Tasks.Task<IActionResult> WarpToAsync(int aEntityId, [FromBody]WarpToData aWarpToData)
+        {
+            var isPlayer = false;
+            var isSamePlayfield = false;
+            try
+            {
+                var playerInfo = await TaskWait.For(5, GameplayManager.Request_Player_Info(new Id(aEntityId)));
+                isPlayer = true;
+                isSamePlayfield = playerInfo.playfield == aWarpToData.Playfield;
+            }
+            catch{
+                // Enities always warp with Request_Entity_ChangePlayfield ?!?
+                //var structure = SearchEntity(await TaskWait.For(5, GameplayManager.Request_GlobalStructure_List()), aEntityId);
+                isPlayer = false;
+                isSamePlayfield = false; // structure.Playfield == aWarpToData.Playfield;
+            }
 
             var pos = new PVector3(aWarpToData.PosX, aWarpToData.PosY, aWarpToData.PosZ);
             var rot = new PVector3(aWarpToData.RotX, aWarpToData.RotY, aWarpToData.RotZ);
 
-            await TaskWait.For(5, playerInfo.playfield == aWarpToData.Playfield
+            await TaskWait.For(5, isSamePlayfield
                 ? GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot))
-                : GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot))
+                : (
+                    isPlayer 
+                    ? GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot))
+                    : GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot))
+                    )
             );
 
             return Ok();
