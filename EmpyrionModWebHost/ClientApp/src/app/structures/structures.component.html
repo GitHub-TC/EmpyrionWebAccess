@@ -1,4 +1,5 @@
-<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100;" (click)="router.navigate([''])" title="Home">home</mat-icon>
+<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:50px; z-index:100; color:green" (click)="ReloadStructures()" title="Reload">refresh</mat-icon>
 
 <div [hidden]="!displayFilter">
   <mat-form-field style="width:100%">
@@ -6,26 +7,26 @@
   </mat-form-field>
 </div>
 
-    <!--
-    ?: string;
-    dockedShips?: number[];
-    classNr?: number;
-    cntLights?: number;
-    cntTriangles?: number;
-    cntBlocks?: number;
-    cntDevices?: number;
-    fuel?: number;
-    powered?: boolean;
-    rot?: PVector3;
-    pos?: PVector3;
-    lastVisitedUTC?: number;
-    ?: string;
-    factionId?: number;
-    factionGroup?: number;
-    type?: number;
-    coreType?: number;
-    pilotId?: number;
-        -->
+<!--
+?: string;
+dockedShips?: number[];
+classNr?: number;
+cntLights?: number;
+cntTriangles?: number;
+cntBlocks?: number;
+cntDevices?: number;
+fuel?: number;
+powered?: boolean;
+rot?: PVector3;
+pos?: PVector3;
+lastVisitedUTC?: number;
+?: string;
+factionId?: number;
+factionGroup?: number;
+type?: number;
+coreType?: number;
+pilotId?: number;
+    -->
 
 
 <table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
@@ -107,3 +108,4 @@
       [ngClass]="{'highlight': mStructureService.CurrentStructure?.id == row.id}"
       (click)="mStructureService.CurrentStructure = row"></tr>
 </table>
+<mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>

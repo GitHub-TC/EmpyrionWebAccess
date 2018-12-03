@@ -102,6 +102,8 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdatePerformanceInfos()
         {
+            CurrentSysteminfo.online = (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10;
+
             var GameDrive = DriveInfo.GetDrives().FirstOrDefault(D => D.RootDirectory.FullName == Path.GetPathRoot(ProcessInformation == null ? Directory.GetCurrentDirectory() : ProcessInformation.CurrentDirecrory));
 
             GetPhysicallyInstalledSystemMemory(out long memKb);

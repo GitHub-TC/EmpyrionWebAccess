@@ -22,6 +22,7 @@ export class SystemInfoService {
 
   constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
     this.hubConnection = builder.withAuthUrl('/hubs/systeminfo').build();
+    this.hubConnection.onclose(E => console.log("!!!! HubClosed:" + E));
 
     // message coming from the server
     this.hubConnection.on("Update", D => {

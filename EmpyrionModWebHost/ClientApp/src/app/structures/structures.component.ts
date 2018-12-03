@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatSort } from '@angular/material';
+import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
 import { StructureService } from '../services/structure.service';
 import { Router } from '@angular/router';
 import { GlobalStructureInfo } from '../model/structure-model';
@@ -16,6 +16,7 @@ export class StructuresComponent implements OnInit {
   displayFilter: boolean = true;
 
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     public router: Router,
@@ -31,6 +32,7 @@ export class StructuresComponent implements OnInit {
 
   ngAfterViewInit() {
     this.structures.sort = this.sort;
+    this.structures.paginator = this.paginator;
   }
 
   applyFilter(filterValue: string) {
@@ -46,5 +48,9 @@ export class StructuresComponent implements OnInit {
 
   SavePosition(aStruct: GlobalStructureInfo) {
     this.mPositionService.CurrentPosition = { description: "Structure: " + aStruct.name, playfield: aStruct.playfield, entityId: aStruct.id, pos: aStruct.pos, rot: aStruct.rot };
+  }
+
+  ReloadStructures() {
+    this.mStructureService.ReloadStructures();
   }
 }

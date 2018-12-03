@@ -34,28 +34,31 @@ export class StructureService {
   }
 
   GetGlobalStructureList(): Observable<GlobalStructureInfo[]> {
-    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList")
-      .pipe()
-      .subscribe(
-      S => {
-        this.mStructures = [];
-        Object.getOwnPropertyNames(S.globalStructures).map(P => {
-          return S.globalStructures[P].map((S: GlobalStructureInfo) => {
-            S.playfield = P;
-            this.mStructures.push(S);
-          });
-        });
-        this.Structures.next(this.mStructures)
-      },
-        error => this.error = error // error path
-      );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
-
+    if (!this.mStructures.length) this.ReloadStructures();
     return this.StructuresObservable;
   }
 
   UpdateStructureData(arg0: any[]): void {
+  }
+
+  public ReloadStructures() {
+    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList")
+      .pipe()
+      .subscribe(
+        S => {
+          this.mStructures = [];
+          Object.getOwnPropertyNames(S.globalStructures).map(P => {
+            return S.globalStructures[P].map((S: GlobalStructureInfo) => {
+              S.playfield = P;
+              this.mStructures.push(S);
+            });
+          });
+          this.Structures.next(this.mStructures)
+        },
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
   }
 
 }

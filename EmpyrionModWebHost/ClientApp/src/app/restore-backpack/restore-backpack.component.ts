@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PlayerService } from '../services/player.service';
 import { BackpackODataModel, BackpackModel } from '../model/backpack-model';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Player } from '@angular/core/src/render3/interfaces/player';
 import { PlayerModel } from '../model/player-model';
+import { MatPaginator, MatTableDataSource } from '@angular/material';
 
 @Component({
   selector: 'app-restore-backpack',
@@ -19,11 +20,9 @@ export class RestoreBackpackComponent implements OnInit {
   SelectedBackpack: BackpackODataModel;
   CurrentPlayer: PlayerModel;
   error: any;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  private mBackpacks: BackpackODataModel[] = []; 
-
-  public Backpacks: BehaviorSubject<BackpackODataModel[]> = new BehaviorSubject(this.mBackpacks);
-  public readonly playersObservable: Observable<BackpackODataModel[]> = this.Backpacks.asObservable();
+  Backpacks: MatTableDataSource<BackpackODataModel> = new MatTableDataSource([]);
 
   constructor(
     private http: HttpClient,
@@ -36,11 +35,11 @@ export class RestoreBackpackComponent implements OnInit {
     let locationsSubscription = this.http.get<BackpackODataModel[]>("Backpacks/Backpacks/" + this.PlayerService.CurrentPlayer.SteamId)
       .subscribe(
       B => {
-        this.Backpacks.next(this.mBackpacks = B.map(BB => {
+        this.Backpacks.data = B.map(BB => {
           BB.timestamp = new Date(BB.timestamp);
           return BB;
-        }));
-        if (this.mBackpacks.length > 0) this.SetCurrentBackpack(this.mBackpacks[0]);
+        });
+        if (this.Backpacks.data.length > 0) this.SetCurrentBackpack(this.Backpacks.data[0]);
       },
         error => this.error = error // error path
       );
@@ -50,9 +49,21 @@ export class RestoreBackpackComponent implements OnInit {
     this.PlayerService.GetCurrentPlayer().subscribe(P => this.CurrentPlayer = P);
   }
 
+  ngAfterViewInit() {
+    this.Backpacks.paginator = this.paginator;
+  }
+
   SetCurrentBackpack(aData: BackpackODataModel) {
     this.SelectedBackpack = aData;
     this.CurrentBackpack = { SteamId: aData.id, Toolbar: JSON.parse(aData.toolbarContent), Bag: JSON.parse(aData.bagContent)  };
+  }
+
+  SlotCount(aData: BackpackODataModel) {
+    return this.ItemCount(aData.toolbarContent) + this.ItemCount(aData.bagContent);
+  }
+
+  ItemCount(aContent: string): number {
+    return aContent ? aContent.split("\"id\":").length - 1 : 0;
   }
 
   RestoreCurrentBackpack() {
@@ -71,13 +82,13 @@ export class RestoreBackpackComponent implements OnInit {
   }
 
   shiftDown() {
-    let found = this.mBackpacks.findIndex(B => B == this.SelectedBackpack);
-    if (found < this.mBackpacks.length) this.SetCurrentBackpack(this.mBackpacks[found + 1])
+    let found = this.Backpacks.data.findIndex(B => B == this.SelectedBackpack);
+    if (found < this.Backpacks.data.length) this.SetCurrentBackpack(this.Backpacks.data[found + 1])
   }
 
   shiftUp() {
-    let found = this.mBackpacks.findIndex(B => B == this.SelectedBackpack);
-    if (found > 0) this.SetCurrentBackpack(this.mBackpacks[found - 1])
+    let found = this.Backpacks.data.findIndex(B => B == this.SelectedBackpack);
+    if (found > 0) this.SetCurrentBackpack(this.Backpacks.data[found - 1])
   }
 
 }
