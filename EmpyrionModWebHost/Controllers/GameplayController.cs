@@ -164,5 +164,28 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [HttpGet("BanPlayer/{aSteamId}/{aDuration}")]
+        public IActionResult BanPlayer(string aSteamId, string aDuration)
+        {
+            GameplayManager.Request_ConsoleCommand(new PString($"ban {aSteamId} {aDuration}"));
+            return Ok();
+        }
+
+        [HttpGet("UnBanPlayer/{aSteamId}")]
+        public IActionResult UnBanPlayer(string aSteamId)
+        {
+            GameplayManager.Request_ConsoleCommand(new PString($"unban {aSteamId}"));
+            return Ok();
+        }
+
+        [HttpGet("WipePlayer/{aSteamId}")]
+        public IActionResult WipePlayer(string aSteamId)
+        {
+            GameplayManager.Request_ConsoleCommand(new PString($"kick {aSteamId} PlayerWipe"));
+            TaskWait.Delay(10, () => System.IO.File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
+            return Ok();
+        }
+
+
     }
 }

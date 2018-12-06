@@ -3,7 +3,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ChatModel, ChatType } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
-import { MatTable, MatSort, MatTableDataSource } from '@angular/material';
+import { MatTable, MatSort, MatTableDataSource, MatPaginator } from '@angular/material';
 import { PlayerService } from '../services/player.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
@@ -16,6 +16,7 @@ import { CHAT } from '../model/chat-mock';
 })
 export class ChatListComponent implements OnInit {
   @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
@@ -37,10 +38,17 @@ export class ChatListComponent implements OnInit {
     this.mChatService.GetMessages().subscribe(messages => {
       this.messages.data = messages;
 
-      if (this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
+      if (this.autoscroll) {
+        this.paginator.pageIndex = Math.ceil(this.paginator.pageSize / this.paginator.length);
+        setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
+      }
     });
 
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F );
+  }
+
+  ngAfterViewInit() {
+    this.messages.paginator = this.paginator;
   }
 
   applyFilter(filterValue: string) {

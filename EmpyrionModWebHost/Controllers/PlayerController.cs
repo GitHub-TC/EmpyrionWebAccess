@@ -184,7 +184,7 @@ namespace EmpyrionModWebHost.Controllers
         private void PlayerConnected(Id ID)
         {
             UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
-            PlayerManager_Event_Player_Info(TaskWait.For(2, Request_Player_Info(ID)).Result);
+            TaskWait.Delay(20, () => PlayerManager_Event_Player_Info(TaskWait.For(20, Request_Player_Info(ID)).Result));
         }
 
 

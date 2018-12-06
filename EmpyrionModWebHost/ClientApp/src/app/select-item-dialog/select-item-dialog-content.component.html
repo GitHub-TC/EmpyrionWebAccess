@@ -1,6 +1,7 @@
 <h2 mat-dialog-title>Select Item</h2>
 <mat-dialog-content>
   <mat-form-field>
+    <img *ngIf="SelectedItemInfo" class="image" src="../../assets/Items/{{SelectedItemInfo}}.png" alt="{{SelectedItemInfo}}" />
     <mat-select placeholder="Item" [(value)]="SelectedItemInfo">
       <mat-select-search [formControl]="filterCtrl"></mat-select-search>
       <mat-option *ngFor="let i of filteredItems | async" [value]="i.id">

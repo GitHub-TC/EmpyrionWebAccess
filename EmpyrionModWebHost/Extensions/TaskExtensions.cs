@@ -73,5 +73,25 @@ namespace EmpyrionModWebHost.Extensions
             }).Start();
         }
 
+        public static void Delay(int aSeconds, Action aAction)
+        {
+            Delay(new TimeSpan(0,0, aSeconds), aAction);
+        }
+
+        public static void Delay(TimeSpan aExecAfterTimeout, Action aAction)
+        {
+            new Thread(() => {
+                try
+                {
+                Thread.Sleep((int)aExecAfterTimeout.TotalMilliseconds);
+                aAction();
+                }
+                catch (Exception Error)
+                {
+                    Console.WriteLine(Error);
+                }
+            }).Start();
+        }
+
     }
 }

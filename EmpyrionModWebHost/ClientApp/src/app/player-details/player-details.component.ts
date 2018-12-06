@@ -42,6 +42,7 @@ export class PlayerDetailsComponent implements OnInit {
   SaveChanges() {
     this.contextMenuTrigger.closeMenu();
     this.Changed = false;
+    if (this.Player.FactionId) this.Player.FactionGroup = 0;  // gehört einer Faction an
     this.mPlayerService.saveUser(this.Player);
   }
 
@@ -50,4 +51,15 @@ export class PlayerDetailsComponent implements OnInit {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);
   }
 
+  Ban(aPlayer: PlayerModel) {
+    this.mPlayerService.BanPlayer(this.Player);
+  }
+
+  UnBan(aPlayer: PlayerModel) {
+    this.mPlayerService.UnBanPlayer(this.Player);
+  }
+
+  Wipe(aPlayer: PlayerModel) {
+    this.mPlayerService.WipePlayer(this.Player);
+  }
 }

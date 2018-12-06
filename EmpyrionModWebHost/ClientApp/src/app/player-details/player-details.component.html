@@ -89,8 +89,8 @@
     </div>
   </div>
 </div>
-<mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;" >
-  <button mat-menu-item (click)="SaveChanges(Player)">Save</button>
+<mat-menu #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;" >
+  <button mat-menu-item (click)="SaveChanges(Player)" *ngIf="Player?.Online">Save</button>
   <button mat-menu-item (click)="Ban(Player)">Ban</button>
   <button mat-menu-item (click)="UnBan(Player)">Unban</button>
   <button mat-menu-item (click)="Wipe(Player)">Wipe</button>

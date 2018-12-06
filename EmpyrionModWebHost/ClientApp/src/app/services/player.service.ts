@@ -125,4 +125,32 @@ export class PlayerService implements OnInit {
   set CurrentPlayer(aPlayer: PlayerModel) {
     this.currentPlayer.next(this.mCurrentPlayer = aPlayer);
   }
+
+  BanPlayer(aPlayer: PlayerModel): any {
+    this.http.get('gameplay/BanPlayer/' + aPlayer.SteamId + "/" + "12m")
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
+  UnBanPlayer(aPlayer: PlayerModel): any {
+    this.http.get('gameplay/UnBanPlayer/' + aPlayer.SteamId)
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
+  WipePlayer(aPlayer: PlayerModel): any {
+    this.http.get('gameplay/WipePlayer/' + aPlayer.SteamId)
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
 }
