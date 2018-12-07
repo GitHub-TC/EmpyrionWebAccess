@@ -15,37 +15,52 @@
     </div>
     </div>
     <div class="row">
-      <div class="col col-lg-4">
+      <div class="col col-lg-3">
         <mat-card>
-
+          <mat-dialog-content>
+            <mat-form-field>
+              <mat-select placeholder="Playfield" [(value)]="WarpData.playfield">
+                <mat-option *ngFor="let pl of Playfields" [value]="pl">
+                  {{pl}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <br />
+            <mat-form-field>
+              <mat-label>X: (East/West) </mat-label>
+              <input matInput type="number" [(ngModel)]="WarpData.pos.x" />
+            </mat-form-field>
+            <br />
+            <mat-form-field>
+              <mat-label>Y: (Height) </mat-label>
+              <input matInput type="number" [(ngModel)]="WarpData.pos.y" />
+            </mat-form-field>
+            <br />
+            <mat-form-field>
+              <mat-label>Z: (North/South) </mat-label>
+              <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
+            </mat-form-field>
+          </mat-dialog-content>
+          <br/>
+          <mat-dialog-actions>
+            <button mat-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition?.description">Load {{mPositionService.CurrentPosition.description}}</button>
+            <button mat-button (click)="setToZeroPosition()">Zero</button>
+            <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
+            <button mat-button (click)="Create()">Create</button>
+          </mat-dialog-actions>
         </mat-card>
       </div>
-      <div class="col">
+      <div class="col col-lg-9">
         <mat-card>
-          <div class="divBackpackList">
-            <div [hidden]="!displayFilter">
-              <mat-form-field style="width:100%">
-                <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
-              </mat-form-field>
-            </div>
+          <div [hidden]="!displayFilter">
+            <mat-form-field style="width:100%; margin-top:-15px">
+              <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
+            </mat-form-field>
+          </div>
 
+          <div class="divStructureList">
             <table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
-              <ng-container matColumnDef="Select">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-checkbox (change)="$event ? masterToggle() : null"
-                                [checked]="selection.hasValue() && isAllSelected()"
-                                [indeterminate]="selection.hasValue() && !isAllSelected()">
-                  </mat-checkbox>
-                </th>
-                <td mat-cell *matCellDef="let row">
-                  <mat-checkbox (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(row) : null"
-                                [checked]="selection.isSelected(row)">
-                  </mat-checkbox>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="Id">
+              <ng-container matColumnDef="id" [sticky]="true">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Id
                   <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
@@ -55,7 +70,7 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="Playfield">
+              <ng-container matColumnDef="playfield" [sticky]="true">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Playfield
                 </th>
@@ -64,7 +79,7 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="Name" [sticky]="true">
+              <ng-container matColumnDef="name" [sticky]="true">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Name
                 </th>
@@ -73,7 +88,16 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="Core">
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Type
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{s.type}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="core">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Core
                 </th>
@@ -82,7 +106,7 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="PosX">
+              <ng-container matColumnDef="posX">
                 <th mat-header-cell *matHeaderCellDef style="text-align:right !important;">
                   E/W
                 </th>
@@ -91,7 +115,7 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="PosY">
+              <ng-container matColumnDef="posY">
                 <th mat-header-cell *matHeaderCellDef style="text-align:right !important;">
                   Height
                 </th>
@@ -100,7 +124,7 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="PosZ">
+              <ng-container matColumnDef="posZ">
                 <th mat-header-cell *matHeaderCellDef style="text-align:right !important;">
                   N/S
                 </th>
@@ -109,13 +133,76 @@
                 </td>
               </ng-container>
 
+              <ng-container matColumnDef="faction">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Faction
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{FactionService.GetFaction(s.faction)}} ({{s.faction}})
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="blocks">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Blocks
+                </th>
+                <td mat-cell *matCellDef="let s" align="right">
+                  {{s.blocks}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="devices">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Devices
+                </th>
+                <td mat-cell *matCellDef="let s" align="right">
+                  {{s.devices}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="touched_time">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Touched
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{s.touched_time | date : 'dd.MM.yyyy HH:mm:ss'}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="touched_name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Touched by
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{s.touched_name}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="add_info">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Info
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{s.add_info}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="structureName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  StructureName
+                </th>
+                <td mat-cell *matCellDef="let s">
+                  {{s.structureName}}
+                </td>
+              </ng-container>
+
               <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"
                   [ngClass]="{'highlight': CurrentStructure?.id == row.id}"
                   (click)="CurrentStructure = row"></tr>
             </table>
-            <mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
           </div>
+          <mat-paginator style="margin-bottom:-5px" showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
         </mat-card>
       </div>
     </div>

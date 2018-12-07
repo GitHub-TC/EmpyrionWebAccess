@@ -39,7 +39,7 @@ export class ChatListComponent implements OnInit {
       this.messages.data = messages;
 
       if (this.autoscroll) {
-        this.paginator.pageIndex = Math.ceil(this.paginator.pageSize / this.paginator.length);
+        this.paginator.pageIndex = Math.ceil(messages.length / this.paginator.pageSize);
         setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
       }
     });

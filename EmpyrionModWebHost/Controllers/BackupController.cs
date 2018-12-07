@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -184,12 +185,12 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult ReadStructures(string aSelectBackupDir)
         {
             var StructDir = Path.Combine(BackupDir, aSelectBackupDir, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
-            return Ok(Directory.EnumerateFiles(StructDir, "*.txt").Select(I => GenerateGlobalStructureInfo(I)));
+            return Ok(Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)));
         }
 
-        public struct PlayfieldGlobalStructureInfo
+        public class PlayfieldGlobalStructureInfo
         {
-            public string StructureName;
+            public string structureName;
             public string Playfield;
             public int Id;
             public string Name;
@@ -202,11 +203,11 @@ namespace EmpyrionModWebHost.Controllers
             public bool Core;
             public bool Powered;
             public bool Docked;
-            public string Touched_time;
+            public DateTime Touched_time;
             public int Touched_ticks;
             public string Touched_name;
             public int Touched_id;
-            public string Saved_time;
+            public DateTime Saved_time;
             public int Saved_ticks;
             public string Add_info;
         }
@@ -215,7 +216,7 @@ namespace EmpyrionModWebHost.Controllers
         private PlayfieldGlobalStructureInfo GenerateGlobalStructureInfo(string aInfoTxtFile)
         {
             var Info = new PlayfieldGlobalStructureInfo();
-            Info.StructureName = Path.GetFileNameWithoutExtension(aInfoTxtFile);
+            Info.structureName = Path.GetFileNameWithoutExtension(aInfoTxtFile);
 
             try
             {
@@ -231,10 +232,11 @@ namespace EmpyrionModWebHost.Controllers
                 int      IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }
                 bool     BoolValue      (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && bool.TryParse(FieldValues[pos], out bool Result) && Result; }
                 PVector3 PVector3Value  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? new PVector3() : GetPVector3(FieldValues[pos]); }
+                DateTime DateTimeValue  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && DateTime.TryParse(FieldValues[pos], CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MinValue; }
 
                 Info.Playfield  = StringValue("playfield");
                 Info.Id         = IntValue("id");
-                Info.Name       = StringValue("name");
+                Info.Name       = StringValue("name")?.Trim('\'');
                 Info.Type       = StringValue("type");
                 Info.Faction    = ToIntOrZero(StringValue("faction")?.Replace("[Fac", "").Replace("]", "").Trim());
 
@@ -251,9 +253,9 @@ namespace EmpyrionModWebHost.Controllers
                 Info.Pos = PVector3Value("pos");
                 Info.Rot = PVector3Value("rot");
 
-                Info.Saved_time = StringValue("saved_time");
-                Info.Touched_time = StringValue("touched_time");
-                Info.Touched_name = StringValue("touched_name");
+                Info.Saved_time   = DateTimeValue("saved_time");
+                Info.Touched_time = DateTimeValue("touched_time");
+                Info.Touched_name = StringValue("touched_name")?.Trim('\'');
                 Info.Add_info = StringValue("add_info");
             }
             catch (Exception)
@@ -276,21 +278,14 @@ namespace EmpyrionModWebHost.Controllers
 
         private static float ToFloatOrZero(string aValue)
         {
-            return (float.TryParse(aValue, out float Result) ? Result : 0);
+            return (float.TryParse(aValue, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float Result) ? Result : 0);
         }
 
-        //[HttpGet("Backups/{key}")]
-        //public IActionResult Backups(string key)
-        //{
-        //    return Ok(_db.Backups.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
-        //}
-
-        //[HttpPost("SetBackup")]
-        //public IActionResult SetBackup([FromBody]BackupModel aInventory)
-        //{
-        //    BackupManager.SetPlayerInventory(aInventory);
-        //    return Ok();
-        //}
+        [HttpPost("CreateStructure/{aSelectBackupDir}")]
+        public IActionResult CreateStructure(string aSelectBackupDir, [FromBody]PlayfieldGlobalStructureInfo aStructure)
+        {
+            return Ok();
+        }
 
     }
 }

@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>0.5.2</Version>
+    <Version>0.6.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

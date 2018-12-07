@@ -6,4 +6,23 @@
 th, td{
   padding-left: .5em !important;
   padding-right: .5em !important;
+  white-space: nowrap;
 }
+
+.divStructureList {
+  height: 500px;
+  display: block;
+  overflow: auto;
+}
+
+@media (min-width: 1024px) {
+  .divStructureList {
+    height: calc(100vh - 300px);
+  }
+}
+
+
+.highlight {
+  background-color: aquamarine !important;
+}
+

@@ -1,35 +1,37 @@
-<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100;" (click)="router.navigate([''])" title="Home">home</mat-icon>
-<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:50px; z-index:100; color:green" (click)="ReloadStructures()" title="Reload">refresh</mat-icon>
+<mat-menu #appMenu="matMenu">
+  <button mat-menu-item (click)="Destroy()">Destroy</button>
+  <button mat-menu-item (click)="SetToAdmin()">Set to ADM</button>
+  <button mat-menu-item (click)="SetToAlien()">Set to Alien</button>
+  <button mat-menu-item (click)="ChangeFaction()">Change Faction</button>
+</mat-menu>
 
-<div [hidden]="!displayFilter">
-  <mat-form-field style="width:100%">
+<div [hidden]="!displayFilter" style="position:relative; width:100%; height:3em">
+  <mat-form-field style="position:absolute; left:1em; right:7em">
     <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
   </mat-form-field>
+  <div style="position:absolute; right:10px;">
+    <mat-icon style="cursor:pointer; margin-right:.5em" (click)="router.navigate([''])" title="Home">home</mat-icon>
+    <mat-icon style="cursor:pointer; margin-right:.5em; color:green" (click)="ReloadStructures()" title="Reload">refresh</mat-icon>
+    <mat-icon style="cursor:pointer;" mat-icon-button [matMenuTriggerFor]="appMenu">more_vert</mat-icon>
+  </div>
 </div>
 
-<!--
-?: string;
-dockedShips?: number[];
-classNr?: number;
-cntLights?: number;
-cntTriangles?: number;
-cntBlocks?: number;
-cntDevices?: number;
-fuel?: number;
-powered?: boolean;
-rot?: PVector3;
-pos?: PVector3;
-lastVisitedUTC?: number;
-?: string;
-factionId?: number;
-factionGroup?: number;
-type?: number;
-coreType?: number;
-pilotId?: number;
-    -->
-
-
 <table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
+  <ng-container matColumnDef="Select">
+    <th mat-header-cell *matHeaderCellDef>
+      <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+      </mat-checkbox>
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <mat-checkbox (click)="$event.stopPropagation()"
+                    (change)="$event ? selection.toggle(row) : null"
+                    [checked]="selection.isSelected(row)">
+      </mat-checkbox>
+    </td>
+  </ng-container>
+
   <ng-container matColumnDef="Id">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>
       Id
@@ -100,6 +102,141 @@ pilotId?: number;
     </th>
     <td mat-cell *matCellDef="let s" align="right">
       {{s.pos?.z | number : "1.2-2"}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="RotX">
+    <th mat-header-cell *matHeaderCellDef>
+      X
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.rot?.x | number : "1.2-2"}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="RotY">
+    <th mat-header-cell *matHeaderCellDef>
+      Y
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.rot?.y | number : "1.2-2"}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="RotZ">
+    <th mat-header-cell *matHeaderCellDef>
+      Z
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.rot?.z | number : "1.2-2"}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="dockedShips">
+    <th mat-header-cell *matHeaderCellDef>
+      Docked
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{s.dockedShips}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="classNr">
+    <th mat-header-cell *matHeaderCellDef>
+      Class
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.classNr}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="cntLights">
+    <th mat-header-cell *matHeaderCellDef>
+      Lights
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.cntLights}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="cntTriangles">
+    <th mat-header-cell *matHeaderCellDef>
+      Triangles
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.cntTriangles}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="cntBlocks">
+    <th mat-header-cell *matHeaderCellDef>
+      Blocks
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.cntBlocks}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="cntDevices">
+    <th mat-header-cell *matHeaderCellDef>
+      Devices
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.cntDevices}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="fuel">
+    <th mat-header-cell *matHeaderCellDef>
+      Fuel
+    </th>
+    <td mat-cell *matCellDef="let s" align="right">
+      {{s.fuel}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="powered">
+    <th mat-header-cell *matHeaderCellDef>
+      Powered
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{s.powered}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="factionId">
+    <th mat-header-cell *matHeaderCellDef>
+      Faction
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{FactionService.GetFaction(s.factionId)}} ({{s.factionId}})
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="factionGroup">
+    <th mat-header-cell *matHeaderCellDef>
+      Group
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{s.factionGroup}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="type">
+    <th mat-header-cell *matHeaderCellDef>
+      Type
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{s.type}}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="pilotId">
+    <th mat-header-cell *matHeaderCellDef>
+      Pilot
+    </th>
+    <td mat-cell *matCellDef="let s">
+      {{s.pilotId}}
     </td>
   </ng-container>
 
