@@ -1,6 +1,6 @@
 
 export class SystemInfoModel {
-  online?: boolean;
+  online?: string;
   version?: string;
   versionESG?: string;
   copyright?: string;

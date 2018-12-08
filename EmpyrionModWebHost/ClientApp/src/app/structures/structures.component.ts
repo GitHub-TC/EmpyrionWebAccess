@@ -73,4 +73,16 @@ export class StructuresComponent implements OnInit {
   ReloadStructures() {
     this.mStructureService.ReloadStructures();
   }
+
+  Destroy() {
+  }
+
+  SetToAdmin() {
+  }
+
+  SetToAlien() {
+  }
+
+  ChangeFaction() {
+  }
 }

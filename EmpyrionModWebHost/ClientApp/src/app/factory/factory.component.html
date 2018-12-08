@@ -1,6 +1,15 @@
-<p>
-  factory comming soon!
-</p>
+<div class="FactoryArea">
+  <div *ngFor="let i of Resources?.itemStacks" style="float:left; display:block">
+    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
+    <mat-form-field style="margin-left:1em; margin-right:1em; width:10em">
+      <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="i.count" type="number" placeholder="{{GetName(i)}}" />
+    </mat-form-field>
+    <br />
+  </div>
+</div>
+<app-select-item-dialog [(ItemStack)]="AddItemStack"></app-select-item-dialog>
 <mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
-  <button mat-menu-item (click)="Finish()">Finish</button>
+  <button mat-menu-item (click)="SetBlueprintResources()">Save</button>
+  <button mat-menu-item (click)="FinishBlueprint()">Finish</button>
+  <button mat-menu-item (click)="AddItem()">Add item</button>
 </mat-menu>

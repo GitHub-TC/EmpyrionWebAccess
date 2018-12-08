@@ -1,7 +1,7 @@
 import { SystemInfoModel } from "./systeminfo-model";
 
 export const SYSTEMINFO: SystemInfoModel = {
-  online: true,
+  online: "o",
   version: "0.0.1",
   versionESG: "8.3.1",
   activePlayers: 2,

@@ -17,9 +17,18 @@ using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
+
     public class SysteminfoDataModel
     {
-        public bool online;
+        /// <summary>
+        /// Onlinestates:
+        /// o: EGS Online
+        /// c: EGS CommError
+        /// E: EGS Down
+        /// b: Backup
+        /// D: Client disconnect (used by Client)
+        /// </summary>
+        public string online;
         public string copyright;
         public string version;
         public string versionESG;
@@ -102,7 +111,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdatePerformanceInfos()
         {
-            CurrentSysteminfo.online = (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10;
+            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "oc", (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10);
 
             var GameDrive = DriveInfo.GetDrives().FirstOrDefault(D => D.RootDirectory.FullName == Path.GetPathRoot(ProcessInformation == null ? Directory.GetCurrentDirectory() : ProcessInformation.CurrentDirecrory));
 
@@ -115,9 +124,17 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.diskFreeSpace = GameDrive.TotalFreeSpace;
         }
 
+        private string SetState(string aState, string aStateChar, bool aStateSet)
+        {
+            return (aState ?? string.Empty)
+                .Where(C => !aStateChar.Contains(C))
+                .Aggregate("", (c, s) => c + s) +
+                (aStateSet ? "" + aStateChar[0] : (aStateChar.Length > 1 ? "" + aStateChar[1] : ""));
+        }
+
         private void UpdateEmpyrionInfosAsync()
         {
-            CurrentSysteminfo.online = (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10;
+            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "oc", (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10);
 
             if (ToEmpyrion == null) return;
 
@@ -128,7 +145,9 @@ namespace EmpyrionModWebHost.Controllers
             var activePlayfields               = TaskWait.For(2, Request_Playfield_List()).Result.playfields;
             CurrentSysteminfo.activePlayfields = activePlayfields == null ? 0 : activePlayfields.Count;
 
-            var ESGProcess        = Process.GetProcessById(ProcessInformation.Id);
+            Process ESGProcess = null;
+            try{ ESGProcess = Process.GetProcessById(ProcessInformation.Id); } catch {}
+            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "E", ESGProcess == null);
             var ESGChildProcesses = ESGProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionPlayfieldServer").ToArray();
 
             if (ESGChildProcesses != null)

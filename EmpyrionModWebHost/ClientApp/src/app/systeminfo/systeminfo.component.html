@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="systeminfo">
-        <div [ngClass]="(CurrentSystemInfo.online ? 'online' : 'offline')" class="state-pos">{{CurrentSystemInfo.online ? "online" : "offline"}}</div>
+        <div [ngClass]="GetStateClass()" class="state-pos">{{GetStateDescription()}}</div>
         <mat-menu #appMenu="matMenu">
           <button mat-menu-item (click)="router.navigate(['user'])">User</button>
           <button mat-menu-item (click)="router.navigate(['restore'])">Restore</button>

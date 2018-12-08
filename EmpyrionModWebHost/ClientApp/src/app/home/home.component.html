@@ -25,8 +25,12 @@
                 </ng-template>
                 <app-player-details #PlayerDetails></app-player-details>
               </mat-tab>
-              <mat-tab label="Factory">
-                <app-factory></app-factory>
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  Factory
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="FactoryEdit.Changed" (click)="FactoryEdit.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                </ng-template>
+                <app-factory #FactoryEdit></app-factory>
               </mat-tab>
             </mat-tab-group>
           </div>

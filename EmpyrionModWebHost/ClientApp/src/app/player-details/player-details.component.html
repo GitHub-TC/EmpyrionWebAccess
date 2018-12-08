@@ -1,93 +1,89 @@
-<div class="container-fluid" *ngIf="Player">
-  <div class="row align-items-center justify-content-center">
-    <div class="col">
-      <mat-expansion-panel [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Personal data: {{Player.PlayerName}}
-          </mat-panel-title>
-          <mat-panel-description>
-            <a href="https://steamcommunity.com/profiles/{{Player.SteamId}}" target="_blank">
-              <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
-            </a>
-            <mat-icon class="onlineState" *ngIf="Player?.Online" style="cursor:pointer; color: green; font-size:medium" title="Online">account_circle</mat-icon>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
-        <table style="width:45%; margin-right:5%">
-          <tr *ngFor="let field of ['Kills', 'Died', 'Ping', 'Permission', 'EntityId', '']">
-            <td>{{field}}&nbsp;</td>
-            <td align="right">{{Player[field]}}</td>
-          </tr>
-        </table>
-        <table style="width:45%">
-          <tr *ngFor="let field of ['PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ']">
-            <td>{{field}}</td>
-            <td align="right">{{Player[field] | number : "1.2-2"}}</td>
-          </tr>
-        </table>
-        <table style="width:95%">
-          <tr *ngFor="let field of ['SteamId', 'SteamOwnerId']">
-            <td>{{field}}</td>
-            <td>{{Player[field]}}</td>
-          </tr>
-        </table>
-      </mat-expansion-panel>
-      <mat-expansion-panel [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Life Stats
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div *ngFor="let field of ['Health', 'Radiation', 'BodyTemp', 'Food', 'Oxygen', 'Stamina']">
-          <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
-          </mat-form-field>
-          <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field + 'Max']" type="number" placeholder="{{field}}Max" />
-          </mat-form-field>
-        </div>
-      </mat-expansion-panel>
-      <mat-expansion-panel [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Gameplay
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-form-field>
-          <mat-select placeholder="Playfield" (change)="Changed=true" [(value)]="Player.StartPlayfield">
-            <mat-option *ngFor="let pl of Playfields" [value]="pl">
-              {{pl}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div *ngFor="let field of ['Credits', 'Exp', 'Upgrade']">
-          <mat-form-field style="float:left; margin-left:1em; width:40%">
-            <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
-          </mat-form-field>
-        </div>
-      </mat-expansion-panel>
-      <mat-expansion-panel [expanded]="false">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Faction
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-select placeholder="Faction" (change)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
-          <mat-option *ngFor="let f of Factions" [value]="f.FactionId">
-            ({{f.Abbrev}}) {{f.Name}}
-          </mat-option>
-        </mat-select>
-        <mat-select placeholder="Role" (change)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
-          <mat-option *ngFor="let role of [{ id:0, text:'Owner' }, { id:1, text:'Admin' }, { id:2, text:'Member' }]" [value]="role.id">
-            {{role.text}}
-          </mat-option>
-        </mat-select>
-        <!--<mat-form-field style="float:left; margin-left:1em; width:40%">
-          <input matInput IntegersOnly [(ngModel)]="Player.FactionGroup" type="number" placeholder="FactionGroup" />
-        </mat-form-field>-->
-      </mat-expansion-panel>
+<div class="PlayerArea" *ngIf="Player">
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Personal data: {{Player.PlayerName}}
+      </mat-panel-title>
+      <mat-panel-description>
+        <a href="https://steamcommunity.com/profiles/{{Player.SteamId}}" target="_blank">
+          <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
+        </a>
+        <mat-icon class="onlineState" *ngIf="Player?.Online" style="cursor:pointer; color: green; font-size:medium" title="Online">account_circle</mat-icon>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <table style="width:45%; margin-right:5%">
+      <tr *ngFor="let field of ['Kills', 'Died', 'Ping', 'Permission', 'EntityId', '']">
+        <td>{{field}}&nbsp;</td>
+        <td align="right">{{Player[field]}}</td>
+      </tr>
+    </table>
+    <table style="width:45%">
+      <tr *ngFor="let field of ['PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ']">
+        <td>{{field}}</td>
+        <td align="right">{{Player[field] | number : "1.2-2"}}</td>
+      </tr>
+    </table>
+    <table style="width:95%">
+      <tr *ngFor="let field of ['SteamId', 'SteamOwnerId']">
+        <td>{{field}}</td>
+        <td>{{Player[field]}}</td>
+      </tr>
+    </table>
+  </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Life Stats
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div *ngFor="let field of ['Health', 'Radiation', 'BodyTemp', 'Food', 'Oxygen', 'Stamina']">
+      <mat-form-field style="float:left; margin-left:1em; width:40%">
+        <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
+      </mat-form-field>
+      <mat-form-field style="float:left; margin-left:1em; width:40%">
+        <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field + 'Max']" type="number" placeholder="{{field}}Max" />
+      </mat-form-field>
     </div>
-  </div>
+  </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Gameplay
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-form-field>
+      <mat-select placeholder="Playfield" (change)="Changed=true" [(value)]="Player.StartPlayfield">
+        <mat-option *ngFor="let pl of Playfields" [value]="pl">
+          {{pl}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div *ngFor="let field of ['Credits', 'Exp', 'Upgrade']">
+      <mat-form-field style="float:left; margin-left:1em; width:40%">
+        <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="Player[field]" type="number" placeholder="{{field}}" />
+      </mat-form-field>
+    </div>
+  </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Faction
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-select placeholder="Faction" (change)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
+      <mat-option *ngFor="let f of Factions" [value]="f.FactionId">
+        ({{f.Abbrev}}) {{f.Name}}
+      </mat-option>
+    </mat-select>
+    <mat-select placeholder="Role" (change)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
+      <mat-option *ngFor="let role of [{ id:0, text:'Owner' }, { id:1, text:'Admin' }, { id:2, text:'Member' }]" [value]="role.id">
+        {{role.text}}
+      </mat-option>
+    </mat-select>
+    <!--<mat-form-field style="float:left; margin-left:1em; width:40%">
+      <input matInput IntegersOnly [(ngModel)]="Player.FactionGroup" type="number" placeholder="FactionGroup" />
+    </mat-form-field>-->
+  </mat-expansion-panel>
 </div>
 <mat-menu #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;" >
   <button mat-menu-item (click)="SaveChanges(Player)" *ngIf="Player?.Online">Save</button>

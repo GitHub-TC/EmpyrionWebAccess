@@ -13,32 +13,17 @@ ASTIC/TC
 
 ## Erstes Login
 Damit der integrierte WebServer weis unter welcher URL er erreichbar sein soll muss eine Textdatei "appsettings.json" im
-Savegameverzeichnis unter \[Savegame\]\\MODs\\EWA angelegt werden.
-darin muss dan folgender Eintrag eingerichtet sein:
+Savegameverzeichnis unter \[Savegame\]\\MODs\\EWA konfiguriert werden.
+Es werden mehrere ServerURL VORGESCHLAGEN - unter Http und HttpsDefaultCert darf jeweils nur ein Eintrag "Url" stehen bleiben die 
+anderen MÜSSEN gelöscht werden.
 
-```
-{
-  "Kestrel": {
-    "Endpoints": {
-      "Http": {
-        "Url": "http://localhost:5010"
-      },
-      "HttpsDefaultCert": {
-        "Url": "https://localhost:5011"
-      }
-    }
-  }
-}
-```
-Statt "localhost" muss der Name oder die IP des Rechners angegeben werden. Der Port kann "nahezu" beliebig gewählt werden, muss jedoch von der Firewall freigegeben sein.
-Der Standardport für HTTP ist 80 und der für HTTPS 443. 
 Hinweis: Der Webserver läuft ausschließlich über HTTPS und nutzt das HTTP nur zur Weiterleitung auf HTTPS.
 
-Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der Adresse
-```
-https://[Rechnername][:Port]
-```
-eine Anmeldemaske anzeigen.
+!!! WICHTIG !!!
+EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
+Jetzt muss also eine solche Datei erstellt werden. 
+
+Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der ausgewählten ServerURL eine Anmeldemaske anzeigen.
 
 Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Alle Benutzer können nachher über die Oberfläche angelegt, geändert oder gelöscht werden.
 
@@ -80,8 +65,8 @@ Hier werden alle Strukturen des Spiels aufgelistet:
 * Die Position kann in den Speicher für ein Warp übertragen werden
 
 ## Start/Stop
-Wenn in dem Verzeichnis \[Empyrion\]\\Content\\Mods\\EWALoader\\Client eine Datei "stop.txt" liegt wird der EWA automatisch gestoppt. 
-Wird die Datei gelöscht oder umbenannt startet der EWA wieder. 
+EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
+Fehlt diese Datei wird der EWA automatisch gestoppt bzw. gar nicht erst gestartet. 
 
 # Erweiterte Konfiguration
 ## Erstellen eines eigenen selbst signierten Zertifikates für die HTTPS Verbindung
@@ -145,32 +130,17 @@ ASTIC/TC
 
 ## First login
 So that the integrated web server knows under which URL he should be attainable a text file "appsettings.json" in the
-Savegame directory can be created under \[Savegame\]\\MODs\\EWA.
-The following entry must be set up there:
+Savegame directory can be configured under \[Savegame\]\\MODs\\EWA.
+Several serverURLs are suggested - under Http and HttpsDefaultCert only one entry "Url" may remain
+other MUST be deleted.
 
-`` `
-{
-  "Kestrel": {
-    "Endpoints": {
-      "Http": {
-        "Url": "http://localhost:5000"
-      },
-      "HttpsDefaultCert": {
-        "Url": "https://localhost:5001"
-      }
-    }
-  }
-}
-`` `
-Instead of "localhost" the name or the IP of the computer must be specified. The port can be chosen "almost" as desired, but must be enabled by the firewall.
-The default port for HTTP is 80 and for HTTPS 443.
 Note: The web server runs exclusively via HTTPS and uses the HTTP only for forwarding to HTTPS.
 
-If you now start the EGS server Empyrion Web Access should be at the address
-`` `
-https://[hostname][:port]
-`` `
-display a login mask.
+!!! IMPORTANT !!!
+EmpyrionWebAccess does not start automatically but there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\ EWA.
+Now, such a file must be created.
+
+When starting the EGS server, Empyrion Web Access should display a login mask under the selected ServerURL.
 
 As the first user, the abbreviation and password are automatically stored and accepted in the user database. All users can be subsequently created, changed or deleted via the interface.
 
@@ -212,8 +182,8 @@ Here are all the structures of the game listed:
 * The position can be transferred to the memory for a warp
 
 ## Start/Stop
-If there is a file "stop.txt" in the directory \[Empyrion\]\\Content\\Mods\\EWALoader\\Client the EWA will be stopped automatically.
-If the file is deleted or renamed, the EWA restarts.
+EmpyrionWebAccess does not start automatically there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.
+If this file is missing, the EWA is automatically stopped or not even started.
 
 # Advanced configuration
 ## Create your own self-signed certificate for the HTTPS connection

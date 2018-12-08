@@ -41,9 +41,9 @@ export class PlayerDetailsComponent implements OnInit {
 
   SaveChanges() {
     this.contextMenuTrigger.closeMenu();
-    this.Changed = false;
     if (this.Player.FactionId) this.Player.FactionGroup = 0;  // gehört einer Faction an
     this.mPlayerService.saveUser(this.Player);
+    this.Changed = false;
   }
 
   DiscardChanges() {

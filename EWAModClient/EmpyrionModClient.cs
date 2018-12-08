@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 
@@ -93,6 +94,9 @@ namespace EWAModClient
             CurrentConfig.Current.ModToEmpyrionPipeName = string.Format(CurrentConfig.Current.ModToEmpyrionPipeName, Guid.NewGuid().ToString("N"));
             CurrentConfig.Save();
 
+            var EWAConfigFile = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "appsettings.json");
+            if (!File.Exists(EWAConfigFile)) CreateConfigFile(EWAConfigFile);
+
             GameAPI.Console_Write($"ModClientDll (CurrentDir:{Directory.GetCurrentDirectory()}): Config:{CurrentConfig.ConfigFilename}");
 
             InServerMessageHandler = new Dictionary<Type, Action<object>> {
@@ -132,13 +136,13 @@ namespace EWAModClient
 
             if (mHostProcess == null && CurrentConfig.Current.AutostartModHost && !string.IsNullOrEmpty(CurrentConfig.Current.PathToModHost))
             {
-                if (!ExistsStopFile()) CreateHostProcess(HostFilename);
+                if (ExistsStartFile()) CreateHostProcess(HostFilename);
             }
         }
 
-        private bool ExistsStopFile()
+        private bool ExistsStartFile()
         {
-            return File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "stop.txt"));
+            return File.Exists(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "start.txt"));
         }
 
         private void CreateHostProcess(string HostFilename)
@@ -172,17 +176,51 @@ namespace EWAModClient
             }
         }
 
+        private void CreateConfigFile(string aEWAConfigFile)
+        {
+            ReadNetworkInfos(out string LocalIp, out string Domain, out string Host);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(aEWAConfigFile));
+            File.WriteAllText(aEWAConfigFile,
+                File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "appsettings.json"))
+                .Replace("{LocalIp}", LocalIp)
+                .Replace("{Domain}", Domain)
+                .Replace("{Host}", Host)
+                .Replace("{ComputerName}", string.IsNullOrEmpty(Host) ? "" : (Host + (string.IsNullOrEmpty(Domain) ? "" : Domain + ".")))
+                );
+        }
+
+        private static void ReadNetworkInfos(out string LocalIp, out string Domain, out string Host)
+        {
+            LocalIp = string.Empty;
+            Domain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            Host = System.Net.Dns.GetHostName();
+
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) return;
+
+            System.Net.IPHostEntry host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+
+            foreach (System.Net.IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    LocalIp = ip.ToString();
+                    break;
+                }
+            }
+        }
+
         void CheckHostProcess()
         {
             if (Exit) return;
 
-            if (ExistsStopFile())
+            if (!ExistsStartFile())
             {
                 try
                 {
                     if (mHostProcess != null && !mHostProcess.HasExited)
                     {
-                        GameAPI.Console_Write($"ModClientDll: stop.txt found");
+                        GameAPI.Console_Write($"ModClientDll: start.txt not found");
 
                         OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.Game_Exit });
                         Thread.Sleep(1000);
