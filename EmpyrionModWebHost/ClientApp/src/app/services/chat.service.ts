@@ -32,6 +32,7 @@ export class ChatService implements OnInit {
     // message coming from the server
     this.hubConnection.on("Send", (message) => {
       this.messages.next(this.messages.getValue().concat(JSON.parse(message)));
+      this.lastMessages.next(this.lastMessages.getValue().concat(JSON.parse(message)));
     });
 
     // starting the connection
