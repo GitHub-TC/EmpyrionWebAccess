@@ -16,9 +16,12 @@ export class ChatService implements OnInit {
   public hubConnection: HubConnection;
 
   private mMessages: ChatModel[] = [];// CHAT;
-
   private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mMessages);
   public readonly messagesObservable: Observable<ChatModel[]> = this.messages.asObservable();
+
+  private mLastMessages: ChatModel[] = [];// CHAT;
+  private lastMessages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mLastMessages);
+  public readonly lastMessagesObservable: Observable<ChatModel[]> = this.lastMessages.asObservable();
 
   private mChatToPlayer: PlayerModel;
     error: any;
@@ -53,6 +56,19 @@ export class ChatService implements OnInit {
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
 
     return this.messagesObservable;
+  }
+
+  GetLastMessages(): any {
+    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats?$top=500&$orderby=Timestamp desc")
+      .pipe(map(S => S.value))
+      .subscribe(
+        M => this.lastMessages.next(this.mLastMessages = M.reverse()),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+
+    return this.lastMessagesObservable;
   }
 
   ChatToPlayer(aPlayer: PlayerModel) {

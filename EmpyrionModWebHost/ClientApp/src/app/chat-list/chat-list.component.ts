@@ -16,8 +16,7 @@ import { CHAT } from '../model/chat-mock';
 })
 export class ChatListComponent implements OnInit {
   @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-
+  
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
   displayFilter: boolean;
@@ -35,20 +34,12 @@ export class ChatListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.mChatService.GetMessages().subscribe(messages => {
+    this.mChatService.GetLastMessages().subscribe(messages => {
       this.messages.data = messages;
-
-      if (this.autoscroll) {
-        this.paginator.pageIndex = Math.ceil(messages.length / this.paginator.pageSize);
-        setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
-      }
+      if (this.autoscroll) setTimeout(() => this.table.nativeElement.scrollIntoView(false), 0);
     });
 
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F );
-  }
-
-  ngAfterViewInit() {
-    this.messages.paginator = this.paginator;
   }
 
   applyFilter(filterValue: string) {

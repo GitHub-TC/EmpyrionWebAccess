@@ -36,7 +36,7 @@ interface PlayfieldGlobalStructureInfo {
   styleUrls: ['./restore-structure.component.less']
 })
 export class RestoreStructureComponent implements OnInit {
-  displayedColumns = ['id', 'playfield', 'name', 'type', 'core', 'posX', 'posY', 'posZ', 'faction', 'blocks', 'devices', 'touched_time', 'touched_name', 'add_info', 'structureName'];
+  displayedColumns = ['id', 'name', 'playfield', 'type', 'core', 'posX', 'posY', 'posZ', 'faction', 'blocks', 'devices', 'touched_time', 'touched_name', 'add_info', 'structureName'];
   Backups: string[];
   error: any;
   mSelectedBackup: string;

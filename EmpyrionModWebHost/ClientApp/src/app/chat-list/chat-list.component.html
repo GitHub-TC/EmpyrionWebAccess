@@ -2,7 +2,6 @@
   <mat-form-field style="width:100%">
     <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
   </mat-form-field>
-  <mat-paginator style="margin-top:-2em !important" showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
 </div>
 <div class="divChat" [ngClass]="{'withFilter': displayFilter}">
   <table mat-table [dataSource]="messages" class="mat-elevation-z8">

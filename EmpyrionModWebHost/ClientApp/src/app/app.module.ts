@@ -36,7 +36,6 @@ import { FactoryComponent } from './factory/factory.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { ServerModManagerComponent } from './server-mod-manager/server-mod-manager.component';
 import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './select-item-dialog/select-item-dialog.component';
-import { MatSelectSearchComponent } from './mat-select-search/mat-select-search.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +66,6 @@ import { MatSelectSearchComponent } from './mat-select-search/mat-select-search.
     ServerModManagerComponent,
     SelectItemDialogComponent,
     SelectItemDialogContentComponent,
-    MatSelectSearchComponent,
   ],
   imports: [
     BrowserModule,

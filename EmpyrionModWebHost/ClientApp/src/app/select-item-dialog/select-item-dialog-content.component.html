@@ -1,14 +1,18 @@
-<h2 mat-dialog-title>Select Item</h2>
+<h2 mat-dialog-title>
+  Select Item
+  <img *ngIf="SelectedItemInfo.id" class="image" src="../../assets/Items/{{SelectedItemInfo.id}}.png" alt="{{SelectedItemInfo.id}}" title="{{SelectedItemInfo.name}}" />
+</h2>
 <mat-dialog-content>
   <mat-form-field>
-    <img *ngIf="SelectedItemInfo" class="image" src="../../assets/Items/{{SelectedItemInfo}}.png" alt="{{SelectedItemInfo}}" />
-    <mat-select placeholder="Item" [(value)]="SelectedItemInfo">
-      <mat-select-search [formControl]="filterCtrl"></mat-select-search>
-      <mat-option *ngFor="let i of filteredItems | async" [value]="i.id">
-        <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" />
+    <input type="text" placeholder="Item" [formControl]="SelectedItem" aria-label="Number" matInput [matAutocomplete]="auto">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      <mat-option *ngFor="let i of filteredOptions | async" [value]="i.name">
+        <div style="display:inline-block; width:2em">
+          <img class="image" src="../../assets/Items/{{i.id}}.png" style="width:2em" />
+        </div>
         ({{i.id}}) {{i.name}}
       </mat-option>
-    </mat-select>
+    </mat-autocomplete>
   </mat-form-field>
   <br />
   <mat-form-field>
@@ -16,7 +20,7 @@
     <input matInput type="number" [(ngModel)]="ItemStack.count" />
   </mat-form-field>
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button (click)="AddItem()">Select item</button>
+<mat-dialog-actions style="position:relative">
+  <button class="mat-raised-button" mat-dialog-close style="position:absolute; left:1em">Cancel</button>
+  <button class="mat-raised-button mat-primary" (click)="AddItem()" style="position:absolute; right:1em">Select item</button>
 </mat-dialog-actions>

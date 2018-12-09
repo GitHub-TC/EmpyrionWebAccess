@@ -30,7 +30,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (_mItemInfo != null) return _mItemInfo;
 
-            var ItemDef      = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf"))
+            var ItemDef = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf"))
                 .Where(L => L.Contains(IdDef));
             var Localisation = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv"))
                 .Where(L => Char.IsLetter(L[0]))
@@ -38,10 +38,10 @@ namespace EmpyrionModWebHost.Controllers
 
             _mItemInfo = ItemDef.Select(L =>
             {
-                var IdPos           = L.IndexOf(IdDef);
-                var IdDelimiter     = L.IndexOf(",", IdPos);
-                var NamePos         = L.IndexOf(NameDef);
-                var NameDelimiter   = L.IndexOf(",", NamePos);
+                var IdPos = L.IndexOf(IdDef);
+                var IdDelimiter = L.IndexOf(",", IdPos);
+                var NamePos = L.IndexOf(NameDef);
+                var NameDelimiter = L.IndexOf(",", NamePos);
                 if (NameDelimiter == -1) NameDelimiter = L.Length;
 
                 return IdPos >= 0 && NamePos >= 0 && IdDelimiter >= 0
@@ -52,12 +52,13 @@ namespace EmpyrionModWebHost.Controllers
                     }
                     : null;
             })
-            .Select(I => {
+            .Select(I =>
+            {
                 if (I != null)
                 {
                     if (Localisation.TryGetValue(I.Name + ",", out string Value))
                     {
-                        var End   = Value.IndexOf(",");
+                        var End = Value.IndexOf(",");
                         I.Name = Value.Substring(0, End);
                     }
                 }
@@ -66,7 +67,25 @@ namespace EmpyrionModWebHost.Controllers
             .Where(I => I != null)
             .ToArray();
 
+            CreateDummyPNGForUnknownItems(_mItemInfo);
+
             return _mItemInfo;
+        }
+
+        private static void CreateDummyPNGForUnknownItems(ItemInfo[] aItems)
+        {
+            try
+            {
+                aItems.AsParallel().ForEach(I =>
+                {
+                    if (!File.Exists(Path.Combine(@"ClientApp\dist\ClientApp\assets\Items", I.Id + ".png")))
+                    {
+                        File.Copy(@"ClientApp\dist\ClientApp\assets\Items\0.png",
+                                  Path.Combine(@"ClientApp\dist\ClientApp\assets\Items", I.Id + ".png"));
+                    }
+                });
+            }
+            catch { }
         }
     }
 
