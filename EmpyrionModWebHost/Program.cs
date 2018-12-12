@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Eleon.Modding;
+using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Migrations;
 using EmpyrionModWebHost.Services;
 using EWAExtenderCommunication;
@@ -32,6 +33,7 @@ namespace EmpyrionModWebHost
         public static IWebHost Application { get; private set; }
         public static LifetimeEventsHostedService AppLifetime { get; private set; }
         public static ModHostDLL Host { get; set; }
+        public static AppSettings AppSettings { get; internal set; }
 
         public static T GetManager<T>() where T : class
         {

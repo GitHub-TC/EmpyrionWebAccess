@@ -209,7 +209,7 @@
       Faction
     </th>
     <td mat-cell *matCellDef="let s">
-      {{FactionService.GetFaction(s.factionId)}} ({{s.factionId}})
+      {{FactionService.GetFaction(s.factionId)?.Abbrev}} ({{s.factionId}})
     </td>
   </ng-container>
 

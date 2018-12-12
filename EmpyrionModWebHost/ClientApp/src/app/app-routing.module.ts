@@ -8,6 +8,7 @@ import { UserManagerComponent } from './user-manager/user-manager.component';
 import { RestoreComponent } from './restore/restore.component';
 import { ServerComponent } from './server/server.component';
 import { StructuresComponent } from './structures/structures.component';
+import { TimetableComponent } from './timetable/timetable.component';
 
 const appRoutes: Routes = [
   {
@@ -34,6 +35,10 @@ const appRoutes: Routes = [
   {
     path: 'structures',
     component: StructuresComponent
+  },
+  {
+    path: 'timetable',
+    component: TimetableComponent
   },
 
   // otherwise redirect to home

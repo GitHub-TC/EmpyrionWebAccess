@@ -19,20 +19,14 @@ using Newtonsoft.Json;
 
 namespace EmpyrionModWebHost.Controllers
 {
-    public class BackupManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
+    public class BackupManager : EmpyrionModBase, IEWAPlugin
     {
         public ModGameAPI GameAPI { get; private set; }
+        public string BackupDir { get; internal set; }
 
         public BackupManager()
         {
-        }
-
-        public void CreateAndUpdateDatabase()
-        {
-            //using (var DB = new BackupContext())
-            //{
-            //    DB.Database.EnsureCreated();
-            //}
+            BackupDir = Program.AppSettings.BackupDirectory ?? Path.Combine(EmpyrionConfiguration.ProgramPath, "Backup");
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -41,33 +35,51 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
         }
 
-    }
-
-    [Authorize]
-    [ApiController]
-    [Route("[controller]")]
-    public class BackupApiController : ControllerBase
-    {
-        public BackupManager BackupManager { get; }
-
-        public BackupApiController()
+        private void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
         {
-            BackupManager = Program.GetManager<BackupManager>();
+            aSource.GetDirectories().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
+            aSource.GetFiles().ForEach(F => {
+                Directory.CreateDirectory(aTarget.FullName);
+                F.CopyTo(Path.Combine(aTarget.FullName, F.Name), true);
+            });
         }
 
-        [HttpPost("AddItem")]
-        public IActionResult AddItem([FromBody]IdItemStack aItem)
+        public async Task CreateStructureAsync(string aSelectBackupDir, BackupsController.PlayfieldGlobalStructureInfo aStructure)
         {
-            try
+            var NewID = await TaskWait.For(2, Request_NewEntityId());
+
+            var ExportInfo = new EntityExportInfo(NewID.id,
+                Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}"),
+                false);
+
+            var SpawnInfo = new EntitySpawnInfo()
             {
-                TaskWait.For(2, BackupManager.Request_Player_AddItem(aItem)).Wait();
-                return Ok();
-            }
-            catch (Exception Error)
-            {
-                return NotFound(Error.Message);
-            }
+                forceEntityId = NewID.id, 
+                playfield = aStructure.Playfield,
+                pos = aStructure.Pos,
+                rot = aStructure.Rot,
+                name = aStructure.Name,
+                type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
+                entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
+                prefabName = $"{aStructure.Type}_Player",
+                factionGroup = 0,
+                factionId = 0, // erstmal auf "public" aStructure.Faction,
+            };
+
+            var SourceDir = Path.Combine(BackupDir, aSelectBackupDir, @"Saves\Games",
+                            Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
+            var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(TargetDir));
+            CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
+
+            try{ await TaskWait.For(2, Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0))); }
+            catch {}  // Playfield already loaded
+
+            await TaskWait.For(2, Request_Entity_Spawn(SpawnInfo));
+            await TaskWait.For(2, Request_Structure_Touch(NewID)); // Sonst wird die Struktur sofort wieder gelöscht !!!
         }
+
     }
 
     [Authorize]
@@ -77,18 +89,9 @@ namespace EmpyrionModWebHost.Controllers
     {
 
         public BackupManager BackupManager { get; }
-        public string BackupDir { get; private set; }
-
-        public static IEdmModel GetEdmModel()
-        {
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
-            //builder.EntitySet<Backup>("Backups");
-            return builder.GetEdmModel();
-        }
 
         public BackupsController()
         {
-            BackupDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Backup");
             BackupManager = Program.GetManager<BackupManager>();
         }
 
@@ -177,14 +180,14 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("GetBackups")]
         public IActionResult GetBackups()
         {
-            if (!Directory.Exists(BackupDir)) return Ok();
-            return Ok(Directory.EnumerateDirectories(BackupDir, "*Backup").OrderByDescending(D => D).Select(D => Path.GetFileName(D)));
+            if (!Directory.Exists(BackupManager.BackupDir)) return Ok();
+            return Ok(Directory.EnumerateDirectories(BackupManager.BackupDir, "*Backup").OrderByDescending(D => D).Select(D => Path.GetFileName(D)));
         }
 
         [HttpGet("ReadStructures/{aSelectBackupDir}")]
         public IActionResult ReadStructures(string aSelectBackupDir)
         {
-            var StructDir = Path.Combine(BackupDir, aSelectBackupDir, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
+            var StructDir = Path.Combine(BackupManager.BackupDir, aSelectBackupDir, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
             return Ok(Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)));
         }
 
@@ -284,6 +287,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("CreateStructure/{aSelectBackupDir}")]
         public IActionResult CreateStructure(string aSelectBackupDir, [FromBody]PlayfieldGlobalStructureInfo aStructure)
         {
+            TaskWait.For(10, BackupManager.CreateStructureAsync(aSelectBackupDir, aStructure)).Wait();
             return Ok();
         }
 

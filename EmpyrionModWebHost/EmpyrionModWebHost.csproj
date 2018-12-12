@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>0.7.2</Version>
+    <Version>0.8.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,6 +55,7 @@
     <None Remove="ClientApp\src\app\model\structure-model.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
+    <None Remove="ClientApp\src\app\pipes\KeysPipe.ts" />
     <None Remove="EmpyrionWebAccess.pfx" />
   </ItemGroup>
 
@@ -100,10 +101,6 @@
     <TypeScriptCompile Include="ClientApp\src\app\model\ODataResponse.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-model.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ClientApp\src\app\pipes\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

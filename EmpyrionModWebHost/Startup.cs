@@ -55,6 +55,8 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(GameplayManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(StructureManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(FactoryManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(BackupManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(TimetableManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
@@ -67,8 +69,8 @@ namespace EmpyrionModWebHost
             services.Configure<AppSettings>(appSettingsSection);
 
             // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            Program.AppSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(Program.AppSettings.Secret);
 
             services.AddAuthentication(x =>
             {

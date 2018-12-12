@@ -1,0 +1,53 @@
+<mat-card style="margin:.5em">
+  <mat-card-title>
+    <h2>Timetable</h2>
+    <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+    <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:40px; z-index:100" (click)="Save()" title="Save">save</mat-icon>
+    <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:70px; z-index:100" (click)="AddAction()" title="AddAction">playlist_add</mat-icon>
+  </mat-card-title>
+  <div *ngFor="let t of Timetable" style="background-color:aliceblue; width:100%">
+    <mat-checkbox [(ngModel)]="t.active" style="margin-left:1em">Active</mat-checkbox>
+    <mat-form-field style="width:15em">
+      <mat-select placeholder="Action" [(value)]="t.actionType">
+        <mat-option *ngFor="let a of Actions" [value]="a?.key">
+          {{a.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field style="width:10em">
+      <mat-select placeholder="Repeat" [(value)]="t.repeat">
+        <mat-option *ngFor="let r of Repeats" [value]="r?.key">
+          {{r.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field style="width:5em">
+      <input type="time" placeholder="Time" [(ngModel)]="t.timestamp" matInput>
+    </mat-form-field>
+
+    <mat-form-field style="width:30em">
+      <input type="text" placeholder="Data" [(ngModel)]="t.data" matInput>
+    </mat-form-field>
+
+    <mat-icon style="cursor:pointer;" (click)="AddSubAction(t)" title="AddSubAction">playlist_add</mat-icon>
+
+    <div *ngFor="let st of t.subAction" style="margin-left:5em; background-color:antiquewhite">
+      <mat-checkbox [(ngModel)]="st.active" style="margin-left:1em">Active</mat-checkbox>
+
+      <mat-form-field style="width:15em">
+        <mat-select placeholder="Action" [(value)]="st.actionType">
+          <mat-option *ngFor="let a of Actions" [value]="a?.key">
+            {{a.value}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field style="width:30em">
+        <input type="text" placeholder="Data" [(ngModel)]="st.data" matInput>
+      </mat-form-field>
+
+    </div>
+  </div>
+</mat-card>

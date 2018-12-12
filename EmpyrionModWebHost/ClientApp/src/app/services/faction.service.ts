@@ -24,6 +24,7 @@ export class FactionService implements OnInit {
     this.hubConnection = builder.withAuthUrl('/hubs/faction').build();
 
     // message coming from the server
+    this.hubConnection.on("UpdateFactions", F => this.factions.next(this.mFactions = F));
     this.hubConnection.on("Update", this.UpdateFactionData);
 
     // starting the connection

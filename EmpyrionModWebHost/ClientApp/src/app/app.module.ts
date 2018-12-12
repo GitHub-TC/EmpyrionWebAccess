@@ -17,7 +17,7 @@ import { PlayerBackpackComponent } from './player-backpack/player-backpack.compo
 import { PlayerDetailsComponent } from './player-details/player-details.component';
 import { PlayerListComponent } from './player-list/player-list.component';
 
-import { JwtInterceptor, ErrorInterceptor, fakeBackendProvider } from './_helpers';
+import { JwtInterceptor, ErrorInterceptor } from './_helpers';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { TokenInterceptor } from './_helpers/TokenInterceptor';
@@ -36,6 +36,8 @@ import { FactoryComponent } from './factory/factory.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { ServerModManagerComponent } from './server-mod-manager/server-mod-manager.component';
 import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './select-item-dialog/select-item-dialog.component';
+import { TimetableComponent } from './timetable/timetable.component';
+import { KeysPipe } from './pipes/keys.pipe';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,8 @@ import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './s
     ServerModManagerComponent,
     SelectItemDialogComponent,
     SelectItemDialogContentComponent,
+    TimetableComponent,
+    KeysPipe,
   ],
   imports: [
     BrowserModule,
@@ -88,8 +92,6 @@ import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './s
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    // provider used to create fake backend
-    fakeBackendProvider
   ],
   bootstrap: [AppComponent]
 })
