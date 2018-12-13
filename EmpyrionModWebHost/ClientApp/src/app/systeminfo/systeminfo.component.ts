@@ -39,6 +39,8 @@ export class SysteminfoComponent implements OnInit {
     if (!this.CurrentSystemInfo.online) return "";
     if (this.CurrentSystemInfo.online.indexOf("o") >= 0) return "online";
     if (this.CurrentSystemInfo.online.indexOf("b") >= 0) return "backup";
+    if (this.CurrentSystemInfo.online.indexOf("r") >= 0) return "restart";
+    if (this.CurrentSystemInfo.online.indexOf("S") >= 0) return "stopped";
     if (this.CurrentSystemInfo.online.indexOf("c") >= 0) return "egs_comm";
     if (this.CurrentSystemInfo.online.indexOf("E") >= 0) return "offline";
     if (this.CurrentSystemInfo.online.indexOf("D") >= 0) return "disconnect";
@@ -49,6 +51,8 @@ export class SysteminfoComponent implements OnInit {
     if (!this.CurrentSystemInfo.online) return "";
     if (this.CurrentSystemInfo.online.indexOf("o") >= 0) return "online";
     if (this.CurrentSystemInfo.online.indexOf("b") >= 0) return "backup";
+    if (this.CurrentSystemInfo.online.indexOf("r") >= 0) return "restart";
+    if (this.CurrentSystemInfo.online.indexOf("S") >= 0) return "stopped";
     if (this.CurrentSystemInfo.online.indexOf("c") >= 0) return "EGS_COM_Error";
     if (this.CurrentSystemInfo.online.indexOf("E") >= 0) return "offline";
     if (this.CurrentSystemInfo.online.indexOf("D") >= 0) return "disconnect";

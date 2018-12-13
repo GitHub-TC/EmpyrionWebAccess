@@ -22,10 +22,21 @@ namespace EmpyrionModWebHost.Controllers
     public class BackupManager : EmpyrionModBase, IEWAPlugin
     {
         public ModGameAPI GameAPI { get; private set; }
+        public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public string BackupDir { get; internal set; }
+        public string CurrentBackupDirectory {
+            get {
+                var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup");
+                Directory.CreateDirectory(Result);
+
+                return Result;
+            }
+        }
 
         public BackupManager()
         {
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+
             BackupDir = Program.AppSettings.BackupDirectory ?? Path.Combine(EmpyrionConfiguration.ProgramPath, "Backup");
         }
 
@@ -37,8 +48,8 @@ namespace EmpyrionModWebHost.Controllers
 
         private void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
         {
-            aSource.GetDirectories().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
-            aSource.GetFiles().ForEach(F => {
+            aSource.GetDirectories().AsParallel().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
+            aSource.GetFiles().AsParallel().ForEach(F => {
                 Directory.CreateDirectory(aTarget.FullName);
                 F.CopyTo(Path.Combine(aTarget.FullName, F.Name), true);
             });
@@ -46,7 +57,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public async Task CreateStructureAsync(string aSelectBackupDir, BackupsController.PlayfieldGlobalStructureInfo aStructure)
         {
-            var NewID = await TaskWait.For(2, Request_NewEntityId());
+            var NewID = await Request_NewEntityId();
 
             var ExportInfo = new EntityExportInfo(NewID.id,
                 Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}"),
@@ -54,7 +65,7 @@ namespace EmpyrionModWebHost.Controllers
 
             var SpawnInfo = new EntitySpawnInfo()
             {
-                forceEntityId = NewID.id, 
+                forceEntityId = NewID.id,
                 playfield = aStructure.Playfield,
                 pos = aStructure.Pos,
                 rot = aStructure.Rot,
@@ -73,11 +84,94 @@ namespace EmpyrionModWebHost.Controllers
             Directory.CreateDirectory(Path.GetDirectoryName(TargetDir));
             CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
 
-            try{ await TaskWait.For(2, Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0))); }
-            catch {}  // Playfield already loaded
+            try { await Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0)); }
+            catch { }  // Playfield already loaded
 
-            await TaskWait.For(2, Request_Entity_Spawn(SpawnInfo));
-            await TaskWait.For(2, Request_Structure_Touch(NewID)); // Sonst wird die Struktur sofort wieder gelöscht !!!
+            await Request_Entity_Spawn(SpawnInfo);
+            await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
+        }
+
+        public void BackupState(bool aRunning)
+        {
+            SysteminfoManager.Value.CurrentSysteminfo.online =
+                SysteminfoManager.Value.SetState(SysteminfoManager.Value.CurrentSysteminfo.online, "b", aRunning);
+        }
+
+        public void FullBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            SavegameBackup(aCurrentBackupDir);
+            ScenarioBackup(aCurrentBackupDir);
+            ModsBackup(aCurrentBackupDir);
+            EGSMainFilesBackup(aCurrentBackupDir);
+
+            BackupState(false);
+        }
+
+        public void SavegameBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Games")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games")));
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Cache")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Cache")));
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Blueprints")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Blueprints")));
+
+            Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves"))
+                .AsParallel()
+                .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, "Saves", Path.GetFileName(F))));
+
+            BackupState(false);
+        }
+
+        public void StructureBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir,
+                "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared")));
+
+            BackupState(false);
+        }
+
+        public void ScenarioBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName)),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, EmpyrionConfiguration.DedicatedYaml.CustomScenarioName)));
+
+            BackupState(false);
+        }
+
+        public void ModsBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Mods")));
+
+            BackupState(false);
+        }
+
+        public void EGSMainFilesBackup(string aCurrentBackupDir)
+        {
+            BackupState(true);
+
+            var MainBackupFiles = new[] { ".yaml", ".cmd", ".txt" };
+
+            Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.ProgramPath))
+                .Where(F => MainBackupFiles.Contains(Path.GetExtension(F).ToLower()))
+                .AsParallel()
+                .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, Path.GetFileName(F))));
+
+            BackupState(false);
         }
 
     }
@@ -285,9 +379,9 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("CreateStructure/{aSelectBackupDir}")]
-        public IActionResult CreateStructure(string aSelectBackupDir, [FromBody]PlayfieldGlobalStructureInfo aStructure)
+        public async Task<IActionResult> CreateStructureAsync(string aSelectBackupDir, [FromBody]PlayfieldGlobalStructureInfo aStructure)
         {
-            TaskWait.For(10, BackupManager.CreateStructureAsync(aSelectBackupDir, aStructure)).Wait();
+            await BackupManager.CreateStructureAsync(aSelectBackupDir, aStructure);
             return Ok();
         }
 

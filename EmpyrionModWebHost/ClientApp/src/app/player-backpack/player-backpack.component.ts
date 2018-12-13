@@ -58,7 +58,7 @@ export class PlayerBackpackComponent implements OnInit {
       (ItemStack: ItemStackModel) => {
         if (ItemStack.id == 0) return;
 
-        this.http.post<any>('Backpack/AddItem', {
+        this.http.post<any>('Backpacks/AddItem', {
           Id: this.mPlayerService.CurrentPlayer.EntityId,
           itemStack: ItemStack,
         }).pipe()

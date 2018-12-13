@@ -106,7 +106,7 @@ namespace EmpyrionModWebHost.Controllers
 
                 var Items = new Inventory(player.EntityId, aSet.Toolbar, aSet.Bag);
 
-                TaskWait.For(2, Request_Player_SetInventory(Items)).Wait();
+                Request_Player_SetInventory(Items);
             }
         }
 
@@ -141,7 +141,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                TaskWait.For(2, BackpackManager.Request_Player_AddItem(aItem)).Wait();
+                BackpackManager.Request_Player_AddItem(aItem);
                 return Ok();
             }
             catch (Exception Error)

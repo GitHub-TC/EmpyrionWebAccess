@@ -18,6 +18,8 @@ namespace EWAExtenderCommunication
     {
         public int Id { get; set; }
         public string CurrentDirecrory { get; set; }
+        public string Arguments { get; set; }
+        public string FileName { get; set; }
     }
 
 

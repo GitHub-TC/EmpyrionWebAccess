@@ -71,4 +71,12 @@ export class ChatListComponent implements OnInit {
     return "";
   }
 
+  get filterServerMsg(): boolean {
+    return this.mChatService.filterServerMsg;
+  }
+
+  set filterServerMsg(aFilter: boolean) {
+    this.mChatService.filterServerMsg = aFilter;
+  }
+
 }

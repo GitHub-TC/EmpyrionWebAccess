@@ -11,6 +11,8 @@ namespace EmpyrionModWebHost
 {
     public class ModHostDLL : ModGameAPI
     {
+        private bool mExposeShutdownHost;
+
         public ClientMessagePipe ToEmpyrion { get; private set; }
         public ServerMessagePipe FromEmpyrion { get; private set; }
         public Dictionary<Type, Action<object>> InServerMessageHandler { get; }
@@ -59,8 +61,12 @@ namespace EmpyrionModWebHost
             {
                 default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
                 case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit"));
-                                                    Thread.Sleep(1000);
-                                                    Program.Application.StopAsync().Wait(30000);
+                                                    if (!mExposeShutdownHost)
+                                                    {
+                                                        Thread.Sleep(1000);
+                                                        Program.Application.StopAsync().Wait(30000);
+                                                    }
+                                                    mExposeShutdownHost = false;
                                                     break;
                 case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
             }
@@ -92,7 +98,7 @@ namespace EmpyrionModWebHost
             return true;
         }
 
-        private void SaveApiCall(Action aCall, object aMod, string aErrorInfo)
+        public void SaveApiCall(Action aCall, object aMod, string aErrorInfo)
         {
             try
             {
@@ -104,6 +110,11 @@ namespace EmpyrionModWebHost
             }
         }
 
+        public void ExposeShutdownHost()
+        {
+            mExposeShutdownHost = true;
+            Program.Host.ToEmpyrion.SendMessage(new ClientHostComData() { Command = ClientHostCommand.ExposeShutdownHost });
+        }
     }
 
 }

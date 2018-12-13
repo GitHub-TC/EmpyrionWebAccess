@@ -264,6 +264,8 @@ namespace EWAModClient
                 {
                     Id               = Process.GetCurrentProcess().Id,
                     CurrentDirecrory = Directory.GetCurrentDirectory(),
+                    FileName         = Path.Combine(Directory.GetCurrentDirectory(), "EmpyrionDedicated.exe"),
+                    Arguments        = Environment.GetCommandLineArgs().Aggregate("", (S, A) => S + " " + A),
                 }
             });
         }

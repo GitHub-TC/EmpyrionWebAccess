@@ -87,6 +87,12 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch { }
         }
+
+        public void WipePlayer(string aSteamId)
+        {
+            Request_ConsoleCommand(new PString($"kick {aSteamId} PlayerWipe"));
+            TaskWait.Delay(10, () => File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
+        }
     }
 
     [Authorize]
@@ -150,7 +156,7 @@ namespace EmpyrionModWebHost.Controllers
             var isSamePlayfield = false;
             try
             {
-                var playerInfo = await TaskWait.For(5, GameplayManager.Request_Player_Info(new Id(aEntityId)));
+                var playerInfo = await GameplayManager.Request_Player_Info(new Id(aEntityId));
                 isPlayer = true;
                 isSamePlayfield = playerInfo.playfield == aWarpToData.Playfield;
             }
@@ -164,14 +170,9 @@ namespace EmpyrionModWebHost.Controllers
             var pos = new PVector3(aWarpToData.PosX, aWarpToData.PosY, aWarpToData.PosZ);
             var rot = new PVector3(aWarpToData.RotX, aWarpToData.RotY, aWarpToData.RotZ);
 
-            await TaskWait.For(5, isSamePlayfield
-                ? GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot))
-                : (
-                    isPlayer 
-                    ? GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot))
-                    : GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot))
-                    )
-            );
+            if (isSamePlayfield)    await GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot));
+            else if (isPlayer)      await GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot));
+            else                    await GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot));
 
             return Ok();
         }
@@ -200,8 +201,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("WipePlayer/{aSteamId}")]
         public IActionResult WipePlayer(string aSteamId)
         {
-            GameplayManager.Request_ConsoleCommand(new PString($"kick {aSteamId} PlayerWipe"));
-            TaskWait.Delay(10, () => System.IO.File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
+            GameplayManager.WipePlayer(aSteamId);
             return Ok();
         }
 

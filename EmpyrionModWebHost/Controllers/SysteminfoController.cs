@@ -2,7 +2,6 @@
 using EmpyrionModWebHost.Extensions;
 using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -13,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -26,6 +24,8 @@ namespace EmpyrionModWebHost.Controllers
         /// c: EGS CommError
         /// E: EGS Down
         /// b: Backup
+        /// r: Restart
+        /// S: EGS Stop/Start
         /// D: Client disconnect (used by Client)
         /// </summary>
         public string online;
@@ -44,6 +44,11 @@ namespace EmpyrionModWebHost.Controllers
         public string serverName;
     }
 
+    public class SystemConfig
+    {
+        public ProcessInformation ProcessInformation { get; set; }
+
+    }
 
     [Authorize]
     public class SysteminfoHub : Hub
@@ -67,10 +72,17 @@ namespace EmpyrionModWebHost.Controllers
         public ProcessInformation ProcessInformation { get; private set; }
         public PerformanceCounter CpuTotalLoad { get; private set; }
         public PerformanceCounter RamAvailable { get; private set; }
+        public ConfigurationManager<SystemConfig> SystemConfig { get; private set; }
 
         public SysteminfoManager(IHubContext<SysteminfoHub> aSysteminfoHub)
         {
             SysteminfoHub = aSysteminfoHub;
+
+            SystemConfig = new ConfigurationManager<SystemConfig>
+            {
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "SystemConfig.xml")
+            };
+            SystemConfig.Load();
         }
 
         private void UpdateSystemInfo()
@@ -85,7 +97,7 @@ namespace EmpyrionModWebHost.Controllers
 
             PlayerManager = Program.GetManager<PlayerManager>();
 
-            TaskWait.Intervall(2000,  () => SysteminfoHub?.Clients.All.SendAsync("UPC", JsonConvert.SerializeObject(new {
+            TaskTools.Intervall(2000,  () => SysteminfoHub?.Clients.All.SendAsync("UPC", JsonConvert.SerializeObject(new {
                 o       = CurrentSysteminfo.online,
                 ap      = CurrentSysteminfo.activePlayers,
                 apf     = CurrentSysteminfo.activePlayfields,
@@ -94,10 +106,10 @@ namespace EmpyrionModWebHost.Controllers
                 tpf     = CurrentSysteminfo.totalPlayfieldserver,
                 tpfm    = CurrentSysteminfo.totalPlayfieldserverRamMB,
             })).Wait(1000));
-            TaskWait.Intervall(30000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
-            TaskWait.Intervall(5000, UpdateEmpyrionInfosAsync);
-            TaskWait.Intervall(5000, UpdateComputerInfos);
-            TaskWait.Intervall(2000, UpdatePerformanceInfos);
+            TaskTools.Intervall(30000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
+            TaskTools.Intervall(5000, UpdateEmpyrionInfos);
+            TaskTools.Intervall(5000, UpdateComputerInfos);
+            TaskTools.Intervall(2000, UpdatePerformanceInfos);
 
             CpuTotalLoad = new PerformanceCounter
             {
@@ -124,7 +136,7 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.diskFreeSpace = GameDrive.TotalFreeSpace;
         }
 
-        private string SetState(string aState, string aStateChar, bool aStateSet)
+        public string SetState(string aState, string aStateChar, bool aStateSet)
         {
             return (aState ?? string.Empty)
                 .Where(C => !aStateChar.Contains(C))
@@ -132,7 +144,7 @@ namespace EmpyrionModWebHost.Controllers
                 (aStateSet ? "" + aStateChar[0] : (aStateChar.Length > 1 ? "" + aStateChar[1] : ""));
         }
 
-        private void UpdateEmpyrionInfosAsync()
+        private void UpdateEmpyrionInfos()
         {
             CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "oc", (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10);
 
@@ -142,19 +154,22 @@ namespace EmpyrionModWebHost.Controllers
             if (ProcessInformation == null) return;
 
             CurrentSysteminfo.activePlayers    = PlayerManager.OnlinePlayersCount;
-            var activePlayfields               = TaskWait.For(2, Request_Playfield_List()).Result.playfields;
+            var activePlayfields               = Request_Playfield_List().Result.playfields;
             CurrentSysteminfo.activePlayfields = activePlayfields == null ? 0 : activePlayfields.Count;
 
-            Process ESGProcess = null;
-            try{ ESGProcess = Process.GetProcessById(ProcessInformation.Id); } catch {}
-            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "E", ESGProcess == null);
-            var ESGChildProcesses = ESGProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionPlayfieldServer").ToArray();
+            Process EGSProcess = null;
+            try{ EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch {}
+            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "E", EGSProcess == null);
+            var ESGChildProcesses = EGSProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionPlayfieldServer").ToArray();
 
             if (ESGChildProcesses != null)
             {
                 CurrentSysteminfo.totalPlayfieldserver      = ESGChildProcesses.Count();
                 CurrentSysteminfo.totalPlayfieldserverRamMB = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
+
+            SystemConfig.Current.ProcessInformation = ProcessInformation;
+            SystemConfig.Save();
         }
         private void UpdateComputerInfos()
         {

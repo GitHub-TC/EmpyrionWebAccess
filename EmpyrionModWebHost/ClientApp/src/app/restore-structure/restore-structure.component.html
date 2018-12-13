@@ -44,10 +44,12 @@
           </mat-dialog-content>
           <br/>
           <mat-dialog-actions>
-            <button mat-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition?.description">Load {{mPositionService.CurrentPosition.description}}</button>
-            <button mat-button (click)="setToZeroPosition()">Zero</button>
+            <div *ngIf="mPositionService.CurrentPosition?.description" style="display:block">
+              <button mat-button class="mat-raised-button" (click)="copyPosition()">Load {{mPositionService.CurrentPosition.description}}</button>
+            </div>
+            <button mat-button class="mat-raised-button" (click)="setToZeroPosition()">Zero</button>
             <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-            <button mat-button (click)="Create()">Create</button>
+            <button mat-button class="mat-raised-button mat-primary" (click)="Create()">Create</button>
           </mat-dialog-actions>
         </mat-card>
       </div>

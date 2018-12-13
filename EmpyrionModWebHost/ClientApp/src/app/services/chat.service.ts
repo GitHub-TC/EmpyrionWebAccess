@@ -14,6 +14,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 })
 export class ChatService implements OnInit {
   public hubConnection: HubConnection;
+  mFilterServerMsg: boolean = true;
 
   private mMessages: ChatModel[] = [];// CHAT;
   private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mMessages);
@@ -31,6 +32,7 @@ export class ChatService implements OnInit {
 
     // message coming from the server
     this.hubConnection.on("Send", (message) => {
+      if (this.mFilterServerMsg && message.FactionName == "SERV") return;
       this.messages.next(this.messages.getValue().concat(JSON.parse(message)));
       this.lastMessages.next(this.lastMessages.getValue().concat(JSON.parse(message)));
     });
@@ -59,8 +61,18 @@ export class ChatService implements OnInit {
     return this.messagesObservable;
   }
 
+  get filterServerMsg(): boolean {
+    return this.mFilterServerMsg;
+  }
+
+  set filterServerMsg(aFilter: boolean) {
+    this.mFilterServerMsg = aFilter;
+    this.GetLastMessages();
+  }
+
   GetLastMessages(): any {
-    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats?$top=500&$orderby=Timestamp desc")
+    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats?$top=500&$orderby=Timestamp desc" +
+      (this.mFilterServerMsg ? "&$filter=FactionName ne 'SERV'" : ""))
       .pipe(map(S => S.value))
       .subscribe(
         M => this.lastMessages.next(this.mLastMessages = M.reverse()),

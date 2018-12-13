@@ -31,7 +31,9 @@
       <input type="text" placeholder="Data" [(ngModel)]="t.data" matInput>
     </mat-form-field>
 
-    <mat-icon style="cursor:pointer;" (click)="AddSubAction(t)" title="AddSubAction">playlist_add</mat-icon>
+    <mat-icon style="cursor:pointer; margin-right:5px;" (click)="RunThis(t)" title="Run this action">play_circle_outline</mat-icon>
+    <mat-icon style="cursor:pointer; margin-right:5px;" (click)="DeleteThis(t)" title="Delete this action">delete</mat-icon>
+    <mat-icon style="cursor:pointer; margin-right:5px;" (click)="AddSubAction(t)" title="AddSubAction">playlist_add</mat-icon>
 
     <div *ngFor="let st of t.subAction" style="margin-left:5em; background-color:antiquewhite">
       <mat-checkbox [(ngModel)]="st.active" style="margin-left:1em">Active</mat-checkbox>
@@ -47,6 +49,8 @@
       <mat-form-field style="width:30em">
         <input type="text" placeholder="Data" [(ngModel)]="st.data" matInput>
       </mat-form-field>
+      <mat-icon style="cursor:pointer; margin-right:5px;" (click)="RunThis(st)" title="Run this sub action">play_circle_outline</mat-icon>
+      <mat-icon style="cursor:pointer; margin-right:5px;" (click)="DeleteThisSubAction(t, st)" title="Delete this sub action">delete</mat-icon>
 
     </div>
   </div>

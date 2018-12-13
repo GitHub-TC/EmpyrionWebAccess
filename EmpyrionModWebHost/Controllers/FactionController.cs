@@ -68,9 +68,9 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdateFactions()
         {
-            TaskWait.Intervall(10000, () =>
+            TaskTools.Intervall(10000, () =>
             {
-                var factions = TaskWait.For(2, Request_Get_Factions(new Id(1))).Result.factions;
+                var factions = Request_Get_Factions(new Id(1)).Result.factions;
 
                 using (var DB = new FactionContext())
                 {

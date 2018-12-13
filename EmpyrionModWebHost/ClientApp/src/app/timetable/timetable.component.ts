@@ -28,13 +28,19 @@ enum RepeatEnum {
 }
 
 export enum ActionType {
-  chat = "Chat",
-  restart = "Server restart",
-  backupFull = "Backup (complete)",
-  backupStructure = "Backup (structures)",
+  chat                    = "Chat",
+  restart                 = "Server restart",
+  startEGS                = "Server start",
+  stopEGS                 = "Server stop",
+  backupFull              = "Backup (complete)",
+  backupStructure         = "Backup (structures)",
+  backupSavegame          = "Backup (savegame)",
+  backupScenario          = "Backup (scenario)",
+  backupMods              = "Backup (mods)",
+  backupEGSMainFiles      = "Backup (EGSMainFiles)",
   deletePlayerOnPlayfield = "Delete player on playfield",
-  runShell = "Run shell",
-  consoleCommand = "InGame console command",
+  runShell                = "Run shell",
+  consoleCommand          = "InGame console command",
 }
 
 class SubTimetableAction{
@@ -43,10 +49,7 @@ class SubTimetableAction{
   data?: string;
 }
 
-class TimetableAction{
-  active: boolean;
-  actionType?: ActionType;
-  data?: string;
+class TimetableAction extends SubTimetableAction{
   timestamp?: any;
   repeat?: RepeatEnum;
   subAction?: SubTimetableAction[];
@@ -115,5 +118,22 @@ export class TimetableComponent implements OnInit {
     if (!aAction.subAction) aAction.subAction = [];
     aAction.subAction.push({ active: true })
   }
+
+  RunThis(aAction: SubTimetableAction) {
+    this.http.post("Timetable/RunThis", aAction)
+      .subscribe(
+        T => { },
+        error => this.error = error // error path
+      );
+  }
+
+  DeleteThis(aAction: TimetableAction) {
+    this.Timetable = this.Timetable.filter(T => T != aAction);
+  }
+
+  DeleteThisSubAction(aAction: TimetableAction, aSubAction: SubTimetableAction) {
+    aAction.subAction = aAction.subAction.filter(T => T != aSubAction);
+  }
+
 
 }

@@ -78,7 +78,7 @@ namespace EmpyrionModWebHost.Controllers
             await ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(aChat));
         }
 
-        public async Task ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessage)
+        public void ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
@@ -93,7 +93,7 @@ namespace EmpyrionModWebHost.Controllers
                 Message       = $"{aChatTargetHint}{aMessage}",
             });
 
-            await Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ")}{aMessage.Replace("'", "\\'")}'"));
+            Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ")}{aMessage.Replace("'", "\\'")}'"));
         }
 
         public override void Initialize(ModGameAPI dediAPI)

@@ -147,9 +147,9 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdateOnlinePlayers()
         {
-            TaskWait.Intervall(10000, () =>
+            TaskTools.Intervall(10000, () =>
             {
-                var onlinePlayers = TaskWait.For(2, Request_Player_List()).Result;
+                var onlinePlayers = Request_Player_List().Result;
                 if (onlinePlayers == null) return;
 
                 if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
@@ -184,16 +184,16 @@ namespace EmpyrionModWebHost.Controllers
         private void PlayerConnected(Id ID)
         {
             UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
-            TaskWait.Delay(20, () => PlayerManager_Event_Player_Info(TaskWait.For(20, Request_Player_Info(ID)).Result));
+            TaskWait.Delay(20, async () => PlayerManager_Event_Player_Info(await Request_Player_Info(ID)));
         }
 
 
-        public bool ChangePlayerInfo(PlayerInfoSet aSet)
+        public void ChangePlayerInfo(PlayerInfoSet aSet)
         {
             using (var DB = new PlayerContext())
             {
                 var player = DB.Players.FirstOrDefault(P => P.EntityId == aSet.entityId);
-                if (player == null) return false;
+                if (player == null) return;
 
                 if (aSet.factionRole.HasValue) player.FactionRole = aSet.factionRole.Value;
                 if (aSet.factionId.HasValue) player.FactionId = aSet.factionId.Value;
@@ -218,7 +218,7 @@ namespace EmpyrionModWebHost.Controllers
                 DB.SaveChanges();
             }
 
-            return TaskWait.For(2, Request_Player_SetPlayerInfo(aSet)).IsCompletedSuccessfully;
+            Request_Player_SetPlayerInfo(aSet);
         }
 
     }
