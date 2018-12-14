@@ -47,6 +47,7 @@ namespace EmpyrionModWebHost.Controllers
     public class SystemConfig
     {
         public ProcessInformation ProcessInformation { get; set; }
+        public string StartCMD { get; set; }
 
     }
 
@@ -191,6 +192,66 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
+        public void EGSRunState(bool aStopped)
+        {
+            CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "S", aStopped);
+        }
+
+        public void EGSStop(int aWaitMinutes)
+        {
+            try
+            {
+                EGSRunState(true);
+                Program.Host.ExposeShutdownHost();
+
+                Process EGSProcess = Process.GetProcessById(ProcessInformation.Id);
+
+                Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes));
+
+                EGSProcess.WaitForExit(120000);
+            }
+            catch (Exception Error)
+            {
+                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
+            }
+        }
+
+        public void EGSStart()
+        {
+            try
+            {
+                Process EGSProcess = null;
+                try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
+
+                if (EGSProcess != null)
+                {
+                    EGSRunState(false);
+                    return;
+                }
+
+                var StartCMD = SystemConfig.Current.StartCMD ?? SystemConfig.Current.ProcessInformation.FileName;
+
+                EGSProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, StartCMD))
+                    {
+                        UseShellExecute  = !string.IsNullOrEmpty(SystemConfig.Current.StartCMD),
+                        CreateNoWindow   = true,
+                        WorkingDirectory = EmpyrionConfiguration.ProgramPath,
+                        Arguments        = SystemConfig.Current.ProcessInformation.Arguments,
+                    }
+                };
+
+                EGSProcess.Start();
+            }
+            catch (Exception Error)
+            {
+                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
+            }
+            EGSRunState(false);
+        }
+
+
     }
 
     [Authorize]
@@ -212,6 +273,42 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult GetCurrentSysteminfo()
         {
             return Ok(SysteminfoManager.CurrentSysteminfo);
+        }
+
+        [HttpGet("StartCMDs")]
+        public ActionResult<string[]> StartCMDs()
+        {
+            return Ok(Directory.EnumerateFiles(EmpyrionConfiguration.ProgramPath, "*.cmd").Select(F => Path.GetFileName(F)).ToArray());
+        }
+
+        [HttpGet("EGSStart")]
+        public IActionResult EGSStart()
+        {
+            SysteminfoManager.EGSStart();
+            return Ok();
+        }
+
+        [HttpGet("EGSStop/{aWaitMinutes}")]
+        public IActionResult EGSStop(int aWaitMinutes)
+        {
+            SysteminfoManager.EGSStop(aWaitMinutes);
+            return Ok();
+        }
+
+        [HttpGet("SystemConfig")]
+        public ActionResult<SystemConfig> GetCurrentSystemConfig()
+        {
+            return Ok(SysteminfoManager.SystemConfig.Current);
+        }
+
+        [HttpPost("SystemConfig")]
+        public IActionResult SetCurrentSystemConfig([FromBody] SystemConfig aSystemConfig)
+        {
+            var SaveInfos = SysteminfoManager.SystemConfig.Current.ProcessInformation;
+            SysteminfoManager.SystemConfig.Current = aSystemConfig;
+            SysteminfoManager.SystemConfig.Current.ProcessInformation = SaveInfos;
+            SysteminfoManager.SystemConfig.Save();
+            return Ok();
         }
 
     }

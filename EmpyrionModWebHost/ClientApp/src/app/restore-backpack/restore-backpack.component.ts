@@ -2,10 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PlayerService } from '../services/player.service';
 import { BackpackODataModel, BackpackModel } from '../model/backpack-model';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Player } from '@angular/core/src/render3/interfaces/player';
 import { PlayerModel } from '../model/player-model';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-restore-backpack',
@@ -16,6 +15,7 @@ import { MatPaginator, MatTableDataSource } from '@angular/material';
   }
 })
 export class RestoreBackpackComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   CurrentBackpack: BackpackModel;
   SelectedBackpack: BackpackODataModel;
   CurrentPlayer: PlayerModel;
@@ -67,10 +67,15 @@ export class RestoreBackpackComponent implements OnInit {
   }
 
   RestoreCurrentBackpack() {
-    this.http.post<BackpackODataModel>("Backpacks/SetBackpack", this.CurrentBackpack)
-      .subscribe(
-        error => this.error = error // error path
-      );
+    this.YesNo.openDialog({ title: "Restore backpack for", question: this.CurrentPlayer.PlayerName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.post<BackpackODataModel>("Backpacks/SetBackpack", this.CurrentBackpack)
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
   }
 
   handleKeyboardEvents(event: KeyboardEvent) {

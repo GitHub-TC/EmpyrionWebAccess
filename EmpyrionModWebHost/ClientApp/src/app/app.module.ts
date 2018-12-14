@@ -38,6 +38,7 @@ import { ServerModManagerComponent } from './server-mod-manager/server-mod-manag
 import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './select-item-dialog/select-item-dialog.component';
 import { TimetableComponent } from './timetable/timetable.component';
 import { KeysPipe } from './pipes/keys.pipe';
+import { YesNoDialogComponent, YesNoDialogContentComponent } from './yes-no-dialog/yes-no-dialog.component';
 
 @NgModule({
   declarations: [
@@ -70,6 +71,8 @@ import { KeysPipe } from './pipes/keys.pipe';
     SelectItemDialogContentComponent,
     TimetableComponent,
     KeysPipe,
+    YesNoDialogComponent,
+    YesNoDialogContentComponent
   ],
   imports: [
     BrowserModule,
@@ -87,6 +90,8 @@ import { KeysPipe } from './pipes/keys.pipe';
     WarpDialogContentComponent,
     SelectItemDialogComponent,
     SelectItemDialogContentComponent,
+    YesNoDialogComponent,
+    YesNoDialogContentComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

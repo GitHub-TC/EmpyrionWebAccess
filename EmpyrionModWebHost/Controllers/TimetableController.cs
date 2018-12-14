@@ -113,8 +113,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 case ActionType.chat                    : ChatManager.Value.ChatMessage(null, null, null, aAction.data); break;
                 case ActionType.restart                 : EGSRestart(aAction); break;
-                case ActionType.startEGS                : EGSStart(aAction); break;
-                case ActionType.stopEGS                 : EGSStop(aAction); break;
+                case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
+                case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;
                 case ActionType.backupFull              : BackupManager.Value.FullBackup(BackupManager.Value.CurrentBackupDirectory); break;
                 case ActionType.backupStructure         : BackupManager.Value.StructureBackup(BackupManager.Value.CurrentBackupDirectory); break;
                 case ActionType.backupSavegame          : BackupManager.Value.SavegameBackup(BackupManager.Value.CurrentBackupDirectory); break;
@@ -143,61 +143,18 @@ namespace EmpyrionModWebHost.Controllers
                 SysteminfoManager.Value.SetState(SysteminfoManager.Value.CurrentSysteminfo.online, "r", aRunning);
         }
 
-        public void EGSRunState(bool aRunning)
-        {
-            SysteminfoManager.Value.CurrentSysteminfo.online =
-                SysteminfoManager.Value.SetState(SysteminfoManager.Value.CurrentSysteminfo.online, "S", aRunning);
-        }
-
-        private void EGSStop(SubTimetableAction aAction)
-        {
-            try
-            {
-                EGSRunState(true);
-                Program.Host.ExposeShutdownHost();
-
-                Process EGSProcess = null;
-                try { EGSProcess = Process.GetProcessById(SysteminfoManager.Value.ProcessInformation.Id); } catch { }
-
-                GameplayManager.Value.Request_ConsoleCommand(new PString("saveandexit 0"));
-
-                EGSProcess.WaitForExit(120000);
-            }
-            catch (Exception Error)
-            {
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
-            }
-        }
-
-        private void EGSStart(SubTimetableAction aAction)
-        {
-            var EGSProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo(SysteminfoManager.Value.SystemConfig.Current.ProcessInformation.FileName)
-                {
-                    UseShellExecute     = false,
-                    CreateNoWindow      = true,
-                    WorkingDirectory    = EmpyrionConfiguration.ProgramPath,
-                    Arguments           = SysteminfoManager.Value.SystemConfig.Current.ProcessInformation.Arguments,
-                }
-            };
-
-            EGSProcess.Start();
-            EGSRunState(false);
-        }
 
         private void EGSRestart(SubTimetableAction aAction)
         {
             RestartState(true);
             try
             {
-                EGSStop(aAction);
+                SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0);
 
-                Thread.Sleep(30000);
-
+                Thread.Sleep(10000);
                 ExecSubActions(aAction);
 
-                EGSStart(aAction);
+                SysteminfoManager.Value.EGSStart();
             }
             catch (Exception Error)
             {

@@ -1,3 +1,27 @@
-<p>
-  server-settings comming soon!
-</p>
+<div class="container-fluid" style="padding-top:5px">
+  <div class="row">
+    <div class="col col-lg-7">
+      <div style="display:block; height:4em; position:relative">
+        <mat-form-field style="position:absolute; left:.5em; right:60px;">
+          <input type="text" placeholder="StartCMD" [(ngModel)]="SystemConfig.startCMD" aria-label="Number" matInput [matAutocomplete]="auto">
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option *ngFor="let i of StartCMDList" [value]="i">
+              {{i}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <mat-icon style="cursor:pointer; position:absolute; right: 5px;" (click)="Save()" title="Save settings">save</mat-icon>
+      </div>
+      <button mat-button class="mat-raised-button" (click)="StartEGS()">Start EGS</button>
+      <mat-form-field style="margin-left:1em; margin-right:1em">
+        <input matInput type="number" [(ngModel)]="WaitMinutes" placeholder="Stop/Restart wait for N minutes">
+      </mat-form-field>
+      <button mat-button class="mat-raised-button" (click)="StopEGS()">Stop EGS</button>
+      <button mat-button class="mat-raised-button" (click)="RestartEGS()">Restart EGS</button>
+      <app-yes-no-dialog></app-yes-no-dialog>
+    </div>
+    <div class="col col-lg-5">
+      <app-systeminfo #SystemInfo></app-systeminfo>
+    </div>
+  </div>
+</div>

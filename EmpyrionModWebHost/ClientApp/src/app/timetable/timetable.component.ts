@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 enum RepeatEnum {
   min5 = "5 min",
@@ -62,7 +63,8 @@ class TimetableAction extends SubTimetableAction{
   styleUrls: ['./timetable.component.less']
 })
 export class TimetableComponent implements OnInit {
-    error: any;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  error: any;
   Timetable: TimetableAction[] = [];
   Repeats: {}
   Actions: {}
@@ -120,19 +122,32 @@ export class TimetableComponent implements OnInit {
   }
 
   RunThis(aAction: SubTimetableAction) {
-    this.http.post("Timetable/RunThis", aAction)
-      .subscribe(
-        T => { },
-        error => this.error = error // error path
-      );
+    this.YesNo.openDialog({ title: "Run action", question: aAction.actionType }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.post("Timetable/RunThis", aAction)
+          .subscribe(
+            T => { },
+            error => this.error = error // error path
+          );
+      });
   }
 
   DeleteThis(aAction: TimetableAction) {
-    this.Timetable = this.Timetable.filter(T => T != aAction);
+    this.YesNo.openDialog({ title: "Delete action", question: aAction.actionType }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.Timetable = this.Timetable.filter(T => T != aAction);
+      });
   }
 
   DeleteThisSubAction(aAction: TimetableAction, aSubAction: SubTimetableAction) {
-    aAction.subAction = aAction.subAction.filter(T => T != aSubAction);
+    this.YesNo.openDialog({ title: "Delete action", question: aAction.actionType }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        aAction.subAction = aAction.subAction.filter(T => T != aSubAction);
+      });
   }
 
 

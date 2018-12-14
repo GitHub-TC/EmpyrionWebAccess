@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../services/user.service';
 import { User } from '../model/user';
 import { Router } from '@angular/router';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-user-manager',
@@ -9,6 +10,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-manager.component.less']
 })
 export class UserManagerComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   users: User[] = [];
   newUser: User = { id: 0, username: "", password: "" };
 
@@ -21,7 +23,11 @@ export class UserManagerComponent implements OnInit {
   }
 
   deleteUser(aUser: User) {
-    this.mUserService.deleteUser(aUser);
+    this.YesNo.openDialog({ title: "Delete user", question: aUser.username }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.mUserService.deleteUser(aUser);
+      });
   }
 
   saveUser(aUser: User) {

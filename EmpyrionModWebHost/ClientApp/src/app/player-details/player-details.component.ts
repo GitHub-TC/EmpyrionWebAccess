@@ -5,6 +5,7 @@ import { PlayfieldService } from '../services/playfield.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-player-details',
@@ -12,6 +13,7 @@ import { MatMenu, MatMenuTrigger } from '@angular/material';
   styleUrls: ['./player-details.component.less']
 })
 export class PlayerDetailsComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Player: PlayerModel;
   Playfields: string[];
   Factions: FactionModel[];
@@ -52,14 +54,25 @@ export class PlayerDetailsComponent implements OnInit {
   }
 
   Ban(aPlayer: PlayerModel) {
-    this.mPlayerService.BanPlayer(this.Player);
+    this.contextMenuTrigger.closeMenu();
+    this.YesNo.openDialog({ title: "Ban player", question: aPlayer.PlayerName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.mPlayerService.BanPlayer(this.Player);
+      });
   }
 
   UnBan(aPlayer: PlayerModel) {
+    this.contextMenuTrigger.closeMenu();
     this.mPlayerService.UnBanPlayer(this.Player);
   }
 
   Wipe(aPlayer: PlayerModel) {
-    this.mPlayerService.WipePlayer(this.Player);
+    this.contextMenuTrigger.closeMenu();
+    this.YesNo.openDialog({ title: "Wipe player", question: aPlayer.PlayerName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.mPlayerService.WipePlayer(this.Player);
+      });
   }
 }
