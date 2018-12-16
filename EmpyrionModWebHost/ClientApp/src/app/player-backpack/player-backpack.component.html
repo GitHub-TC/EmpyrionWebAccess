@@ -6,7 +6,7 @@
       {{i.count}}
     </div>
     <div class="delete" *ngIf="WithDelete">
-      <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
+      <mat-icon style="font-size:smaller; color: darkgrey;" (click)="DeleteItem(i)" title="Delete">delete</mat-icon>
     </div>
   </div>
   <div class="Item" *ngFor="let i of backpack.Bag">
@@ -16,7 +16,7 @@
       {{i.count}}
     </div>
     <div class="delete" *ngIf="WithDelete">
-      <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
+      <mat-icon style="font-size:smaller; color: darkgrey;" (click)="DeleteItem(i)" title="Delete">delete</mat-icon>
     </div>
   </div>
 </div>

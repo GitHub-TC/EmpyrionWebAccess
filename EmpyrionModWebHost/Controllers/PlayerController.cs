@@ -163,6 +163,11 @@ namespace EmpyrionModWebHost.Controllers
                     UpdatePlayer(DB => DB.Players.Where(P =>  onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
                     UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) &&  P.Online), PlayerDisconnect);
                 }
+
+                using (var DB = new PlayerContext())
+                {
+                    DB.Players.Where(P => P.Online).AsParallel().ForEach(P => Request_Player_Info(new Id(P.EntityId)));
+                }
             });
         }
 

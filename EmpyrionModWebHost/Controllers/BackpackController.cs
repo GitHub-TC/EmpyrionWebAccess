@@ -53,7 +53,11 @@ namespace EmpyrionModWebHost.Controllers
                 var ToolbarContent = JsonConvert.SerializeObject(aToolbar);
                 var BagContent     = JsonConvert.SerializeObject(aBag);
 
-                if (Backpack?.ToolbarContent == ToolbarContent && Backpack?.BagContent == BagContent) return;
+                if(Backpack != null)
+                {
+                    if(IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.ToolbarContent), aToolbar) &&
+                       IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.BagContent), aBag)) return;
+                }
 
                 if (IsNewBackpack)
                 {
@@ -84,6 +88,22 @@ namespace EmpyrionModWebHost.Controllers
 
                 if(count > 0) BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
             }
+        }
+
+        private bool IsEqual(ItemStack[] aLeft, ItemStack[] aRight)
+        {
+            if (aLeft == null && aRight != null) return false;
+            if (aLeft != null && aRight == null) return false;
+            if (aLeft == null && aRight == null) return true;
+            if (aLeft.Length != aRight.Length) return false;
+
+            for (int i = aLeft.Length - 1; i >= 0; i--)
+            {
+                if (aLeft[i].id    != aRight[i].id   ) return false;
+                if (aLeft[i].count != aRight[i].count) return false;
+            }
+
+            return true;
         }
 
         public override void Initialize(ModGameAPI dediAPI)
