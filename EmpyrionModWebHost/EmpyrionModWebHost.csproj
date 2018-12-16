@@ -49,6 +49,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\Backpack\20181129163346_InitialCreate.cs" />
+    <Compile Remove="Migrations\Backpack\20181129163346_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\Chat\20181122185425_InitialCreate.cs" />
+    <Compile Remove="Migrations\Chat\20181122185425_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\Faction\20181122185442_InitialCreate.cs" />
+    <Compile Remove="Migrations\Faction\20181122185442_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\User\20181123221506_InitialCreate.cs" />
+    <Compile Remove="Migrations\User\20181123221506_InitialCreate.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="ClientApp\src\app\chat\ChatModel.ts" />
     <None Remove="ClientApp\src\app\chat\mock-chat.ts" />
     <None Remove="ClientApp\src\app\model\activeplayfield-model.ts" />

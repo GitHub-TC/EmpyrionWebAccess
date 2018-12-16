@@ -5,7 +5,7 @@
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
     </div>
-    <div class="delete">
+    <div class="delete" *ngIf="WithDelete">
       <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
     </div>
   </div>
@@ -15,7 +15,7 @@
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
     </div>
-    <div class="delete">
+    <div class="delete" *ngIf="WithDelete">
       <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
     </div>
   </div>

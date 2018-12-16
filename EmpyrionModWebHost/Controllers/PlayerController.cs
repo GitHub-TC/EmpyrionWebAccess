@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -35,7 +36,11 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new PlayerContext()) DB.Database.EnsureCreated();
+            using (var DB = new PlayerContext())
+            {
+                DB.Database.Migrate();
+                DB.Database.EnsureCreated();
+            }
         }
 
         public void QueryPlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aAction)
@@ -152,8 +157,12 @@ namespace EmpyrionModWebHost.Controllers
                 var onlinePlayers = Request_Player_List().Result;
                 if (onlinePlayers == null) return;
 
-                if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), P => P.Online = false);
-                else UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId)), P => P.Online = true);
+                if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), PlayerDisconnect);
+                else
+                {
+                    UpdatePlayer(DB => DB.Players.Where(P =>  onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
+                    UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) &&  P.Online), PlayerDisconnect);
+                }
             });
         }
 
@@ -178,15 +187,27 @@ namespace EmpyrionModWebHost.Controllers
 
         private void PlayerDisconnected(Id ID)
         {
-            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = false);
+            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), PlayerDisconnect);
+        }
+
+        private static void PlayerDisconnect(Player aPlayer)
+        {
+            aPlayer.Online      = false;
+            aPlayer.OnlineTime += DateTime.Now - aPlayer.LastOnline;
+            aPlayer.LastOnline  = DateTime.Now;
         }
 
         private void PlayerConnected(Id ID)
         {
-            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), P => P.Online = true);
+            UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), PlayerConnect);
             TaskWait.Delay(20, async () => PlayerManager_Event_Player_Info(await Request_Player_Info(ID)));
         }
 
+        private static void PlayerConnect(Player aPlayer)
+        {
+            aPlayer.Online = true;
+            aPlayer.LastOnline = DateTime.Now;
+        }
 
         public void ChangePlayerInfo(PlayerInfoSet aSet)
         {

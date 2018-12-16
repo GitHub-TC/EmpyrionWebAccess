@@ -7,6 +7,7 @@ using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -22,7 +23,11 @@ namespace EmpyrionModWebHost.Controllers
     {
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new UserContext()) DB.Database.EnsureCreated();
+            using (var DB = new UserContext())
+            {
+                DB.Database.Migrate();
+                DB.Database.EnsureCreated();
+            }
         }
 
         public override void Initialize(ModGameAPI dediAPI)

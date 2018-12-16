@@ -14,7 +14,7 @@ namespace EmpyrionModWebHost.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
-            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Backpacks.v2.db");
+            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Backpacks.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

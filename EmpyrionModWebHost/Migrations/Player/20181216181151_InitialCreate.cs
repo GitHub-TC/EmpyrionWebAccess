@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EmpyrionModWebHost.Migrations
 {
@@ -47,7 +48,10 @@ namespace EmpyrionModWebHost.Migrations
                     RotX = table.Column<float>(nullable: false),
                     RotY = table.Column<float>(nullable: false),
                     RotZ = table.Column<float>(nullable: false),
-                    Online = table.Column<bool>(nullable: false)
+                    Online = table.Column<bool>(nullable: false),
+                    OnlineTime = table.Column<TimeSpan>(nullable: false),
+                    LastOnline = table.Column<DateTime>(nullable: false),
+                    Note = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

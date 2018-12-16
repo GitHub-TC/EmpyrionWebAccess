@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 
@@ -36,6 +37,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             using (var DB = new BackpackContext())
             {
+                DB.Database.Migrate();
                 DB.Database.EnsureCreated();
             }
         }

@@ -36,7 +36,7 @@
     </div>
     <div class="col">
       <div style="background-color:black; display:inline-block">
-        <app-player-backpack [backpack]="CurrentBackpack"></app-player-backpack>
+        <app-player-backpack [backpack]="CurrentBackpack" [WithDelete]="false"></app-player-backpack>
       </div>
       <br />
       <mat-icon *ngIf="CurrentPlayer?.Online" style="font-size:5em; cursor: pointer; color:darkgreen;" (click)="RestoreCurrentBackpack()" title="Restorebackpack for {{CurrentPlayer?.PlayerName}}">settings_backup_restore</mat-icon>

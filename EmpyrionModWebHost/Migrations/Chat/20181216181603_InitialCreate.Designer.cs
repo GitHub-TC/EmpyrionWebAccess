@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmpyrionModWebHost.Migrations.Chat
 {
     [DbContext(typeof(ChatContext))]
-    [Migration("20181122185425_InitialCreate")]
+    [Migration("20181216181603_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

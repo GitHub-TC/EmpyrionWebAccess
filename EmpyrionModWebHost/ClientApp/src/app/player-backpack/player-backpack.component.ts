@@ -21,6 +21,7 @@ import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.
 export class PlayerBackpackComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @Input() backpack: BackpackModel = EmptyBackpack;
+  @Input() WithDelete: boolean = true;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;

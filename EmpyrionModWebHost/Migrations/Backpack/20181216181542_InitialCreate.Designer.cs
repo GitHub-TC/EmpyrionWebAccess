@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EmpyrionModWebHost.Migrations.User
+namespace EmpyrionModWebHost.Migrations.Backpack
 {
-    [DbContext(typeof(UserContext))]
-    [Migration("20181123221506_InitialCreate")]
+    [DbContext(typeof(BackpackContext))]
+    [Migration("20181216181542_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,20 +18,19 @@ namespace EmpyrionModWebHost.Migrations.User
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.4-rtm-31024");
 
-            modelBuilder.Entity("EmpyrionModWebHost.Models.User", b =>
+            modelBuilder.Entity("EmpyrionModWebHost.Models.Backpack", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Id");
 
-                    b.Property<byte[]>("PasswordHash");
+                    b.Property<DateTime>("Timestamp");
 
-                    b.Property<byte[]>("PasswordSalt");
+                    b.Property<string>("BagContent");
 
-                    b.Property<string>("Username");
+                    b.Property<string>("ToolbarContent");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id", "Timestamp");
 
-                    b.ToTable("Users");
+                    b.ToTable("Backpacks");
                 });
 #pragma warning restore 612, 618
         }

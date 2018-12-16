@@ -6,6 +6,7 @@ using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System;
@@ -48,7 +49,11 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new ChatContext()) DB.Database.EnsureCreated();
+            using (var DB = new ChatContext())
+            {
+                DB.Database.Migrate();
+                DB.Database.EnsureCreated();
+            }
         }
 
         private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)

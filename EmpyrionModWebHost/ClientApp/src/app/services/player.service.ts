@@ -44,8 +44,15 @@ export class PlayerService implements OnInit {
   ngOnInit(): void {
   }
 
+  CorrectDateTimes(aPlayer: PlayerModel) {
+    try { aPlayer.LastOnline = new Date(aPlayer.LastOnline); } catch {}
+    try { aPlayer.OnlineTime = aPlayer.OnlineTime.substr(0, aPlayer.OnlineTime.lastIndexOf('.')); } catch { }
+    return aPlayer;
+  }
+
   private UpdatePlayersData(players: PlayerModel[]) {
     players.map(P => {
+      P = this.CorrectDateTimes(P);
       let playerfound = this.mPlayers.findIndex(T => P.SteamId == T.SteamId);
       if (playerfound == -1)
         this.mPlayers.push(P);
@@ -64,7 +71,7 @@ export class PlayerService implements OnInit {
     let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
       .pipe(map(S => S.value))
       .subscribe(
-        P => this.players.next(this.mPlayers = P),
+        P => this.players.next(this.mPlayers = this.CorrectDateTimes(P)),
         error => this.error = error // error path
     );
     // Stop listening for location after 10 seconds

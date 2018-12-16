@@ -16,7 +16,7 @@ import { PLAYER } from '../model/player-mock';
   styleUrls: ['./player-list.component.less']
 })
 export class PlayerListComponent implements OnInit {
-  displayedColumns = ['Online', 'PlayerName', 'Origin', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'EntityId', 'SteamId'];
+  displayedColumns = ['Online', 'PlayerName', 'Origin', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'LastOnline', 'OnlineTime', 'EntityId', 'SteamId'];
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
 

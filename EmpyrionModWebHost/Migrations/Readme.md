@@ -3,3 +3,6 @@ Add-Migration InitialCreate -Context BackpackContext
 Add-Migration InitialCreate -Context ChatContext
 Add-Migration InitialCreate -Context FactionContext
 Add-Migration InitialCreate -Context UserContext
+
+Für DB Änderungen einfach
+Add-Migration Beschreibung -Context XXXContext

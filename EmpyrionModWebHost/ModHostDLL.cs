@@ -87,7 +87,7 @@ namespace EmpyrionModWebHost
         public void Console_Write(string aMsg)
         {
             //Console.WriteLine($"Console_Write:{aMsg}");
-            ToEmpyrion.SendMessage(new ClientHostComData() { Command = ClientHostCommand.Console_Write, Data = aMsg });
+            ToEmpyrion?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.Console_Write, Data = aMsg });
         }
 
         public ulong Game_GetTickTime()
@@ -100,7 +100,7 @@ namespace EmpyrionModWebHost
             //Console.WriteLine($"Game_Request:{reqId}#{seqNr} = {data}");
             var msg = new EmpyrionGameEventData() { eventId = reqId, seqNr = seqNr };
             msg.SetEmpyrionObject(data);
-            ToEmpyrion.SendMessage(msg);
+            ToEmpyrion?.SendMessage(msg);
             return true;
         }
 
