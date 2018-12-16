@@ -94,6 +94,8 @@ namespace EmpyrionModWebHost.Controllers
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
         {
+            if (aPlayerInfo.toolbar.Length == 0 && aPlayerInfo.bag.Length == 0) return;
+
             UpdateBackpack(aPlayerInfo.steamId, aPlayerInfo.toolbar, aPlayerInfo.bag);
         }
 

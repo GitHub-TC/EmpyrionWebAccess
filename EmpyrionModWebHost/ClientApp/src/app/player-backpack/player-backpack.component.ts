@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { BackpackModel, EmptyBackpack } from '../model/backpack-model';
+import { BackpackModel, EmptyBackpack, BackpackODataModel } from '../model/backpack-model';
 
 import { BackpackService } from '../services/backpack.service';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
@@ -11,6 +11,7 @@ import { ItemService } from '../services/item.service';
 import { ItemStackModel } from '../model/itemstack-model';
 import { SelectItemDialogComponent } from '../select-item-dialog/select-item-dialog.component';
 import { PlayerModel } from '../model/player-model';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-player-backpack',
@@ -18,6 +19,7 @@ import { PlayerModel } from '../model/player-model';
   styleUrls: ['./player-backpack.component.less']
 })
 export class PlayerBackpackComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @Input() backpack: BackpackModel = EmptyBackpack;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
@@ -68,5 +70,20 @@ export class PlayerBackpackComponent implements OnInit {
           );
       }
     );
+  }
+
+  DeleteItem(aItem: ItemStackModel) {
+    this.YesNo.openDialog({ title: "Delete Itemstack", question: "(" + aItem.id + ") " + this.GetName(aItem) + " Count:" + aItem.count }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.backpack.Bag     = this.backpack.Bag    .filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
+        this.backpack.Toolbar = this.backpack.Toolbar.filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
+
+        this.http.post<BackpackODataModel>("Backpacks/SetBackpack", this.backpack)
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
   }
 }

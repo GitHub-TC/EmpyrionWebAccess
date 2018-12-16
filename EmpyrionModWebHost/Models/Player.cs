@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.IO;
 
 namespace EmpyrionModWebHost.Models
@@ -59,5 +60,8 @@ namespace EmpyrionModWebHost.Models
         public float RotY { get; set; }
         public float RotZ { get; set; }
         public bool Online { get; set; }
+        public TimeSpan OnlineTime { get; set; }
+        public DateTime LastOnline { get; set; }
+        public string Note { get; set; }
     }
 }

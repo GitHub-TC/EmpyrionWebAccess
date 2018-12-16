@@ -5,12 +5,18 @@
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
     </div>
+    <div class="delete">
+      <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
+    </div>
   </div>
   <div class="Item" *ngFor="let i of backpack.Bag">
     <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
     <div class="counts">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
+    </div>
+    <div class="delete">
+      <mat-icon style="font-size:small; color: red;" (click)="DeleteItem(i)" title="Delete">clear</mat-icon>
     </div>
   </div>
 </div>
@@ -19,3 +25,4 @@
   <button mat-menu-item (click)="AddItem()">Add item</button>
   <button mat-menu-item (click)="router.navigate(['restore'])">Restore backpack</button>
 </mat-menu>
+<app-yes-no-dialog></app-yes-no-dialog>

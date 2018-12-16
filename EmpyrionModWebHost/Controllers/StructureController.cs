@@ -22,9 +22,9 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
         }
 
-        public async System.Threading.Tasks.Task<GlobalStructureList> GlobalStructureListAsync()
+        public GlobalStructureList GlobalStructureListAsync()
         {
-            return await Request_GlobalStructure_List();
+            return Request_GlobalStructure_List().Result;
         }
 
     }
