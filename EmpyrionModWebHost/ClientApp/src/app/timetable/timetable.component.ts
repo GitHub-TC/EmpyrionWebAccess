@@ -53,6 +53,7 @@ class SubTimetableAction{
 class TimetableAction extends SubTimetableAction{
   timestamp?: any;
   repeat?: RepeatEnum;
+  nextExecute?: string;
   subAction?: SubTimetableAction[];
 }
 
@@ -78,6 +79,10 @@ export class TimetableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.GetTimetable();
+  }
+
+  GetTimetable() {
     let locationsSubscription = this.http.get<TimetableAction[]>("Timetable/GetTimetable")
       .subscribe(
       T => this.Timetable = T.map(t => {
@@ -106,7 +111,7 @@ export class TimetableComponent implements OnInit {
       return result;
     }))
       .subscribe(
-        T => { },
+        T => this.GetTimetable(),
         error => this.error = error // error path
       );
   }
@@ -150,5 +155,8 @@ export class TimetableComponent implements OnInit {
       });
   }
 
+  GetNextExecute(aAction: TimetableAction) {
+    return aAction.nextExecute ? new Date(aAction.nextExecute) : new Date();
+  }
 
 }

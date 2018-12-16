@@ -5,6 +5,7 @@ using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
@@ -75,8 +76,11 @@ namespace EmpyrionModWebHost.Controllers
         public PerformanceCounter RamAvailable { get; private set; }
         public ConfigurationManager<SystemConfig> SystemConfig { get; private set; }
 
-        public SysteminfoManager(IHubContext<SysteminfoHub> aSysteminfoHub)
+        public ILogger<SysteminfoManager> Logger { get; set; }
+
+        public SysteminfoManager(IHubContext<SysteminfoHub> aSysteminfoHub, ILogger<SysteminfoManager> aLogger)
         {
+            Logger = aLogger;
             SysteminfoHub = aSysteminfoHub;
 
             SystemConfig = new ConfigurationManager<SystemConfig>
@@ -188,7 +192,14 @@ namespace EmpyrionModWebHost.Controllers
             {
                 case ClientHostCommand.ProcessInformation:
                     LastProcessInformationUpdate = DateTime.Now;
-                    ProcessInformation = aMessage.Data as ProcessInformation; break;
+                    if(aMessage.Data == null) {
+                        ToEmpyrion.SendMessage(new ClientHostComData()
+                        {
+                            Command = ClientHostCommand.ProcessInformation,
+                            Data = new ProcessInformation() { Id = Process.GetCurrentProcess().Id }
+                        });
+                    }
+                    else ProcessInformation = aMessage.Data as ProcessInformation; break;
             }
         }
 
@@ -208,10 +219,11 @@ namespace EmpyrionModWebHost.Controllers
 
                 Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes));
 
-                EGSProcess.WaitForExit(120000);
+                EGSProcess.WaitForExit((aWaitMinutes + 1) * 60000);
             }
             catch (Exception Error)
             {
+                Logger.LogError(Error, "EGSStop");
                 log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
         }
@@ -223,20 +235,22 @@ namespace EmpyrionModWebHost.Controllers
                 Process EGSProcess = null;
                 try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
 
-                if (EGSProcess != null)
+                if (EGSProcess != null && !EGSProcess.HasExited)
                 {
                     EGSRunState(false);
                     return;
                 }
 
-                var StartCMD = SystemConfig.Current.StartCMD ?? SystemConfig.Current.ProcessInformation.FileName;
+                var StartCMD = string.IsNullOrEmpty(SystemConfig.Current.StartCMD) ? SystemConfig.Current.ProcessInformation.FileName : SystemConfig.Current.StartCMD;
 
                 EGSProcess = new Process
                 {
-                    StartInfo = new ProcessStartInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, StartCMD))
+                    StartInfo = new ProcessStartInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, Path.GetFileName(StartCMD)))
                     {
                         UseShellExecute  = !string.IsNullOrEmpty(SystemConfig.Current.StartCMD),
-                        CreateNoWindow   = true,
+                        WindowStyle      = ProcessWindowStyle.Normal,
+                        LoadUserProfile  = true,
+                        CreateNoWindow   = false,
                         WorkingDirectory = EmpyrionConfiguration.ProgramPath,
                         Arguments        = SystemConfig.Current.ProcessInformation.Arguments,
                     }
@@ -246,6 +260,7 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch (Exception Error)
             {
+                Logger.LogError(Error, "EGSStart");
                 log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
             EGSRunState(false);
@@ -292,6 +307,15 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult EGSStop(int aWaitMinutes)
         {
             SysteminfoManager.EGSStop(aWaitMinutes);
+            return Ok();
+        }
+
+        
+        [HttpGet("EGSRestart/{aWaitMinutes}")]
+        public IActionResult EGSRestart(int aWaitMinutes)
+        {
+            SysteminfoManager.EGSStop(aWaitMinutes);
+            SysteminfoManager.EGSStart();
             return Ok();
         }
 

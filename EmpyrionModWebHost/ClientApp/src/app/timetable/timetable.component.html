@@ -5,7 +5,7 @@
     <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:40px; z-index:100" (click)="Save()" title="Save">save</mat-icon>
     <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:70px; z-index:100" (click)="AddAction()" title="AddAction">playlist_add</mat-icon>
   </mat-card-title>
-  <div *ngFor="let t of Timetable" style="background-color:aliceblue; width:100%">
+  <div *ngFor="let t of Timetable" style="background-color:aliceblue; width:100%; margin-bottom:10px">
     <mat-checkbox [(ngModel)]="t.active" style="margin-left:1em">Active</mat-checkbox>
     <mat-form-field style="width:15em">
       <mat-select placeholder="Action" [(value)]="t.actionType">
@@ -13,6 +13,7 @@
           {{a.value}}
         </mat-option>
       </mat-select>
+      <mat-hint align="start"><strong>Next run: {{GetNextExecute(t) | date : "dd.MM.yyyy HH:mm"}}</strong> </mat-hint>
     </mat-form-field>
 
     <mat-form-field style="width:10em">

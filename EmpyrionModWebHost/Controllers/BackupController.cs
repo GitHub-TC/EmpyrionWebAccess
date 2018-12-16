@@ -37,7 +37,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
 
-            BackupDir = Program.AppSettings.BackupDirectory ?? Path.Combine(EmpyrionConfiguration.ProgramPath, "Backup");
+            BackupDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", Program.AppSettings.BackupDirectory ?? "Backup");
         }
 
         public override void Initialize(ModGameAPI dediAPI)

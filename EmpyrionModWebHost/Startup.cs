@@ -1,4 +1,6 @@
 using AutoMapper;
+using Community.AspNetCore.ExceptionHandling;
+using Community.AspNetCore.ExceptionHandling.Mvc;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Controllers;
 using EmpyrionModWebHost.Migrations;
@@ -16,9 +18,12 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.Edm;
+using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,11 +43,51 @@ namespace EmpyrionModWebHost
         {
             services.AddCors();
 
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(Configuration.GetSection("Logging"));
+                lb.AddFile(o => 
+                {
+                    var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
+                    Directory.CreateDirectory(logDir);
+                    o.FallbackFileName = $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa.log";
+                    o.RootPath       = logDir;
+                });
+            });
+
             services.AddOData();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAutoMapper();
             services.AddSignalR();
 
+            services.AddExceptionHandlingPolicies(options =>
+            {
+                //options.For<InitializationException>().Rethrow();
+
+                //options.For<SomeTransientException>().Retry(ro => ro.MaxRetryCount = 2).NextPolicy();
+
+                //options.For<SomeBadRequestException>()
+                //.Response(e => 400)
+                //    .Headers((h, e) => h["X-MyCustomHeader"] = e.Message)
+                //    .WithBody((req, sw, exception) =>
+                //    {
+                //        byte[] array = Encoding.UTF8.GetBytes(exception.ToString());
+                //        return sw.WriteAsync(array, 0, array.Length);
+                //    })
+                //.NextPolicy();
+
+                // Ensure that all exception types are handled by adding handler for generic exception at the end.
+                options.For<Exception>()
+                .Log(lo =>
+                {
+                    lo.EventIdFactory = (c, e) => new EventId(123, "UnhandlerException");
+                    lo.Category = (context, exception) => "EWA";
+                })
+                .Response(null, ResponseAlreadyStartedBehaviour.GoToNextHandler)
+                    .ClearCacheHeaders()
+                    .WithObjectResult((r, e) => new { msg = e.Message, path = r.Path })
+                .Handled();
+            });
             services.AddSingleton<LifetimeEventsHostedService>();
 
             services.AddSingleton<ModHostDLL>();
@@ -118,6 +163,8 @@ namespace EmpyrionModWebHost
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseExceptionHandlingPolicies();
+
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()

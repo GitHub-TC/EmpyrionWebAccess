@@ -20,7 +20,7 @@ namespace EWAModClient
         public string EmpyrionToModPipeName { get; set; } = "EmpyrionToEWAPipe{0}";
         public string ModToEmpyrionPipeName { get; set; } = "EWAToEmpyrionPipe{0}";
         public int HostProcessId { get; set; }
-        public bool WithShellWindow { get; set; }
+        public bool WithShellWindow { get; set; } = true;
     }
 
     public class EmpyrionModClient : ModInterface
@@ -154,7 +154,9 @@ namespace EWAModClient
                     StartInfo = new ProcessStartInfo(HostFilename)
                     {
                         UseShellExecute = CurrentConfig.Current.WithShellWindow,
-                        CreateNoWindow = true,
+                        LoadUserProfile = true,
+                        CreateNoWindow  = true,
+                        WindowStyle     = ProcessWindowStyle.Hidden,
                         WorkingDirectory = Path.GetDirectoryName(HostFilename),
                         Arguments = Environment.GetCommandLineArgs().Aggregate(
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
@@ -233,6 +235,8 @@ namespace EWAModClient
                 return;
             }
 
+            try{ OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.ProcessInformation }); } catch{}
+
             if (CurrentConfig.Current.AutostartModHostAfterNSeconds == 0 || !CurrentConfig.Current.AutostartModHost) return;
             try { if (mHostProcess != null && !mHostProcess.HasExited) return; } catch { }
 
@@ -251,8 +255,19 @@ namespace EWAModClient
                 case ClientHostCommand.RestartHost          : break;
                 case ClientHostCommand.ExposeShutdownHost   : ExposeShutdownHost = true; break;
                 case ClientHostCommand.Console_Write        : GameAPI.Console_Write(aMsg.Data as string); break;
-                case ClientHostCommand.ProcessInformation   : if (aMsg.Data == null) ReturnProcessInformation(); break;
+                case ClientHostCommand.ProcessInformation   : if (aMsg.Data == null) ReturnProcessInformation();
+                                                              else RetrieveHostProcessInformation(aMsg.Data as ProcessInformation);
+                                                              break;
             }
+        }
+
+        private void RetrieveHostProcessInformation(ProcessInformation aData)
+        {
+            if (aData == null) return;
+
+            if(CurrentConfig.Current.HostProcessId != aData.Id) GameAPI.Console_Write($"HostProcessId: " + aData.Id);
+            CurrentConfig.Current.HostProcessId = aData.Id;
+            try{ mHostProcess = Process.GetProcessById(CurrentConfig.Current.HostProcessId); } catch (Exception) {}
         }
 
         private void ReturnProcessInformation()

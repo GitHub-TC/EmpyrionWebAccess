@@ -47,5 +47,33 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(StructureManager.GlobalStructureListAsync());
         }
 
+        [HttpPost("DeleteStructures")]
+        public IActionResult DeleteStructures([FromBody]int[] aEntityIds)
+        {
+            aEntityIds.ForEach(I => StructureManager.Request_Entity_Destroy(new Id(I)));
+            return Ok();
+        }
+
+        [HttpPost("SetToAdmin")]
+        public IActionResult SetToAdmin([FromBody]int[] aEntityIds)
+        {
+            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity 'Adm' {I}")));
+            return Ok();
+        }
+
+        [HttpPost("SetToAlien")]
+        public IActionResult SetToAlien([FromBody]int[] aEntityIds)
+        {
+            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity 'Aln' {I}")));
+            return Ok();
+        }
+
+        [HttpPost("SetFactionOfStuctures/{aFactionAbbrev}")]
+        public IActionResult SetFactionOfStuctures(string aFactionAbbrev, [FromBody]int[] aEntityIds)
+        {
+            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity '{aFactionAbbrev}' {I}")));
+            return Ok();
+        }
+
     }
 }

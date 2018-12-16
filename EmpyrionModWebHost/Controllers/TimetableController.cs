@@ -9,6 +9,7 @@ using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -86,8 +87,13 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public ConfigurationManager<Timetable> TimetableConfig { get; private set; }
 
-        public TimetableManager()
+        public ILogger<TimetableManager> Logger { get; set; }
+
+
+        public TimetableManager(ILogger<TimetableManager> aLogger)
         {
+            Logger = aLogger;
+
             BackupManager       = new Lazy<BackupManager>       (() => Program.GetManager<BackupManager>());
             ChatManager         = new Lazy<ChatManager>         (() => Program.GetManager<ChatManager>());
             GameplayManager     = new Lazy<GameplayManager>     (() => Program.GetManager<GameplayManager>());
@@ -105,6 +111,72 @@ namespace EmpyrionModWebHost.Controllers
         {
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
+
+            TaskTools.Intervall(60, CheckTimetable);
+        }
+
+        private void CheckTimetable()
+        {
+            if (TimetableConfig.Current.Actions == null) return;
+
+            TimetableConfig.Current.Actions
+                .Where(A => A.active)
+                .Where(A => A.nextExecute <= DateTime.Now)
+                .ToArray()
+                .ForEach(A => {
+                    A.nextExecute = GetNextExecute(A);
+                    TimetableConfig.Save();
+                    RunThis(A);
+                });
+        }
+
+        public void InitTimetableNextExecute(TimetableAction[] aActions)
+        {
+            if (aActions == null) return;
+
+            aActions
+                .Where(A => A.active)
+                .ToArray()
+                .ForEach(A => {
+                    A.nextExecute = GetNextExecute(A);
+                });
+        }
+
+        private DateTime GetNextExecute(TimetableAction aAction)
+        {
+            switch (aAction.repeat)
+            {
+                case RepeatEnum.min5        : return DateTime.Now   + new TimeSpan(0,  5, 0);
+                case RepeatEnum.min10       : return DateTime.Now   + new TimeSpan(0, 10, 0);
+                case RepeatEnum.min15       : return DateTime.Now   + new TimeSpan(0, 15, 0);
+                case RepeatEnum.min20       : return DateTime.Now   + new TimeSpan(0, 20, 0);
+                case RepeatEnum.min30       : return DateTime.Now   + new TimeSpan(0, 30, 0);
+                case RepeatEnum.min45       : return DateTime.Now   + new TimeSpan(0, 45, 0);
+                case RepeatEnum.hour1       : return DateTime.Now   + new TimeSpan(1,  0, 0);
+                case RepeatEnum.hour2       : return DateTime.Now   + new TimeSpan(2,  0, 0);
+                case RepeatEnum.hour3       : return DateTime.Now   + new TimeSpan(3,  0, 0);
+                case RepeatEnum.hour6       : return DateTime.Now   + new TimeSpan(6,  0, 0);
+                case RepeatEnum.hour12      : return DateTime.Now   + new TimeSpan(12, 0, 0);
+                case RepeatEnum.day1        : return DateTime.Now   + new TimeSpan(24, 0, 0);
+                case RepeatEnum.dailyAt     : return DateTime.Today + new TimeSpan(aAction.timestamp.TimeOfDay > DateTime.Now.TimeOfDay ? 0 : 24, 0, 0) + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.mondayAt    : return GetNextWeekday(DateTime.Today, DayOfWeek.Monday)    + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.tuesdayAt   : return GetNextWeekday(DateTime.Today, DayOfWeek.Tuesday)   + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.wednesdayAt : return GetNextWeekday(DateTime.Today, DayOfWeek.Wednesday) + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.thursdayAt  : return GetNextWeekday(DateTime.Today, DayOfWeek.Thursday)  + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.fridayAt    : return GetNextWeekday(DateTime.Today, DayOfWeek.Friday)    + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.saturdayAt  : return GetNextWeekday(DateTime.Today, DayOfWeek.Saturday)  + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.sundayAt    : return GetNextWeekday(DateTime.Today, DayOfWeek.Sunday)    + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.monthly     : return new DateTime(DateTime.Today.Year, (DateTime.Today.Month % 12) + 1, DateTime.Today.Day) + new TimeSpan(24, 0, 0) + aAction.timestamp.TimeOfDay;
+                case RepeatEnum.timeAt      : return (aAction.timestamp.TimeOfDay > DateTime.Now.TimeOfDay ? DateTime.Today : DateTime.MaxValue.Date) + aAction.timestamp.TimeOfDay;
+                default:                      return DateTime.MaxValue;
+            }
+        }
+
+        public static DateTime GetNextWeekday(DateTime start, DayOfWeek day)
+        {
+            // The (... + 7) % 7 ensures we end up with a value in the range [0, 6]
+            int daysToAdd = ((int)day - (int)start.DayOfWeek + 7) % 7;
+            return start.AddDays(daysToAdd);
         }
 
         public void RunThis(SubTimetableAction aAction)
@@ -158,6 +230,7 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch (Exception Error)
             {
+                Logger.LogError(Error, "EGSRestart");
                 log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
 
@@ -196,9 +269,11 @@ namespace EmpyrionModWebHost.Controllers
     {
 
         public TimetableManager TimetableManager { get; }
+        public ILogger<TimetableController> Logger { get; set; }
 
-        public TimetableController()
+        public TimetableController(ILogger<TimetableController> aLogger)
         {
+            Logger = aLogger;
             TimetableManager = Program.GetManager<TimetableManager>();
         }
 
@@ -209,8 +284,9 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("SetTimetable")]
-        public IActionResult ReadStructures([FromBody]TimetableAction[] aActions)
+        public IActionResult SetTimetable([FromBody]TimetableAction[] aActions)
         {
+            TimetableManager.InitTimetableNextExecute(aActions);
             TimetableManager.TimetableConfig.Current.Actions = aActions;
             TimetableManager.TimetableConfig.Save();
             return Ok();

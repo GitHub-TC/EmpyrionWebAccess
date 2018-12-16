@@ -2,7 +2,7 @@
   <button mat-menu-item (click)="Destroy()">Destroy</button>
   <button mat-menu-item (click)="SetToAdmin()">Set to ADM</button>
   <button mat-menu-item (click)="SetToAlien()">Set to Alien</button>
-  <button mat-menu-item (click)="ChangeFaction()">Change Faction</button>
+  <button mat-menu-item (click)="ChangeFaction()" *ngIf="PlayerService.CurrentPlayer?.FactionId">Change Faction</button>
 </mat-menu>
 
 <div [hidden]="!displayFilter" style="position:relative; width:100%; height:3em">
@@ -246,3 +246,4 @@
       (click)="mStructureService.CurrentStructure = row"></tr>
 </table>
 <mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
+<app-yes-no-dialog></app-yes-no-dialog>

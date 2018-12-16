@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace EmpyrionModWebHost
 {
@@ -18,8 +20,11 @@ namespace EmpyrionModWebHost
         public Dictionary<Type, Action<object>> InServerMessageHandler { get; }
         public IEnumerable<IEWAPlugin> Plugins { get; set; }
 
-        public ModHostDLL([FromServices] IEnumerable<IEWAPlugin> aPlugins)
+        public ILogger<ModHostDLL> Logger { get; set; }
+
+        public ModHostDLL([FromServices] IEnumerable<IEWAPlugin> aPlugins, ILogger<ModHostDLL> aLogger)
         {
+            Logger  = aLogger;
             Plugins = aPlugins;
 
             Parallel.ForEach(Plugins.OfType<IDatabaseConnect>(), P => SaveApiCall(() => P.CreateAndUpdateDatabase(), P, "CreateAndUpdateDatabase"));
@@ -63,6 +68,7 @@ namespace EmpyrionModWebHost
                 case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit"));
                                                     if (!mExposeShutdownHost)
                                                     {
+                                                        Logger.LogInformation("Game_Exit: called");
                                                         Thread.Sleep(1000);
                                                         Program.Application.StopAsync().Wait(30000);
                                                     }
@@ -106,6 +112,7 @@ namespace EmpyrionModWebHost
             }
             catch (Exception Error)
             {
+                Logger.LogError(Error, $"Exception [{aMod}] {aErrorInfo} => {Error}");
                 LogOut($"Exception [{aMod}] {aErrorInfo} => {Error}");
             }
         }
