@@ -71,7 +71,7 @@ export class PlayerService implements OnInit {
     let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
       .pipe(map(S => S.value))
       .subscribe(
-        P => this.players.next(this.mPlayers = this.CorrectDateTimes(P)),
+        P => this.players.next(this.mPlayers = P.map(p => this.CorrectDateTimes(p))),
         error => this.error = error // error path
     );
     // Stop listening for location after 10 seconds

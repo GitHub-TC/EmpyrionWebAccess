@@ -54,9 +54,9 @@ export class PlayerModel {
   RotX?: number;
   RotY?: number;
   RotZ?: number;
-  Note: string;
-  LastOnline: string | Date;
-  OnlineTime: string;
+  Note?: string;
+  LastOnline?: string | Date;
+  OnlineTime?: string;
 }
 
 
