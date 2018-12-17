@@ -54,15 +54,24 @@ Der Spieler wird hier mit seinem Onlinestatus, Namen, Fraktion, Herkunft ... ang
 Hier wird das Inventar des ausgewählten Spielers angezeigt. Von hier aus kann man
 * Items hinzufügen
 * Einen alten Zustand des Backpacks wiederherstellen
+* Items löschen
 
 ### Spielerdetails
 Hier werden die Daten des ausgewählten Spielers angezeigt und können geändert werden.
-Hinweis: Noch offen sind: ban/unban und wipe
+* ban/unban und wipe
+
+### Fabrik
+Hier können Items in die Fabrik des Spielers hinzugefügt, die Anzahl geändert oder der aktuelle Bauauftrag fertiggestellt werden.
 
 ## Strukturen
 Hier werden alle Strukturen des Spiels aufgelistet:
 * Sie können Teleportiert werden
 * Die Position kann in den Speicher für ein Warp übertragen werden
+* Die Strukturen können gelöscht werden
+* Die Fraktion der Strukturen kann auf Adm, Aln oder die des ausgewählten Spielers gesetzt werden
+
+## Restore
+Wiederherstellung von Backpacks und Strukturen aus Backups
 
 ## Start/Stop
 EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
@@ -100,12 +109,11 @@ mod managing via<br>
 https://github.com/GitHub-TC/EmpyrionModHost
 
 # Was kommt noch?
-* Backpack: Wiederherstellung und Manipulation
-* Strukturen: Auflistung, warpen, löschen, ...
 * MOD Manager: Einrichtung, Aktivierung/Deaktivierung, Update,... für weitere EGS Mods
-* Server: Start, Stop
-* Backup/Restore: von Strukturen und Spielern
-* Scheduler: Für Zeitgesteuerte Aufgaben, Willkommensnachichten, Ankündigungen, ...
+* Restore: Playerfiles, Playfields
+* VirtualAutominer 
+* ChatBot Hilfsbefehle
+* CombatLog
 * ...
 * was wir/ich sonst noch so brauchen :-)
 
@@ -217,11 +225,8 @@ mod managing via <br>
 https://github.com/GitHub-TC/EmpyrionModHost
 
 # What else is coming?
-* Backpack: recovery and manipulation
-* Structures: listing, warping, deleting, ...
 * MOD Manager: Setup, Activation/Deactivation, Update, ... for more EGS mods
-* Server: Start, Stop
-* Backup/Restore: of structures and players
-* Scheduler: For timed tasks, welcome stories, announcements, ...
+* VirtualAutominer 
+* ChatBot supportcommands
 * ...
 * what else do we need :-)

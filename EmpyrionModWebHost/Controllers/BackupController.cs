@@ -174,6 +174,15 @@ namespace EmpyrionModWebHost.Controllers
             BackupState(false);
         }
 
+        public void DeleteOldBackups(int aDays)
+        {
+            Directory.EnumerateDirectories(BackupDir)
+                .Where(D => D.Length > 8)
+                .Select(D => new Tuple<string, DateTime>(D, DateTime.TryParseExact(D.Substring(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MaxValue))
+                .Where(T => T.Item2 < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
+                .AsParallel()
+                .ForAll(T => Directory.Delete(T.Item1, true));
+        }
     }
 
     [Authorize]

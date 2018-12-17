@@ -6,6 +6,7 @@ import { SYSTEMINFO } from '../model/systeminfo-mock';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { map } from 'rxjs/operators'
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,11 @@ export class SystemInfoService {
   public readonly SystemInfosObservable: Observable<SystemInfoModel> = this.SystemInfos.asObservable();
   error: any;
 
-  constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
+  constructor(
+    public router: Router,
+    private http: HttpClient,
+    private builder: AuthHubConnectionBuilder
+  ) {
     this.hubConnection = builder.withAuthUrl('/hubs/systeminfo').build();
     this.hubConnection.onclose(E => console.log("!!!! HubClosed:" + E));
 
@@ -53,6 +58,7 @@ export class SystemInfoService {
       if (this.mCurrentSystemInfo.online && (new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 10000) {
         this.mCurrentSystemInfo.online = "D";
         this.SystemInfos.next(this.mCurrentSystemInfo);
+        this.TestIfOnlineAgain();
       }
     });
 
@@ -65,6 +71,17 @@ export class SystemInfoService {
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
 
+  }
+
+  TestIfOnlineAgain(): any {
+    let locationsSubscription = this.http.get<SystemInfoModel>("systeminfo/CurrentSysteminfo")
+      .pipe()
+      .subscribe(
+        I => window.location.reload(),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 500ms
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 500);
   }
 
   GetSystemInfos(): Observable<SystemInfoModel> {

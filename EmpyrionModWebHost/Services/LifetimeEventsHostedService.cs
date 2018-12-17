@@ -40,21 +40,21 @@ namespace EmpyrionModWebHost.Services
 
         private void OnStarted()
         {
-            _logger.LogInformation("OnStarted has been called.");
+            try{ _logger.LogInformation("OnStarted has been called."); } catch { }
 
             // Perform post-startup activities here
         }
 
         private void OnStopping()
         {
-            _logger.LogInformation("OnStopping has been called.");
+            try{ _logger.LogInformation("OnStopping has been called."); }catch{}
             Exit = true;
             // Perform on-stopping activities here
         }
 
         private void OnStopped()
         {
-            _logger.LogInformation("OnStopped has been called.");
+            try{ _logger.LogInformation("OnStopped has been called."); } catch { }
 
             // Perform post-stopped activities here
         }

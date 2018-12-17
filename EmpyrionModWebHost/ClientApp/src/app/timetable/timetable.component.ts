@@ -39,6 +39,7 @@ export enum ActionType {
   backupScenario          = "Backup (scenario)",
   backupMods              = "Backup (mods)",
   backupEGSMainFiles      = "Backup (EGSMainFiles)",
+  deleteOldBackups        = "Delete old backups",
   deletePlayerOnPlayfield = "Delete player on playfield",
   runShell                = "Run shell",
   consoleCommand          = "InGame console command",
@@ -107,7 +108,7 @@ export class TimetableComponent implements OnInit {
   Save() {
     this.http.post("Timetable/SetTimetable", this.Timetable.map(T => {
       let result = Object.assign({}, T);
-      result.timestamp = "0001-01-01T" + T.timestamp;
+      result.timestamp = "0001-01-01T" + (T.timestamp ? T.timestamp : "00:00");
       return result;
     }))
       .subscribe(

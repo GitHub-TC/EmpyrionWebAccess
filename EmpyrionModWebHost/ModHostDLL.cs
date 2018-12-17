@@ -22,6 +22,8 @@ namespace EmpyrionModWebHost
 
         public ILogger<ModHostDLL> Logger { get; set; }
 
+        static DateTime mStartTime = DateTime.Now;
+
         public ModHostDLL([FromServices] IEnumerable<IEWAPlugin> aPlugins, ILogger<ModHostDLL> aLogger)
         {
             Logger  = aLogger;
@@ -65,17 +67,23 @@ namespace EmpyrionModWebHost
             switch (aMsg.Command)
             {
                 default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
-                case ClientHostCommand.Game_Exit  : Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(),   P, "Game_Exit"));
-                                                    if (!mExposeShutdownHost)
-                                                    {
-                                                        Logger.LogInformation("Game_Exit: called");
-                                                        Thread.Sleep(1000);
-                                                        Program.Application.StopAsync().Wait(30000);
-                                                    }
-                                                    mExposeShutdownHost = false;
-                                                    break;
+                case ClientHostCommand.Game_Exit: HandleGameExit(); break;
                 case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
             }
+        }
+
+        private void HandleGameExit()
+        {
+            if (DateTime.Now - mStartTime < new TimeSpan(0, 0, 30)) return; // Ignore Gamestop in the first 30 seconds
+
+            Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(), P, "Game_Exit"));
+            if (!mExposeShutdownHost)
+            {
+                Logger.LogInformation("Game_Exit: called");
+                Thread.Sleep(1000);
+                Program.Application.StopAsync().Wait(30000);
+            }
+            mExposeShutdownHost = false;
         }
 
         private void HandleGameEvent(EmpyrionGameEventData aMsg)
