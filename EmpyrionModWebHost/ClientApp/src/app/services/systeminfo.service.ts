@@ -58,7 +58,7 @@ export class SystemInfoService {
       if (this.mCurrentSystemInfo.online && (new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 10000) {
         this.mCurrentSystemInfo.online = "D";
         this.SystemInfos.next(this.mCurrentSystemInfo);
-        this.TestIfOnlineAgain();
+        if((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 60000) this.TestIfOnlineAgain();
       }
     });
 
