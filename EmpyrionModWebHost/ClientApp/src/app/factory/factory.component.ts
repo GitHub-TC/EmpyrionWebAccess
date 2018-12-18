@@ -22,7 +22,6 @@ export class FactoryComponent implements OnInit {
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;
-  AddItemStack: ItemStackModel;
   Player: PlayerModel;
   Resources: BlueprintResources;
   @Output() Changed: boolean = false;
@@ -85,7 +84,7 @@ export class FactoryComponent implements OnInit {
 
   AddItem() {
     this.contextMenuTrigger.closeMenu();
-    this.selectNewItem.openDialog().afterClosed().subscribe(
+    this.selectNewItem.openDialog(new ItemStackModel()).afterClosed().subscribe(
       (ItemStack: ItemStackModel) => {
         if (ItemStack.id == 0) return;
 

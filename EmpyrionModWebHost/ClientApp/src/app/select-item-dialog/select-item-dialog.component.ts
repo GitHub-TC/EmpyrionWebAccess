@@ -13,16 +13,14 @@ import { startWith, map } from 'rxjs/operators';
   styleUrls: ['./select-item-dialog.component.less']
 })
 export class SelectItemDialogComponent implements OnInit {
-  @Input() ItemStack: ItemStackModel;
-
   constructor(public dialog: MatDialog) { }
 
   ngOnInit(): void {
   }
 
-  public openDialog() {
+  public openDialog(aItem : ItemStackModel) {
     const dialogRef = this.dialog.open(SelectItemDialogContentComponent, {
-      data: { ItemStack: this.ItemStack }
+      data: { ItemStack: aItem }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -50,6 +48,10 @@ export class SelectItemDialogContentComponent implements OnInit {
     public ItemService: ItemService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.ItemStack = Object.assign({}, data.ItemStack);
+
+    let foundItem = this.ItemService.ItemInfo.find(I => I.id == this.ItemStack.id);
+    this.SelectedItemInfo.id   = this.ItemStack.id;
+    this.SelectedItemInfo.name = foundItem ? foundItem.name : "";
   }
 
   ngOnInit() {
@@ -64,6 +66,10 @@ export class SelectItemDialogContentComponent implements OnInit {
     );
   }
 
+  ngAfterViewInit() {
+    if (this.SelectedItemInfo.name) this.SelectedItem.setValue(this.SelectedItemInfo.name);
+  }
+
   private _filter(value: string): ItemInfoModel[] {
     const filterValue = value.toLowerCase();
 
@@ -75,4 +81,8 @@ export class SelectItemDialogContentComponent implements OnInit {
     this.dialogRef.close(this.ItemStack);
   }
 
+  Cancel() {
+    this.ItemStack.id = 0;
+    this.dialogRef.close(this.ItemStack);
+  }
 }

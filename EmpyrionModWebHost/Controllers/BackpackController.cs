@@ -86,7 +86,7 @@ namespace EmpyrionModWebHost.Controllers
 
                 var count = DB.SaveChanges();
 
-                if(count > 0) BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
+                BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
             }
         }
 
@@ -166,6 +166,7 @@ namespace EmpyrionModWebHost.Controllers
             try
             {
                 BackpackManager.Request_Player_AddItem(aItem);
+                TaskWait.Delay(5, () => BackpackManager.Request_Player_Info(new Id(aItem.id)).Wait());
                 return Ok();
             }
             catch (Exception Error)

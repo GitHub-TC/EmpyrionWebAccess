@@ -32,9 +32,10 @@ export class ChatService implements OnInit {
 
     // message coming from the server
     this.hubConnection.on("Send", (message) => {
-      if (this.mFilterServerMsg && message.FactionName == "SERV") return;
-      this.messages.next(this.messages.getValue().concat(JSON.parse(message)));
-      this.lastMessages.next(this.lastMessages.getValue().concat(JSON.parse(message)));
+      let Msg = JSON.parse(message);
+      if (this.mFilterServerMsg && Msg.FactionName == "SERV") return;
+      this.messages.next(this.messages.getValue().concat());
+      this.lastMessages.next(this.lastMessages.getValue().concat(Msg));
     });
 
     // starting the connection

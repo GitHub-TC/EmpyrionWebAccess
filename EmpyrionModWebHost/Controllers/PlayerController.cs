@@ -111,7 +111,13 @@ namespace EmpyrionModWebHost.Controllers
                 Player.RotY = aPlayerInfo.rot.y;
                 Player.RotZ = aPlayerInfo.rot.z;
 
-                if (IsNewPlayer) DB.Players.Add(Player);
+                if (IsNewPlayer)
+                {
+                    Player.Note       = string.Empty;
+                    Player.OnlineTime = new TimeSpan();
+                    Player.LastOnline = DateTime.Now;
+                    DB.Players.Add(Player);
+                }
                 var count = DB.SaveChanges();
 
                 if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
@@ -205,7 +211,7 @@ namespace EmpyrionModWebHost.Controllers
         private void PlayerConnected(Id ID)
         {
             UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), PlayerConnect);
-            TaskWait.Delay(20, async () => PlayerManager_Event_Player_Info(await Request_Player_Info(ID)));
+            TaskWait.Delay(20, () => PlayerManager_Event_Player_Info(Request_Player_Info(ID).Result));
         }
 
         private static void PlayerConnect(Player aPlayer)
@@ -274,20 +280,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             return Ok(DB.Players);
         }
-
-        //[EnableQuery]
-        //public IActionResult Get(int key)
-        //{
-        //    return Ok(_db.Players.FirstOrDefault(c => c.entityId == key));
-        //}
-
-        //[EnableQuery]
-        //[Route("Set")]
-        //public IActionResult Set([FromBody]PlayerInfoSet player)
-        //{
-        //    PlayerManager.ChangePlayerInfo(player);
-        //    return Ok();
-        //}
 
         [EnableQuery]
         public IActionResult Post([FromBody]PlayerInfoSet player)

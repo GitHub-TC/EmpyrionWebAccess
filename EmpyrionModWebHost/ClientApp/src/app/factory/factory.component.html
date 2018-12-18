@@ -7,7 +7,7 @@
     <br />
   </div>
 </div>
-<app-select-item-dialog [(ItemStack)]="AddItemStack"></app-select-item-dialog>
+<app-select-item-dialog></app-select-item-dialog>
 <mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
   <button mat-menu-item (click)="SetBlueprintResources()">Save</button>
   <button mat-menu-item (click)="FinishBlueprint()">Finish</button>

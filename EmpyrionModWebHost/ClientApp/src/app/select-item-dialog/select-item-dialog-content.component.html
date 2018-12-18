@@ -21,6 +21,6 @@
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions style="position:relative">
-  <button class="mat-raised-button" mat-dialog-close style="position:absolute; left:1em">Cancel</button>
+  <button class="mat-raised-button" (click)="Cancel()"  style="position:absolute; left:1em">Cancel</button>
   <button class="mat-raised-button mat-primary" (click)="AddItem()" style="position:absolute; right:1em">Select item</button>
 </mat-dialog-actions>

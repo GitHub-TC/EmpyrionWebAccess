@@ -1,26 +1,20 @@
 <div class="BackpackArea">
-  <div class="Item" *ngFor="let i of backpack.Toolbar">
+  <div class="Item" *ngFor="let i of backpack.Toolbar" (click)="EditItem(i)">
     <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
     <div class="counts">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
-    </div>
-    <div class="delete" *ngIf="WithDelete">
-      <mat-icon style="font-size:smaller; color: darkgrey;" (click)="DeleteItem(i)" title="Delete">delete</mat-icon>
     </div>
   </div>
-  <div class="Item" *ngFor="let i of backpack.Bag">
+  <div class="Item" *ngFor="let i of backpack.Bag" (click)="EditItem(i)">
     <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
     <div class="counts">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
-    </div>
-    <div class="delete" *ngIf="WithDelete">
-      <mat-icon style="font-size:smaller; color: darkgrey;" (click)="DeleteItem(i)" title="Delete">delete</mat-icon>
     </div>
   </div>
 </div>
-<app-select-item-dialog [(ItemStack)]="AddItemStack"></app-select-item-dialog>
+<app-select-item-dialog></app-select-item-dialog>
 <mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
   <button mat-menu-item (click)="AddItem()">Add item</button>
   <button mat-menu-item (click)="router.navigate(['restore'])">Restore backpack</button>

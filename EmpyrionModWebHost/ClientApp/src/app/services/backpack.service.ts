@@ -21,7 +21,10 @@ export class BackpackService {
 
   constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
     this.hubConnection = builder.withAuthUrl('/hubs/backpack').build();
-    this.hubConnection.on("UpdateBackpack", D => this.UpdateBackpackData(JSON.parse(D)));
+    this.hubConnection.on("UpdateBackpack", D => {
+      let Data = JSON.parse(D);
+      this.UpdateBackpackData({ id: Data.Id, toolbarContent: Data.ToolbarContent, bagContent: Data.BagContent});
+    });
 
     // starting the connection
     try {

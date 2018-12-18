@@ -46,7 +46,12 @@ export class PlayerService implements OnInit {
 
   CorrectDateTimes(aPlayer: PlayerModel) {
     try { aPlayer.LastOnline = new Date(aPlayer.LastOnline); } catch {}
-    try { aPlayer.OnlineTime = aPlayer.OnlineTime.substr(0, aPlayer.OnlineTime.lastIndexOf('.')); } catch { }
+    try {
+      aPlayer.OnlineTime = aPlayer.OnlineTime.substr(0, aPlayer.OnlineTime.lastIndexOf('.'));
+      aPlayer.OnlineTime = aPlayer.OnlineTime.replace("PT", "");
+      aPlayer.OnlineTime = aPlayer.OnlineTime.replace("H", ":");
+      aPlayer.OnlineTime = aPlayer.OnlineTime.replace("M", ":");
+    } catch { }
     return aPlayer;
   }
 

@@ -21,11 +21,10 @@ import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.
 export class PlayerBackpackComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @Input() backpack: BackpackModel = EmptyBackpack;
-  @Input() WithDelete: boolean = true;
+  @Input() WithEdit: boolean = true;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
-  @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;
-  AddItemStack: ItemStackModel;
+  @ViewChild(SelectItemDialogComponent) selectItem: SelectItemDialogComponent;
   error: any;
   Player: PlayerModel;
 
@@ -57,7 +56,7 @@ export class PlayerBackpackComponent implements OnInit {
 
   AddItem() {
     this.contextMenuTrigger.closeMenu();
-    this.selectNewItem.openDialog().afterClosed().subscribe(
+    this.selectItem.openDialog(new ItemStackModel()).afterClosed().subscribe(
       (ItemStack: ItemStackModel) => {
         if (ItemStack.id == 0) return;
 
@@ -73,18 +72,27 @@ export class PlayerBackpackComponent implements OnInit {
     );
   }
 
-  DeleteItem(aItem: ItemStackModel) {
-    this.YesNo.openDialog({ title: "Delete Itemstack", question: "(" + aItem.id + ") " + this.GetName(aItem) + " Count:" + aItem.count }).afterClosed().subscribe(
-      (YesNoData: YesNoData) => {
-        if (!YesNoData.result) return;
+  EditItem(aItem: ItemStackModel) {
+    if (!this.WithEdit || !this.Player || !this.Player.Online) return;
 
-        this.backpack.Bag     = this.backpack.Bag    .filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
-        this.backpack.Toolbar = this.backpack.Toolbar.filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
+    this.selectItem.openDialog(aItem).afterClosed().subscribe(
+      (ItemStack: ItemStackModel) => {
+        if (ItemStack.id == 0) return;
+
+        if (ItemStack.count) {
+          if (this.backpack.Bag    ) this.backpack.Bag     = this.backpack.Bag    .map(I => I.id == aItem.id && I.slotIdx == aItem.slotIdx ? ItemStack : I);
+          if (this.backpack.Toolbar) this.backpack.Toolbar = this.backpack.Toolbar.map(I => I.id == aItem.id && I.slotIdx == aItem.slotIdx ? ItemStack : I);
+        }
+        else {
+          if (this.backpack.Bag    ) this.backpack.Bag     = this.backpack.Bag    .filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
+          if (this.backpack.Toolbar) this.backpack.Toolbar = this.backpack.Toolbar.filter(I => I.id != aItem.id || I.slotIdx != aItem.slotIdx);
+        }
 
         this.http.post<BackpackODataModel>("Backpacks/SetBackpack", this.backpack)
           .subscribe(
             error => this.error = error // error path
           );
-      });
+      }
+    );
   }
 }
