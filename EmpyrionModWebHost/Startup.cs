@@ -62,21 +62,6 @@ namespace EmpyrionModWebHost
 
             services.AddExceptionHandlingPolicies(options =>
             {
-                //options.For<InitializationException>().Rethrow();
-
-                //options.For<SomeTransientException>().Retry(ro => ro.MaxRetryCount = 2).NextPolicy();
-
-                //options.For<SomeBadRequestException>()
-                //.Response(e => 400)
-                //    .Headers((h, e) => h["X-MyCustomHeader"] = e.Message)
-                //    .WithBody((req, sw, exception) =>
-                //    {
-                //        byte[] array = Encoding.UTF8.GetBytes(exception.ToString());
-                //        return sw.WriteAsync(array, 0, array.Length);
-                //    })
-                //.NextPolicy();
-
-                // Ensure that all exception types are handled by adding handler for generic exception at the end.
                 options.For<Exception>()
                 .Log(lo =>
                 {

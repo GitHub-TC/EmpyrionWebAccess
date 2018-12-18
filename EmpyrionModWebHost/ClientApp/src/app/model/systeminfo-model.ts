@@ -3,6 +3,7 @@ export class SystemInfoModel {
   online?: string;
   version?: string;
   versionESG?: string;
+  versionESGBuild?: string;
   copyright?: string;
   activePlayers?: number;
   activePlayfields?: number;

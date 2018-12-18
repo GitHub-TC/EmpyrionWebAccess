@@ -183,6 +183,8 @@ namespace EWAModClient
             ReadNetworkInfos(out string LocalIp, out string Domain, out string Host);
 
             Directory.CreateDirectory(Path.GetDirectoryName(aEWAConfigFile));
+            Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(aEWAConfigFile), "DB"));
+
             File.WriteAllText(aEWAConfigFile,
                 File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "appsettings.json"))
                 .Replace("{LocalIp}", LocalIp)
@@ -190,6 +192,8 @@ namespace EWAModClient
                 .Replace("{Host}", Host)
                 .Replace("{ComputerName}", string.IsNullOrEmpty(Host) ? "" : (Host + (string.IsNullOrEmpty(Domain) ? "" : Domain + ".")))
                 );
+
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(aEWAConfigFile), "xstart.txt"),"To start the EWA rename this File to 'start.txt'");
         }
 
         private static void ReadNetworkInfos(out string LocalIp, out string Domain, out string Host)

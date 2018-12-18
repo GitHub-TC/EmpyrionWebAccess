@@ -42,6 +42,8 @@ namespace EmpyrionModWebHost
 
         public static void Main(string[] args)
         {
+            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+
             Application = CreateWebHostBuilder(args).Build();
 
             AppLifetime =  Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;

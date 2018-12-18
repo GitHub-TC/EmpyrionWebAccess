@@ -45,6 +45,21 @@ namespace EmpyrionModWebHost
             }
         }
 
+        public static string BuildVersion
+        {
+            get {
+                try
+                {
+                    return File.ReadAllLines(Path.Combine(ProgramPath, "BuildNumber.txt"))
+                        .FirstOrDefault()?
+                        .Trim();
+                }
+                catch
+                {
+                    return "???";
+                }
+            }
+        }
 
         public class DedicatedYamlStruct
         {

@@ -33,6 +33,7 @@ namespace EmpyrionModWebHost.Controllers
         public string copyright;
         public string version;
         public string versionESG;
+        public string versionESGBuild;
         public int activePlayers;
         public int activePlayfields;
         public int totalPlayfieldserver;
@@ -183,6 +184,7 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.serverName = EmpyrionConfiguration.DedicatedYaml.ServerName;
             CurrentSysteminfo.version = CurrentAssembly.GetAttribute<AssemblyFileVersionAttribute>()?.Version;
             CurrentSysteminfo.versionESG = EmpyrionConfiguration.Version;
+            CurrentSysteminfo.versionESGBuild = EmpyrionConfiguration.BuildVersion;
             CurrentSysteminfo.copyright = CurrentAssembly.GetAttribute<AssemblyCopyrightAttribute>()?.Copyright;
         }
 

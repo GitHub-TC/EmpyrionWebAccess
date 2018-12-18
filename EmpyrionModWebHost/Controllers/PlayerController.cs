@@ -170,10 +170,7 @@ namespace EmpyrionModWebHost.Controllers
                     UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) &&  P.Online), PlayerDisconnect);
                 }
 
-                using (var DB = new PlayerContext())
-                {
-                    DB.Players.Where(P => P.Online).AsParallel().ForEach(P => Request_Player_Info(new Id(P.EntityId)));
-                }
+                onlinePlayers.list.AsParallel().ForEach(I => Request_Player_Info(new Id(I)));
             });
         }
 
@@ -181,6 +178,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             new Thread(() =>
             {
+                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"));
                 var KnownPlayers = Directory
                     .GetFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"))
                     .Select(F => Path.GetFileNameWithoutExtension(F));

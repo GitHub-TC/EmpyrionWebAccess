@@ -65,12 +65,16 @@ export class SystemInfoService {
     let locationsSubscription = this.http.get<SystemInfoModel>("systeminfo/CurrentSysteminfo")
       .pipe()
       .subscribe(
-        I => this.SystemInfos.next(this.mCurrentSystemInfo = I),
+      I => {
+        this.LastSystemUpdateTime = new Date();
+        this.SystemInfos.next(this.mCurrentSystemInfo = I);
+      },
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
 
+    this.LastSystemUpdateTime = new Date();
   }
 
   TestIfOnlineAgain(): any {
