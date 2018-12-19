@@ -121,7 +121,7 @@ export class RestoreStructureComponent implements OnInit {
   }
 
   ReadStructuresFromBackup(aBackup: string) {
-    let locationsSubscription = this.http.get<PlayfieldGlobalStructureInfo[]>("Backups/ReadStructures/" + this.SelectedBackup)
+    let locationsSubscription = this.http.post<PlayfieldGlobalStructureInfo[]>("Backups/ReadStructures", { backup: this.SelectedBackup })
       .pipe()
       .subscribe(
         S => this.structures.data = S,
@@ -135,7 +135,7 @@ export class RestoreStructureComponent implements OnInit {
     var send = Object.assign({}, this.CurrentStructure);
     send.playfield = this.WarpData.playfield;
     send.pos = this.WarpData.pos;
-    let locationsSubscription = this.http.post("Backups/CreateStructure/" + this.SelectedBackup, send)
+    let locationsSubscription = this.http.post("Backups/CreateStructure", { backup: this.SelectedBackup, structure: send })
       .pipe()
       .subscribe(
         error => this.error = error // error path

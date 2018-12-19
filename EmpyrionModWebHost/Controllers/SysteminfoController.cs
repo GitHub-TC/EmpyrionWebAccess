@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -318,6 +319,14 @@ namespace EmpyrionModWebHost.Controllers
         {
             SysteminfoManager.EGSStop(aWaitMinutes);
             SysteminfoManager.EGSStart();
+            return Ok();
+        }
+
+        [HttpGet("ShutdownEGSandEWA")]
+        public IActionResult ShutdownEGSandEWA()
+        {
+            SysteminfoManager.EGSStop(0);
+            new Thread(() => {try { Program.Host.HandleGameExit(true); } catch { } }).Start();
             return Ok();
         }
 

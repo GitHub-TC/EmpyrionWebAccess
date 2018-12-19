@@ -18,6 +18,9 @@
       </mat-form-field>
       <button mat-button class="mat-raised-button" (click)="StopEGS()">Stop EGS</button>
       <button mat-button class="mat-raised-button" (click)="RestartEGS()">Restart EGS</button>
+      <br />
+      <button mat-button class="mat-raised-button" (click)="ShutdownEGSandEWA()">Shutdown EGS & EWA</button>
+      <mat-icon style="color:red; vertical-align:sub">warning</mat-icon> EGS must then be started manually <mat-icon style="color:red; vertical-align:sub">warning</mat-icon>
       <app-yes-no-dialog></app-yes-no-dialog>
     </div>
     <div class="col col-lg-5">

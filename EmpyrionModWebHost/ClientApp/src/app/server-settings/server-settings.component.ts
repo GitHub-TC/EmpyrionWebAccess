@@ -92,4 +92,17 @@ export class ServerSettingsComponent implements OnInit {
       });
   }
 
+  ShutdownEGSandEWA() {
+    this.YesNo.openDialog({ title: "Complete shutdown", question: "Empyrion Gameserver & Emyprion Web Access" }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.http.get<SystemConfig>("systeminfo/ShutdownEGSandEWA")
+          .pipe()
+          .subscribe(
+            S => { },
+            error => this.error = error // error path
+          );
+      });
+  }
+
 }

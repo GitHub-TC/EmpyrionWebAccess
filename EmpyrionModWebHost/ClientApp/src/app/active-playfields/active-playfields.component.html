@@ -12,7 +12,7 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
   <div class="activePlayer" *ngFor="let player of playfield.players">
-    <div style="position: absolute; left:15px; width:3em; overflow:hidden">({{Faction(player)?.Abbrev}})</div>
+    <div style="position: absolute; left:15px; width:3em; overflow:hidden; font-size:small">({{Faction(player)?.Abbrev}})</div>
     <div style="position: absolute; left:3.8em" (click)="mPlayerService.CurrentPlayer = player">{{player.PlayerName}}</div>
     <div style="position: absolute; right:0px">
       <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" (click)="SavePosition(player)" title="Save position of {{player.PlayerName}}">flag</mat-icon>

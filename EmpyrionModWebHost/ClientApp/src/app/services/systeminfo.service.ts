@@ -55,10 +55,10 @@ export class SystemInfoService {
     }
 
     interval(1000).pipe().subscribe(() => {
-      if (this.mCurrentSystemInfo.online && (new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 10000) {
+      if ((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 30000) {
         this.mCurrentSystemInfo.online = "D";
         this.SystemInfos.next(this.mCurrentSystemInfo);
-        if((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 60000) this.TestIfOnlineAgain();
+        if((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 120000) this.TestIfOnlineAgain();
       }
     });
 

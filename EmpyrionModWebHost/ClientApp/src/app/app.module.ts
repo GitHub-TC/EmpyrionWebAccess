@@ -39,6 +39,7 @@ import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './s
 import { TimetableComponent } from './timetable/timetable.component';
 import { KeysPipe } from './pipes/keys.pipe';
 import { YesNoDialogComponent, YesNoDialogContentComponent } from './yes-no-dialog/yes-no-dialog.component';
+import { RestoreManagerComponent } from './restore-manager/restore-manager.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,8 @@ import { YesNoDialogComponent, YesNoDialogContentComponent } from './yes-no-dial
     TimetableComponent,
     KeysPipe,
     YesNoDialogComponent,
-    YesNoDialogContentComponent
+    YesNoDialogContentComponent,
+    RestoreManagerComponent
   ],
   imports: [
     BrowserModule,

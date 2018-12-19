@@ -1,0 +1,32 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:100%">
+          <mat-form-field style="width:100%">
+            <mat-select placeholder="Backup" [(value)]="SelectedBackup">
+              <mat-option *ngFor="let i of Backups" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-lg-6">
+      <mat-card>
+        <mat-dialog-content>
+          <div style="position:relative; height:5em">
+            <mat-form-field style="position:absolute; left:5px; right:20px">
+              <mat-label>Mark backup (avoid auto delete)</mat-label>
+              <input matInput type="text" style="width:100%" [(ngModel)]="MarkBackup" />
+            </mat-form-field>
+            <mat-icon style="cursor:pointer; position:absolute; right:0px" (click)="Save()" title="Save settings">save</mat-icon>
+          </div>
+        </mat-dialog-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

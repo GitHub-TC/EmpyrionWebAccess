@@ -55,7 +55,7 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
-        public async Task CreateStructureAsync(string aSelectBackupDir, BackupsController.PlayfieldGlobalStructureInfo aStructure)
+        public async Task CreateStructure(string aSelectBackupDir, BackupsController.PlayfieldGlobalStructureInfo aStructure)
         {
             var NewID = await Request_NewEntityId();
 
@@ -177,7 +177,7 @@ namespace EmpyrionModWebHost.Controllers
         public void DeleteOldBackups(int aDays)
         {
             Directory.EnumerateDirectories(BackupDir)
-                .Where(D => D.Length > 8)
+                .Where(D => D.Length > 8 && !D.Contains("#"))
                 .Select(D => new Tuple<string, DateTime>(D, DateTime.TryParseExact(D.Substring(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MaxValue))
                 .Where(T => T.Item2 < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
                 .AsParallel()
@@ -190,6 +190,11 @@ namespace EmpyrionModWebHost.Controllers
     [Route("[controller]")]
     public class BackupsController : ControllerBase
     {
+        public class BackupData
+        {
+            public string backup;
+        }
+
 
         public BackupManager BackupManager { get; }
 
@@ -284,13 +289,13 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult GetBackups()
         {
             if (!Directory.Exists(BackupManager.BackupDir)) return Ok();
-            return Ok(Directory.EnumerateDirectories(BackupManager.BackupDir, "*Backup").OrderByDescending(D => D).Select(D => Path.GetFileName(D)));
+            return Ok(Directory.EnumerateDirectories(BackupManager.BackupDir).Where(D => D.Contains("Backup")).OrderByDescending(D => D).Select(D => Path.GetFileName(D)));
         }
 
-        [HttpGet("ReadStructures/{aSelectBackupDir}")]
-        public IActionResult ReadStructures(string aSelectBackupDir)
+        [HttpPost("ReadStructures")]
+        public IActionResult ReadStructures([FromBody]BackupData aSelectBackupDir)
         {
-            var StructDir = Path.Combine(BackupManager.BackupDir, aSelectBackupDir, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
+            var StructDir = Path.Combine(BackupManager.BackupDir, aSelectBackupDir.backup, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
             return Ok(Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)));
         }
 
@@ -387,10 +392,31 @@ namespace EmpyrionModWebHost.Controllers
             return (float.TryParse(aValue, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float Result) ? Result : 0);
         }
 
-        [HttpPost("CreateStructure/{aSelectBackupDir}")]
-        public async Task<IActionResult> CreateStructureAsync(string aSelectBackupDir, [FromBody]PlayfieldGlobalStructureInfo aStructure)
+        public class CreateStructureData : BackupData
         {
-            await BackupManager.CreateStructureAsync(aSelectBackupDir, aStructure);
+            public PlayfieldGlobalStructureInfo structure;
+        }
+
+        [HttpPost("CreateStructure")]
+        public IActionResult CreateStructure([FromBody]CreateStructureData aData)
+        {
+            BackupManager.CreateStructure(aData.backup, aData.structure).Wait();
+            return Ok();
+        }
+
+        public class MarkBackupData : BackupData
+        {
+            public string mark;
+        }
+
+        [HttpPost("MarkBackup")]
+        public IActionResult MarkBackup([FromBody]MarkBackupData aData)
+        {
+            var NameLen = aData.backup.IndexOf(" # ");
+            if (NameLen == -1) NameLen = aData.backup.Length;
+            Directory.Move(
+                Path.Combine(BackupManager.BackupDir, aData.backup), 
+                Path.Combine(BackupManager.BackupDir, aData.backup.Substring(0, NameLen) + (string.IsNullOrEmpty(aData.mark) ? "" : " # " + aData.mark)));
             return Ok();
         }
 
