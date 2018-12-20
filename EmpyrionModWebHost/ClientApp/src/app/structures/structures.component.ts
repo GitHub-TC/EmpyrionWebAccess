@@ -9,6 +9,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { FactionService } from '../services/faction.service';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { PlayerService } from '../services/player.service';
+import { FactionSelectDialogComponent } from '../faction-select-dialog/faction-select-dialog.component';
 
 @Component({
   selector: 'app-structures',
@@ -17,6 +18,7 @@ import { PlayerService } from '../services/player.service';
 })
 export class StructuresComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
 
   displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'Core', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'factionId', 'factionGroup', 'type', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
@@ -68,6 +70,10 @@ export class StructuresComponent implements OnInit {
       this.structures.data.forEach(row => this.selection.select(row));
   }
 
+  select(row : GlobalStructureInfo) {
+    this.selection.clear();
+    this.selection.toggle(row);
+  }
 
   toggleFilterDisplay(FilterInput) {
     this.displayFilter = !this.displayFilter;
@@ -95,42 +101,11 @@ export class StructuresComponent implements OnInit {
       });
   }
 
-  SetToAdmin() {
-    this.YesNo.openDialog({ title: "Set to ADM (Admin) faction", question: this.selection.selected.length + " structures?" }).afterClosed().subscribe(
-      (YesNoData: YesNoData) => {
-        if (!YesNoData.result) return;
-        this.http.post<number[]>("Structure/SetToAdmin", this.selection.selected.map(S => S.id))
-          .pipe()
-          .subscribe(
-            S => { },
-            error => this.error = error // error path
-          );
-      });
-  }
-
-  SetToAlien() {
-    this.YesNo.openDialog({ title: "Set to ALN (Alien) faction", question: this.selection.selected.length + " structures?" }).afterClosed().subscribe(
-      (YesNoData: YesNoData) => {
-        if (!YesNoData.result) return;
-        this.http.post<number[]>("Structure/SetToAlien", this.selection.selected.map(S => S.id))
-          .pipe()
-          .subscribe(
-            S => { },
-            error => this.error = error // error path
-          );
-      });
-  }
-
   ChangeFaction() {
-    this.YesNo.openDialog({
-      title:
-        "Set faction to " + this.FactionService.GetFaction(this.PlayerService.CurrentPlayer.FactionId).Abbrev +
-        " (" + this.PlayerService.CurrentPlayer.FactionId +
-        ") of Player " + this.PlayerService.CurrentPlayer.PlayerName, question: this.selection.selected.length + " structures?"
-    }).afterClosed().subscribe(
-      (YesNoData: YesNoData) => {
-        if (!YesNoData.result) return;
-        this.http.post<number[]>("Structure/SetFactionOfStuctures/" + this.FactionService.GetFaction(this.PlayerService.CurrentPlayer.FactionId).Abbrev, this.selection.selected.map(S => S.id))
+    this.FactionSelect.openDialog("Set faction of " + this.selection.selected.length + " structures?").afterClosed().subscribe(
+      (SelectedFaction: string) => {
+        if (!SelectedFaction) return;
+        this.http.post("Structure/SetFactionOfStuctures", { FactionAbbrev: SelectedFaction, EntityIds: this.selection.selected.map(S => S.id) })
           .pipe()
           .subscribe(
             S => { },

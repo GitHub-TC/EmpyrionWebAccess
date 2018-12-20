@@ -54,24 +54,16 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
-        [HttpPost("SetToAdmin")]
-        public IActionResult SetToAdmin([FromBody]int[] aEntityIds)
+        public class SetFactionOfStucturesData
         {
-            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity 'Adm' {I}")));
-            return Ok();
+            public string FactionAbbrev { get; set; }
+            public int[] EntityIds { get; set; }
         }
 
-        [HttpPost("SetToAlien")]
-        public IActionResult SetToAlien([FromBody]int[] aEntityIds)
+        [HttpPost("SetFactionOfStuctures")]
+        public IActionResult SetFactionOfStuctures([FromBody]SetFactionOfStucturesData aData)
         {
-            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity 'Aln' {I}")));
-            return Ok();
-        }
-
-        [HttpPost("SetFactionOfStuctures/{aFactionAbbrev}")]
-        public IActionResult SetFactionOfStuctures(string aFactionAbbrev, [FromBody]int[] aEntityIds)
-        {
-            aEntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity '{aFactionAbbrev}' {I}")));
+            aData.EntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity '{aData.FactionAbbrev}' {I}")));
             return Ok();
         }
 

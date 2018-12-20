@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>{{FactionSelectQuestion}}</h2>
+<mat-dialog-content>
+  <input type="text" placeholder="Faction" [formControl]="SelectedFaction" aria-label="Number" matInput [matAutocomplete]="auto">
+  <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+    <mat-option *ngFor="let f of Factions" [value]="f.Abbrev">
+      ({{f.Abbrev}}) {{f.Name}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-dialog-content>
+<mat-dialog-actions style="margin-top:4em">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="Confirm()">Confirm</button>
+</mat-dialog-actions>

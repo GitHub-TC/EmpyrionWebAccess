@@ -39,6 +39,7 @@ import { SelectItemDialogComponent, SelectItemDialogContentComponent } from './s
 import { TimetableComponent } from './timetable/timetable.component';
 import { KeysPipe } from './pipes/keys.pipe';
 import { YesNoDialogComponent, YesNoDialogContentComponent } from './yes-no-dialog/yes-no-dialog.component';
+import { FactionSelectDialogComponent, FactionSelectDialogContentComponent } from './faction-select-dialog/faction-select-dialog.component';
 import { RestoreManagerComponent } from './restore-manager/restore-manager.component';
 
 @NgModule({
@@ -72,8 +73,8 @@ import { RestoreManagerComponent } from './restore-manager/restore-manager.compo
     SelectItemDialogContentComponent,
     TimetableComponent,
     KeysPipe,
-    YesNoDialogComponent,
-    YesNoDialogContentComponent,
+    YesNoDialogComponent, YesNoDialogContentComponent,
+    FactionSelectDialogComponent, FactionSelectDialogContentComponent,
     RestoreManagerComponent
   ],
   imports: [
@@ -88,12 +89,10 @@ import { RestoreManagerComponent } from './restore-manager/restore-manager.compo
     AppRoutingModule
   ],
   entryComponents: [
-    WarpDialogComponent,
-    WarpDialogContentComponent,
-    SelectItemDialogComponent,
-    SelectItemDialogContentComponent,
-    YesNoDialogComponent,
-    YesNoDialogContentComponent
+    WarpDialogComponent,          WarpDialogContentComponent,
+    SelectItemDialogComponent,    SelectItemDialogContentComponent,
+    YesNoDialogComponent,         YesNoDialogContentComponent,
+    FactionSelectDialogComponent, FactionSelectDialogContentComponent,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
