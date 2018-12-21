@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ChatModel, ChatType } from '../model/chat-model'
 
 import { ChatService } from '../services/chat.service'
-import { MatTable, MatSort, MatTableDataSource, MatPaginator } from '@angular/material';
+import { MatTable, MatSort, MatTableDataSource, MatPaginator, MatAutocomplete } from '@angular/material';
 import { PlayerService } from '../services/player.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
@@ -17,6 +17,7 @@ import { CHAT } from '../model/chat-mock';
 })
 export class ChatListComponent implements OnInit {
   @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
+  @ViewChild(MatAutocomplete) MatAutocompleteChild: MatAutocomplete;
   
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
@@ -44,6 +45,10 @@ export class ChatListComponent implements OnInit {
     });
 
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F );
+  }
+
+  ngAfterViewInit() {
+    this.MatAutocompleteChild.classList = "right-align-translate-select";
   }
 
   applyFilter(filterValue: string) {

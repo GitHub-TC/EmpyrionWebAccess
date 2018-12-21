@@ -11,21 +11,30 @@ Empyrion Web Access ist frei zur nicht kommerziellen Benutzung.<br>
 Viel Spaß beim Spielen und dem Serverbetrieb wünscht<br>
 ASTIC/TC
 
-## Erstes Login
-Damit der integrierte WebServer weis unter welcher URL er erreichbar sein soll muss eine Textdatei "appsettings.json" im
-Savegameverzeichnis unter \[Savegame\]\\MODs\\EWA konfiguriert werden.
-Es werden mehrere ServerURL VORGESCHLAGEN - unter Http und HttpsDefaultCert darf jeweils nur ein Eintrag "Url" stehen bleiben die 
-anderen MÜSSEN gelöscht werden.
-
-Hinweis: Der Webserver läuft ausschließlich über HTTPS und nutzt das HTTP nur zur Weiterleitung auf HTTPS.
+## Installation
+* Den Inhalt der ZIP Datei ind das Verzeichnis \[EGS\]\\Content\Mods entpacken.
+* EGS starten und dann im Savegameverzeichnis \[Savegame\]\\Mods\\EWA die Datei "xstart.txt" in "start.txt" umbenennen
 
 !!! WICHTIG !!!
 EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
 Jetzt muss also eine solche Datei erstellt werden. 
 
+# WebServer Konfiguration
+Standardmässig ist der EWA unter https://\[Rechnername\] zu erreichen.
+
+Soll dies auf einem anderen Port oder Url geschehen muss die Textdatei "appsettings.json" im
+Savegameverzeichnis unter \[Savegame\]\\MODs\\EWA konfiguriert werden.
+Es werden mehrere ServerURL VORGESCHLAGEN - unter Http und HttpsDefaultCert darf jeweils nur ein Eintrag "Url" unkommentiert stehen bleiben die 
+anderen MÜSSEN per // auskommentiert sein werden.
+
+Hinweis: Der Webserver läuft ausschließlich über HTTPS und nutzt das HTTP nur zur Weiterleitung auf HTTPS.
+
+## Erstes Login
 Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der ausgewählten ServerURL eine Anmeldemaske anzeigen.
 
 Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Alle Benutzer können nachher über die Oberfläche angelegt, geändert oder gelöscht werden.
+
+Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser eine Warnung an das die Verbinug nicht sicher sein. Diese kann hier ignoriert werden.
 
 ## Das Hauptfenster
 ### System-/Spielinformation
@@ -136,22 +145,30 @@ About a Aufmersamkeit I would be happy but https://paypal.me/ASTICTC
 Have fun playing and server operation wishes
 ASTIC/TC
 
-## First login
-So that the integrated web server knows under which URL he should be attainable a text file "appsettings.json" in the
+## installation
+* Extract the contents of the ZIP file into the directory \[EGS\]\\Content\\Mods.
+* Start EGS and then rename the file "xstart.txt" into "start.txt" in the savegame directory \[Savegame\]\\Mods\\EWA
+
+!!! IMPORTANT !!!
+EmpyrionWebAccess does not start automatically but there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.
+Now, such a file must be created.
+
+# Web server configuration
+By default, the EWA can be reached at https://\[computer name\].
+
+If this should happen on another port or url the text file "appsettings.json" must be in
 Savegame directory can be configured under \[Savegame\]\\MODs\\EWA.
-Several serverURLs are suggested - under Http and HttpsDefaultCert only one entry "Url" may remain
-other MUST be deleted.
+Several server URLs are suggested - under Http and HttpsDefaultCert only one entry "Url" may remain uncommented
+other MUST be commented out by //.
 
 Note: The web server runs exclusively via HTTPS and uses the HTTP only for forwarding to HTTPS.
 
-!!! IMPORTANT !!!
-EmpyrionWebAccess does not start automatically but there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\ EWA.
-Now, such a file must be created.
-
+## First login
 When starting the EGS server, Empyrion Web Access should display a login mask under the selected ServerURL.
 
 As the first user, the abbreviation and password are automatically stored and accepted in the user database. All users can be subsequently created, changed or deleted via the interface.
 
+Note: Since the EWA's HTTPS certificate is self-signed, the browser displays a warning that the connection is not secure. This can be ignored here.
 ## The main window
 ### System/Game Information
 Top right information about the server (CPU, RAM, HDD), the game (online players, number of Playfield servers, the reserve server and their memory consumption) and the version is displayed.

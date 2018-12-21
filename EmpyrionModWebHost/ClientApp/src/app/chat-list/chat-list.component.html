@@ -2,7 +2,7 @@
   <mat-form-field style="width:85%">
     <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
   </mat-form-field>
-  <mat-form-field style="width:10%; margin-left:1em">
+  <mat-form-field style="width:10%; margin-left:1em" class="Test">
     <input type="text" matInput placeholder="Translate" [(ngModel)]="ChatTranslate" [matAutocomplete]="auto">
     <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
       <mat-option [value]="'de'">de = German</mat-option>
