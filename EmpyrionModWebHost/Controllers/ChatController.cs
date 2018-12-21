@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
@@ -110,6 +112,32 @@ namespace EmpyrionModWebHost.Controllers
 
             Event_ChatMessage += ChatManager_Event_ChatMessage;
         }
+    }
+
+    [Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    public class ChatsApiController : ControllerBase
+    {
+        public class TanslateData
+        {
+            public string CallUrl { get; set; }
+        }
+
+        [HttpPost("Translate")]
+        public ActionResult<string> Translate([FromBody]TanslateData aData)
+        {
+            using (System.Net.WebClient client = new System.Net.WebClient())
+            {
+                client.Headers.Add("content-type", "application/json");
+                Stream data = client.OpenRead(aData.CallUrl);
+                using (StreamReader messageReader = new StreamReader(data))
+                {
+                    return Ok(messageReader.ReadToEnd());
+                }
+            }
+        }
+
     }
 
     [Authorize]

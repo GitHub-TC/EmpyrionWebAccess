@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+	<RuntimeIdentifier>x64</RuntimeIdentifier>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
@@ -13,14 +14,14 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>0.15.1</Version>
+    <Version>1.0.0</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +40,7 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.1" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.5.0" />
     <PackageReference Include="System.Management" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
     <PackageReference Include="YamlDotNet.NetCore" Version="1.0.0" />
   </ItemGroup>
 

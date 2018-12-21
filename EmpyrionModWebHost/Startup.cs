@@ -62,7 +62,7 @@ namespace EmpyrionModWebHost
 
             services.AddExceptionHandlingPolicies(options =>
             {
-                options.For<Exception>()
+                 options.For<Exception>()
                 .Log(lo =>
                 {
                     lo.EventIdFactory = (c, e) => new EventId(123, "UnhandlerException");
@@ -148,14 +148,15 @@ namespace EmpyrionModWebHost
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseExceptionHandlingPolicies();
-
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .AllowCredentials());
+                .AllowCredentials()
+                );
+
+            app.UseExceptionHandlingPolicies();
 
             app.UseAuthentication();
 

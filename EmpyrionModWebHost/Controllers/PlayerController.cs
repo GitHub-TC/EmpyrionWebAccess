@@ -142,6 +142,15 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
+        public string PlayersDirectory {
+            get {
+                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"));
+                return Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players");
+            }
+        }
+
+        public FileSystemWatcher mPlayersDirectoryFileWatcher { get; private set; }
+
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
@@ -154,6 +163,15 @@ namespace EmpyrionModWebHost.Controllers
             UpdateOnlinePlayers();
 
             SyncronizePlayersWithSaveGameDirectory();
+
+            mPlayersDirectoryFileWatcher = new FileSystemWatcher
+            {
+                Path = PlayersDirectory,
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite |
+                               NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                Filter = "*.ply"
+            };
+            mPlayersDirectoryFileWatcher.Deleted += (s, e) => SyncronizePlayersWithSaveGameDirectory();
         }
 
         private void UpdateOnlinePlayers()
@@ -174,13 +192,12 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
-        private static void SyncronizePlayersWithSaveGameDirectory()
+        private void SyncronizePlayersWithSaveGameDirectory()
         {
             new Thread(() =>
             {
-                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"));
                 var KnownPlayers = Directory
-                    .GetFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"))
+                    .GetFiles(PlayersDirectory)
                     .Select(F => Path.GetFileNameWithoutExtension(F));
                 using (var DB = new PlayerContext())
                 {

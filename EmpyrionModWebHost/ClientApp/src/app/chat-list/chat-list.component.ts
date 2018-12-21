@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 import { ChatModel, ChatType } from '../model/chat-model'
 
@@ -19,6 +20,7 @@ export class ChatListComponent implements OnInit {
   
   displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
 
+  ChatTranslate: string = "";
   displayFilter: boolean;
   messages: MatTableDataSource<ChatModel> = new MatTableDataSource([]);
   message: string;
@@ -26,8 +28,10 @@ export class ChatListComponent implements OnInit {
   ModKeywords: string[] = ["/", "am:", "cb:"];
   autoscroll: boolean = true;
   mFactions: FactionModel[];
+  error: any;
 
   constructor(
+    private http: HttpClient, 
     private mFactionService: FactionService,
     private mChatService: ChatService,
     private mPlayerService: PlayerService) {
@@ -79,4 +83,23 @@ export class ChatListComponent implements OnInit {
     this.mChatService.filterServerMsg = aFilter;
   }
 
+  ExecChatTranslate(chat: any) {
+    if (chat.MessageTranslate) return;
+
+    let params = new HttpParams();
+    params = params.append('client', 'gtx');
+    params = params.append('dt', 't');
+    params = params.append('sl', 'auto');
+    params = params.append('tl', this.ChatTranslate);
+    params = params.append('q', chat.Message);
+
+    let locationsSubscription = this.http.post<string>("ChatsApi/Translate", { CallUrl: "https://translate.googleapis.com/translate_a/single?" + params.toString() })
+      .pipe()
+      .subscribe(
+        M => chat.TranslatedMessage = M[0][0][0],
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+  }
 }

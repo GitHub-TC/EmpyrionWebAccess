@@ -1,6 +1,15 @@
 <div [hidden]="!displayFilter">
-  <mat-form-field style="width:100%">
+  <mat-form-field style="width:85%">
     <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
+  </mat-form-field>
+  <mat-form-field style="width:10%; margin-left:1em">
+    <input type="text" matInput placeholder="Translate" [(ngModel)]="ChatTranslate" [matAutocomplete]="auto">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      <mat-option [value]="'de'">de = German</mat-option>
+      <mat-option [value]="'en'">en = English</mat-option>
+      <mat-option [value]="'fr'">fr = French</mat-option>
+      <mat-option [value]="'it'">it = Italian</mat-option>
+    </mat-autocomplete>
   </mat-form-field>
 </div>
 <div class="divChat" [ngClass]="{'withFilter': displayFilter}">
@@ -9,7 +18,10 @@
       <th mat-header-cell *matHeaderCellDef style="width:1%">
         <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
       </th>
-      <td mat-cell *matCellDef="let chat">{{ ['0', 'P', '2', 'G', '4', 'F'][chat.Type]}}</td>
+      <td mat-cell *matCellDef="let chat" (click)="ExecChatTranslate(chat)">
+        {{ ['0', 'P', '2', 'G', '4', 'F'][chat.Type]}}
+        <div *ngIf="!chat.TranslatedMessage && ChatTranslate" style="display:inline-block"><mat-icon style="font-size:smaller; margin-right:-10px; color: blue;">g_translate</mat-icon></div>
+      </td>
     </ng-container>
     <ng-container matColumnDef="timestamp">
       <th mat-header-cell *matHeaderCellDef> Date </th>
@@ -31,7 +43,10 @@
 
     <ng-container matColumnDef="message">
       <th mat-header-cell *matHeaderCellDef> Text </th>
-      <td mat-cell class="chatText" *matCellDef="let chat" style="width:100%"> {{chat.Message}} </td>
+      <td mat-cell class="chatText" *matCellDef="let chat" style="width:100%">
+        {{chat.Message}}
+        <div *ngIf="chat.TranslatedMessage" style="display:inline-block"><mat-icon style="font-size:smaller; margin-right:-10px; color: blue;">arrow_right_alt</mat-icon>{{chat.TranslatedMessage}}</div>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

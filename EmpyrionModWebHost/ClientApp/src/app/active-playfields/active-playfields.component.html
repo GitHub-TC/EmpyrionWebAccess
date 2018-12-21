@@ -4,7 +4,7 @@
                       (opened)="Open(playfield.name)"
                       (closed)="Close(playfield.name)">
   <mat-expansion-panel-header style="margin-top:0px; padding-left:5px; padding-right:10px; background-color:ghostwhite;" [collapsedHeight]="'40px'" [expandedHeight]="'40px'" >
-    <mat-panel-title>
+    <mat-panel-title style="font-size:small">
       {{playfield.name}}
     </mat-panel-title>
     <mat-panel-description>
@@ -12,7 +12,7 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
   <div class="activePlayer" *ngFor="let player of playfield.players">
-    <div style="position: absolute; left:15px; width:3em; overflow:hidden; font-size:small">({{Faction(player)?.Abbrev}})</div>
+    <div style="position: absolute; left:15px; width:3em; overflow:hidden; font-size:smaller">({{Faction(player)?.Abbrev}})</div>
     <div style="position: absolute; left:3.8em" (click)="mPlayerService.CurrentPlayer = player">{{player.PlayerName}}</div>
     <div style="position: absolute; right:0px">
       <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" (click)="SavePosition(player)" title="Save position of {{player.PlayerName}}">flag</mat-icon>
