@@ -150,13 +150,13 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("WarpTo/{aEntityId}")]
-        public async System.Threading.Tasks.Task<IActionResult> WarpToAsync(int aEntityId, [FromBody]WarpToData aWarpToData)
+        public IActionResult WarpTo(int aEntityId, [FromBody]WarpToData aWarpToData)
         {
             var isPlayer = false;
             var isSamePlayfield = false;
             try
             {
-                var playerInfo = await GameplayManager.Request_Player_Info(new Id(aEntityId));
+                var playerInfo = GameplayManager.Request_Player_Info(new Id(aEntityId)).Result;
                 isPlayer = true;
                 isSamePlayfield = playerInfo.playfield == aWarpToData.Playfield;
             }
@@ -170,9 +170,12 @@ namespace EmpyrionModWebHost.Controllers
             var pos = new PVector3(aWarpToData.PosX, aWarpToData.PosY, aWarpToData.PosZ);
             var rot = new PVector3(aWarpToData.RotX, aWarpToData.RotY, aWarpToData.RotZ);
 
-            if (isSamePlayfield)    await GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot));
-            else if (isPlayer)      await GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot));
-            else                    await GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot));
+            try { GameplayManager.Request_Load_Playfield(new PlayfieldLoad(20, aWarpToData.Playfield, 0)).Wait(); }
+            catch { }  // Playfield already loaded
+
+            if (isSamePlayfield)    GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot)).Wait();
+            else if (isPlayer)      GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot)).Wait();
+            else                    GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot)).Wait();
 
             return Ok();
         }

@@ -1,248 +1,262 @@
-<mat-menu #appMenu="matMenu">
-  <button mat-menu-item (click)="Destroy()">Destroy</button>
-  <button mat-menu-item (click)="ChangeFaction()">Change Faction</button>
-</mat-menu>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <mat-menu #appMenu="matMenu">
+          <button mat-menu-item (click)="Destroy()">Destroy</button>
+          <button mat-menu-item (click)="ChangeFaction()">Change Faction</button>
+        </mat-menu>
 
-<div [hidden]="!displayFilter" style="position:relative; width:100%; height:3em">
-  <mat-form-field style="position:absolute; left:1em; right:7em">
-    <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
-  </mat-form-field>
-  <div style="position:absolute; right:10px;">
-    <mat-icon style="cursor:pointer; margin-right:.5em" (click)="router.navigate([''])" title="Home">home</mat-icon>
-    <mat-icon style="cursor:pointer; margin-right:.5em; color:green" (click)="ReloadStructures()" title="Reload">refresh</mat-icon>
-    <mat-icon style="cursor:pointer;" mat-icon-button [matMenuTriggerFor]="appMenu">more_vert</mat-icon>
+        <div style="position:relative; width:100%; height:3em">
+          <mat-form-field style="position:absolute; left:1em; right:7em">
+            <input matInput (keyup)="applyFilter($event.target.value)" #FilterInput placeholder="Filter">
+          </mat-form-field>
+          <div style="position:absolute; right:10px;">
+            <mat-icon style="cursor:pointer; margin-right:.5em" (click)="router.navigate([''])" title="Home">home</mat-icon>
+            <mat-icon style="cursor:pointer; margin-right:.5em; color:green" (click)="ReloadStructures()" title="Reload">refresh</mat-icon>
+            <mat-icon style="cursor:pointer;" mat-icon-button [matMenuTriggerFor]="appMenu">more_vert</mat-icon>
+          </div>
+        </div>
+      </mat-card>
+    </div>
   </div>
-</div>
+  <div class="row">
+    <div class="col">
+      <mat-card>
+        <mat-card-content class="Structures">
+          <table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
+            <ng-container matColumnDef="Select" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox (change)="$event ? masterToggle() : null"
+                              [checked]="selection.hasValue() && isAllSelected()"
+                              [indeterminate]="selection.hasValue() && !isAllSelected()">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selection.toggle(row) : null"
+                              [checked]="selection.isSelected(row)">
+                </mat-checkbox>
+              </td>
+            </ng-container>
 
-<table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
-  <ng-container matColumnDef="Select">
-    <th mat-header-cell *matHeaderCellDef>
-      <mat-checkbox (change)="$event ? masterToggle() : null"
-                    [checked]="selection.hasValue() && isAllSelected()"
-                    [indeterminate]="selection.hasValue() && !isAllSelected()">
-      </mat-checkbox>
-    </th>
-    <td mat-cell *matCellDef="let row">
-      <mat-checkbox (click)="$event.stopPropagation()"
-                    (change)="$event ? selection.toggle(row) : null"
-                    [checked]="selection.isSelected(row)">
-      </mat-checkbox>
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="Id">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Id
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.id}}
+                <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{s.name}}" (click)="SavePosition(s)">flag</mat-icon>
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="Id">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      Id
-      <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.id}}
-      <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{s.name}}" (click)="SavePosition(s)">flag</mat-icon>
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="Playfield">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Playfield
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.playfield}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="Playfield">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      Playfield
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{s.playfield}}
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="Name" [sticky]="true">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      Name
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
-        <app-warp-dialog [WarpData]="{
+            <ng-container matColumnDef="Name" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Name
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
+                  <app-warp-dialog [WarpData]="{
                                     entityId: s.id,
                                     description: 'Structure: ' + s.name,
                                     playfield:s.playfield,
                                     pos: { x:s.pos.x, y:s.pos.y, z:s.pos.z }
                                    }"></app-warp-dialog>
-      </div>
-      {{s.name}}
-    </td>
-  </ng-container>
+                </div>
+                {{s.name}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="Core">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-      Core
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{["None", "Player", "Admin", "Alien", "AlienAdmin"][s.coreType]}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="TypeName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Type
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.TypeName}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="PosX">
-    <th mat-header-cell *matHeaderCellDef>
-      E/W
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.pos?.x | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="CoreName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Core
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.CoreName}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="PosY">
-    <th mat-header-cell *matHeaderCellDef>
-      Height
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.pos?.y | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="FactionName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Faction
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.FactionName}} ({{s.factionId}})
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="PosZ">
-    <th mat-header-cell *matHeaderCellDef>
-      N/S
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.pos?.z | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="PosX">
+              <th mat-header-cell *matHeaderCellDef>
+                E/W
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.pos?.x | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="RotX">
-    <th mat-header-cell *matHeaderCellDef>
-      X
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.rot?.x | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="PosY">
+              <th mat-header-cell *matHeaderCellDef>
+                Height
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.pos?.y | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="RotY">
-    <th mat-header-cell *matHeaderCellDef>
-      Y
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.rot?.y | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="PosZ">
+              <th mat-header-cell *matHeaderCellDef>
+                N/S
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.pos?.z | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="RotZ">
-    <th mat-header-cell *matHeaderCellDef>
-      Z
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.rot?.z | number : "1.2-2"}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="RotX">
+              <th mat-header-cell *matHeaderCellDef>
+                X
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.rot?.x | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="dockedShips">
-    <th mat-header-cell *matHeaderCellDef>
-      Docked
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{s.dockedShips}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="RotY">
+              <th mat-header-cell *matHeaderCellDef>
+                Y
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.rot?.y | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="classNr">
-    <th mat-header-cell *matHeaderCellDef>
-      Class
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.classNr}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="RotZ">
+              <th mat-header-cell *matHeaderCellDef>
+                Z
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.rot?.z | number : "1.2-2"}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="cntLights">
-    <th mat-header-cell *matHeaderCellDef>
-      Lights
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.cntLights}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="dockedShips">
+              <th mat-header-cell *matHeaderCellDef>
+                Docked
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.dockedShips}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="cntTriangles">
-    <th mat-header-cell *matHeaderCellDef>
-      Triangles
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.cntTriangles}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="classNr">
+              <th mat-header-cell *matHeaderCellDef>
+                Class
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.classNr}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="cntBlocks">
-    <th mat-header-cell *matHeaderCellDef>
-      Blocks
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.cntBlocks}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="cntLights">
+              <th mat-header-cell *matHeaderCellDef>
+                Lights
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.cntLights}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="cntDevices">
-    <th mat-header-cell *matHeaderCellDef>
-      Devices
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.cntDevices}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="cntTriangles">
+              <th mat-header-cell *matHeaderCellDef>
+                Triangles
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.cntTriangles}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="fuel">
-    <th mat-header-cell *matHeaderCellDef>
-      Fuel
-    </th>
-    <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
-      {{s.fuel}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="cntBlocks">
+              <th mat-header-cell *matHeaderCellDef>
+                Blocks
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.cntBlocks}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="powered">
-    <th mat-header-cell *matHeaderCellDef>
-      Powered
-    </th>
-    <td mat-cell *matCellDef="let s">
-      {{s.powered}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="cntDevices">
+              <th mat-header-cell *matHeaderCellDef>
+                Devices
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.cntDevices}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="factionId">
-    <th mat-header-cell *matHeaderCellDef>
-      Faction
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{FactionService.GetFaction(s.factionId)?.Abbrev}} ({{s.factionId}})
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="fuel">
+              <th mat-header-cell *matHeaderCellDef>
+                Fuel
+              </th>
+              <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
+                {{s.fuel}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="factionGroup">
-    <th mat-header-cell *matHeaderCellDef>
-      Group
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{s.factionGroup}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="powered">
+              <th mat-header-cell *matHeaderCellDef>
+                Powered
+              </th>
+              <td mat-cell *matCellDef="let s">
+                {{s.powered}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="type">
-    <th mat-header-cell *matHeaderCellDef>
-      Type
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{s.type}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="factionGroup">
+              <th mat-header-cell *matHeaderCellDef>
+                Group
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.factionGroup}}
+              </td>
+            </ng-container>
 
-  <ng-container matColumnDef="pilotId">
-    <th mat-header-cell *matHeaderCellDef>
-      Pilot
-    </th>
-    <td mat-cell *matCellDef="let s" (click)="select(s)">
-      {{s.pilotId}}
-    </td>
-  </ng-container>
+            <ng-container matColumnDef="pilotId">
+              <th mat-header-cell *matHeaderCellDef>
+                Pilot
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.pilotId}}
+              </td>
+            </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-      [ngClass]="{'highlight': mStructureService.CurrentStructure?.id == row.id}"
-      (click)="mStructureService.CurrentStructure = row"></tr>
-</table>
-<mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
-<app-yes-no-dialog></app-yes-no-dialog>
-<app-faction-select-dialog></app-faction-select-dialog>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                [ngClass]="{'highlight': mStructureService.CurrentStructure?.id == row.id}"
+                (click)="mStructureService.CurrentStructure = row"></tr>
+          </table>
+          <mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
+          <app-yes-no-dialog></app-yes-no-dialog>
+          <app-faction-select-dialog></app-faction-select-dialog>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

@@ -20,9 +20,8 @@ export class StructuresComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
 
-  displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'Core', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'factionId', 'factionGroup', 'type', 'pilotId'];
+  displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'TypeName', 'CoreName', 'FactionName', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'factionGroup', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
-  displayFilter: boolean = true;
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);
 
@@ -41,7 +40,13 @@ export class StructuresComponent implements OnInit {
 
   ngOnInit() {
     this.mStructureService.GetGlobalStructureList().subscribe(S => {
-      this.structures.data = S;
+      this.structures.data = S.map((s:any) => {
+        s.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin"][s.coreType];
+        s.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][s.type];
+        let Faction = this.FactionService.GetFaction(s.factionId);
+        s.FactionName = Faction ? Faction.Abbrev : "";
+        return s;
+      });
     });
   }
 
@@ -73,11 +78,6 @@ export class StructuresComponent implements OnInit {
   select(row : GlobalStructureInfo) {
     this.selection.clear();
     this.selection.toggle(row);
-  }
-
-  toggleFilterDisplay(FilterInput) {
-    this.displayFilter = !this.displayFilter;
-    if (this.displayFilter) setTimeout(() => FilterInput.focus(), 0);
   }
 
   SavePosition(aStruct: GlobalStructureInfo) {
