@@ -53,8 +53,8 @@
     </mat-expansion-panel-header>
     <mat-form-field>
       <mat-select placeholder="Playfield" (change)="Changed=true" [(value)]="Player.StartPlayfield">
-        <mat-option *ngFor="let pl of Playfields" [value]="pl">
-          {{pl}}
+        <mat-option *ngFor="let pl of Playfields" [value]="pl.name">
+          {{pl.name}}
         </mat-option>
       </mat-select>
     </mat-form-field>

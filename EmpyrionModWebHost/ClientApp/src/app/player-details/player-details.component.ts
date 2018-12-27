@@ -6,6 +6,7 @@ import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { PlayfieldModel } from '../model/playfield-model';
 
 @Component({
   selector: 'app-player-details',
@@ -15,7 +16,7 @@ import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.
 export class PlayerDetailsComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Player: PlayerModel;
-  Playfields: string[];
+  Playfields: PlayfieldModel[];
   Factions: FactionModel[];
   @Output() Changed: boolean;
   @ViewChild(MatMenu) contextMenu: MatMenu;

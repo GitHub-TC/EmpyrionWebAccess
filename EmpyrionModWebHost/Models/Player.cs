@@ -63,5 +63,7 @@ namespace EmpyrionModWebHost.Models
         public TimeSpan OnlineTime { get; set; }
         public DateTime LastOnline { get; set; }
         public string Note { get; set; }
+
+        public int OnlineHours { get { return (int)OnlineTime.TotalHours; } }
     }
 }

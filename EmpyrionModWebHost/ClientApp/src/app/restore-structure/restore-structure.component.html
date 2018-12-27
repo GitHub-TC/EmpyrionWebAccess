@@ -21,8 +21,8 @@
             <h3>{{CurrentStructure?.name}}</h3>
             <mat-form-field>
               <mat-select placeholder="Playfield" [(value)]="WarpData.playfield">
-                <mat-option *ngFor="let pl of Playfields" [value]="pl">
-                  {{pl}}
+                <mat-option *ngFor="let pl of Playfields" [value]="pl.name">
+                  {{pl.name}}
                 </mat-option>
               </mat-select>
             </mat-form-field>

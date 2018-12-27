@@ -4,6 +4,7 @@ import { HubConnection } from '@aspnet/signalr';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthHubConnectionBuilder } from '../_helpers';
 import { GlobalStructureInfo } from '../model/structure-model';
+import { FactionService } from './faction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,11 @@ export class StructureService {
 
   error: any;
 
-  constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
+  constructor(
+    private http: HttpClient,
+    private mFactionService: FactionService,
+    private builder: AuthHubConnectionBuilder
+  ) {
     this.hubConnection = builder.withAuthUrl('/hubs/structures').build();
 
     // message coming from the server
@@ -50,6 +55,10 @@ export class StructureService {
           Object.getOwnPropertyNames(S.globalStructures).map(P => {
             return S.globalStructures[P].map((S: GlobalStructureInfo) => {
               S.playfield = P;
+              S.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin"][S.coreType];
+              S.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][S.type];
+              let Faction = this.mFactionService.GetFaction(S.factionId);
+              S.FactionName = Faction ? Faction.Abbrev : "";
               this.mStructures.push(S);
             });
           });

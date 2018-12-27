@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
 import { HttpClient } from '@angular/common/http';
 import { StructureService } from '../services/structure.service';
-import { Router } from '@angular/router';
 import { GlobalStructureInfo } from '../model/structure-model';
 import { PositionService } from '../services/position.service';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -12,11 +11,11 @@ import { PlayerService } from '../services/player.service';
 import { FactionSelectDialogComponent } from '../faction-select-dialog/faction-select-dialog.component';
 
 @Component({
-  selector: 'app-structures',
-  templateUrl: './structures.component.html',
-  styleUrls: ['./structures.component.less']
+  selector: 'app-structures-list',
+  templateUrl: './structures-list.component.html',
+  styleUrls: ['./structures-list.component.less']
 })
-export class StructuresComponent implements OnInit {
+export class StructuresListComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
 
@@ -27,10 +26,13 @@ export class StructuresComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-    error: any;
+
+  error: any;
+  mAllStructures: GlobalStructureInfo[];
+  mSelectedPlayfield: string;
+  @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
   constructor(
-    public router: Router,
     private http: HttpClient,
     public PlayerService: PlayerService,
     private mStructureService: StructureService,
@@ -39,15 +41,18 @@ export class StructuresComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.mStructureService.GetGlobalStructureList().subscribe(S => {
-      this.structures.data = S.map((s:any) => {
-        s.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin"][s.coreType];
-        s.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][s.type];
-        let Faction = this.FactionService.GetFaction(s.factionId);
-        s.FactionName = Faction ? Faction.Abbrev : "";
-        return s;
+    this.mStructureService.GetGlobalStructureList()
+      .subscribe(S => {
+        this.mAllStructures = S;
+        this.SelectedPlayfield = this.mSelectedPlayfield;
       });
-    });
+  }
+
+  @Input() 
+  set SelectedPlayfield(aPlayfield: string) {
+    this.mSelectedPlayfield = aPlayfield;
+
+    if (this.mAllStructures) this.structures.data = this.mAllStructures.filter(s => !this.mSelectedPlayfield || s.playfield == this.mSelectedPlayfield)
   }
 
   ngAfterViewInit() {
@@ -75,7 +80,8 @@ export class StructuresComponent implements OnInit {
       this.structures.data.forEach(row => this.selection.select(row));
   }
 
-  select(row : GlobalStructureInfo) {
+  select(row: GlobalStructureInfo) {
+    this.SelectStructure.emit(row);
     this.selection.clear();
     this.selection.toggle(row);
   }

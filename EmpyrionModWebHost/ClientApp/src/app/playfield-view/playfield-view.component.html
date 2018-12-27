@@ -1,0 +1,49 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:100%">
+          <mat-form-field style="width:100%">
+            <mat-select placeholder="Playfield" [(value)]="SelectedPlayfieldName">
+              <mat-option *ngFor="let i of Playfields" [value]="i.name">
+                {{i.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-lg-10">
+      <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
+        <img #MapImage *ngIf="SelectedPlayfield.isPlanet" src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield}}\map.png not found copy it from your client cache">
+        <div #MapImage *ngIf="!SelectedPlayfield.isPlanet" style="width:1024px; height:1024px; background-color:black"></div>
+        <div *ngFor="let s of PlayfieldStructures" title="{{s?.name}}" style="position:absolute;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
+          <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+        </div>
+        <div *ngFor="let p of PlayfieldPlayers" title="{{p?.PlayerName}}" style="position:absolute; z-index:20;" [style.left]="CalcLeft(p?.Pos)" [style.top]="CalcTop(p?.Pos)">
+          <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="p?.Online ? 'green' : 'gray'">person</mat-icon>
+        </div>
+      </div>
+    </div>
+    <div class="col col-lg-2">
+      <mat-card>
+        <mat-icon style="color:green">person</mat-icon> Player online<br />
+        <mat-icon style="color:gray">person</mat-icon> Player offline<br />
+        <mat-icon>place</mat-icon> POI<br />
+        <mat-icon>store_mall_directory</mat-icon> BA<br />
+        <mat-icon>local_play</mat-icon> CV<br />
+        <mat-icon>flight</mat-icon> SV<br />
+        <mat-icon>directions_car</mat-icon> HV<br />
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-card>
+        <app-structures-list *ngIf="SelectedPlayfieldName" [SelectedPlayfield]="SelectedPlayfieldName" (SelectStructure)="onSelectStructure($event)"></app-structures-list>
+      </mat-card>
+    </div>
+  </div>
+</div>

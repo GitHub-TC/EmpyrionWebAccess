@@ -56,7 +56,7 @@ export class PlayerModel {
   RotZ?: number;
   Note?: string;
   LastOnline?: string | Date;
-  OnlineTime?: string;
+  OnlineHours?: number;
 }
 
 

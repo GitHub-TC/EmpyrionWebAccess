@@ -18,7 +18,10 @@ import { PVector3 } from "./player-model";
     name?: string;
     factionId?: number;
     factionGroup?: number;
+    FactionName: string;
     type?: number;
+    TypeName: string;
     coreType?: number;
+    CoreName: string;
     pilotId?: number;
 }

@@ -74,9 +74,9 @@
       <td mat-cell *matCellDef="let player"> {{player.LastOnline | date : "dd.MM.yyyy HH:mm"}} </td>
     </ng-container>
 
-    <ng-container matColumnDef="OnlineTime">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> OnlineTime </th>
-      <td mat-cell *matCellDef="let player" align="right"> {{player.OnlineTime}} </td>
+    <ng-container matColumnDef="OnlineHours">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> OnlineHours </th>
+      <td mat-cell *matCellDef="let player" align="right"> {{player.OnlineHours}} </td>
     </ng-container>
 
     <ng-container matColumnDef="EntityId">

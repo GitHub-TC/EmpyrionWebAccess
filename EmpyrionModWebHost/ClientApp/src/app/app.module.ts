@@ -25,7 +25,7 @@ import { UserManagerComponent } from './user-manager/user-manager.component';
 import { WarpDialogComponent, WarpDialogContentComponent } from './warp-dialog/warp-dialog.component';
 import { ItemEditComponent } from './item-edit/item-edit.component';
 import { IntegersOnlyDirective } from './_helpers/IntegersOnly';
-import { StructuresComponent } from './structures/structures.component';
+import { StructuresListComponent } from './structures-list/structures-list.component';
 import { RestoreComponent } from './restore/restore.component';
 import { ServerComponent } from './server/server.component';
 import { RestoreBackpackComponent } from './restore-backpack/restore-backpack.component';
@@ -41,6 +41,8 @@ import { KeysPipe } from './pipes/keys.pipe';
 import { YesNoDialogComponent, YesNoDialogContentComponent } from './yes-no-dialog/yes-no-dialog.component';
 import { FactionSelectDialogComponent, FactionSelectDialogContentComponent } from './faction-select-dialog/faction-select-dialog.component';
 import { RestoreManagerComponent } from './restore-manager/restore-manager.component';
+import { PlayfieldViewComponent } from './playfield-view/playfield-view.component';
+import { EntitiesComponent } from './entities/entities.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +61,7 @@ import { RestoreManagerComponent } from './restore-manager/restore-manager.compo
     WarpDialogContentComponent,
     ItemEditComponent,
     IntegersOnlyDirective,
-    StructuresComponent,
+    StructuresListComponent,
     RestoreComponent,
     ServerComponent,
     RestoreBackpackComponent,
@@ -75,7 +77,9 @@ import { RestoreManagerComponent } from './restore-manager/restore-manager.compo
     KeysPipe,
     YesNoDialogComponent, YesNoDialogContentComponent,
     FactionSelectDialogComponent, FactionSelectDialogContentComponent,
-    RestoreManagerComponent
+    RestoreManagerComponent,
+    PlayfieldViewComponent,
+    EntitiesComponent
   ],
   imports: [
     BrowserModule,

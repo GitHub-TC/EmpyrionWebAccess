@@ -3,26 +3,19 @@ using Community.AspNetCore.ExceptionHandling;
 using Community.AspNetCore.ExceptionHandling.Mvc;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Controllers;
-using EmpyrionModWebHost.Migrations;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
-using Microsoft.AspNet.OData.Routing.Conventions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OData.Edm;
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,6 +80,7 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(FactoryManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(BackupManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(TimetableManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(PlayfieldManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
@@ -180,6 +174,7 @@ namespace EmpyrionModWebHost
                 routes.MapHub<BackpackHub>("/hubs/backpack");
                 routes.MapHub<FactionHub>("/hubs/faction");
                 routes.MapHub<SysteminfoHub>("/hubs/systeminfo");
+                routes.MapHub<PlayfieldHub>("/hubs/playfield");
             });
 
             app.UseMvc(routes =>

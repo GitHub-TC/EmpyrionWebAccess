@@ -107,15 +107,6 @@ namespace EmpyrionModWebHost.Controllers
             GameplayManager = Program.GetManager<GameplayManager>();
         }
 
-        [HttpGet("GetAllPlayfieldNames")]
-        public IActionResult GetAllPlayfieldNames()
-        {
-            return Ok(
-                Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"))
-                .Select(D => Path.GetFileName(D))
-                );
-        }
-
         [HttpGet("GetAllItems")]
         public IActionResult GetAllItems()
         {

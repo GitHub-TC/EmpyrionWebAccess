@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material';
 import { PositionService } from '../services/position.service';
 import { PositionModel } from '../model/player-model';
 import { PlayfieldService } from '../services/playfield.service';
+import { PlayfieldModel } from '../model/playfield-model';
 
 @Component({
   selector: 'app-warp-dialog',
@@ -34,7 +35,7 @@ export class WarpDialogComponent {
 })
 export class WarpDialogContentComponent implements OnInit {
   @Input() WarpData: PositionModel;
-  Playfields: string[];
+  Playfields: PlayfieldModel[];
   error: any;
 
   constructor(private http: HttpClient,

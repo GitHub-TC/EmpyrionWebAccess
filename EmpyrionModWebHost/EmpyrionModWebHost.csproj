@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -77,6 +77,7 @@
     <None Remove="ClientApp\src\app\model\ODataResponse.ts" />
     <None Remove="ClientApp\src\app\model\player-mock.ts" />
     <None Remove="ClientApp\src\app\model\player-model.ts" />
+    <None Remove="ClientApp\src\app\model\playfield-model.ts" />
     <None Remove="ClientApp\src\app\model\structure-model.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
@@ -115,6 +116,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\backpack-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\playfield-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\structure-model.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\systeminfo-model.ts" />

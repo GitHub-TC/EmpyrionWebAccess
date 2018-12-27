@@ -6,6 +6,7 @@ import { FactionService } from '../services/faction.service';
 import { PositionService } from '../services/position.service';
 import { PlayfieldService } from '../services/playfield.service';
 import { tap } from 'rxjs/operators';
+import { PlayfieldModel } from '../model/playfield-model';
 
 interface PlayfieldGlobalStructureInfo {
   structureName: string;
@@ -42,7 +43,7 @@ export class RestoreStructureComponent implements OnInit {
   mSelectedBackup: string;
   mCurrentStructure: PlayfieldGlobalStructureInfo;
   WarpData: PositionModel = {};
-  Playfields: string[] = [];
+  Playfields: PlayfieldModel[] = [];
 
   structures: MatTableDataSource<PlayfieldGlobalStructureInfo> = new MatTableDataSource([]);
   displayFilter: boolean = true;
@@ -96,14 +97,14 @@ export class RestoreStructureComponent implements OnInit {
   set CurrentStructure(aStructure: PlayfieldGlobalStructureInfo) {
     this.mCurrentStructure = aStructure;
     this.WarpData.playfield = aStructure.playfield;
-    this.WarpData.pos = aStructure.pos;
-    this.WarpData.rot = aStructure.rot;
+    this.WarpData.pos = Object.assign({}, aStructure.pos);
+    this.WarpData.rot = Object.assign({}, aStructure.rot);
   }
 
   copyPosition() {
     this.WarpData.playfield = this.mPositionService.CurrentPosition.playfield;
-    this.WarpData.pos = this.mPositionService.CurrentPosition.pos;
-    this.WarpData.rot = this.mPositionService.CurrentPosition.rot;
+    this.WarpData.pos = Object.assign({}, this.mPositionService.CurrentPosition.pos);
+    this.WarpData.rot = Object.assign({}, this.mPositionService.CurrentPosition.rot);
   }
 
   setToZeroPosition() {

@@ -7,7 +7,7 @@ import { AuthGuard } from './_guards/auth.guard';
 import { UserManagerComponent } from './user-manager/user-manager.component';
 import { RestoreComponent } from './restore/restore.component';
 import { ServerComponent } from './server/server.component';
-import { StructuresComponent } from './structures/structures.component';
+import { EntitiesComponent } from './entities/entities.component';
 import { TimetableComponent } from './timetable/timetable.component';
 
 const appRoutes: Routes = [
@@ -33,8 +33,8 @@ const appRoutes: Routes = [
     component: ServerComponent
   },
   {
-    path: 'structures',
-    component: StructuresComponent
+    path: 'entities',
+    component: EntitiesComponent
   },
   {
     path: 'timetable',
