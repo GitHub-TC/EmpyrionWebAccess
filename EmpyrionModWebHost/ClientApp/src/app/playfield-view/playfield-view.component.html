@@ -16,21 +16,23 @@
   </div>
   <div class="row">
     <div class="col col-lg-10">
-      <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
-        <img #MapImage *ngIf="SelectedPlayfield.isPlanet" src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield}}\map.png not found copy it from your client cache">
-        <div #MapImage *ngIf="!SelectedPlayfield.isPlanet" style="width:1024px; height:1024px; background-color:black"></div>
-        <div *ngFor="let s of PlayfieldStructures" title="{{s?.name}}" style="position:absolute;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
-          <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+      <mat-card style="margin-bottom:1em">
+        <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
+          <img #MapImage *ngIf="SelectedPlayfield.isPlanet" style="width:1024px; height:512px;"  src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield}}\map.png not found copy it from your client cache">
+          <div #MapImage *ngIf="!SelectedPlayfield.isPlanet" style="width:1024px; height:1024px; background-color:black"></div>
+          <div *ngFor="let s of PlayfieldStructures" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
+            <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+          </div>
+          <div *ngFor="let p of PlayfieldPlayers" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer; z-index:20;" [style.left]="CalcLeft(p?.Pos)" [style.top]="CalcTop(p?.Pos)">
+            <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
+          </div>
         </div>
-        <div *ngFor="let p of PlayfieldPlayers" title="{{p?.PlayerName}}" style="position:absolute; z-index:20;" [style.left]="CalcLeft(p?.Pos)" [style.top]="CalcTop(p?.Pos)">
-          <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="p?.Online ? 'green' : 'gray'">person</mat-icon>
-        </div>
-      </div>
+      </mat-card>
     </div>
     <div class="col col-lg-2">
       <mat-card>
         <mat-icon style="color:green">person</mat-icon> Player online<br />
-        <mat-icon style="color:gray">person</mat-icon> Player offline<br />
+        <mat-icon style="color:cornflowerblue">person</mat-icon> Player offline<br />
         <mat-icon>place</mat-icon> POI<br />
         <mat-icon>store_mall_directory</mat-icon> BA<br />
         <mat-icon>local_play</mat-icon> CV<br />

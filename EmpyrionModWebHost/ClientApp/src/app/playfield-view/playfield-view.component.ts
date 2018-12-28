@@ -50,6 +50,7 @@ export class PlayfieldViewComponent implements OnInit {
       this.mAllStructures = S;
       this.SelectedPlayfieldName = this.mSelectedPlayfieldName;
     });
+
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
@@ -98,6 +99,10 @@ export class PlayfieldViewComponent implements OnInit {
     return (Height - ((Height / this.PlanetSize[this.SelectedPlayfield.size].h) * aPos.z)) + "px";
   }
 
+  SelectStructure(aStructur: GlobalStructureInfo) {
+    this.mStructureService.CurrentStructure = aStructur;
+  }
+
   StructurIcon(aStructure: GlobalStructureInfo) {
     switch (aStructure.TypeName) {
       case "BA": return "store_mall_directory";
@@ -109,7 +114,7 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   StructurColor(aStructure: GlobalStructureInfo) {
-    if (aStructure == this.SelectedStructure) return "yellow";
+    if (aStructure && this.mStructureService.CurrentStructure && aStructure.id == this.mStructureService.CurrentStructure.id) return "yellow";
     if (aStructure.factionGroup == 5 || (aStructure.CoreName && aStructure.CoreName.includes("Admin"))) return "purple";
 
     if (aStructure.factionGroup ==   2) return "tomato"; // Zirax
@@ -124,4 +129,14 @@ export class PlayfieldViewComponent implements OnInit {
   StructurZIndex(aStructure: GlobalStructureInfo) {
     return aStructure == this.SelectedStructure ? 100 : 10;
   }
+
+  SelectPlayer(aPlayer: PlayerModel) {
+    this.mPlayerService.CurrentPlayer = aPlayer;
+  }
+
+  PlayerColor(aPlayer: PlayerModel) {
+    if (aPlayer && this.mPlayerService.CurrentPlayer && aPlayer.SteamId == this.mPlayerService.CurrentPlayer.SteamId) return "yellow";
+    return aPlayer.Online ? "green" : "cornflowerblue";
+  }
+
 }

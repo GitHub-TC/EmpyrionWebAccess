@@ -12,11 +12,15 @@ import { FactionService } from './faction.service';
 export class StructureService {
   public hubConnection: HubConnection;
 
-  public CurrentStructure: GlobalStructureInfo;
   private mStructures: GlobalStructureInfo[] = []; 
 
   private Structures: BehaviorSubject<GlobalStructureInfo[]> = new BehaviorSubject(this.mStructures);
   public readonly StructuresObservable: Observable<GlobalStructureInfo[]> = this.Structures.asObservable();
+
+  mCurrentStructure: GlobalStructureInfo;
+
+  private currentStructure: BehaviorSubject<GlobalStructureInfo> = new BehaviorSubject(this.mCurrentStructure);
+  public readonly currentStructureObservable: Observable<GlobalStructureInfo> = this.currentStructure.asObservable();
 
   error: any;
 
@@ -37,6 +41,19 @@ export class StructureService {
       this.error = Error;
     }
   }
+
+  GetCurrentStructure() {
+    return this.currentStructureObservable;
+  }
+
+  get CurrentStructure() {
+    return this.mCurrentStructure;
+  }
+
+  set CurrentStructure(aStructure: GlobalStructureInfo) {
+    this.currentStructure.next(this.mCurrentStructure = aStructure);
+  }
+
 
   GetGlobalStructureList(): Observable<GlobalStructureInfo[]> {
     if (!this.mStructures.length) this.ReloadStructures();

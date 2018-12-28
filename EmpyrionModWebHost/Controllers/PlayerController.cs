@@ -113,9 +113,10 @@ namespace EmpyrionModWebHost.Controllers
 
                 if (IsNewPlayer)
                 {
-                    Player.Note       = string.Empty;
-                    Player.OnlineTime = new TimeSpan();
-                    Player.LastOnline = DateTime.Now;
+                    Player.Note        = string.Empty;
+                    Player.OnlineTime  = new TimeSpan();
+                    Player.LastOnline  = DateTime.Now;
+                    Player.OnlineHours = 0;
                     DB.Players.Add(Player);
                 }
                 var count = DB.SaveChanges();
@@ -220,6 +221,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             aPlayer.Online      = false;
             aPlayer.OnlineTime += DateTime.Now - aPlayer.LastOnline;
+            aPlayer.OnlineHours = (int)Math.Round(aPlayer.OnlineTime.TotalHours);
             aPlayer.LastOnline  = DateTime.Now;
         }
 

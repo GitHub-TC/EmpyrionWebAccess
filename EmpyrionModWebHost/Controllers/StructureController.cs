@@ -12,10 +12,26 @@ using System.Linq;
 namespace EmpyrionModWebHost.Controllers
 {
 
+    public class GlobalStructureListBackup
+    {
+        public Tuple<string, GlobalStructureInfo[]>[] Structures { get; set; }
+    }
+
     public class StructureManager : EmpyrionModBase, IEWAPlugin
     {
 
         public ModGameAPI GameAPI { get; private set; }
+        public ConfigurationManager<GlobalStructureList> LastGlobalStructureList { get; private set; }
+
+        public StructureManager()
+        {
+            LastGlobalStructureList = new ConfigurationManager<GlobalStructureList>()
+            {
+                UseJSON        = true,
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB", "GlobalStructureList.json")
+            };
+            LastGlobalStructureList.Load();
+        }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
@@ -24,7 +40,14 @@ namespace EmpyrionModWebHost.Controllers
 
         public GlobalStructureList GlobalStructureList()
         {
-            return Request_GlobalStructure_List().Result;
+            try
+            {
+                LastGlobalStructureList.Current = Request_GlobalStructure_List().Result;
+                TaskTools.Delay(0, () => LastGlobalStructureList.Save());
+            }
+            catch { }
+
+            return LastGlobalStructureList.Current;
         }
 
     }

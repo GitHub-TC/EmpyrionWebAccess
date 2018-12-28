@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -21,6 +22,7 @@ namespace EmpyrionModWebHost
         public T Current { get; set; }
 
         public static Action<string> Log { get; set; }
+        public bool UseJSON { get; set; }
 
         private void ActivateFileChangeWatcher()
         {
@@ -40,10 +42,17 @@ namespace EmpyrionModWebHost
             try
             {
                 Log?.Invoke($"ConfigurationManager load '{ConfigFilename}'");
-                var serializer = new XmlSerializer(typeof(T));
-                using (var reader = XmlReader.Create(ConfigFilename))
+                if (UseJSON)
                 {
-                    Current = (T)serializer.Deserialize(reader);
+                    Current = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigFilename));
+                }
+                else
+                {
+                    var serializer = new XmlSerializer(typeof(T));
+                    using (var reader = XmlReader.Create(ConfigFilename))
+                    {
+                        Current = (T)serializer.Deserialize(reader);
+                    }
                 }
             }
             catch (Exception Error)
@@ -59,11 +68,17 @@ namespace EmpyrionModWebHost
             {
                 Log?.Invoke($"ConfigurationManager save '{ConfigFilename}'");
                 mConfigFileChangedWatcher.EnableRaisingEvents = false;
-                var serializer = new XmlSerializer(typeof(T));
                 Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilename));
-                using (var writer = XmlWriter.Create(ConfigFilename, new XmlWriterSettings() { Indent = true, IndentChars = "  " }))
+                if (UseJSON)
                 {
-                    serializer.Serialize(writer, Current);
+                    File.WriteAllText(ConfigFilename, JsonConvert.SerializeObject(Current, Newtonsoft.Json.Formatting.Indented));
+                }
+                else {
+                    var serializer = new XmlSerializer(typeof(T));
+                    using (var writer = XmlWriter.Create(ConfigFilename, new XmlWriterSettings() { Indent = true, IndentChars = "  " }))
+                    {
+                        serializer.Serialize(writer, Current);
+                    }
                 }
                 Log?.Invoke($"ConfigurationManager saved '{ConfigFilename}'");
             }

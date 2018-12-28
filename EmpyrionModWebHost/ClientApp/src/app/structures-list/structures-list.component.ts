@@ -30,7 +30,6 @@ export class StructuresListComponent implements OnInit {
   error: any;
   mAllStructures: GlobalStructureInfo[];
   mSelectedPlayfield: string;
-  @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
   constructor(
     private http: HttpClient,
@@ -81,7 +80,7 @@ export class StructuresListComponent implements OnInit {
   }
 
   select(row: GlobalStructureInfo) {
-    this.SelectStructure.emit(row);
+    this.mStructureService.CurrentStructure = row;
     this.selection.clear();
     this.selection.toggle(row);
   }
