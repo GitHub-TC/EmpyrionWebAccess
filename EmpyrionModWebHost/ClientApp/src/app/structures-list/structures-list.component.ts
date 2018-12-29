@@ -68,7 +68,9 @@ export class StructuresListComponent implements OnInit {
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.structures.data.length;
+    if (this.structures.filteredData.length != numSelected) return false;
+
+    const numRows = this.structures.filteredData.filter(s => this.selection.isSelected(s)).length;
     return numSelected == numRows;
   }
 
@@ -76,7 +78,7 @@ export class StructuresListComponent implements OnInit {
   masterToggle() {
     this.isAllSelected() ?
       this.selection.clear() :
-      this.structures.data.forEach(row => this.selection.select(row));
+      this.structures.filteredData.forEach(row => this.selection.select(row));
   }
 
   select(row: GlobalStructureInfo) {
@@ -97,7 +99,7 @@ export class StructuresListComponent implements OnInit {
     this.YesNo.openDialog({ title: "Destroy", question: this.selection.selected.length + " structures?" }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
-        this.http.post<number[]>("Structure/DeleteStructures", this.selection.selected.map(S => S.id))
+        this.http.post <{id: number; playfield: string }[]>("Structure/DeleteStructures", this.selection.selected.map(S => { id: S.id; playfield: S.playfield }))
           .pipe()
           .subscribe(
             S => {},

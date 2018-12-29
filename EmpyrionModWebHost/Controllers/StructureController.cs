@@ -70,10 +70,23 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(StructureManager.GlobalStructureList());
         }
 
-        [HttpPost("DeleteStructures")]
-        public IActionResult DeleteStructures([FromBody]int[] aEntityIds)
+        public class DeleteStructuresData
         {
-            aEntityIds.ForEach(I => StructureManager.Request_Entity_Destroy(new Id(I)));
+            public int id { get; set; }
+            public string playfield { get; set; }
+        }
+
+        [HttpPost("DeleteStructures")]
+        public IActionResult DeleteStructures([FromBody]DeleteStructuresData[] aEntites)
+        {
+            aEntites
+                .OrderBy(E => E.playfield)
+                .ForEach(I =>
+                {
+                    try { StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, I.playfield, 0)).Wait(); }
+                    catch { }  // Playfield already loaded
+                    StructureManager.Request_Entity_Destroy(new Id(I.id));
+                });
             return Ok();
         }
 

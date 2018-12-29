@@ -188,12 +188,12 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.restart                 : EGSRestart(aAction); break;
                 case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
                 case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;
-                case ActionType.backupFull              : BackupManager.Value.FullBackup        (BackupManager.Value.CurrentBackupDirectory); break;
-                case ActionType.backupStructure         : BackupManager.Value.StructureBackup   (BackupManager.Value.CurrentBackupDirectory + " - Structures"); break;
-                case ActionType.backupSavegame          : BackupManager.Value.SavegameBackup    (BackupManager.Value.CurrentBackupDirectory + " - Savegame"); break;
-                case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory + " - Scenario"); break;
-                case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory + " - Mods"); break;
-                case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory + " - ESG MainFiles"); break;
+                case ActionType.backupFull              : BackupManager.Value.FullBackup        (BackupManager.Value.CurrentBackupDirectory("")); break;
+                case ActionType.backupStructure         : BackupManager.Value.StructureBackup   (BackupManager.Value.CurrentBackupDirectory(" - Structures")); break;
+                case ActionType.backupSavegame          : BackupManager.Value.SavegameBackup    (BackupManager.Value.CurrentBackupDirectory(" - Savegame")); break;
+                case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory(" - Scenario")); break;
+                case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory(" - Mods")); break;
+                case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory(" - ESG MainFiles")); break;
                 case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int Days) ? Days : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
                 case ActionType.runShell                : ExecShell(aAction); break;

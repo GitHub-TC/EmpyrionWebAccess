@@ -24,13 +24,11 @@ namespace EmpyrionModWebHost.Controllers
         public ModGameAPI GameAPI { get; private set; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public string BackupDir { get; internal set; }
-        public string CurrentBackupDirectory {
-            get {
-                var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup");
-                Directory.CreateDirectory(Result);
+        public string CurrentBackupDirectory(string aAddOn) {
+            var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
+            Directory.CreateDirectory(Result);
 
-                return Result;
-            }
+            return Result;
         }
 
         public BackupManager()
@@ -297,6 +295,45 @@ namespace EmpyrionModWebHost.Controllers
         {
             var StructDir = Path.Combine(BackupManager.BackupDir, aSelectBackupDir.backup, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
             return Ok(Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)));
+        }
+
+        [HttpPost("ReadPlayers")]
+        public ActionResult<Player[]> ReadPlayers([FromBody]BackupData aSelectBackupDir)
+        {
+            var PlayersDBFilename = Path.Combine(
+                BackupManager.BackupDir, aSelectBackupDir.backup, 
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), @"Mods\EWA\DB\Players.db");
+
+            if (System.IO.File.Exists(PlayersDBFilename))
+            {
+                using(var DB = new PlayerContext(PlayersDBFilename))
+                {
+                    return DB.Players.ToArray();
+                }
+            }
+
+            return null;
+        }
+
+        public class RestorePlayerData : BackupData
+        {
+            public string steamId;
+        }
+
+        [HttpPost("RestorePlayer")]
+        public IActionResult RestorePlayer([FromBody]RestorePlayerData aSelect)
+        {
+            var PlayersSourcePath = Path.Combine(
+                BackupManager.BackupDir, aSelect.backup,
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Players");
+
+            System.IO.File.Copy(
+                Path.Combine(PlayersSourcePath, aSelect.steamId + ".ply"),
+                Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSelect.steamId + ".ply"),
+                true
+                );
+
+            return Ok();
         }
 
         public class PlayfieldGlobalStructureInfo

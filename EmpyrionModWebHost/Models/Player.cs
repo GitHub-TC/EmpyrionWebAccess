@@ -6,14 +6,22 @@ namespace EmpyrionModWebHost.Models
 {
     public class PlayerContext : DbContext
     {
+        public string DBFile { get; set; }
         public PlayerContext(){}
+
+        public PlayerContext(string aDBFile){
+            DBFile = aDBFile;
+        }
 
         public PlayerContext(DbContextOptions<PlayerContext> options): base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
-            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Players.db");
+            optionsBuilder.UseSqlite(
+                DBFile == null
+                ? $"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Players.db"
+                : $"Filename={DBFile}");
         }
 
         public DbSet<Player> Players { get; set; }

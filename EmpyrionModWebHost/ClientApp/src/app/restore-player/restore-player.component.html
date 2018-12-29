@@ -1,3 +1,99 @@
-<p>
-  restore-player comming soon!
-</p>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:100%">
+          <mat-form-field style="width:100%">
+            <mat-select placeholder="Backup" [(value)]="SelectedBackup">
+              <mat-option *ngFor="let i of Backups" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-card>
+        <div [hidden]="!displayFilter">
+          <mat-form-field style="width:100%">
+            <input matInput (keyup)="applyFilter($event.target.value)" (keyup.enter)="displayFilter=FilterInput.value" #FilterInput placeholder="Filter">
+          </mat-form-field>
+        </div>
+
+        <table mat-table [dataSource]="players" class="mat-elevation-z8" matSort>
+          <ng-container matColumnDef="online" [sticky]="true">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
+            </th>
+            <td mat-cell *matCellDef="let player">
+              <a href="https://steamcommunity.com/profiles/{{player.steamId}}" target="_blank">
+                <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
+              </a>
+              <mat-icon class="onlineState" *ngIf="player.online" style="color:green; font-size:medium;" title="Online">account_circle</mat-icon>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="playerName" [sticky]="true">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+            <td mat-cell *matCellDef="let player">
+              <mat-icon style="cursor: pointer; color:darkgreen; font-size:medium;" (click)="RestorePlayer(player)" title="Restore {{CurrentPlayer?.PlayerName}}">settings_backup_restore</mat-icon>
+              <div style="display:inline-block; margin-top:2px">{{player.playerName}}</div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="origin">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Origin </th>
+            <td mat-cell *matCellDef="let player"> {{player.origin}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="playfield">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Playfield </th>
+            <td mat-cell *matCellDef="let player"> {{player.playfield}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="posX">
+            <th mat-header-cell *matHeaderCellDef>E/W</th>
+            <td mat-cell *matCellDef="let player" align="right">{{player.posX | number : "1.1-1"}}<mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon></td>
+          </ng-container>
+
+          <ng-container matColumnDef="posY">
+            <th mat-header-cell *matHeaderCellDef>Height</th>
+            <td mat-cell *matCellDef="let player" align="right">{{player.posY | number : "1.1-1"}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="posZ">
+            <th mat-header-cell *matHeaderCellDef>N/S</th>
+            <td mat-cell *matCellDef="let player" align="right">{{player.posZ | number : "1.1-1"}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastOnline">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> LastOnline </th>
+            <td mat-cell *matCellDef="let player"> {{player.lastOnline | date : "dd.MM.yyyy HH:mm"}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="onlineHours">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> OnlineHours </th>
+            <td mat-cell *matCellDef="let player" align="right"> {{player.onlineHours}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="entityId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> PrivateID </th>
+            <td mat-cell *matCellDef="let player"> {{player.entityId}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="steamId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> SteamId </th>
+            <td mat-cell *matCellDef="let player"> {{player.steamId}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<app-yes-no-dialog></app-yes-no-dialog>
