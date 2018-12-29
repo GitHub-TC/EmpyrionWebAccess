@@ -14,6 +14,7 @@ namespace EWAModClient
     public class Configuration
     {
         public string PathToModHost { get; set; } = @"..\EWA\EmpyrionModWebHost.exe";
+        public string AdditionalArguments { get; set; }
         public bool AutostartModHost { get; set; } = true;
         public int AutostartModHostAfterNSeconds { get; set; } = 10;
         public bool AutoshutdownModHost { get; set; } = true;
@@ -162,7 +163,8 @@ namespace EWAModClient
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
                             $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
                             $"-GameDir \"{Directory.GetCurrentDirectory()}\"",
-                            (C, A) => C + " " + A),
+                            (C, A) => C + " " + A) +
+                            (CurrentConfig.Current.AdditionalArguments == null ? "" : " " + CurrentConfig.Current.AdditionalArguments),
                     }
                 };
 
@@ -249,7 +251,31 @@ namespace EWAModClient
 
             mHostProcessAlive = null;
 
+            CheckForBinCopyFile();
             StartHostProcess();
+        }
+
+        private void CheckForBinCopyFile()
+        {
+            if (string.IsNullOrEmpty(CurrentConfig.Current.PathToModHost)) return;
+
+            var BinHostFilename = Path.Combine(Path.Combine(
+                Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), 
+                Path.GetDirectoryName(CurrentConfig.Current.PathToModHost)),
+                Path.GetFileNameWithoutExtension(CurrentConfig.Current.PathToModHost) + ".bin"
+                );
+
+            var HostFilename = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), 
+                CurrentConfig.Current.PathToModHost);
+
+            if (!File.Exists(BinHostFilename)) return;
+
+            try{ File.Delete(HostFilename); }
+            catch (Exception Error){ GameAPI.Console_Write($"CheckForBinCopyFile: delete {HostFilename} => {Error}"); }
+
+            try { File.Move(BinHostFilename, HostFilename); }
+            catch (Exception Error) { GameAPI.Console_Write($"CheckForBinCopyFile: move {BinHostFilename} -> {HostFilename} => {Error}"); }
         }
 
         private void HandleClientHostCommunication(ClientHostComData aMsg)

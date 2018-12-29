@@ -50,7 +50,6 @@ namespace EWAModClient
             public string SaveGameName { get; }
             public string CustomScenarioName { get; }
             public string ServerName { get; }
-            public string AdminConfigFilename { get; }
             public string SaveDirectory { get; }
 
             public DedicatedYamlStruct(string aFilename)
@@ -67,7 +66,6 @@ namespace EWAModClient
                     var ServerConfigNode = Root.Children[new YamlScalarNode("ServerConfig")] as YamlMappingNode;
 
                     ServerName          = ServerConfigNode?.Children[new YamlScalarNode("Srv_Name")]?.ToString();
-                    AdminConfigFilename = ServerConfigNode?.Children[new YamlScalarNode("AdminConfigFile")]?.ToString();
                     SaveDirectory       = ServerConfigNode?.Children[new YamlScalarNode("SaveDirectory")]?.ToString();
 
                     var GameConfigNode = Root.Children[new YamlScalarNode("GameConfig")] as YamlMappingNode;

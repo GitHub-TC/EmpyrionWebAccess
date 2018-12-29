@@ -164,7 +164,7 @@ namespace EmpyrionModWebHost
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            if(Program.AppSettings.UseHttpsRedirection) app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
