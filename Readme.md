@@ -79,8 +79,14 @@ Hier werden alle Strukturen des Spiels aufgelistet:
 * Die Strukturen können gelöscht werden
 * Die Fraktion der Strukturen kann auf Adm, Aln oder die des ausgewählten Spielers gesetzt werden
 
+## Playfield
+Playfieldansicht mit den Strukturen.
+Hinweis: Um eine Karte des Playfields einblenden zu können muss diese map.png erst aus dem Cache eines Clients in das 
+\\MODs\\EWA\\Maps\\\[Playfield\]\\map.png 
+Verzeichnis kopiert werden
+
 ## Restore
-Wiederherstellung von Backpacks und Strukturen aus Backups
+Wiederherstellung von Backpacks, Strukturen, Spielerdateien und Playfields aus Backups
 
 ## Start/Stop
 EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
@@ -119,7 +125,6 @@ https://github.com/GitHub-TC/EmpyrionModHost
 
 # Was kommt noch?
 * MOD Manager: Einrichtung, Aktivierung/Deaktivierung, Update,... für weitere EGS Mods
-* Restore: Playerfiles, Playfields
 * VirtualAutominer 
 * ChatBot Hilfsbefehle
 * CombatLog
@@ -205,6 +210,15 @@ Note: Still open: ban / unban and wipe
 Here are all the structures of the game listed:
 * They can be teleported
 * The position can be transferred to the memory for a warp
+
+## Playfield
+Playfield view with the structures.
+Note: In order to be able to show a map of the playfield, this map.png first has to be copied from the cache of a client into the
+\\MODs\\EWA\\Maps\\\[Playfield\]\\map.png
+Directory are copied
+
+## Restore
+Recovery of backpacks, structures, player files and playfields from backups
 
 ## Start/Stop
 EmpyrionWebAccess does not start automatically there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.

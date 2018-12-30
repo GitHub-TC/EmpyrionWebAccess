@@ -63,7 +63,7 @@ export class RestorePlayerComponent implements OnInit {
   }
 
   RestorePlayer(aPlayer: PlayerModel) {
-    let locationsSubscription = this.http.post<{ backup: string, steamId: string}>("Backups/RestorePlayer", { backup: this.SelectedBackup, steamId: aPlayer.steamId })
+    let locationsSubscription = this.http.post<{ backup: string, steamId: string}>("Backups/RestorePlayer", { backup: this.SelectedBackup, steamId: (<any>aPlayer).steamId })
       .pipe()
       .subscribe(
         S => { },

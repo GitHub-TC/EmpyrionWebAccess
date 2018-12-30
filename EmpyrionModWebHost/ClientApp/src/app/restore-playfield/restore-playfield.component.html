@@ -1,3 +1,42 @@
-<p>
-  restore-playfield  comming soon!
-</p>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:100%">
+          <mat-form-field style="width:100%">
+            <mat-select placeholder="Backup" [(value)]="SelectedBackup">
+              <mat-option *ngFor="let i of Backups" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:50%">
+          <mat-form-field style="width:100%">
+            <mat-select placeholder="Playfield" [(value)]="SelectedPlayfield">
+              <mat-option *ngFor="let i of Playfields" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <mat-icon *ngIf="SelectedPlayfield && !(FailedStructures?.length)" style="font-size:2em; vertical-align:baseline; margin-left:1em; cursor: pointer; color:darkgreen;" (click)="RestorePlayfield()" title="Restore playfield {{SelectedPlayfield}}">settings_backup_restore</mat-icon>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-card *ngIf="SelectedPlayfield && FailedStructures?.length">
+        <h2>The following structures must be deleted or return to the playfield before it can be restored</h2>
+        <app-structures-list [Structures]="FailedStructures"></app-structures-list>
+      </mat-card>
+    </div>
+  </div>
+</div>
+<app-yes-no-dialog></app-yes-no-dialog>

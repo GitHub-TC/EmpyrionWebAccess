@@ -40,11 +40,16 @@ export class StructuresListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.mStructureService.GetGlobalStructureList()
+    if (!this.mAllStructures) this.mStructureService.GetGlobalStructureList()
       .subscribe(S => {
         this.mAllStructures = S;
         this.SelectedPlayfield = this.mSelectedPlayfield;
       });
+  }
+
+  @Input()
+  set Structures(aStructures: GlobalStructureInfo[]) {
+    this.mAllStructures = this.structures.data = aStructures;
   }
 
   @Input() 
@@ -99,7 +104,7 @@ export class StructuresListComponent implements OnInit {
     this.YesNo.openDialog({ title: "Destroy", question: this.selection.selected.length + " structures?" }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
-        this.http.post <{id: number; playfield: string }[]>("Structure/DeleteStructures", this.selection.selected.map(S => { id: S.id; playfield: S.playfield }))
+        this.http.post("Structure/DeleteStructures", this.selection.selected.map(S => <any>{ id: S.id, playfield: S.playfield }))
           .pipe()
           .subscribe(
             S => {},

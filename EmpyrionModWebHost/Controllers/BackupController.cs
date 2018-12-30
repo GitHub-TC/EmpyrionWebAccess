@@ -44,7 +44,7 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
         }
 
-        private void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
+        public void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
         {
             aSource.GetDirectories().AsParallel().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
             aSource.GetFiles().AsParallel().ForEach(F => {
@@ -180,6 +180,27 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(T => T.Item2 < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
                 .AsParallel()
                 .ForAll(T => Directory.Delete(T.Item1, true));
+        }
+
+        public void RestorePlayfield(string aBackup, string aPlayfield)
+        {
+            RestoreCopy(aBackup, Path.Combine("Saves", "Cache", 
+                EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Playfields", aPlayfield));
+
+            RestoreCopy(aBackup, Path.Combine("Saves", "Games",
+                EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Playfields", aPlayfield));
+
+            RestoreCopy(aBackup, Path.Combine("Saves", "Games",
+                EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Templates", aPlayfield));
+        }
+
+        private void RestoreCopy(string aBackup, string aPath)
+        {
+            var SourceDir = Path.Combine(BackupDir, aBackup, aPath);
+            var TargetDir = Path.Combine(EmpyrionConfiguration.ProgramPath, aPath);
+
+            if(Directory.Exists(TargetDir)) Directory.Delete(TargetDir, true);
+            if(Directory.Exists(SourceDir)) CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
         }
     }
 
@@ -333,6 +354,44 @@ namespace EmpyrionModWebHost.Controllers
                 true
                 );
 
+            return Ok();
+        }
+
+        [HttpPost("ReadPlayfields")]
+        public ActionResult<string[]> ReadPlayfields([FromBody]BackupData aSelectBackupDir)
+        {
+            var TemplatesPath = Path.Combine(
+                BackupManager.BackupDir, aSelectBackupDir.backup,
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), @"Templates");
+
+            return Directory
+                .EnumerateDirectories(TemplatesPath)
+                .Select(D => Path.GetFileName(D))
+                .ToArray();
+        }
+
+        [HttpPost("ReadStructuresDB")]
+        public ActionResult<GlobalStructureList> ReadStructuresDB([FromBody]BackupData aSelectBackupDir)
+        {
+            var BackupGlobalStructureList = new ConfigurationManager<GlobalStructureList>() { UseJSON = true };
+
+            BackupGlobalStructureList.ConfigFilename = Path.Combine(
+                BackupManager.BackupDir, aSelectBackupDir.backup,
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), @"Mods\EWA\DB\GlobalStructureList.json");
+            BackupGlobalStructureList.Load();
+
+            return BackupGlobalStructureList.Current;
+        }
+
+        public class RestorePlayfieldData : BackupData
+        {
+            public string playfield;
+        }
+
+        [HttpPost("RestorePlayfield")]
+        public IActionResult RestorePlayfield([FromBody]RestorePlayfieldData aSelect)
+        {
+            BackupManager.RestorePlayfield(aSelect.backup, aSelect.playfield);
             return Ok();
         }
 

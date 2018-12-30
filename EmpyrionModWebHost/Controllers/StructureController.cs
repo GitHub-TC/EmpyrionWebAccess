@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -83,7 +84,10 @@ namespace EmpyrionModWebHost.Controllers
                 .OrderBy(E => E.playfield)
                 .ForEach(I =>
                 {
-                    try { StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, I.playfield, 0)).Wait(); }
+                    try {
+                        StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, I.playfield, 0)).Wait();
+                        Thread.Sleep(2000); // wait for Playfield finish
+                    }
                     catch { }  // Playfield already loaded
                     StructureManager.Request_Entity_Destroy(new Id(I.id));
                 });

@@ -121,7 +121,7 @@ export class PlayfieldViewComponent implements OnInit {
     if (aStructure.factionGroup ==   6) return "green";  // Talons
     if (aStructure.factionGroup ==   7) return "blue";   // Polaris
     if (aStructure.factionGroup ==   8) return "red";    // Aliens
-    if (aStructure.factionGroup == 255) return "white";  // No Core
+    if (aStructure.factionGroup == 255) return "lightblue";   // No Core
 
     return aStructure.factionId > 0 ? "magenta" : "red";
   }

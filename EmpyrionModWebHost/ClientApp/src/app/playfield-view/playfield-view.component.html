@@ -18,8 +18,10 @@
     <div class="col col-lg-10">
       <mat-card style="margin-bottom:1em">
         <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
-          <img #MapImage *ngIf="SelectedPlayfield.isPlanet" style="width:1024px; height:512px;"  src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield}}\map.png not found copy it from your client cache">
-          <div #MapImage *ngIf="!SelectedPlayfield.isPlanet" style="width:1024px; height:1024px; background-color:black"></div>
+          <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
+            <img *ngIf="SelectedPlayfield.isPlanet"  src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
+            <div *ngIf="!SelectedPlayfield.isPlanet" style="background-color:black"></div>
+          </div>
           <div *ngFor="let s of PlayfieldStructures" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
             <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
           </div>
