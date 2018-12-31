@@ -1,0 +1,8 @@
+<input style="width:80%" #file type="file" multiple (change)="onChange($event)"/>
+<br />
+<span style="font-weight:bold;color:green;" *ngIf="progress > 0 && progress < 100">
+  {{progress}}%
+</span>
+<span style="font-weight:bold;color:green;" *ngIf="message">
+  {{message}}
+</span>

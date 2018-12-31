@@ -1,3 +1,32 @@
-<p>
-  server-mod-manager comming soon!
-</p>
+<mat-card style="margin:.5em" *ngIf="!IsModLoaderInstalled">
+  <mat-card-title>
+    <h3>Install ModHost</h3>
+  </mat-card-title>
+  <button (click)="InstallModLoader()">InstallModLoader</button>
+</mat-card>
+<mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
+  <mat-card-title>
+    <h3>Mods</h3>
+    <mat-icon *ngIf="ModsStarted"  style="cursor:pointer; position:absolute; color:red; top: 5px; right:80px; z-index:100" (click)="StopMods()" title="Stop all Mods">stop</mat-icon>
+    <mat-icon *ngIf="!ModsStarted" style="cursor:pointer; position:absolute; color:green; top: 5px; right:80px; z-index:100" (click)="StartMods()" title="Start all Mods">play_arrow</mat-icon>
+    <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:40px; z-index:100" (click)="Save()" title="Save">save</mat-icon>
+  </mat-card-title>
+  <div *ngFor="let t of Mods" style="background-color:aliceblue; width:100%; margin-bottom:10px">
+    <mat-checkbox [(ngModel)]="t.active" style="margin-left:1em">Active</mat-checkbox>
+    <mat-form-field style="width:80%; margin-left:1em; margin-right:2em">
+      <mat-select placeholder="Mod DLL" [(value)]="t.name">
+        <mat-option *ngFor="let a of t.possibleNames" [value]="a">
+          {{a}}
+        </mat-option>
+      </mat-select>
+      <mat-hint align="start"><strong>{{t.infos}}</strong></mat-hint>
+    </mat-form-field>
+    <mat-icon style="cursor:pointer; margin-right:5px;" (click)="DeleteMod(t)" title="Delete this action">delete</mat-icon>
+  </div>
+  <div>
+    <h3>Install or update</h3>
+    <app-file-upload [UploadURL]="'Mod/UploadFile'" (uploaded)="onUploaded($event)"></app-file-upload>
+  </div>
+</mat-card>
+<app-yes-no-dialog></app-yes-no-dialog>
+

@@ -210,6 +210,8 @@ Note: Still open: ban / unban and wipe
 Here are all the structures of the game listed:
 * They can be teleported
 * The position can be transferred to the memory for a warp
+* The structures can be deleted
+* The faction faction can be set to Adm, Aln, or the selected player
 
 ## Playfield
 Playfield view with the structures.

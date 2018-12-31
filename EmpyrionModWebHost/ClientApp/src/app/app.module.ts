@@ -43,6 +43,7 @@ import { FactionSelectDialogComponent, FactionSelectDialogContentComponent } fro
 import { RestoreManagerComponent } from './restore-manager/restore-manager.component';
 import { PlayfieldViewComponent } from './playfield-view/playfield-view.component';
 import { EntitiesComponent } from './entities/entities.component';
+import { FileUploadComponent } from './file-upload/file-upload.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { EntitiesComponent } from './entities/entities.component';
     FactionSelectDialogComponent, FactionSelectDialogContentComponent,
     RestoreManagerComponent,
     PlayfieldViewComponent,
-    EntitiesComponent
+    EntitiesComponent,
+    FileUploadComponent
   ],
   imports: [
     BrowserModule,
