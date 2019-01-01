@@ -7,7 +7,7 @@ namespace EmpyrionModWebHost.Extensions
     public static class TaskTools
     {
 
-        public static void Intervall(int aIntervall, Action aAction)
+        public static void Intervall(int aMillisecondsIntervall, Action aAction)
         {
             new Thread(() => {
                 while (!Program.AppLifetime.Exit)
@@ -20,7 +20,7 @@ namespace EmpyrionModWebHost.Extensions
                     {
                         Console.WriteLine(Error);
                     }
-                    Thread.Sleep(aIntervall);
+                    Thread.Sleep(aMillisecondsIntervall);
                 }
             }).Start();
         }

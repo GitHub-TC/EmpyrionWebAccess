@@ -44,7 +44,7 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
         }
 
-        public void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
+        public static void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
         {
             aSource.GetDirectories().AsParallel().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
             aSource.GetFiles().AsParallel().ForEach(F => {

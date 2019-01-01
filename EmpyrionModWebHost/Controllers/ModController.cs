@@ -10,19 +10,60 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Diagnostics;
+using EmpyrionModWebHost.Extensions;
+using Microsoft.AspNetCore.SignalR;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    [Authorize]
+    public class ModinfoHub : Hub
+    {
+    }
+
 
     public class ModManager : EmpyrionModBase, IEWAPlugin
     {
+        public IHubContext<ModinfoHub> ModinfoHub { get; }
         public ModGameAPI GameAPI { get; private set; }
+        public Lazy<SysteminfoManager> SysteminfoManager { get; }
+        public bool LastModsStatusState { get; private set; }
+        public bool CheckModHostStatusStarted { get; private set; }
+
+        public ModManager(IHubContext<ModinfoHub> aModinfoHub)
+        {
+            ModinfoHub        = aModinfoHub;
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+        }
+
+        private void CheckModHostStatus()
+        {
+            var CurrentState = ModsStarted();
+            if(LastModsStatusState != CurrentState)
+            {
+                LastModsStatusState = CurrentState;
+                ModinfoHub?.Clients.All.SendAsync("ModHostRunning", LastModsStatusState);
+            }
+        }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
         }
 
+        public bool ModsStarted()
+        {
+            if (!CheckModHostStatusStarted)
+            {
+                CheckModHostStatusStarted = true;
+                TaskTools.Intervall(1000, CheckModHostStatus);
+            }
+
+            Process EGSProcess = null;
+            try { EGSProcess = Process.GetProcessById(SysteminfoManager.Value.ProcessInformation.Id); } catch { }
+            var ESGChildProcesses = EGSProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionModHost").ToArray();
+
+            return ESGChildProcesses?.FirstOrDefault() != null;
+        }
     }
 
     [Authorize]
@@ -37,15 +78,18 @@ namespace EmpyrionModWebHost.Controllers
 
         public ModManager ModManager { get; }
 
-        public ModController()
+        public ModController(IHubContext<ModinfoHub> aModinfoHub)
         {
-            ModManager = Program.GetManager<ModManager>();
+            ModManager        = Program.GetManager<ModManager>();
         }
 
         [HttpGet("ModLoaderInstalled")]
-        public ActionResult<bool> ModLoaderInstalled()
+        public ActionResult<string> ModLoaderInstalled()
         {
-            return System.IO.File.Exists(Path.Combine(ModLoaderHostPath, "EmpyrionModHost.exe"));
+            var ModHostExe = Path.Combine(ModLoaderHostPath, "EmpyrionModHost.exe");
+            return System.IO.File.Exists(ModHostExe)
+                ? "\"" + ReadDllInfos(ModHostExe) + "\""
+                : null;
         }
 
         [HttpGet("InstallModLoader")]
@@ -80,19 +124,29 @@ namespace EmpyrionModWebHost.Controllers
 
                     return new ModData()
                     {
-                        active          = !L.StartsWith("#"),
-                        name            = ModDll,
-                        possibleNames   = Directory.GetFiles(
-                        Path.Combine(ModLoaderHostPath, ModsInstallPath,Path.GetDirectoryName(ModDll)), "*.dll")
-                        .Select(D => Path.Combine(Path.GetFileName(Path.GetDirectoryName(D)), Path.GetFileName(D)))
-                        .ToArray(),
+                        active = !L.StartsWith("#"),
+                        name = ModDll,
+                        possibleNames = ReadPossibleDLLs(ModDll),
                         infos = ReadDllInfos(Path.Combine(ModLoaderHostPath, ModsInstallPath, ModDll))
                     };
                 }).ToArray();
         }
 
+        private static string[] ReadPossibleDLLs(string ModDll)
+        {
+            var DLLPath = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetDirectoryName(ModDll));
+
+            return Directory.Exists(DLLPath) 
+                ? Directory.GetFiles(DLLPath, "*.dll")
+                                    .Select(D => Path.Combine(Path.GetFileName(Path.GetDirectoryName(D)), Path.GetFileName(D)))
+                                    .ToArray()
+                : null;
+        }
+
         private string ReadDllInfos(string aDLL)
         {
+            if (!System.IO.File.Exists(aDLL)) return $"File not found: {aDLL}";
+
             var i = FileVersionInfo.GetVersionInfo(aDLL);
             return $"{i.CompanyName} Version:{i.FileVersion} {i.LegalCopyright}";
         }
@@ -109,7 +163,8 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("DeleteMod")]
         public IActionResult DeleteMod([FromBody]ModData aModData)
         {
-            Directory.Delete(Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetDirectoryName(aModData.name)), true);
+            var ModDirName = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetDirectoryName(aModData.name));
+            if(Directory.Exists(ModDirName)) Directory.Delete(ModDirName, true);
 
             System.IO.File.WriteAllLines(DllNamesFile,
                 System.IO.File.ReadAllLines(DllNamesFile)
@@ -121,7 +176,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("ModsStarted")]
         public ActionResult<bool> ModsStarted()
         {
-            return !System.IO.File.Exists(StopFileName);
+            return ModManager.ModsStarted();
         }
 
         [HttpGet("StartMods")]
@@ -198,18 +253,19 @@ namespace EmpyrionModWebHost.Controllers
             }
 
             var TargetDir = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetFileNameWithoutExtension(aZipFile));
-            var SourceDir = Path.GetDirectoryName(aZipFile);
+            var SourceDir = Path.Combine(Path.GetDirectoryName(aZipFile), Path.GetFileNameWithoutExtension(aZipFile));
 
             // only sub directory
-            var Dirs = Directory.EnumerateDirectories(Path.GetDirectoryName(aZipFile)).ToArray();
-            if (Dirs.Length == 1)
+            var Dirs = Directory.EnumerateDirectories(SourceDir).ToArray();
+               Files = Directory.EnumerateFiles(SourceDir).ToArray();
+            if (Dirs.Length == 1 && Files.Length == 0)
             {
                 SourceDir = Path.Combine(SourceDir, Dirs.First());
-                TargetDir = Path.Combine(ModLoaderHostPath, ModsInstallPath, Dirs.First());
+                TargetDir = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetFileName(Dirs.First()));
             }
 
             try { Directory.CreateDirectory(TargetDir); } catch { }
-            Directory.Move(SourceDir, TargetDir);
+            BackupManager.CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
 
             AddToDllNamesIfNotExists(Path.Combine(Path.GetFileNameWithoutExtension(TargetDir), GetFirstModDLL(TargetDir)));
         }

@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { AuthHubConnectionBuilder } from '../_helpers';
+import { HubConnection } from '@aspnet/signalr';
 
 export class ModData {
   name: string;
@@ -17,19 +19,33 @@ export class ServerModManagerComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Mods: ModData[] = [];
   error: any;
-  IsModLoaderInstalled: boolean;
-    ModsStarted: boolean;
+  IsModLoaderInstalled: string;
+  ModsStarted: boolean;
+  hubConnection: HubConnection;
 
   constructor(
     private http: HttpClient,
-  ) { }
+    private builder: AuthHubConnectionBuilder
+  ) {
+    this.hubConnection = builder.withAuthUrl('/hubs/modinfo').build();
+
+    // message coming from the server
+    this.hubConnection.on("ModHostRunning", B => this.ModsStarted = JSON.parse(B));
+
+    // starting the connection
+    try {
+      this.hubConnection.start();
+    } catch (Error) {
+      this.error = Error;
+    }
+  }
 
   ngOnInit() {
     this.ModLoaderInstalled();
   }
 
   ModLoaderInstalled() {
-    let locationsSubscription = this.http.get<boolean>("Mod/ModLoaderInstalled")
+    let locationsSubscription = this.http.get<string>("Mod/ModLoaderInstalled")
       .subscribe(
         B => {
           this.IsModLoaderInstalled = B;
@@ -74,7 +90,7 @@ export class ServerModManagerComponent implements OnInit {
   }
 
   StartMods() {
-    this.YesNo.openDialog({ title: "Start all Mods", question: "#" + this.Mods.length }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Start all Mods", question: "#" + this.Mods.filter(M => M.active).length + " active" }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
         this.http.get("Mod/StartMods").subscribe(M => this.ModInfos(), error => this.error = error);
@@ -82,7 +98,7 @@ export class ServerModManagerComponent implements OnInit {
   }
 
   StopMods() {
-    this.YesNo.openDialog({ title: "Stop all Mods", question: "#" + this.Mods.length }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Stop all Mods", question: "#" + this.Mods.filter(M => M.active).length + " active" }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
         this.http.get("Mod/StopMods").subscribe(M => this.ModInfos(), error => this.error = error);

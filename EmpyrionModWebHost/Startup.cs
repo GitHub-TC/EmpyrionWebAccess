@@ -176,6 +176,7 @@ namespace EmpyrionModWebHost
                 routes.MapHub<FactionHub>("/hubs/faction");
                 routes.MapHub<SysteminfoHub>("/hubs/systeminfo");
                 routes.MapHub<PlayfieldHub>("/hubs/playfield");
+                routes.MapHub<ModinfoHub>("/hubs/modinfo");
             });
 
             app.UseMvc(routes =>
