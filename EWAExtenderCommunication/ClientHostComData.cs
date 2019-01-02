@@ -10,7 +10,8 @@ namespace EWAExtenderCommunication
         Console_Write,
         ExposeShutdownHost,
         Ping,
-        ProcessInformation
+        ProcessInformation,
+        UpdateEWA
     }
 
     [Serializable]

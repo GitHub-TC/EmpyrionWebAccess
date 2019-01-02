@@ -69,6 +69,7 @@ namespace EmpyrionModWebHost
                 default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
                 case ClientHostCommand.Game_Exit: HandleGameExit(false); break;
                 case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
+                case ClientHostCommand.UpdateEWA: HandleGameExit(true); break;
             }
         }
 

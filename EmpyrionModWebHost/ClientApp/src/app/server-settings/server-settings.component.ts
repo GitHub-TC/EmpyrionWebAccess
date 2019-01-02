@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { Router } from '@angular/router';
 
 class ProcessInformation {
   id?: number
@@ -26,7 +27,10 @@ export class ServerSettingsComponent implements OnInit {
   error: any;
   SystemConfig: SystemConfig = {};
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router)
+  { }
 
   ngOnInit() {
     this.http.get<string[]>("systeminfo/StartCMDs")
@@ -105,4 +109,6 @@ export class ServerSettingsComponent implements OnInit {
       });
   }
 
+  onUploaded() {
+  }
 }

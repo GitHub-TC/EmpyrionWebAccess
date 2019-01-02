@@ -58,18 +58,37 @@ export class ServerModManagerComponent implements OnInit {
   }
 
   InstallModLoader() {
-    let locationsSubscription = this.http.get<boolean>("Mod/InstallModLoader")
-      .subscribe(
-        B => {
-          this.ModLoaderInstalled();
-          this.ModInfos();
-        },
-        error => this.error = error // error path
-      );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    this.YesNo.openDialog({ title: "ModLoader", question: (this.IsModLoaderInstalled ? "Update" : "Install") + " ModLoader?" }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        let locationsSubscription = this.http.get<boolean>("Mod/InstallModLoader")
+          .subscribe(
+            B => {
+              this.ModLoaderInstalled();
+              this.ModInfos();
+            },
+            error => this.error = error // error path
+          );
+        // Stop listening for location after 10 seconds
+        setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+      });
   }
 
+  DeleteAllMods() {
+    this.YesNo.openDialog({ title: "!!! Delete all Mods from ModLoader !!!", question: "#" + this.Mods.filter(M => M.active).length + " active and remove ModLoader?" }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        let locationsSubscription = this.http.get<boolean>("Mod/DeleteAllMods")
+          .subscribe(
+            B => this.ModLoaderInstalled(),
+            error => this.error = error // error path
+          );
+        // Stop listening for location after 10 seconds
+        setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+      });
+  }
 
   ModInfos() {
     let locationsSubscription = this.http.get<ModData[]>("Mod/ModInfos")

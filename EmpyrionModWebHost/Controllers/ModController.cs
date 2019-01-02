@@ -95,14 +95,26 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("InstallModLoader")]
         public ActionResult<bool> InstallModLoader()
         {
-            ZipFile.ExtractToDirectory(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "PublishAddOns", "ModLoader.zip"),
-                Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"));
+            if (System.IO.File.Exists(DllNamesFile)) System.IO.File.Copy(DllNamesFile, DllNamesFile + ".bak", true);
 
-            System.IO.File.WriteAllText(DllNamesFile, "");
+            ZipFile.ExtractToDirectory(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "ModLoader.zip"),
+                Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader"),
+                true);
+
+            if (System.IO.File.Exists(DllNamesFile + ".bak")) System.IO.File.Copy(DllNamesFile + ".bak", DllNamesFile, true);
+            else                                              System.IO.File.WriteAllText(DllNamesFile, "");
 
             return System.IO.File.Exists(Path.Combine(ModLoaderHostPath, "EmpyrionModHost.exe"));
         }
+
+        [HttpGet("DeleteAllMods")]
+        public ActionResult<bool> DeleteAllMods()
+        {
+            Directory.Delete(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader"), true);
+            return Ok();
+        }
+
 
         public class ModData
         {
@@ -120,14 +132,14 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(L => !string.IsNullOrWhiteSpace(L))
                 .Select(L =>
                 {
-                    var ModDll = L.Substring(ModsInstallPath.Length + (L.StartsWith("#") ? 1 : 0));
+                    var ModDll = L.Length > ModsInstallPath.Length ? L.Substring(ModsInstallPath.Length + (L.StartsWith("#") ? 1 : 0)) : L;
 
                     return new ModData()
                     {
-                        active = !L.StartsWith("#"),
-                        name = ModDll,
-                        possibleNames = ReadPossibleDLLs(ModDll),
-                        infos = ReadDllInfos(Path.Combine(ModLoaderHostPath, ModsInstallPath, ModDll))
+                        active          = !L.StartsWith("#"),
+                        name            = ModDll,
+                        possibleNames   = ReadPossibleDLLs(ModDll),
+                        infos           = ReadDllInfos(Path.Combine(ModLoaderHostPath, ModsInstallPath, ModDll))
                     };
                 }).ToArray();
         }

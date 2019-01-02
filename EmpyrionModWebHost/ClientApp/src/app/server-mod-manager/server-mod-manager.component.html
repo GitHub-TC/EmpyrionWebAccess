@@ -23,13 +23,16 @@
     <mat-icon style="cursor:pointer; margin-right:5px;" *ngIf="!ModsStarted || !t.active" (click)="DeleteMod(t)" title="Delete this action">delete</mat-icon>
   </div>
   <div style="font-size:x-small; margin-top:1em;">
-    ModLoader: {{IsModLoaderInstalled}}
+    ModLoader:
+    <mat-icon style="cursor:pointer; font-size:small; color:blue;" (click)="DeleteAllMods()" title="Delete ModLoader and mods">delete_forever</mat-icon>
+    {{IsModLoaderInstalled}}
+    <mat-icon style="cursor:pointer; font-size:small; color:blue; margin-right:5px;" *ngIf="!ModsStarted" (click)="InstallModLoader()" title="Update ModLoader">refresh</mat-icon>
   </div>
 </mat-card>
 <mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
   <div>
     <h3>Install or update</h3>
-    <app-file-upload [UploadURL]="'Mod/UploadFile'" (uploaded)="onUploaded($event)"></app-file-upload>
+    <app-file-upload [UploadURL]="'Mod/UploadFile'" (uploaded)="onUploaded()"></app-file-upload>
   </div>
 </mat-card>
 <app-yes-no-dialog></app-yes-no-dialog>

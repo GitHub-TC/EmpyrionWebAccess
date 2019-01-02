@@ -34,6 +34,7 @@ namespace EWAModClient
         public static string ProgramPath { get; private set; } = Directory.GetCurrentDirectory();
         public bool Exit { get; private set; }
         public bool ExposeShutdownHost { get; private set; }
+        public bool WithinUpdate { get; private set; }
 
         Dictionary<Type, Action<object>> InServerMessageHandler;
 
@@ -135,9 +136,10 @@ namespace EWAModClient
                 }
             }
 
-            if (mHostProcess == null && CurrentConfig.Current.AutostartModHost && !string.IsNullOrEmpty(CurrentConfig.Current.PathToModHost))
+            if (CurrentConfig.Current.AutostartModHost && !string.IsNullOrEmpty(CurrentConfig.Current.PathToModHost) && ExistsStartFile())
             {
-                if (ExistsStartFile()) CreateHostProcess(HostFilename);
+                UpdateEWA(new ProcessInformation() { Id = mHostProcess == null ? 0 : mHostProcess.Id });
+                if(mHostProcess == null) CreateHostProcess(HostFilename);
             }
         }
 
@@ -220,7 +222,7 @@ namespace EWAModClient
 
         void CheckHostProcess()
         {
-            if (Exit) return;
+            if (Exit || WithinUpdate) return;
 
             if (!ExistsStartFile())
             {
@@ -288,6 +290,80 @@ namespace EWAModClient
                 case ClientHostCommand.ProcessInformation   : if (aMsg.Data == null) ReturnProcessInformation();
                                                               else RetrieveHostProcessInformation(aMsg.Data as ProcessInformation);
                                                               break;
+                case ClientHostCommand.UpdateEWA            : new Thread(() => UpdateEWA(aMsg.Data as ProcessInformation)).Start(); break;
+            }
+        }
+
+        private void UpdateEWA(ProcessInformation aProcessInformation)
+        {
+            if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\Update\EWALoader\EWA"))) return;
+
+            try
+            {
+                WithinUpdate = true;
+                RetrieveHostProcessInformation(aProcessInformation);
+
+                GameAPI.Console_Write($"ModClientDll: EWA_Update");
+                OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.UpdateEWA });
+
+                if(mHostProcess != null)
+                {
+                    try
+                    {
+                        mHostProcessAlive = null;
+
+                        for (int i = 0; i < 5 * 60; i++)
+                        {
+                            Thread.Sleep(1000);
+                            if (mHostProcess.HasExited) break;
+                        }
+
+                        try { mHostProcess.CloseMainWindow(); } catch { }
+
+                        mHostProcess = null;
+                        CurrentConfig.Current.HostProcessId = 0;
+                        CurrentConfig.Save();
+                    }
+                    catch (Exception Error)
+                    {
+                        GameAPI.Console_Write($"UpdateEWA: Game_Exit {Error}");
+                    }
+                }
+
+                UpdateEWAFiles();
+            }
+            catch (Exception Error)
+            {
+                GameAPI.Console_Write($"UpdateEWA: EWA_Update {Error}");
+            }
+            finally
+            {
+                WithinUpdate = false;
+            }
+        }
+
+        private void UpdateEWAFiles()
+        {
+            try
+            {
+                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak")))
+                {
+                    Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak"), true);
+                }
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak")
+                    );
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\Update\EWALoader\EWA"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA")
+                    );
+            }
+            catch (Exception Error)
+            {
+                GameAPI.Console_Write($"UpdateEWA: Update {Error}");
             }
         }
 

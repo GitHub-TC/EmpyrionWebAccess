@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -79,6 +80,7 @@ namespace EmpyrionModWebHost.Controllers
         public ConfigurationManager<SystemConfig> SystemConfig { get; private set; }
 
         public ILogger<SysteminfoManager> Logger { get; set; }
+        public string EWAUpdateDir { get; internal set; } = Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update");
 
         public SysteminfoManager(IHubContext<SysteminfoHub> aSysteminfoHub, ILogger<SysteminfoManager> aLogger)
         {
@@ -215,19 +217,37 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
+                Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop");
                 EGSRunState(true);
                 Program.Host.ExposeShutdownHost();
 
-                Process EGSProcess = Process.GetProcessById(ProcessInformation.Id);
+                try
+                {
+                    Process EGSProcess = null;
+                    try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
 
-                Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes));
+                    Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: saveandexit:" + aWaitMinutes);
+                    new Thread(() => Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes)).Wait(10000)).Start();
+                    Thread.Sleep(10000);
+                    if (EGSProcess != null && !EGSProcess.HasExited)
+                    {
+                        Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: Wait:" + aWaitMinutes);
+                        EGSProcess?.WaitForExit((aWaitMinutes + 1) * 60000);
+                    }
 
-                EGSProcess.WaitForExit((aWaitMinutes + 1) * 60000);
+                    CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "o", false);
+                }
+                catch (Exception Error)
+                {
+                    Logger.LogError(Error, "EGSStop: WaitForExit");
+                    Thread.Sleep(10000);
+                }
+
+                UpdateClient();
             }
             catch (Exception Error)
             {
                 Logger.LogError(Error, "EGSStop");
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
         }
 
@@ -235,6 +255,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
+                Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStart");
                 Process EGSProcess = null;
                 try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
 
@@ -269,7 +290,84 @@ namespace EmpyrionModWebHost.Controllers
             EGSRunState(false);
         }
 
+        public void UpdateClient()
+        {
+            if (CurrentSysteminfo.online.Contains('o')) return;
+            Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "UpdateClient");
 
+            UpdateClientFiles();
+            UpdateClientMain();
+        }
+
+        private void UpdateClientFiles()
+        {
+            if (!Directory.Exists(Path.Combine(EWAUpdateDir, "EWALoader", "Client"))) return;
+
+            try
+            {
+                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client.bak")))
+                {
+                    Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client.bak"), true);
+                }
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client.bak")
+                    );
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader", "Client"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client")
+                    );
+
+                File.Copy(
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client.bak", "Configuration.xml"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Client", "Configuration.xml"),
+                    true);
+            }
+            catch (Exception Error)
+            {
+                Logger.LogError(Error, "UpdateClient");
+                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
+            }
+        }
+
+        private void UpdateClientMain()
+        {
+            if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader"))) return;
+            if (Directory.GetFiles(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader")).Count() == 0) return;
+
+            try
+            {
+                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Main.bak")))
+                {
+                    Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Main.bak"), true);
+                }
+                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Main.bak"));
+
+                Directory.GetFiles(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader"))
+                    .ForEach(F => File.Move(F, Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Main.bak", Path.GetFileName(F))));
+
+                Directory.GetFiles(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader"))
+                    .ForEach(F => File.Move(F, Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", Path.GetFileName(F))));
+            }
+            catch (Exception Error)
+            {
+                Logger.LogError(Error, "UpdateClient");
+                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
+            }
+        }
+
+        public void UpdateEWA()
+        {
+            if (!CurrentSysteminfo.online.Contains('o')) return;
+
+            ToEmpyrion.SendMessage(new ClientHostComData()
+            {
+                Command = ClientHostCommand.UpdateEWA,
+                Data    = new ProcessInformation() { Id = Process.GetCurrentProcess().Id }
+            });
+        }
     }
 
     [Authorize]
@@ -343,6 +441,31 @@ namespace EmpyrionModWebHost.Controllers
             SysteminfoManager.SystemConfig.Current = aSystemConfig;
             SysteminfoManager.SystemConfig.Current.ProcessInformation = SaveInfos;
             SysteminfoManager.SystemConfig.Save();
+            return Ok();
+        }
+
+        [HttpPost("UploadFile")]
+        [DisableRequestSizeLimit]
+        public IActionResult UploadFile()
+        {
+            foreach (var file in Request.Form.Files)
+            {
+                try { Directory.Delete(SysteminfoManager.EWAUpdateDir, true); } catch { }
+                Thread.Sleep(1000);
+                try { Directory.CreateDirectory(SysteminfoManager.EWAUpdateDir); } catch { }
+
+                var TargetFile = Path.Combine(SysteminfoManager.EWAUpdateDir, file.Name);
+                using (var ToFile = System.IO.File.Create(TargetFile))
+                {
+                    file.OpenReadStream().CopyTo(ToFile);
+                }
+
+                ZipFile.ExtractToDirectory(TargetFile, SysteminfoManager.EWAUpdateDir);
+                System.IO.File.Delete(TargetFile);
+            }
+
+            SysteminfoManager.UpdateEWA();
+
             return Ok();
         }
 
