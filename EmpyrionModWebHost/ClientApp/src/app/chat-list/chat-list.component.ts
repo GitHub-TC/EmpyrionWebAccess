@@ -73,6 +73,7 @@ export class ChatListComponent implements OnInit {
 
   getLineClass(aMsg: ChatModel) {
     if (aMsg.PlayerName == "Server") return "G";
+    if (aMsg.PlayerName == "-ADM-") return "A";
     if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return "Y";
     if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return "CB";
     if (aMsg.Type == ChatType.Faction) return "F";
