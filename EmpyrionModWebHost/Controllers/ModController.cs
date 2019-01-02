@@ -209,6 +209,8 @@ namespace EmpyrionModWebHost.Controllers
         [DisableRequestSizeLimit]
         public IActionResult UploadFile()
         {
+            Program.CreateTempPath();
+
             foreach (var file in Request.Form.Files)
             {
                 try { Directory.Delete(Path.Combine(ModLoaderHostPath, "Temp"), true);    } catch { }

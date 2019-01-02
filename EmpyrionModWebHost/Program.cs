@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Eleon.Modding;
@@ -64,5 +65,18 @@ namespace EmpyrionModWebHost
                 config.AddEnvironmentVariables();
             })
             .UseStartup<Startup>();
+
+        public static void CreateTempPath()
+        {
+            try
+            {
+                var temp = Environment.GetEnvironmentVariable("ASPNETCORE_TEMP") ??     // ASPNETCORE_TEMP - User set temporary location.
+                           Path.GetTempPath();
+
+                Directory.CreateDirectory(temp);
+            }
+            catch { }
+        }
+
     }
 }
