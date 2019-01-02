@@ -52,6 +52,7 @@ namespace EmpyrionModWebHost.Controllers
     {
         public ProcessInformation ProcessInformation { get; set; }
         public string StartCMD { get; set; }
+        public string WelcomeMessage { get; set; }
 
     }
 

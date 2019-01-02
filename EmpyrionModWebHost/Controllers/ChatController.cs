@@ -89,6 +89,13 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
+            ChatMessage(aChatTarget, aChatTargetHint, aChatAsUser, string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ", aMessage);
+        }
+
+        public void ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessagePrefix, string aMessage)
+        {
+            if (string.IsNullOrEmpty(aMessage)) return;
+
             AddChatToDB(new Chat()
             {
                 Timestamp     = DateTime.Now,
@@ -100,7 +107,7 @@ namespace EmpyrionModWebHost.Controllers
                 Message       = $"{aChatTargetHint}{aMessage}",
             });
 
-            Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ")}{aMessage.Replace("'", "\\'")}'"));
+            Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{aMessagePrefix}{aMessage.Replace("'", "\\'")}'"));
         }
 
         public override void Initialize(ModGameAPI dediAPI)

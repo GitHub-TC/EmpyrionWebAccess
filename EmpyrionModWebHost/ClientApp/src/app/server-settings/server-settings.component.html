@@ -2,8 +2,16 @@
   <div class="row">
     <div class="col col-lg-7">
       <mat-card style="margin:.5em">
-        <div style="display:block; height:4em; position:relative">
+        <div style="display:block; height:8em; position:relative">
           <mat-form-field style="position:absolute; left:.5em; right:60px;">
+            <input type="text" placeholder="Welcome new player" [(ngModel)]="SystemConfig.welcomeMessage" aria-label="Number" matInput [matAutocomplete]="autoWelcome">
+            <mat-autocomplete autoActiveFirstOption #autoWelcome="matAutocomplete">
+              <mat-option *ngFor="let i of WelcomeMessagesList" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <mat-form-field style="position:absolute; top:4em; left:.5em; right:60px;">
             <input type="text" placeholder="StartCMD" [(ngModel)]="SystemConfig.startCMD" aria-label="Number" matInput [matAutocomplete]="auto">
             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
               <mat-option *ngFor="let i of StartCMDList" [value]="i">

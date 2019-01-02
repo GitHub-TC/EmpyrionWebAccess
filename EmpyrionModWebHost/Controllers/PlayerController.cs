@@ -28,10 +28,14 @@ namespace EmpyrionModWebHost.Controllers
     public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public IHubContext<PlayerHub> PlayerHub { get; internal set; }
+        public Lazy<SysteminfoManager> SysteminfoManager { get; }
+        public Lazy<ChatManager> ChatManager { get; }
         public ModGameAPI GameAPI { get; private set; }
         public PlayerManager(IHubContext<PlayerHub> aPlayerHub)
         {
             PlayerHub = aPlayerHub;
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+            ChatManager       = new Lazy<ChatManager      >(() => Program.GetManager<ChatManager>());
         }
 
         public void CreateAndUpdateDatabase()
@@ -118,11 +122,21 @@ namespace EmpyrionModWebHost.Controllers
                     Player.LastOnline  = DateTime.Now;
                     Player.OnlineHours = 0;
                     DB.Players.Add(Player);
+
+                    SendWelcomeMessage(Player);
                 }
                 var count = DB.SaveChanges();
 
                 if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
             }
+        }
+
+        private void SendWelcomeMessage(Player aPlayer)
+        {
+            if (string.IsNullOrEmpty(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage)) return;
+
+            TaskTools.Delay(60, () => ChatManager.Value.ChatMessage(null, null, "-ADM-", null, 
+                string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
         }
 
         public Player GetPlayer(int aPlayerId)

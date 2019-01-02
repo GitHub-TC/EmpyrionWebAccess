@@ -13,6 +13,7 @@ class ProcessInformation {
 class SystemConfig {
   processInformation?: ProcessInformation;
   startCMD?: string;
+  welcomeMessage?: string;
 }
 
 @Component({
@@ -26,6 +27,10 @@ export class ServerSettingsComponent implements OnInit {
   WaitMinutes: number = 0;
   error: any;
   SystemConfig: SystemConfig = {};
+  WelcomeMessagesList: string[] = [
+    "Welcome {0} on our Empyrion Server",
+    "Willkommen {0} auf unserem Empyrion Server"
+  ];
 
   constructor(
     private http: HttpClient,
