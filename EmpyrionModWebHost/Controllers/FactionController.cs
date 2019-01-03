@@ -10,9 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {

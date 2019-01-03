@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace EmpyrionModWebHost
 {

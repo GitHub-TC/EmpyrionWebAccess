@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using EmpyrionModWebHost.Services;
-using YamlDotNet.RepresentationModel;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
 

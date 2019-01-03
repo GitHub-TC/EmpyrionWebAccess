@@ -7,7 +7,6 @@ using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;

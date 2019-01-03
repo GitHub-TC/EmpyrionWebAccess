@@ -7,7 +7,6 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Linq;
 using System;
-using System.Globalization;
 using System.Threading;
 using System.Diagnostics;
 using EmpyrionModWebHost.Extensions;

@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Eleon.Modding;
 using EmpyrionModWebHost.Configuration;
-using EmpyrionModWebHost.Migrations;
 using EmpyrionModWebHost.Services;
 using EWAExtenderCommunication;
+using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,9 @@ namespace EmpyrionModWebHost
         public static IWebHost Application { get; private set; }
         public static LifetimeEventsHostedService AppLifetime { get; private set; }
         public static ModHostDLL Host { get; set; }
-        public static AppSettings AppSettings { get; internal set; }
+        public static AppSettings AppSettings { get; set; }
+        public static X509Certificate2 EWAStandardCertificate { get; set; }
+        public static LetsEncryptACME LetsEncryptACME { get; set; }
 
         public static T GetManager<T>() where T : class
         {
@@ -64,6 +67,12 @@ namespace EmpyrionModWebHost
                       .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "appsettings.json"), optional: true);
                 config.AddEnvironmentVariables();
             })
+            .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
+            httpsOptions => httpsOptions.ServerCertificateSelector =
+                (c, s) => LetsEncryptACME != null && LetsEncryptACME.UseLetsEncrypt
+                    ? (LetsEncryptRenewalService.Certificate ?? EWAStandardCertificate)
+                    : EWAStandardCertificate
+                ))
             .UseStartup<Startup>();
 
         public static void CreateTempPath()

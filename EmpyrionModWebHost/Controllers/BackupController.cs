@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -8,14 +7,8 @@ using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.OData.Edm;
-using Newtonsoft.Json;
 
 namespace EmpyrionModWebHost.Controllers
 {

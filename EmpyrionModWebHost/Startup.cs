@@ -1,10 +1,12 @@
 using AutoMapper;
+using Certes;
 using Community.AspNetCore.ExceptionHandling;
 using Community.AspNetCore.ExceptionHandling.Mvc;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Controllers;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
+using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +19,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IO;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,6 +93,11 @@ namespace EmpyrionModWebHost
             services.AddDbContext<ChatContext>();
             services.AddDbContext<UserContext>();
 
+            // LetsEncryptACME config
+            var LetsEncryptACMESection = Configuration.GetSection("LetsEncryptACME");
+            services.Configure<AppSettings>(LetsEncryptACMESection);
+            Program.LetsEncryptACME = LetsEncryptACMESection.Get<LetsEncryptACME>();
+
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
@@ -96,6 +105,14 @@ namespace EmpyrionModWebHost
             // configure jwt authentication
             Program.AppSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(Program.AppSettings.Secret);
+
+            var CertificatePath     = Configuration.GetValue<string>("Kestrel:Certificates:Default:Path",     "EmpyrionWebAccess.pfx");
+            var CertificatePassword = Configuration.GetValue<string>("Kestrel:Certificates:Default:Password", "ae28f963219c38b682b75bd2b281e0c64796e341ae74b8a5bfcdc169e817eefc");
+
+            Program.EWAStandardCertificate = new X509Certificate2(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), "EmpyrionWebAccess.pfx"), 
+                CertificatePassword
+                );
 
             services.AddAuthentication(x =>
             {
@@ -138,6 +155,36 @@ namespace EmpyrionModWebHost
             {
                 configuration.RootPath = "ClientApp/dist/ClientApp";
             });
+
+            if (Program.LetsEncryptACME.UseLetsEncrypt)
+            {
+                //the following line adds the automatic renewal service.
+                services.AddFluffySpoonLetsEncryptRenewalService(new LetsEncryptOptions()
+                {
+                    Email = Program.LetsEncryptACME.EmailAddress, // "nitrado@cl-mail.eu", //LetsEncrypt will send you an e-mail here when the certificate is about to expire
+                    UseStaging = false, //switch to true for testing
+                    Domains = new[] { Program.LetsEncryptACME.DomainToUse },
+                    TimeUntilExpiryBeforeRenewal = TimeSpan.FromDays(30), //renew automatically 30 days before expiry
+                    TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(7), //renew automatically 7 days after the last certificate was issued
+                    CertificateSigningRequest = new CsrInfo() //these are your certificate details
+                    {
+                        CountryName         = Program.LetsEncryptACME.CountryName,
+                        Locality            = Program.LetsEncryptACME.Locality,
+                        Organization        = Program.LetsEncryptACME.Organization,
+                        OrganizationUnit    = Program.LetsEncryptACME.OrganizationUnit,
+                        State               = Program.LetsEncryptACME.State
+                    }
+                });
+
+                var StorePath = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "LetsEncrypt");
+                try { Directory.CreateDirectory(StorePath); } catch { }
+
+                //the following line tells the library to persist the certificate to a file, so that if the server restarts, the certificate can be re-used without generating a new one.
+                services.AddFluffySpoonLetsEncryptFileCertificatePersistence(Path.Combine(StorePath, "Certificate"));
+
+                //the following line tells the library to persist challenges in-memory. challenges are the "/.well-known" URL codes that LetsEncrypt will call.
+                services.AddFluffySpoonLetsEncryptMemoryChallengePersistence();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -152,6 +199,7 @@ namespace EmpyrionModWebHost
                 );
 
             app.UseExceptionHandlingPolicies();
+            if (Program.LetsEncryptACME.UseLetsEncrypt) app.UseFluffySpoonLetsEncryptChallengeApprovalMiddleware();
 
             app.UseAuthentication();
 
