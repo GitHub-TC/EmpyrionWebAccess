@@ -30,6 +30,8 @@ anderen MÜSSEN per // auskommentiert sein werden.
 Hinweis: Der Webserver läuft ausschließlich über HTTPS und nutzt das HTTP nur zur Weiterleitung auf HTTPS.
 
 ## Erstes Login
+![](EmpyrionModWebHost/Screenshots/Login.png)
+
 Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der ausgewählten ServerURL eine Anmeldemaske anzeigen.
 
 Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Alle Benutzer können nachher über die Oberfläche angelegt, geändert oder gelöscht werden.
@@ -37,14 +39,22 @@ Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutz
 Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser eine Warnung an das die Verbinug nicht sicher sein. Diese kann hier ignoriert werden.
 
 ## Das Hauptfenster
+![](EmpyrionModWebHost/Screenshots/Mainwindow.png)
+
 ### System-/Spielinformation
+![](EmpyrionModWebHost/Screenshots/Systeminfo.png)
+
 Rechts oben werden Informationen zum Server (CPU, RAM, HDD), dem Spiel (Spieler online, Anzahl der Playfieldserver, der Reserveserver und deren Speicherverbrauch) und der Version angezeigt.
 Auch befundet sich hier unter den drei sehrechten Punkten das Menü zu weiteren Fenstern un zum Logout.
 
 ### Chatbereich
+![](EmpyrionModWebHost/Screenshots/ChatTranslate.png)
+
 Hier laufen alle Chatmeldungen des Spiels ein. Der Admin kann von hier ebenfalls Chatmeldungen in das Spiel absetzen in dem er den Text im "Message" Eingabefeld eingibt und mit Enter/Return bestätigt. Wenn der Haken "Chat as NNNN" gesetzt ist wird dabei automatisch für die Spieler im Spiel ein NNNN: vor die Chatmeldung gesetzt.
 
 Um mit einem Spieler direkt zu Chatten kann dieser mit dem Chatsymbol ausgewählt werden. Sein name wird dann unter dem Eingabefeld angezeigt. Um wieder mit allen Spieler chatten zu können kann dann einfach der Haken bei "Chat to all" wieder gesetzt werden.
+
+Eine Übersetzung des Chats kann mit dem Feld Translate eingestellt werden. Danach können die gewünschen Meldungen über die Übersetzungsicons zur Übersetzung angefordert werden
 
 ### Aktive Playfields und die Spieler welche sich darin aufhalten
 Hier werden die aktiven Playfields mit ihrem Namen und der Anzahl Spieler aufgelistet.
@@ -60,19 +70,26 @@ Der Spieler wird hier mit seinem Onlinestatus, Namen, Fraktion, Herkunft ... ang
 * Das Warpsymbol (Gamepadsymbol) dient dazu das Warpfenster für den Spieler aufzurufen mit dem die Position des Spielers im Spiel verändert werden kann.
 
 ### Inventaranzeige
+![](EmpyrionModWebHost/Screenshots/Backpack.png)
+
 Hier wird das Inventar des ausgewählten Spielers angezeigt. Von hier aus kann man
 * Items hinzufügen
 * Einen alten Zustand des Backpacks wiederherstellen
 * Items löschen
 
 ### Spielerdetails
+![](EmpyrionModWebHost/Screenshots/PlayerDetails.png)
+
 Hier werden die Daten des ausgewählten Spielers angezeigt und können geändert werden.
 * ban/unban und wipe
 
 ### Fabrik
+![](EmpyrionModWebHost/Screenshots/Factory.png)
 Hier können Items in die Fabrik des Spielers hinzugefügt, die Anzahl geändert oder der aktuelle Bauauftrag fertiggestellt werden.
 
 ## Strukturen
+![](EmpyrionModWebHost/Screenshots/Structures.png)
+
 Hier werden alle Strukturen des Spiels aufgelistet:
 * Sie können Teleportiert werden
 * Die Position kann in den Speicher für ein Warp übertragen werden
@@ -80,19 +97,99 @@ Hier werden alle Strukturen des Spiels aufgelistet:
 * Die Fraktion der Strukturen kann auf Adm, Aln oder die des ausgewählten Spielers gesetzt werden
 
 ## Playfield
+![](EmpyrionModWebHost/Screenshots/PlayfieldView.png)
+
 Playfieldansicht mit den Strukturen.
 Hinweis: Um eine Karte des Playfields einblenden zu können muss diese map.png erst aus dem Cache eines Clients in das 
 \\MODs\\EWA\\Maps\\\[Playfield\]\\map.png 
 Verzeichnis kopiert werden
 
 ## Restore
-Wiederherstellung von Backpacks, Strukturen, Spielerdateien und Playfields aus Backups
+Wiederherstellung von Backpacks: 
+![](EmpyrionModWebHost/Screenshots/RestoreBackpack.png)
+
+Strukturen:
+![](EmpyrionModWebHost/Screenshots/RestoreStructure.png)
+
+Spielerdateien:
+![](EmpyrionModWebHost/Screenshots/RestorePlayer.png)
+
+Playfields:
+![](EmpyrionModWebHost/Screenshots/RestorePlayfields.png)
 
 ## Start/Stop
 EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
 Fehlt diese Datei wird der EWA automatisch gestoppt bzw. gar nicht erst gestartet. 
 
+## Server Settings
+![](EmpyrionModWebHost/Screenshots/ServerSettings.png)
+
+* Wilkommensnachricht für neue Spieler bei {0} wird der name des neuen Spieler eingesetzt
+* Startbatch für den EGS Server
+* Start, Stop, Restart des EGS Servers mit einem wählbaren Vorwarnzeit
+* EGS und EWA herunterfahren - Achtung: EGS muss danach über einen anderen Weg gestartet werden
+
+### Update EWA
+Einfach die EWALoaderXYZ.zip Datei der neuen Version für ein Upload auswählen. Der Upload startet automatisch.
+Je nachdem ob der EGS Server läuft wird zunächst das EWA und dann beim nächsten Stop des EGS der EWALoaderClient akualisiert
+im anderen Fall wird erst der EWALoaderClient und beim Start des EGS Servers dann das EWA akualisiert.
+
+## Mod Manager
+![](EmpyrionModWebHost/Screenshots/ModManagerRun.png)
+
+Zunächst muss der ModLoader installiert werden. Danach können die gewünschen Mods per Upload installiert werden.
+
+* Der ModLoader kann bei Bedarf ebenfalls mit all seinen Mods deinstalliert werden.
+* Falls notwendig kann der Modloader aus dem EWA Paket aktualisiert werden.
+
+![](EmpyrionModWebHost/Screenshots/ModManagerConfig.png)
+
+Hinweis: Um Änderungen an den Mods zu übernehmen muss der ModLoader gestoppt und erneut gestartet werden. 
+In der Zwischenzeit sind alle installierten Mods des ModLoaders vom Spiel aus nicht erreichbar.
+
+### Unterstützte MOD Dateien
+* Eine einfache DLL
+* Eine ZIP Datei mit den Dateien einer Mod und deren Unterverzeichnissen - ggf. muss hier noch die richtige DLL ausgewählt werden
+
+## Timetable
+![](EmpyrionModWebHost/Screenshots/Timetable.png)
+
+Mit der Timetable können zeitgesteuerte Aufgaben konfiguriert werden. Falls Aufgaben innerhalb einer anderen Aufgabe ablaufen sollen können diese als Unteraufgaben hinzugefügt werden.
+
+## Positionen merken/warp
+Die Positionen von Strukturen oder Spielern können sich 'gemerkt' werden in dem das Fahnensymbol angeklickt wird.
+
+![](EmpyrionModWebHost/Screenshots/Warp.png)
+
+Ein Warpfenster kann über das Gamepadsymbol aufgerufen werden. Eine zuvor 'gemerkte' Position wird dann hier ebenfalls angeboten.
+
 # Erweiterte Konfiguration
+## LetsEncrypt Service nutzen
+![](EmpyrionModWebHost/Screenshots/LetsEncryptSupport.png)
+
+LetsEncrypt stellt eine kostenlose und freie Möglichkeit für volltändig gültige HTTPS Zertifikate
+dar. Der Dienst benötigt keine Anmeldung oder Registrierung sondern kann von 'Webservern' 
+dynamisch nach einem Zertifikat gefragt werden. Dies geschieht, ebenso wir die Aktualisierung
+desselben automatisch.
+Zur Sicherheit kann man noch seine EMailadresse hinterlegen. Dann sendet LetsEncrypt vor Ablauf eines Zertifikates eine Benachichtigungsemail.
+
+In der 'appconfig.json' im \[Savegame\]\\MODs\\EWA folgenden Eintrag machen
+
+```
+  "LetsEncryptACME": {
+    "UseLetsEncrypt": true,
+    "DomainToUse": "{ComputerName}",  
+    "EmailAddress": "email@example.com",
+    "CountryName": "Country",
+    "Locality": "language",
+    "Organization": "your Organization",
+    "OrganizationUnit": "your Organization Unit",
+    "State": "state"
+  },
+```
+
+Hinweis: LetEncrpyt funktioniert derzeit nur mit den Stnadardports 80 bzw 443.
+
 ## Erstellen eines eigenen selbst signierten Zertifikates für die HTTPS Verbindung
 Der EWA enthält bereits ein selbst signirtes Zertifikat. Sie können jedoch auch ein eigenes mit der PowerShell anfertigen:
 
@@ -124,7 +221,6 @@ mod managing via<br>
 https://github.com/GitHub-TC/EmpyrionModHost
 
 # Was kommt noch?
-* MOD Manager: Einrichtung, Aktivierung/Deaktivierung, Update,... für weitere EGS Mods
 * VirtualAutominer 
 * ChatBot Hilfsbefehle
 * CombatLog
@@ -132,10 +228,8 @@ https://github.com/GitHub-TC/EmpyrionModHost
 * was wir/ich sonst noch so brauchen :-)
 
 
-=============================================================================
-English Version
-=============================================================================
-
+-----------------------------------------------------------------------------
+# English Version
 
 # Empyrion Web Access
 
@@ -226,6 +320,54 @@ Recovery of backpacks, structures, player files and playfields from backups
 EmpyrionWebAccess does not start automatically there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.
 If this file is missing, the EWA is automatically stopped or not even started.
 
+## Server Settings
+* Welcome message for new players at {0} will use the name of the new player
+* Startup batch for the EGS server
+* Start, Stop, Restart the EGS server with a selectable early warning time
+* Shut down EGS and EWA - Attention: EGS must then be started by another route
+
+### Update EWA
+Simply select the EWALoaderXYZ.zip file of the new version for upload. The upload starts automatically.
+Depending on whether the EGS server is running, the EWA is first updated and then the EWALoaderClient is refreshed the next time the EGS is stopped
+otherwise the EWALoaderClient will be updated first and then the EWA will be updated when the EGS server is started.
+
+## Mod Manager
+First, the ModLoader must be installed. Then the desired mods can be installed by upload.
+Note: To apply changes to the mods, the ModLoader must be stopped and restarted.
+In the meantime, all installed ModLoader mods are unreachable from the game.
+
+* If necessary, the ModLoader can also be uninstalled with all its mods.
+* If necessary, the modloader can be updated from the EWA package.
+
+### Supported MOD files
+* A simple dll
+* A ZIP file with the files of a mod and their subdirectories - if necessary, the correct DLL must be selected here
+
+# Advanced configuration
+## Use LetsEncrypt service
+LetsEncrypt provides a free and free way for fully valid HTTPS certificates
+The service does not require login or registration but can be accessed by 'web servers'.
+be dynamically asked for a certificate. This happens as well as we update
+same automatically.
+For security, you can still deposit his email address. LetsEncrypt then sends a notification email before the expiration of a certificate.
+
+Make the following entry in 'appconfig.json' in \[savegame\]\\MODs\\EWA
+
+```
+  "LetsEncryptACME": {
+    "UseLetsEncrypt": true,
+    "DomainToUse": "{ComputerName}",
+    "EmailAddress": "email@example.com",
+    "CountryName": "Country",
+    "Locality": "language",
+    "Organization": "your Organization",
+    "OrganizationUnit": "your Organization Unit",
+    "State": "state"
+  },
+```
+
+Note: LetEncrpyt currently only works with the stanadard ports 80 or 443.
+
 # Advanced configuration
 ## Create your own self-signed certificate for the HTTPS connection
 The EWA already contains a self-signed certificate. But you can also make your own with PowerShell:
@@ -258,7 +400,6 @@ mod managing via <br>
 https://github.com/GitHub-TC/EmpyrionModHost
 
 # What else is coming?
-* MOD Manager: Setup, Activation/Deactivation, Update, ... for more EGS mods
 * VirtualAutominer 
 * ChatBot supportcommands
 * ...

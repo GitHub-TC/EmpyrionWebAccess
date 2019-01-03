@@ -58,7 +58,10 @@ namespace EmpyrionModWebHost.Controllers
             }
 
             Process EGSProcess = null;
-            try { EGSProcess = Process.GetProcessById(SysteminfoManager.Value.ProcessInformation.Id); } catch { }
+            try {
+                if (SysteminfoManager.Value.ProcessInformation == null) return false;
+                EGSProcess = Process.GetProcessById(SysteminfoManager.Value.ProcessInformation.Id);
+            } catch { }
             var ESGChildProcesses = EGSProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionModHost").ToArray();
 
             return ESGChildProcesses?.FirstOrDefault() != null;
@@ -267,6 +270,7 @@ namespace EmpyrionModWebHost.Controllers
 
             var TargetDir = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetFileNameWithoutExtension(aZipFile));
             var SourceDir = Path.Combine(Path.GetDirectoryName(aZipFile), Path.GetFileNameWithoutExtension(aZipFile));
+            if (!Directory.Exists(SourceDir)) SourceDir = Path.GetDirectoryName(aZipFile);
 
             // only sub directory
             var Dirs = Directory.EnumerateDirectories(SourceDir).ToArray();
