@@ -165,7 +165,7 @@ namespace EmpyrionModWebHost
                     UseStaging = false, //switch to true for testing
                     Domains = new[] { Program.LetsEncryptACME.DomainToUse },
                     TimeUntilExpiryBeforeRenewal = TimeSpan.FromDays(30), //renew automatically 30 days before expiry
-                    TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(7), //renew automatically 7 days after the last certificate was issued
+                    //TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(7), //renew automatically 7 days after the last certificate was issued
                     CertificateSigningRequest = new CsrInfo() //these are your certificate details
                     {
                         CountryName         = Program.LetsEncryptACME.CountryName,
