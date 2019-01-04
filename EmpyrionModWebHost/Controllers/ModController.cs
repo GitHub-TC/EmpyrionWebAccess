@@ -99,10 +99,19 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (System.IO.File.Exists(DllNamesFile)) System.IO.File.Copy(DllNamesFile, DllNamesFile + ".bak", true);
 
+            try { Directory.Delete(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"), true); } catch { }
+
             ZipFile.ExtractToDirectory(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "ModLoader.zip"),
-                Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"),
+                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"),
                 true);
+
+            BackupManager.CopyAll(
+                new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp")),
+                new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"))
+                );
+
+            try { Directory.Delete(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"), true); } catch { }
 
             if (System.IO.File.Exists(DllNamesFile + ".bak")) System.IO.File.Copy(DllNamesFile + ".bak", DllNamesFile, true);
             else                                              System.IO.File.WriteAllText(DllNamesFile, "");

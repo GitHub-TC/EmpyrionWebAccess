@@ -39,10 +39,14 @@ namespace EmpyrionModWebHost.Controllers
 
         public static void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
         {
-            aSource.GetDirectories().AsParallel().ForEach(D => CopyAll(D, aTarget.CreateSubdirectory(D.Name)));
+            aSource.GetDirectories().AsParallel().ForEach(D =>
+            {
+                try { aTarget.CreateSubdirectory(D.Name); } catch { }
+                CopyAll(D, new DirectoryInfo(Path.Combine(aTarget.FullName, D.Name)));
+            });
             aSource.GetFiles().AsParallel().ForEach(F => {
                 Directory.CreateDirectory(aTarget.FullName);
-                F.CopyTo(Path.Combine(aTarget.FullName, F.Name), true);
+                try { F.CopyTo(Path.Combine(aTarget.FullName, F.Name), true); } catch { }
             });
         }
 
