@@ -19,7 +19,7 @@
       <mat-card style="margin-bottom:1em">
         <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
-            <img *ngIf="SelectedPlayfield.isPlanet"  src="Playfield/GetPlayfieldMap/{{SelectedPlayfield.name}}" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
+            <img *ngIf="SelectedPlayfield.isPlanet" [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
             <div *ngIf="!SelectedPlayfield.isPlanet" style="background-color:black"></div>
           </div>
           <div *ngFor="let s of PlayfieldStructures" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
@@ -40,6 +40,9 @@
         <mat-icon>local_play</mat-icon> CV<br />
         <mat-icon>flight</mat-icon> SV<br />
         <mat-icon>directions_car</mat-icon> HV<br />
+      </mat-card>
+      <mat-card>
+        <app-file-upload [UploadURL]="UploadURL(SelectedPlayfieldName)" [UploadTitle]="'Upload Map\'s'" (uploaded)="onUploaded()"></app-file-upload>
       </mat-card>
     </div>
   </div>

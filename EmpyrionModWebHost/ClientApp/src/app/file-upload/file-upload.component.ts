@@ -15,6 +15,7 @@ public progress: number;
 
   @Output() uploaded: EventEmitter<any> = new EventEmitter();
   @Input() UploadURL: string;
+  @Input() UploadTitle: string = "Choose a file...";
 
   onChange(mainEvent) {
     const files = mainEvent.target.files;

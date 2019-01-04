@@ -15,6 +15,7 @@ export class PlayfieldService{
 
   private mPlayfields: BehaviorSubject<PlayfieldModel[]> = new BehaviorSubject(this.mPlayfieldsData);
   private readonly mPlayfieldsObservable: Observable<PlayfieldModel[]> = this.mPlayfields.asObservable();
+  public CurrentPlayfield: PlayfieldModel;
 
   constructor(
     private http: HttpClient,

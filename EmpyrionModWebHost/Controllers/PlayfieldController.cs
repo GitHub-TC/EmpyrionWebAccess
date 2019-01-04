@@ -8,6 +8,7 @@ using System.IO;
 using EmpyrionModWebHost.Services;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
+using System.IO.Compression;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -88,6 +89,7 @@ namespace EmpyrionModWebHost.Controllers
     public class PlayfieldController : ControllerBase
     {
         public PlayfieldManager PlayfieldManager { get; }
+        public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "Maps");
 
         public PlayfieldController()
         {
@@ -106,13 +108,15 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("GetPlayfieldMap/{aPlayfieldname}")]
         public IActionResult GetPlayfieldMap(string aPlayfieldname)
         {
-            if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "Maps"))) return NotFound();
+            if (!Directory.Exists(MapsPath)) return NotFound();
 
             var PlayfieldMap = Path.Combine(
                     EmpyrionConfiguration.SaveGameModPath,
                     "Maps",
                     aPlayfieldname,
                     "map.png");
+
+            if (!System.IO.File.Exists(PlayfieldMap)) return NotFound();
 
             DateTimeOffset? LastModified = new DateTimeOffset(System.IO.File.GetLastWriteTime(PlayfieldMap));
 
@@ -125,6 +129,36 @@ namespace EmpyrionModWebHost.Controllers
                 true
                 );
         }
+
+        [HttpPost("UploadMapFile")]
+        [DisableRequestSizeLimit]
+        public IActionResult UploadMapFile([FromQuery]string PlayfieldName)
+        {
+            Program.CreateTempPath();
+
+            foreach (var file in Request.Form.Files)
+            {
+                try { Directory.CreateDirectory(MapsPath); } catch { }
+
+                var TargetFile = Path.Combine(MapsPath, file.Name);
+                using (var ToFile = System.IO.File.Create(TargetFile))
+                {
+                    file.OpenReadStream().CopyTo(ToFile);
+                }
+
+                switch (Path.GetExtension(TargetFile).ToLower())
+                {
+                    case ".zip": ZipFile.ExtractToDirectory(TargetFile, MapsPath, true); break;
+                    case ".png":
+                        try { Directory.CreateDirectory(Path.Combine(MapsPath, PlayfieldName)); } catch { }
+                        System.IO.File.Copy(TargetFile, Path.Combine(MapsPath, PlayfieldName, Path.GetFileName(TargetFile)), true); break;
+                }
+
+                System.IO.File.Delete(TargetFile);
+            }
+            return Ok();
+        }
+
     }
 
 }

@@ -34,7 +34,7 @@
       <mat-card style="margin:.5em">
         <div>
           <h3>Update Current: EWA {{SystemInfo.CurrentSystemInfo.version}} by {{SystemInfo.CurrentSystemInfo.copyright}}</h3>
-          <app-file-upload [UploadURL]="'Systeminfo/UploadFile'" (uploaded)="onUploaded()"></app-file-upload>
+          <app-file-upload [UploadURL]="'Systeminfo/UploadFile'" [UploadTitle]="'Choose a \'EWALoaderNNN.zip\' file'"  (uploaded)="onUploaded()"></app-file-upload>
         </div>
       </mat-card>
       <app-yes-no-dialog></app-yes-no-dialog>

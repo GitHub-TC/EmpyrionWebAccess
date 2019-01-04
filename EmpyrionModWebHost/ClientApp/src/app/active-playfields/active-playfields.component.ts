@@ -9,6 +9,9 @@ import { ChatService } from '../services/chat.service';
 import { PlayerService } from '../services/player.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
+import { PlayfieldService } from '../services/playfield.service';
+import { PlayfieldModel } from '../model/playfield-model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-active-playfields',
@@ -23,10 +26,12 @@ export class ActivePlayfieldsComponent implements OnInit {
   mPlayfieldsOpen: string[] = [];
 
   constructor(
+    public  router: Router,
     private mFactionService: FactionService,
     private mPositionService: PositionService,
     private mChatService: ChatService,
-    private mPlayerService: PlayerService)
+    private mPlayerService: PlayerService,
+    private mPlayfields: PlayfieldService)
   { }
 
   ngOnInit() {
@@ -73,12 +78,22 @@ export class ActivePlayfieldsComponent implements OnInit {
   }
 
   Open(aPlayfieldName: string) {
-    let found = this.mPlayfieldsOpen.findIndex(P => P == aPlayfieldName);
-    if (found >= 0) this.mPlayfieldsOpen = this.mPlayfieldsOpen.splice(found, 1);
+    setTimeout(() => {
+      let found = this.mPlayfieldsOpen.findIndex(P => P == aPlayfieldName);
+      if (found >= 0) this.mPlayfieldsOpen = this.mPlayfieldsOpen.splice(found, 1);
+    }, 1000);
   }
 
   Close(aPlayfieldName: string) {
-    let found = this.mPlayfieldsOpen.findIndex(P => P == aPlayfieldName);
-    if (found == -1) this.mPlayfieldsOpen.push(aPlayfieldName);
+    setTimeout(() => {
+      let found = this.mPlayfieldsOpen.findIndex(P => P == aPlayfieldName);
+      if (found == -1) this.mPlayfieldsOpen.push(aPlayfieldName);
+    }, 1000);
+  }
+
+  GotoPlayfield(aEvent, aPlayfield: PlayfieldModel) {
+    aEvent.stopPropagation();
+    this.mPlayfields.CurrentPlayfield = aPlayfield;
+    this.router.navigate(['entities']);
   }
 }

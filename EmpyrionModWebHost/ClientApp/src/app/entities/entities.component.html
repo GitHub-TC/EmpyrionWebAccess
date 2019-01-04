@@ -1,14 +1,14 @@
 <div style="position:relative">
   <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
   <mat-tab-group>
-    <mat-tab label="Structures">
-      <ng-template matTabContent>
-        <app-structures-list></app-structures-list>
-      </ng-template>
-    </mat-tab>
     <mat-tab label="Playfield">
       <ng-template matTabContent>
         <app-playfield-view></app-playfield-view>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Structures">
+      <ng-template matTabContent>
+        <app-structures-list></app-structures-list>
       </ng-template>
     </mat-tab>
   </mat-tab-group>

@@ -2,8 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { StructureService } from '../services/structure.service';
 import { PlayerService } from '../services/player.service';
-import { PositionService } from '../services/position.service';
-import { FactionService } from '../services/faction.service';
 import { PlayfieldService } from '../services/playfield.service';
 import { PlayerModel, PVector3 } from '../model/player-model';
 import { PlayfieldModel } from '../model/playfield-model';
@@ -17,9 +15,10 @@ import { GlobalStructureInfo } from '../model/structure-model';
 export class PlayfieldViewComponent implements OnInit {
   @ViewChild("MapImage", { read: ElementRef }) MapImage: ElementRef;
 
-  Playfields: PlayfieldModel[];
+  Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;
   mSelectedPlayfieldName: string = "";
+  MapUrl: string;
   mAllPlayers: PlayerModel[];
   PlayfieldPlayers: PlayerModel[];
   mAllStructures: GlobalStructureInfo[];
@@ -41,7 +40,12 @@ export class PlayfieldViewComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.mPlayfields.PlayfieldNames.subscribe(PL => this.Playfields = PL);
+    this.mSelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
+
+    this.mPlayfields.PlayfieldNames.subscribe(PL => {
+      this.Playfields = PL;
+      this.SelectedPlayfield = this.Playfields.find(P => P.name == this.SelectedPlayfieldName);
+    });
     this.mPlayerService.GetPlayers().subscribe(P => {
       this.mAllPlayers = P;
       this.PlayfieldPlayers = P.filter(p => p.Playfield == this.SelectedPlayfieldName);
@@ -51,6 +55,10 @@ export class PlayfieldViewComponent implements OnInit {
       this.SelectedPlayfieldName = this.mSelectedPlayfieldName;
     });
 
+  }
+
+  ngAfterViewInit() {
+    this.SelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
@@ -69,6 +77,7 @@ export class PlayfieldViewComponent implements OnInit {
     this.mSelectedPlayfieldName = aPlayfieldName;
     if (!aPlayfieldName) return;
 
+    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName);
     this.SelectedPlayfield   = this.Playfields.find(P => P.name == aPlayfieldName);
 
     this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield == aPlayfieldName);
@@ -139,4 +148,11 @@ export class PlayfieldViewComponent implements OnInit {
     return aPlayer.Online ? "green" : "cornflowerblue";
   }
 
+  onUploaded() {
+    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName) + '?random=' + Math.random();
+  }
+
+  UploadURL(aPlayfieldname) {
+    return aPlayfieldname ? 'Playfield/UploadMapFile?PlayfieldName=' + encodeURIComponent(aPlayfieldname) : 'Playfield/UploadMapFile'
+  }
 }

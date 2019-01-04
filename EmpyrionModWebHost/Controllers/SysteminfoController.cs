@@ -258,7 +258,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStart");
                 Process EGSProcess = null;
-                try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
+                try { EGSProcess = ProcessInformation == null ? null : Process.GetProcessById(ProcessInformation.Id); } catch { }
 
                 if (EGSProcess != null && !EGSProcess.HasExited)
                 {

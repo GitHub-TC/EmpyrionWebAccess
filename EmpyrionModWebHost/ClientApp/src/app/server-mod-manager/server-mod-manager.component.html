@@ -32,7 +32,7 @@
 <mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
   <div>
     <h3>Install or update</h3>
-    <app-file-upload [UploadURL]="'Mod/UploadFile'" (uploaded)="onUploaded()"></app-file-upload>
+    <app-file-upload [UploadURL]="'Mod/UploadFile'" [UploadTitle]="'Choose a MOD file (DLL or ZIP)'"  (uploaded)="onUploaded()"></app-file-upload>
   </div>
 </mat-card>
 <app-yes-no-dialog></app-yes-no-dialog>
