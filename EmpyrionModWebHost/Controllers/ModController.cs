@@ -101,7 +101,7 @@ namespace EmpyrionModWebHost.Controllers
 
             ZipFile.ExtractToDirectory(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "ModLoader.zip"),
-                Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader"),
+                Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"),
                 true);
 
             if (System.IO.File.Exists(DllNamesFile + ".bak")) System.IO.File.Copy(DllNamesFile + ".bak", DllNamesFile, true);
