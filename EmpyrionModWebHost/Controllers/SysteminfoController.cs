@@ -225,7 +225,7 @@ namespace EmpyrionModWebHost.Controllers
                 try
                 {
                     Process EGSProcess = null;
-                    try { EGSProcess = Process.GetProcessById(ProcessInformation.Id); } catch { }
+                    try { EGSProcess = ProcessInformation == null ? null : Process.GetProcessById(ProcessInformation.Id); } catch { }
 
                     Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: saveandexit:" + aWaitMinutes);
                     new Thread(() => Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes)).Wait(10000)).Start();
