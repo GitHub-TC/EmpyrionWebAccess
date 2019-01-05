@@ -6,7 +6,7 @@ Dadurch das die MOD ohne Oberfläche oder Remotedesktop auf dem Server auskommt 
 Sie startet und beendet sich automatisch mit dem Spiel und kann von beliebig vielen Admins gleichzeitig genutzt werden.
 
 Empyrion Web Access ist frei zur nicht kommerziellen Benutzung.<br>
-Über eine Aufmersamkeit würde ich mich aber freuen https://paypal.me/ASTICTC
+Über eine Aufmerksamkeit würde ich mich aber freuen https://paypal.me/ASTICTC
 
 Viel Spaß beim Spielen und dem Serverbetrieb wünscht<br>
 ASTIC/TC
@@ -20,7 +20,7 @@ EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Dat
 Jetzt muss also eine solche Datei erstellt werden. 
 
 # WebServer Konfiguration
-Standardmässig ist der EWA unter https://\[Rechnername\] zu erreichen.
+Standardmäßig ist der EWA unter https://\[Rechnername\] zu erreichen.
 
 Soll dies auf einem anderen Port oder Url geschehen muss die Textdatei "appsettings.json" im
 Savegameverzeichnis unter \[Savegame\]\\MODs\\EWA konfiguriert werden.
@@ -36,7 +36,7 @@ Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der ausgew�
 
 Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Alle Benutzer können nachher über die Oberfläche angelegt, geändert oder gelöscht werden.
 
-Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser eine Warnung an das die Verbinug nicht sicher sein. Diese kann hier ignoriert werden.
+Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser eine Warnung an das die Verbindung nicht sicher sein. Diese kann hier ignoriert werden.
 
 ## Das Hauptfenster
 ![](EmpyrionModWebHost/Screenshots/Mainwindow.png)
@@ -45,7 +45,7 @@ Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser 
 ![](EmpyrionModWebHost/Screenshots/Systeminfo.png)
 
 Rechts oben werden Informationen zum Server (CPU, RAM, HDD), dem Spiel (Spieler online, Anzahl der Playfieldserver, der Reserveserver und deren Speicherverbrauch) und der Version angezeigt.
-Auch befundet sich hier unter den drei sehrechten Punkten das Menü zu weiteren Fenstern un zum Logout.
+Auch befindet sich hier unter den drei senkrechten Punkten das Menü zu weiteren Fenstern und zum Logout.
 
 ### Chatbereich
 ![](EmpyrionModWebHost/Screenshots/ChatTranslate.png)
@@ -54,7 +54,7 @@ Hier laufen alle Chatmeldungen des Spiels ein. Der Admin kann von hier ebenfalls
 
 Um mit einem Spieler direkt zu Chatten kann dieser mit dem Chatsymbol ausgewählt werden. Sein name wird dann unter dem Eingabefeld angezeigt. Um wieder mit allen Spieler chatten zu können kann dann einfach der Haken bei "Chat to all" wieder gesetzt werden.
 
-Eine Übersetzung des Chats kann mit dem Feld Translate eingestellt werden. Danach können die gewünschen Meldungen über die Übersetzungsicons zur Übersetzung angefordert werden
+Eine Übersetzung des Chats kann mit dem Feld Translate eingestellt werden. Danach können die gewünschten Meldungen über die Übersetzungsicons zur Übersetzung angefordert werden
 
 ### Aktive Playfields und die Spieler welche sich darin aufhalten
 Hier werden die aktiven Playfields mit ihrem Namen und der Anzahl Spieler aufgelistet.
@@ -67,7 +67,7 @@ Hier werden alle Spieler angezeigt die seid in der Laufzeit von EWA mal online w
 
 Der Spieler wird hier mit seinem Onlinestatus, Namen, Fraktion, Herkunft ... angezeigt.
 * Das Chatsymbol dient dazu mit dem Spieler direkten Kontakt aufzunehmen und das Fahnensymbol, dessen aktuelle Position zu speichern (s. Warp).
-* Das Warpsymbol (Gamepadsymbol) dient dazu das Warpfenster für den Spieler aufzurufen mit dem die Position des Spielers im Spiel verändert werden kann.
+* Das Warpsymbol (Gamepadsymbol) dient dazu das Warpfenster für den Spieler aufzurufen, mit dem die Position des Spielers im Spiel verändert werden kann.
 
 ### Inventaranzeige
 ![](EmpyrionModWebHost/Screenshots/Backpack.png)
@@ -124,20 +124,20 @@ Fehlt diese Datei wird der EWA automatisch gestoppt bzw. gar nicht erst gestarte
 ## Server Settings
 ![](EmpyrionModWebHost/Screenshots/ServerSettings.png)
 
-* Wilkommensnachricht für neue Spieler bei {0} wird der name des neuen Spieler eingesetzt
+* Wilkommensnachricht für neue Spieler bei {0} wird der Name des neuen Spielers eingesetzt
 * Startbatch für den EGS Server
-* Start, Stop, Restart des EGS Servers mit einem wählbaren Vorwarnzeit
+* Start, Stop, Restart des EGS Servers mit einer wählbaren Vorwarnzeit
 * EGS und EWA herunterfahren - Achtung: EGS muss danach über einen anderen Weg gestartet werden
 
 ### Update EWA
 Einfach die EWALoaderXYZ.zip Datei der neuen Version für ein Upload auswählen. Der Upload startet automatisch.
 Je nachdem ob der EGS Server läuft wird zunächst das EWA und dann beim nächsten Stop des EGS der EWALoaderClient akualisiert
-im anderen Fall wird erst der EWALoaderClient und beim Start des EGS Servers dann das EWA akualisiert.
+im anderen Fall wird erst der EWALoaderClient und beim Start des EGS Servers dann das EWA aktualisiert.
 
 ## Mod Manager
 ![](EmpyrionModWebHost/Screenshots/ModManagerRun.png)
 
-Zunächst muss der ModLoader installiert werden. Danach können die gewünschen Mods per Upload installiert werden.
+Zunächst muss der ModLoader installiert werden. Danach können die gewünschten Mods per Upload installiert werden.
 
 * Der ModLoader kann bei Bedarf ebenfalls mit all seinen Mods deinstalliert werden.
 * Falls notwendig kann der Modloader aus dem EWA Paket aktualisiert werden.
@@ -167,11 +167,11 @@ Ein Warpfenster kann über das Gamepadsymbol aufgerufen werden. Eine zuvor 'geme
 ## LetsEncrypt Service nutzen
 ![](EmpyrionModWebHost/Screenshots/LetsEncryptSupport.png)
 
-LetsEncrypt stellt eine kostenlose und freie Möglichkeit für volltändig gültige HTTPS Zertifikate
-dar. Der Dienst benötigt keine Anmeldung oder Registrierung sondern kann von 'Webservern' 
+LetsEncrypt stellt eine kostenlose und freie Möglichkeit für vollständig gültige HTTPS Zertifikate
+dar. Der Dienst benötigt keine Anmeldung oder Registrierung, sondern kann von 'Webservern' 
 dynamisch nach einem Zertifikat gefragt werden. Dies geschieht, ebenso wir die Aktualisierung
 desselben automatisch.
-Zur Sicherheit kann man noch seine EMailadresse hinterlegen. Dann sendet LetsEncrypt vor Ablauf eines Zertifikates eine Benachichtigungsemail.
+Zur Sicherheit kann man noch seine Email Adresse hinterlegen. Dann sendet LetsEncrypt vor Ablauf eines Zertifikates eine Benachrichtigungsemail.
 
 In der 'appconfig.json' im \[Savegame\]\\MODs\\EWA folgenden Eintrag machen
 
@@ -188,10 +188,10 @@ In der 'appconfig.json' im \[Savegame\]\\MODs\\EWA folgenden Eintrag machen
   },
 ```
 
-Hinweis: LetEncrpyt funktioniert derzeit nur mit den Stnadardports 80 bzw 443.
+Hinweis: LetEncrpyt funktioniert derzeit nur mit den Standard Ports 80 bzw 443.
 
 ## Erstellen eines eigenen selbst signierten Zertifikates für die HTTPS Verbindung
-Der EWA enthält bereits ein selbst signirtes Zertifikat. Sie können jedoch auch ein eigenes mit der PowerShell anfertigen:
+Der EWA enthält bereits ein selbst signiertes Zertifikat. Sie können jedoch auch ein eigenes mit der PowerShell anfertigen:
 
 1. New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname EmpyrionWebAccess -NotAfter (Get-Date).AddYears(10)
 --> CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4
@@ -200,7 +200,7 @@ Export-PfxCertificate -cert cert:\localMachine\my\CE0976529B02DE058C9CB2C0E64AD7
 1. Nun muss die EmpyrionWebAccess.pfx Datei auf dem Server abgelegt werden und der Dateipfad und das Kennwort in der appsettings.json Datei im \[Savegame\]\\MODs\\EWA Verzeichnis eigetragen werden
 
 ## Freigabe von Ports
-Ggf. müssen die Ports und Adressen noch für den Benutzer, unter dessen Account EGS läuft, freigegeben werden. Dazu muss man in einer Admin-PowerShel Console folgende Befehle absetzen.
+Ggf. müssen die Ports und Adressen noch für den Benutzer, unter dessen Account EGS läuft, freigegeben werden. Dazu muss man in einer Admin-PowerShell Console folgende Befehle absetzen.
 
 1. Für HTTP
    * netsh http add urlacl url=http://[computername][:Port]/ user=[domain/computer]\[user]
