@@ -110,7 +110,7 @@ namespace EmpyrionModWebHost
             var CertificatePassword = Configuration.GetValue<string>("Kestrel:Certificates:Default:Password", "ae28f963219c38b682b75bd2b281e0c64796e341ae74b8a5bfcdc169e817eefc");
 
             Program.EWAStandardCertificate = new X509Certificate2(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), "EmpyrionWebAccess.pfx"), 
+                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), CertificatePath), 
                 CertificatePassword
                 );
 
