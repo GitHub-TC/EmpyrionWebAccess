@@ -111,6 +111,8 @@ Wiederherstellung von Backpacks:
 Strukturen:
 ![](EmpyrionModWebHost/Screenshots/RestoreStructure.png)
 
+Gelösche/zerstörter Strukturen des aktuellen Savegames können wiederhergestellt werden in dem als Backup "### Current Savegame ###" ausgewählt wird
+
 Spielerdateien:
 ![](EmpyrionModWebHost/Screenshots/RestorePlayer.png)
 

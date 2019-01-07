@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace EmpyrionModWebHost.Controllers
 {
     public class BackupManager : EmpyrionModBase, IEWAPlugin
     {
+        public const string CurrentSaveGame = "### Current Savegame ###";
+
         public ModGameAPI GameAPI { get; private set; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public string BackupDir { get; internal set; }
@@ -72,7 +75,9 @@ namespace EmpyrionModWebHost.Controllers
                 factionId = 0, // erstmal auf "public" aStructure.Faction,
             };
 
-            var SourceDir = Path.Combine(BackupDir, aSelectBackupDir, @"Saves\Games",
+            var SourceDir = Path.Combine(BackupDir,
+                            aSelectBackupDir == CurrentSaveGame ? EmpyrionConfiguration.ProgramPath : aSelectBackupDir, 
+                            @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
             var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}");
 
@@ -309,10 +314,27 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("ReadStructures")]
-        public IActionResult ReadStructures([FromBody]BackupData aSelectBackupDir)
+        public PlayfieldGlobalStructureInfo[] ReadStructures([FromBody]BackupData aSelectBackupDir)
         {
-            var StructDir = Path.Combine(BackupManager.BackupDir, aSelectBackupDir.backup, @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
-            return Ok(Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)));
+            return aSelectBackupDir.backup == BackupManager.CurrentSaveGame
+                ? DeletesStructuresFromCurrentSaveGame()
+                : ReadStructuresFromDirectory(aSelectBackupDir.backup);
+        }
+
+        private PlayfieldGlobalStructureInfo[] ReadStructuresFromDirectory(string aSelectBackupDir)
+        {
+            var StructDir = Path.Combine(BackupManager.BackupDir,
+                aSelectBackupDir == BackupManager.CurrentSaveGame ? EmpyrionConfiguration.ProgramPath : aSelectBackupDir,
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
+            return Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)).ToArray();
+        }
+
+        private PlayfieldGlobalStructureInfo[] DeletesStructuresFromCurrentSaveGame()
+        {
+            var GSL = BackupManager.Request_GlobalStructure_List().Result.globalStructures
+                .Aggregate(new List<int>(), (L, S) => { L.AddRange(S.Value.Select(s => s.id)); return L; });
+
+            return ReadStructuresFromDirectory(BackupManager.CurrentSaveGame).Where(S => !GSL.Contains(S.Id)).ToArray();
         }
 
         [HttpPost("ReadPlayers")]

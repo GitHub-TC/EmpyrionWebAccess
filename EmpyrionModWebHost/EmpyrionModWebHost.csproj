@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>1.8.6</Version>
+    <Version>1.8.8</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -168,7 +168,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)*.md&quot; &quot;$(ProjectDir)bin\EWALoader\*.*&quot; /Y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)..\*.md&quot; &quot;$(ProjectDir)bin\EWALoader\*.*&quot; /Y" />
   </Target>
 
 </Project>

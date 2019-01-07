@@ -183,7 +183,8 @@ namespace EmpyrionModWebHost.Controllers
                 Path = PlayersDirectory,
                 NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite |
                                NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                Filter = "*.ply"
+                Filter              = "*.ply",
+                EnableRaisingEvents = true,
             };
             mPlayersDirectoryFileWatcher.Deleted += (s, e) => SyncronizePlayersWithSaveGameDirectory();
         }
@@ -208,11 +209,12 @@ namespace EmpyrionModWebHost.Controllers
 
         private void SyncronizePlayersWithSaveGameDirectory()
         {
-            new Thread(() =>
+            TaskTools.Delay(1, () =>
             {
                 var KnownPlayers = Directory
                     .GetFiles(PlayersDirectory)
                     .Select(F => Path.GetFileNameWithoutExtension(F));
+
                 using (var DB = new PlayerContext())
                 {
                     DB.Players
@@ -222,7 +224,7 @@ namespace EmpyrionModWebHost.Controllers
                     DB.SaveChanges();
                 }
 
-            }).Start();
+            });
         }
 
         private void PlayerDisconnected(Id ID)

@@ -64,7 +64,10 @@ export class RestoreStructureComponent implements OnInit {
     let locationsSubscription = this.http.get<string[]>("Backups/GetBackups")
       .pipe()
       .subscribe(
-        B => this.Backups = B,
+        B => {
+          this.Backups = B;
+          this.Backups.unshift("### Current Savegame ###");
+        },
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds

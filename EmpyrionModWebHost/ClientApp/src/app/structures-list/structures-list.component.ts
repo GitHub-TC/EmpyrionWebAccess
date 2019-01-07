@@ -42,8 +42,10 @@ export class StructuresListComponent implements OnInit {
   ngOnInit() {
     if (!this.mAllStructures) this.mStructureService.GetGlobalStructureList()
       .subscribe(S => {
-        this.mAllStructures = S;
-        this.SelectedPlayfield = this.mSelectedPlayfield;
+        setTimeout(() => {
+          this.mAllStructures = S;
+          this.SelectedPlayfield = this.mSelectedPlayfield;
+        }, 10);
       });
   }
 
