@@ -28,8 +28,8 @@ export class ServerSettingsComponent implements OnInit {
   error: any;
   SystemConfig: SystemConfig = {};
   WelcomeMessagesList: string[] = [
-    "Welcome {0} on our Empyrion Server",
-    "Willkommen {0} auf unserem Empyrion Server"
+    "[c][00ff00]Welcome {0} on our Empyrion Server[/c]",
+    "[c][00ff00]Willkommen {0} auf unserem Empyrion Server[/c]"
   ];
 
   constructor(

@@ -86,12 +86,14 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(TimetableManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(PlayfieldManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(ModManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(HistoryBookManager));
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
             services.AddDbContext<FactionContext>();
             services.AddDbContext<ChatContext>();
             services.AddDbContext<UserContext>();
+            services.AddDbContext<HistoryBookContext>();
 
             // LetsEncryptACME config
             var LetsEncryptACMESection = Configuration.GetSection("LetsEncryptACME");
@@ -233,6 +235,8 @@ namespace EmpyrionModWebHost
                 routes.MapODataServiceRoute("player",   "odata", PlayersController  .GetEdmModel());
                 routes.MapODataServiceRoute("faction",  "odata", FactionsController .GetEdmModel());
                 routes.MapODataServiceRoute("chat",     "odata", ChatsController    .GetEdmModel());
+                routes.MapODataServiceRoute("HistoryBookOfStructures",  "odata", HistoryBookOfStructuresController.GetEdmModel());
+                routes.MapODataServiceRoute("HistoryBookOfPlayers",     "odata", HistoryBookOfPlayersController.GetEdmModel());
                 routes.EnableDependencyInjection();
 
                 routes.MapRoute(name: "default", template: "{controller}/{action=Index}/{id?}");

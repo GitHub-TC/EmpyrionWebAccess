@@ -16,5 +16,25 @@ namespace EmpyrionModWebHost.Extensions
             foreach (var item in aArray) aAction(item);
             return aArray;
         }
+        public static Dictionary<TKey, TElement> SafeToDictionary<TSource, TKey, TElement>(
+              this IEnumerable<TSource> source,
+              Func<TSource, TKey> keySelector,
+              Func<TSource, TElement> elementSelector,
+              IEqualityComparer<TKey> comparer = null)
+        {
+            var dictionary = new Dictionary<TKey, TElement>(comparer);
+
+            if (source == null)
+            {
+                return dictionary;
+            }
+
+            foreach (TSource element in source)
+            {
+                dictionary[keySelector(element)] = elementSelector(element);
+            }
+
+            return dictionary;
+        }
     }
 }

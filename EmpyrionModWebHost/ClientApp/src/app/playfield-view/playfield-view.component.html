@@ -28,7 +28,7 @@
             </div>
           </div>
           <div *ngFor="let p of PlayfieldPlayers">
-            <div *ngIf="isSelected(p.online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
+            <div *ngIf="isSelected(p.Online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
               <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
             </div>
           </div>

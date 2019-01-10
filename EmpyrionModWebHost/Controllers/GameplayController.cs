@@ -5,6 +5,7 @@ using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,8 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(L => L.Contains(IdDef));
             var Localisation = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv"))
                 .Where(L => Char.IsLetter(L[0]))
-                .ToDictionary(L => L.Substring(0, L.IndexOf(",")), L => L.Substring(L.IndexOf(",") + 1));
+                .Select(L => new { ID= L.Substring(0, L.IndexOf(",")), Name= L.Substring(L.IndexOf(",") + 1) })
+                .SafeToDictionary(L => L.ID, L => L.Name, StringComparer.CurrentCultureIgnoreCase);
 
             _mItemInfo = ItemDef.Select(L =>
             {
@@ -93,6 +95,7 @@ namespace EmpyrionModWebHost.Controllers
             Request_ConsoleCommand(new PString($"kick {aSteamId} PlayerWipe"));
             TaskWait.Delay(10, () => File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
         }
+
     }
 
     [Authorize]

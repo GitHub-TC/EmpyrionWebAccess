@@ -87,7 +87,18 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
-            ChatMessage(aChatTarget, aChatTargetHint, aChatAsUser, string.IsNullOrEmpty(aChatAsUser) ? "" : aChatAsUser + ": ", aMessage);
+            AddChatToDB(new Chat()
+            {
+                Timestamp = DateTime.Now,
+                PlayerSteamId = "",
+                PlayerName = string.IsNullOrEmpty(aChatAsUser) ? "Server" : aChatAsUser,
+                FactionId = 0,
+                FactionName = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : "-ADM-",
+                Type = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
+                Message = $"{aChatTargetHint}{aMessage}",
+            });
+
+            Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : $"[c][ff8000]{aChatAsUser}: [/c]")}{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
         }
 
         public void ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aMessagePrefix, string aMessage)
