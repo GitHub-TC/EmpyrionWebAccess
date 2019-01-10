@@ -19,7 +19,7 @@ export class StructuresListComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
 
-  displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'TypeName', 'CoreName', 'FactionName', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'factionGroup', 'pilotId'];
+  displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);

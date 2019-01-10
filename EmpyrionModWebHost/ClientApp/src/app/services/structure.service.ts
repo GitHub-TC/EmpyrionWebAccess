@@ -5,6 +5,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthHubConnectionBuilder } from '../_helpers';
 import { GlobalStructureInfo } from '../model/structure-model';
 import { FactionService } from './faction.service';
+import { PlayerService } from './player.service';
+import { PlayerModel } from '../model/player-model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,7 @@ import { FactionService } from './faction.service';
 export class StructureService {
   public hubConnection: HubConnection;
 
+  mPlayers: PlayerModel[] = [];
   private mStructures: GlobalStructureInfo[] = []; 
 
   private Structures: BehaviorSubject<GlobalStructureInfo[]> = new BehaviorSubject(this.mStructures);
@@ -27,6 +30,7 @@ export class StructureService {
   constructor(
     private http: HttpClient,
     private mFactionService: FactionService,
+    private mPlayerService: PlayerService,
     private builder: AuthHubConnectionBuilder
   ) {
     this.hubConnection = builder.withAuthUrl('/hubs/structures').build();
@@ -40,6 +44,8 @@ export class StructureService {
     } catch (Error) {
       this.error = Error;
     }
+
+    this.mPlayerService.GetPlayers().subscribe(P => this.mPlayers = P);
   }
 
   GetCurrentStructure() {
@@ -74,8 +80,15 @@ export class StructureService {
               S.playfield = P;
               S.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin"][S.coreType];
               S.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][S.type];
-              let Faction = this.mFactionService.GetFaction(S.factionId);
-              S.FactionName = Faction ? Faction.Abbrev : "";
+              if (S.factionGroup == 1) {
+                let Found = this.mPlayers.find(P => P.EntityId == S.factionId);
+                S.FactionName = Found ? Found.PlayerName : "" + S.factionId;
+              }
+              else {
+                let Faction = this.mFactionService.GetFaction(S.factionId);
+                S.FactionName = Faction ? Faction.Abbrev : "";
+              }
+              S.FactionGroup = this.mFactionService.GetFactionGroup(S.factionGroup);
               this.mStructures.push(S);
             });
           });

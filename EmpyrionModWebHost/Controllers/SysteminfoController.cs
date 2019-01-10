@@ -266,7 +266,7 @@ namespace EmpyrionModWebHost.Controllers
                     return;
                 }
 
-                var StartCMD = string.IsNullOrEmpty(SystemConfig.Current.StartCMD) ? SystemConfig.Current.ProcessInformation.FileName : SystemConfig.Current.StartCMD;
+                var StartCMD = string.IsNullOrEmpty(SystemConfig.Current.StartCMD) ? SystemConfig.Current.ProcessInformation?.FileName : SystemConfig.Current.StartCMD;
 
                 EGSProcess = new Process
                 {
@@ -277,7 +277,7 @@ namespace EmpyrionModWebHost.Controllers
                         LoadUserProfile  = true,
                         CreateNoWindow   = false,
                         WorkingDirectory = EmpyrionConfiguration.ProgramPath,
-                        Arguments        = SystemConfig.Current.ProcessInformation.Arguments,
+                        Arguments        = SystemConfig.Current.ProcessInformation?.Arguments,
                     }
                 };
 

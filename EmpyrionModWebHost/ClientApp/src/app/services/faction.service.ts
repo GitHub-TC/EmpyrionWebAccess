@@ -36,6 +36,18 @@ export class FactionService implements OnInit {
   }
 
   ngOnInit(): void {
+    this.ReadFactions();
+  }
+
+  ReadFactions(): any {
+    let locationsSubscription = this.http.get<ODataResponse<FactionModel[]>>("odata/Factions")
+      .pipe(map(S => S.value))
+      .subscribe(
+        F => this.factions.next(this.mFactions = F),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
   }
 
   private UpdateFactionData(aFaction: FactionModel) {
@@ -53,20 +65,31 @@ export class FactionService implements OnInit {
   }
 
   GetFactions(): Observable<FactionModel[]> {
-    let locationsSubscription = this.http.get<ODataResponse<FactionModel[]>>("odata/Factions")
-      .pipe(map(S => S.value))
-      .subscribe(
-        F => this.factions.next(this.mFactions = F),
-        error => this.error = error // error path
-      );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
-
+    if (!this.mFactions || !this.mFactions.length) this.ReadFactions();
     return this.factionsObservable;
   }
 
   GetFaction(aId: number): FactionModel {
     return this.factions.getValue().find(F => F.FactionId == aId);
+  }
+
+  GetFactionGroup(factionGroup: number): string {
+    switch (factionGroup) {
+      case 0: return "Faction";
+      case 1: return "Privat";
+      case 2: return "Zirax";
+      case 3: return "Predator";
+      case 4: return "Prey";
+      case 5: return "Admin";
+      case 6: return "Talon";
+      case 7: return "Polaris";
+      case 8: return "Alien";
+      case 11: return "Unknown";
+      case 10: return "Public";
+      case 12: return "None";
+      case 255: return "Decored";
+      default: return "" + factionGroup;
+    }
   }
 
 }

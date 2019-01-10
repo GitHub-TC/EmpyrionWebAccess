@@ -98,7 +98,16 @@
                 Faction
               </th>
               <td mat-cell *matCellDef="let s" (click)="select(s)">
-                {{s.FactionName}} ({{s.factionId}}/{{s.factionGroup}})
+                {{s.FactionName}} <span *ngIf="!s.FactionName">({{s.factionId}})</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FactionGroup">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Faction
+              </th>
+              <td mat-cell *matCellDef="let s" (click)="select(s)">
+                {{s.FactionGroup}}
               </td>
             </ng-container>
 
@@ -225,15 +234,6 @@
               </th>
               <td mat-cell *matCellDef="let s">
                 {{s.powered}}
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="factionGroup">
-              <th mat-header-cell *matHeaderCellDef>
-                Group
-              </th>
-              <td mat-cell *matCellDef="let s" (click)="select(s)">
-                {{s.factionGroup}}
               </td>
             </ng-container>
 

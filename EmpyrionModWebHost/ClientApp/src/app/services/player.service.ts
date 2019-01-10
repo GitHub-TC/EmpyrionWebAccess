@@ -42,6 +42,18 @@ export class PlayerService implements OnInit {
   }
 
   ngOnInit(): void {
+    this.ReadPlayers();
+  }
+
+  ReadPlayers(): any {
+    let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
+      .pipe(map(S => S.value))
+      .subscribe(
+        P => this.players.next(this.mPlayers = P.map(p => this.CorrectPlayer(p))),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
   }
 
   CorrectPlayer(aPlayer: PlayerModel) {
@@ -69,15 +81,7 @@ export class PlayerService implements OnInit {
   }
 
   GetPlayers(): Observable<PlayerModel[]> {
-    let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
-      .pipe(map(S => S.value))
-      .subscribe(
-        P => this.players.next(this.mPlayers = P.map(p => this.CorrectPlayer(p))),
-        error => this.error = error // error path
-    );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
-
+    if (!this.mPlayers || !this.mPlayers.length) this.ReadPlayers();
     return this.playersObservable;
   }
 

@@ -32,6 +32,8 @@ export class PlayfieldViewComponent implements OnInit {
     { w: 16400,  h: 10200 },
     { w: 32800,  h: 20200 }
   ];
+  AllDisplay: string = "POn,POff,BA,CV,SV,HV";
+  mDisplay: string[] = this.AllDisplay.split(",");
 
   constructor(
     private mStructureService: StructureService,
@@ -126,13 +128,22 @@ export class PlayfieldViewComponent implements OnInit {
     if (aStructure && this.mStructureService.CurrentStructure && aStructure.id == this.mStructureService.CurrentStructure.id) return "yellow";
     if (aStructure.factionGroup == 5 || (aStructure.CoreName && aStructure.CoreName.includes("Admin"))) return "purple";
 
-    if (aStructure.factionGroup ==   2) return "tomato"; // Zirax
-    if (aStructure.factionGroup ==   6) return "green";  // Talons
-    if (aStructure.factionGroup ==   7) return "blue";   // Polaris
-    if (aStructure.factionGroup ==   8) return "red";    // Aliens
-    if (aStructure.factionGroup == 255) return "lightblue";   // No Core
-
-    return aStructure.factionId > 0 ? "magenta" : "red";
+    switch (aStructure.factionGroup) {
+      case 0: return "magenta"; // Faction
+      case 1: return "aqua"; // Privat
+      case 2: return "tomato"; // Zirax
+      case 3: return "tomato"; // Predator
+      case 4: return "tomato"; // Prey
+      case 5: return "purple"; // Admin;
+      case 6: return "green";  // Talons
+      case 7: return "blue";   // Polaris
+      case 8: return "red";    // Aliens
+      case 11: return "white"; // "Unknown";
+      case 10: return "gold"; // Public
+      case 12: return "white"; // "None";
+      case 255: return "lightblue";   // No Core
+      default: return "white";
+    }
   }
 
   StructurZIndex(aStructure: GlobalStructureInfo) {
@@ -154,5 +165,22 @@ export class PlayfieldViewComponent implements OnInit {
 
   UploadURL(aPlayfieldname) {
     return aPlayfieldname ? 'Playfield/UploadMapFile?PlayfieldName=' + encodeURIComponent(aPlayfieldname) : 'Playfield/UploadMapFile'
+  }
+
+  masterToggle() {
+    this.mDisplay = this.isAllSelected() ? [] : this.AllDisplay.split(",");
+  }
+
+  isAllSelected() {
+    return this.mDisplay.length == this.AllDisplay.split(",").length;
+  }
+
+  selectionToggle(id: string) {
+    if (this.mDisplay.find(D => D == id)) this.mDisplay = this.mDisplay.filter(D => D != id);
+    else                                  this.mDisplay.push(id);
+  }
+
+  isSelected(id: string) {
+    return this.mDisplay.find(D => D == id);
   }
 }

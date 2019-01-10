@@ -35,7 +35,7 @@
 
     <ng-container matColumnDef="playerName">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" (click)="ChatTo(chat)" title="Chat to {{chat.PlayerName}}">
+      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" class="PlayerName" (click)="ChatTo(chat)" title="Chat to {{chat.PlayerName}}">
         <mat-icon style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
         {{chat.PlayerName}}
       </td>

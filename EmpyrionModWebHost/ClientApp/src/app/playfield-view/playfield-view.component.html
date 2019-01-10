@@ -22,24 +22,49 @@
             <img *ngIf="SelectedPlayfield.isPlanet" [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
             <div *ngIf="!SelectedPlayfield.isPlanet" style="background-color:black"></div>
           </div>
-          <div *ngFor="let s of PlayfieldStructures" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
-            <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+          <div *ngFor="let s of PlayfieldStructures">
+            <div *ngIf="isSelected(s.TypeName)" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
+              <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+            </div>
           </div>
-          <div *ngFor="let p of PlayfieldPlayers" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer; z-index:20;" [style.left]="CalcLeft(p?.Pos)" [style.top]="CalcTop(p?.Pos)">
-            <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
+          <div *ngFor="let p of PlayfieldPlayers">
+            <div *ngIf="isSelected(p?.online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer; z-index:20;" [style.left]="CalcLeft(p?.Pos)" [style.top]="CalcTop(p?.Pos)">
+              <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
+            </div>
           </div>
         </div>
       </mat-card>
     </div>
     <div class="col col-lg-2">
       <mat-card>
-        <mat-icon style="color:green">person</mat-icon> Player online<br />
-        <mat-icon style="color:cornflowerblue">person</mat-icon> Player offline<br />
-        <mat-icon>place</mat-icon> POI<br />
-        <mat-icon>store_mall_directory</mat-icon> BA<br />
-        <mat-icon>local_play</mat-icon> CV<br />
-        <mat-icon>flight</mat-icon> SV<br />
-        <mat-icon>directions_car</mat-icon> HV<br />
+        <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="isAllSelected()"
+                      [indeterminate]="mDisplay.length && !isAllSelected()">
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('POn') : null"
+                      [checked]="isSelected('POn')">
+          <mat-icon style="color:green">person</mat-icon> Player online
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('POff') : null"
+                      [checked]="isSelected('POff')">
+          <mat-icon style="color:cornflowerblue">person</mat-icon> Player offline
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('BA') : null"
+                      [checked]="isSelected('BA')">
+          <mat-icon>store_mall_directory</mat-icon> BA
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('CV') : null"
+                      [checked]="isSelected('CV')">
+          <mat-icon>local_play</mat-icon> CV
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('SV') : null"
+                      [checked]="isSelected('SV')">
+          <mat-icon>flight</mat-icon> SV
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('HV') : null"
+                      [checked]="isSelected('HV')">
+          <mat-icon>directions_car</mat-icon> HV
+        </mat-checkbox><br />
       </mat-card>
       <mat-card>
         <app-file-upload [UploadURL]="UploadURL(SelectedPlayfieldName)" [UploadTitle]="'Upload Map\'s'" (uploaded)="onUploaded()"></app-file-upload>
