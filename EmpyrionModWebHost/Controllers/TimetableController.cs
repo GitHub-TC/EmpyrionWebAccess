@@ -52,6 +52,7 @@ namespace EmpyrionModWebHost.Controllers
         backupMods,
         backupEGSMainFiles,
         deleteOldBackups,
+        deleteOldBackpacks,
         deletePlayerOnPlayfield,
         runShell,
         consoleCommand,
@@ -86,6 +87,7 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<GameplayManager> GameplayManager { get; }
         public Lazy<PlayerManager> PlayerManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
+        public Lazy<BackpackManager> BackpackManager { get; }
         public ConfigurationManager<Timetable> TimetableConfig { get; private set; }
 
         public ILogger<TimetableManager> Logger { get; set; }
@@ -100,6 +102,7 @@ namespace EmpyrionModWebHost.Controllers
             GameplayManager     = new Lazy<GameplayManager>     (() => Program.GetManager<GameplayManager>());
             PlayerManager       = new Lazy<PlayerManager>       (() => Program.GetManager<PlayerManager>());
             SysteminfoManager   = new Lazy<SysteminfoManager>   (() => Program.GetManager<SysteminfoManager>());
+            BackpackManager     = new Lazy<BackpackManager>     (() => Program.GetManager<BackpackManager>());
 
             TimetableConfig = new ConfigurationManager<Timetable>
             {
@@ -194,7 +197,8 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory(" - Scenario")); break;
                 case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory(" - Mods")); break;
                 case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory(" - ESG MainFiles")); break;
-                case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int Days) ? Days : 14); break;
+                case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int BackupDays) ? BackupDays : 14); break;
+                case ActionType.deleteOldBackpacks      : BackpackManager.Value.DeleteOldBackpacks(int.TryParse(aAction.data, out int BackpackDays) ? BackpackDays : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;

@@ -22,6 +22,7 @@ namespace EmpyrionModWebHost.Controllers
     public class BackpackManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public ModGameAPI GameAPI { get; private set; }
+        public IHubContext<BackpackHub> BackpackHub { get; internal set; }
 
         public BackpackManager(IHubContext<BackpackHub> aBackpackHub)
         {
@@ -34,6 +35,19 @@ namespace EmpyrionModWebHost.Controllers
             {
                 DB.Database.Migrate();
                 DB.Database.EnsureCreated();
+            }
+        }
+
+        public void DeleteOldBackpacks(int aDays)
+        {
+            using (var DB = new BackpackContext())
+            {
+                DB.Backpacks
+                    .Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
+                    .ToList()
+                    .ForEach(B => DB.Backpacks.Remove(B));
+                DB.SaveChanges();
+                DB.Database.ExecuteSqlCommand("VACUUM;");
             }
         }
 
@@ -139,7 +153,6 @@ namespace EmpyrionModWebHost.Controllers
         }
 
 
-        public IHubContext<BackpackHub> BackpackHub { get; internal set; }
     }
 
     [Authorize]

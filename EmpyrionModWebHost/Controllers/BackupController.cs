@@ -177,11 +177,12 @@ namespace EmpyrionModWebHost.Controllers
         public void DeleteOldBackups(int aDays)
         {
             Directory.EnumerateDirectories(BackupDir)
-                .Where(D => D.Length > 8 && !D.Contains("#"))
-                .Select(D => new Tuple<string, DateTime>(D, DateTime.TryParseExact(D.Substring(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MaxValue))
-                .Where(T => T.Item2 < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
+                .Select(D => new { FullPath = D, BackupName = Path.GetFileName(D) })
+                .Where(D => D.BackupName.Length > 8 && !D.BackupName.Contains("#"))
+                .Select(D => new { D.FullPath, BackupDate = DateTime.TryParseExact(D.BackupName.Substring(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MaxValue })
+                .Where(T => T.BackupDate < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
                 .AsParallel()
-                .ForAll(T => Directory.Delete(T.Item1, true));
+                .ForAll(T => Directory.Delete(T.FullPath, true));
         }
 
         public void RestorePlayfield(string aBackup, string aPlayfield)

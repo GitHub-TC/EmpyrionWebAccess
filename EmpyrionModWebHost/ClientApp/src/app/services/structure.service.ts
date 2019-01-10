@@ -78,7 +78,7 @@ export class StructureService {
           Object.getOwnPropertyNames(S.globalStructures).map(P => {
             return S.globalStructures[P].map((S: GlobalStructureInfo) => {
               S.playfield = P;
-              S.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin"][S.coreType];
+              S.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin", "NoFaction"][S.coreType];
               S.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][S.type];
               if (S.factionGroup == 1) {
                 let Found = this.mPlayers.find(P => P.EntityId == S.factionId);

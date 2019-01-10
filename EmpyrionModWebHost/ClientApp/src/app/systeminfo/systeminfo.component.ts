@@ -58,4 +58,13 @@ export class SysteminfoComponent implements OnInit {
     if (this.CurrentSystemInfo.online.indexOf("D") >= 0) return "disconnect";
     return ""
   }
+
+  openHelp() {
+    window.open("https://github.com/GitHub-TC/EmpyrionWebAccess/blob/master/Readme.md", "_blank");
+  }
+
+  latestVersion() {
+    window.open("https://github.com/GitHub-TC/EmpyrionWebAccess/releases", "_blank");
+  }
+  
 }

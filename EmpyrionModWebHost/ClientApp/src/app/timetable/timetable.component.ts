@@ -40,6 +40,7 @@ export enum ActionType {
   backupMods              = "Backup (mods)",
   backupEGSMainFiles      = "Backup (EGSMainFiles)",
   deleteOldBackups        = "Delete old backups",
+  deleteOldBackpacks      = "Delete old backpacks",
   deletePlayerOnPlayfield = "Delete player on playfield",
   runShell                = "Run shell",
   consoleCommand          = "InGame console command",

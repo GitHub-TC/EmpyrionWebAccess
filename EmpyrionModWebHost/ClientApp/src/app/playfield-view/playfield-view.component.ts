@@ -22,7 +22,6 @@ export class PlayfieldViewComponent implements OnInit {
   mAllPlayers: PlayerModel[];
   PlayfieldPlayers: PlayerModel[];
   mAllStructures: GlobalStructureInfo[];
-  SelectedStructure: GlobalStructureInfo;
   PlayfieldStructures: GlobalStructureInfo[];
   PlanetSize = [
     { w: 10000,  h: 10000 },
@@ -64,10 +63,9 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
-    this.SelectedStructure = aStructure;
-    if (!this.SelectedStructure) return;
+    if (this.mStructureService.CurrentStructure = aStructure) return;
 
-    this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield == aStructure.playfield);
+    this.mStructureService.CurrentStructure = aStructure;
   }
 
 
@@ -147,8 +145,13 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   StructurZIndex(aStructure: GlobalStructureInfo) {
-    return aStructure == this.SelectedStructure ? 100 : 10;
+    return aStructure == this.mStructureService.CurrentStructure ? 100 : 10;
   }
+
+  PlayerZIndex(aPlayer: PlayerModel) {
+    return aPlayer == this.mPlayerService.CurrentPlayer ? 100 : 10;
+  }
+
 
   SelectPlayer(aPlayer: PlayerModel) {
     this.mPlayerService.CurrentPlayer = aPlayer;

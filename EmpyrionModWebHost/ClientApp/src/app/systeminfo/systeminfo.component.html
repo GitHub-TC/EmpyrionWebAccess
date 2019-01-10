@@ -28,7 +28,11 @@
           <button mat-menu-item (click)="router.navigate(['server'])">Server</button>
           <button mat-menu-item (click)="router.navigate(['entities'])">Entities</button>
           <button mat-menu-item (click)="router.navigate(['timetable'])">Timetable</button>
-          <button mat-menu-item (click)="logout()">Logout</button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()"><b>Logout</b></button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="openHelp()">Help</button>
+          <button mat-menu-item (click)="latestVersion()">Update &gt;{{CurrentSystemInfo.version}} ?</button>
         </mat-menu>
 
         <button mat-icon-button [matMenuTriggerFor]="appMenu" style="position:absolute; top: 2em; right:-10px;">

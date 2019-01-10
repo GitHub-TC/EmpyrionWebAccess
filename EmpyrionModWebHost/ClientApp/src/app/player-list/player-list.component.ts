@@ -25,6 +25,8 @@ export class PlayerListComponent implements OnInit {
   message: string;
   autoscroll: boolean = true;
   mFactions: FactionModel[];
+  mSelectedPlayfield: string;
+  mAllPlayers: PlayerModel[];
 
   constructor(
     private mFactionService: FactionService,
@@ -35,13 +37,23 @@ export class PlayerListComponent implements OnInit {
 
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {
-      this.players.data = players;
+      setTimeout(() => {
+        this.mAllPlayers = players;
+        this.SelectedPlayfield = this.mSelectedPlayfield;
+      }, 10);
     });
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
   }
 
   ngAfterViewInit() {
     this.players.sort = this.sort;
+  }
+
+  @Input()
+  set SelectedPlayfield(aPlayfield: string) {
+    this.mSelectedPlayfield = aPlayfield;
+
+    if (this.mAllPlayers) this.players.data = this.mAllPlayers.filter(p => !this.mSelectedPlayfield || p.Playfield == this.mSelectedPlayfield)
   }
 
   applyFilter(filterValue: string) {
