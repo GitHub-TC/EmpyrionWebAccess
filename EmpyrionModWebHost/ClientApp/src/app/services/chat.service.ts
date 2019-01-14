@@ -12,7 +12,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 @Injectable({
   providedIn: 'root'
 })
-export class ChatService implements OnInit {
+export class ChatService {
   public hubConnection: HubConnection;
   mFilterServerMsg: boolean = true;
 
@@ -44,9 +44,6 @@ export class ChatService implements OnInit {
     } catch (Error) {
       this.error = Error;
     }
-  }
-
-  ngOnInit(): void {
   }
 
   GetMessages(): Observable<ChatModel[]> {

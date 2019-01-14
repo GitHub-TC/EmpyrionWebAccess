@@ -12,7 +12,7 @@ import { PLAYER } from '../model/player-mock';
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerService implements OnInit {
+export class PlayerService {
   public hubConnection: HubConnection;
 
   private mPlayers: PlayerModel[] = []; // PLAYER;
@@ -39,10 +39,6 @@ export class PlayerService implements OnInit {
     } catch (Error) {
       this.error = Error;
     }
-  }
-
-  ngOnInit(): void {
-    this.ReadPlayers();
   }
 
   ReadPlayers(): any {

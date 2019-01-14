@@ -11,7 +11,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 @Injectable({
   providedIn: 'root'
 })
-export class FactionService implements OnInit {
+export class FactionService {
   public hubConnection: HubConnection;
 
   private mFactions: FactionModel[] = []; // PLAYER;
@@ -24,8 +24,7 @@ export class FactionService implements OnInit {
     this.hubConnection = builder.withAuthUrl('/hubs/faction').build();
 
     // message coming from the server
-    this.hubConnection.on("UpdateFactions", F => this.factions.next(this.mFactions = F));
-    this.hubConnection.on("Update", this.UpdateFactionData);
+    this.hubConnection.on("Update", F => this.factions.next(this.mFactions = JSON.parse(F)));
 
     // starting the connection
     try {
@@ -33,10 +32,6 @@ export class FactionService implements OnInit {
     } catch (Error) {
       this.error = Error;
     }
-  }
-
-  ngOnInit(): void {
-    this.ReadFactions();
   }
 
   ReadFactions(): any {
@@ -48,20 +43,6 @@ export class FactionService implements OnInit {
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
-  }
-
-  private UpdateFactionData(aFaction: FactionModel) {
-    let factionfound = this.mFactions.findIndex(T => aFaction.FactionId == T.FactionId);
-    if (factionfound == -1)
-      this.mFactions.push(aFaction);
-    else {
-      let newList = this.mFactions.slice(0, factionfound);
-      newList.push(aFaction);
-      newList = newList.concat(this.mFactions.slice(factionfound + 1));
-      this.mFactions = newList;
-
-      this.factions.next(this.mFactions);
-    }
   }
 
   GetFactions(): Observable<FactionModel[]> {

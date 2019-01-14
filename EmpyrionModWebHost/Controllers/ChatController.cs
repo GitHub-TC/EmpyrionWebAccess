@@ -11,6 +11,7 @@ using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -95,7 +96,7 @@ namespace EmpyrionModWebHost.Controllers
                 FactionId = 0,
                 FactionName = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : "-ADM-",
                 Type = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
-                Message = $"{aChatTargetHint}{aMessage}",
+                Message = $"{aChatTargetHint}{RemoveBBCode(aMessage)}",
             });
 
             Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : $"[c][ff8000]{aChatAsUser}: [/c]")}{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
@@ -113,10 +114,15 @@ namespace EmpyrionModWebHost.Controllers
                 FactionId     = 0,
                 FactionName   = string.IsNullOrEmpty(aChatAsUser) ? "SERV" : "-ADM-",
                 Type          = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
-                Message       = $"{aChatTargetHint}{aMessage}",
+                Message       = $"{aChatTargetHint}{RemoveBBCode(aMessage)}",
             });
 
             Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{aMessagePrefix}{aMessage.Replace("'", "\\'")}'"));
+        }
+
+        string RemoveBBCode(string aMessage)
+        {
+            return string.Join("", aMessage.Split('[').Select(S => S.Contains(']') ? S.Substring(S.IndexOf(']') + 1) : S));
         }
 
         public override void Initialize(ModGameAPI dediAPI)

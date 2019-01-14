@@ -64,39 +64,32 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Faction_Changed += FactionManager_Event_Faction_Changed;
+            Event_Faction_Changed += F => UpdateFactions();
 
-            UpdateFactions();
+            TaskTools.Intervall(10000, () => UpdateFactions());
         }
 
         private void UpdateFactions()
         {
-            TaskTools.Intervall(10000, () =>
+            var factions = Request_Get_Factions(new Id(1)).Result.factions;
+
+            using (var DB = new FactionContext())
             {
-                var factions = Request_Get_Factions(new Id(1)).Result.factions;
-
-                using (var DB = new FactionContext())
+                foreach (var faction in factions)
                 {
-                    foreach (var faction in factions)
-                    {
-                        var Faction = DB.Find<Faction>(faction.factionId) ?? new Faction();
-                        var IsNewFaction = Faction.FactionId == 0;
+                    var Faction = DB.Find<Faction>(faction.factionId) ?? new Faction();
+                    var IsNewFaction = Faction.FactionId == 0;
 
-                        if (IsNewFaction) Faction.FactionId = faction.factionId;
-                        Faction.Name   = faction.name;
-                        Faction.Origin = faction.origin;
-                        Faction.Abbrev = faction.abbrev;
+                    if (IsNewFaction) Faction.FactionId = faction.factionId;
+                    Faction.Name   = faction.name;
+                    Faction.Origin = faction.origin;
+                    Faction.Abbrev = faction.abbrev;
 
-                        if (IsNewFaction) DB.Factions.Add(Faction);
-                    }
-
-                    if(DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("UpdateFactions", JsonConvert.SerializeObject(DB.Factions)).Wait();
+                    if (IsNewFaction) DB.Factions.Add(Faction);
                 }
-            });
-        }
 
-        private void FactionManager_Event_Faction_Changed(FactionChangeInfo aFactionChange)
-        {
+                if(DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(DB.Factions)).Wait();
+            }
         }
 
     }
