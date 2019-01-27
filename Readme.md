@@ -104,6 +104,11 @@ Hinweis: Um eine Karte des Playfields einblenden zu können muss diese map.png e
 \\MODs\\EWA\\Maps\\\[Playfield\]\\map.png 
 Verzeichnis kopiert werden
 
+## History
+![](EmpyrionModWebHost/Screenshots/HistoryBook.png)
+
+Hiermit kann man ermitteln was in dem ausgewählten Zeitraum und Abstand von dem gewählten Objekt (Spieler oder Struktur) passiert ist.
+
 ## Restore
 Wiederherstellung von Backpacks: 
 ![](EmpyrionModWebHost/Screenshots/RestoreBackpack.png)
@@ -314,6 +319,11 @@ Playfield view with the structures.
 Note: In order to be able to show a map of the playfield, this map.png first has to be copied from the cache of a client into the
 \\MODs\\EWA\\Maps\\\[Playfield\]\\map.png
 Directory are copied
+
+## History
+![](EmpyrionModWebHost/Screenshots/HistoryBook.png)
+
+With this you can determine what happened in the selected period and distance from the selected object (player or structure).
 
 ## Restore
 Recovery of backpacks, structures, player files and playfields from backups
