@@ -54,6 +54,7 @@ namespace EmpyrionModWebHost.Controllers
         deleteOldBackups,
         deleteOldBackpacks,
         deletePlayerOnPlayfield,
+        deleteHistoryBook,
         runShell,
         consoleCommand,
     }
@@ -88,6 +89,7 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<PlayerManager> PlayerManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<BackpackManager> BackpackManager { get; }
+        public Lazy<HistoryBookManager> HistoryBookManager { get; }
         public ConfigurationManager<Timetable> TimetableConfig { get; private set; }
 
         public ILogger<TimetableManager> Logger { get; set; }
@@ -103,6 +105,7 @@ namespace EmpyrionModWebHost.Controllers
             PlayerManager       = new Lazy<PlayerManager>       (() => Program.GetManager<PlayerManager>());
             SysteminfoManager   = new Lazy<SysteminfoManager>   (() => Program.GetManager<SysteminfoManager>());
             BackpackManager     = new Lazy<BackpackManager>     (() => Program.GetManager<BackpackManager>());
+            HistoryBookManager  = new Lazy<HistoryBookManager>  (() => Program.GetManager<HistoryBookManager>());
 
             TimetableConfig = new ConfigurationManager<Timetable>
             {
@@ -200,6 +203,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int BackupDays) ? BackupDays : 14); break;
                 case ActionType.deleteOldBackpacks      : BackpackManager.Value.DeleteOldBackpacks(int.TryParse(aAction.data, out int BackpackDays) ? BackpackDays : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
+                case ActionType.deleteHistoryBook       : HistoryBookManager.Value.DeleteHistory(int.TryParse(aAction.data, out int HistoryDays) ? HistoryDays : 14); break;
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;
             }

@@ -57,16 +57,28 @@ export class WarpDialogContentComponent implements OnInit {
     this.WarpData.rot = { x: 0, y: 0, z: 0 };
   }
 
+  setToZeroPos() {
+    this.WarpData.pos = { x: 0, y: 0, z: 0 };
+  }
+
+  setToZeroRot() {
+    this.WarpData.rot = { x: 0, y: 0, z: 0 };
+  }
+
   copyPosition() {
     let SaveWarpData = this.WarpData;
-    this.WarpData = Object.assign({}, this.mPositionService.CurrentPosition);
+    this.WarpData = JSON.parse(JSON.stringify(this.mPositionService.CurrentPosition));
     this.WarpData.description = SaveWarpData.description;
     this.WarpData.entityId    = SaveWarpData.entityId;
   }
 
   execWarp() {
     this.http.post('gameplay/WarpTo/' + this.WarpData.entityId,
-      { Playfield: this.WarpData.playfield, PosX: this.WarpData.pos.x, PosY: this.WarpData.pos.y, PosZ: this.WarpData.pos.z })
+      {
+        Playfield: this.WarpData.playfield,
+        PosX: this.WarpData.pos.x, PosY: this.WarpData.pos.y, PosZ: this.WarpData.pos.z,
+        RotX: this.WarpData.rot.x, RotY: this.WarpData.rot.y, RotZ: this.WarpData.rot.z
+      })
       .pipe()
       .subscribe(
         R => { },

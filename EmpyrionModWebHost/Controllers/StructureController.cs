@@ -35,6 +35,8 @@ namespace EmpyrionModWebHost.Controllers
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
+
+            TaskTools.Intervall(10000, () => GlobalStructureList());
         }
 
         public GlobalStructureList GlobalStructureList()

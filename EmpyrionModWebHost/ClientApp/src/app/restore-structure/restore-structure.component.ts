@@ -100,14 +100,14 @@ export class RestoreStructureComponent implements OnInit {
   set CurrentStructure(aStructure: PlayfieldGlobalStructureInfo) {
     this.mCurrentStructure = aStructure;
     this.WarpData.playfield = aStructure.playfield;
-    this.WarpData.pos = Object.assign({}, aStructure.pos);
-    this.WarpData.rot = Object.assign({}, aStructure.rot);
+    this.WarpData.pos = JSON.parse(JSON.stringify(aStructure.pos));
+    this.WarpData.rot = JSON.parse(JSON.stringify(aStructure.rot));
   }
 
   copyPosition() {
     this.WarpData.playfield = this.mPositionService.CurrentPosition.playfield;
-    this.WarpData.pos = Object.assign({}, this.mPositionService.CurrentPosition.pos);
-    this.WarpData.rot = Object.assign({}, this.mPositionService.CurrentPosition.rot);
+    this.WarpData.pos = JSON.parse(JSON.stringify(this.mPositionService.CurrentPosition.pos));
+    this.WarpData.rot = JSON.parse(JSON.stringify(this.mPositionService.CurrentPosition.rot));
   }
 
   setToZeroPosition() {
@@ -136,7 +136,7 @@ export class RestoreStructureComponent implements OnInit {
   }
 
   Create() {
-    var send = Object.assign({}, this.CurrentStructure);
+    var send = JSON.parse(JSON.stringify(this.CurrentStructure));
     send.playfield = this.WarpData.playfield;
     send.pos = this.WarpData.pos;
     let locationsSubscription = this.http.post("Backups/CreateStructure", { backup: this.SelectedBackup, structure: send })

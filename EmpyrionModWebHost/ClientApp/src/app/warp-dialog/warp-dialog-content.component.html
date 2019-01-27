@@ -7,26 +7,47 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <br />
-  <mat-form-field>
-    <mat-label>X: (East/West) </mat-label>
-    <input matInput type="number" [(ngModel)]="WarpData.pos.x" />
-  </mat-form-field>
-  <br />
-  <mat-form-field>
-    <mat-label>Y: (Height) </mat-label>
-    <input matInput type="number" [(ngModel)]="WarpData.pos.y" />
-  </mat-form-field>
-  <br />
-  <mat-form-field>
-    <mat-label>Z: (North/South) </mat-label>
-    <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
-  </mat-form-field>
+  <div style="position:relative; width:100%">
+    <div style="width:45%; float:left">
+      <button style="float:right" mat-raised-button (click)="setToZeroPos()">Zero</button>
+      <mat-form-field>
+        <mat-label>X: (East/West) </mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.pos.x" />
+      </mat-form-field>
+      <br />
+      <mat-form-field>
+        <mat-label>Y: (Height) </mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.pos.y" />
+      </mat-form-field>
+      <br />
+      <mat-form-field>
+        <mat-label>Z: (North/South) </mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
+      </mat-form-field>
+    </div>
+    <div style="width:45%; float:right">
+      <button style="float:right" mat-raised-button (click)="setToZeroRot()">Zero</button>
+      <mat-form-field>
+        <mat-label>Rot X:</mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.rot.x" />
+      </mat-form-field>
+      <br />
+      <mat-form-field>
+        <mat-label>Rot Y:</mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.rot.y" />
+      </mat-form-field>
+      <br />
+      <mat-form-field>
+        <mat-label>Rot Z:</mat-label>
+        <input matInput type="number" [(ngModel)]="WarpData.rot.z" />
+      </mat-form-field>
+    </div>
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition?.description">Load {{mPositionService.CurrentPosition.description}}</button>
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button (click)="setToZeroPosition()">Zero</button>
+  <button mat-raised-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition?.description">Load {{mPositionService.CurrentPosition.description}}</button>
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button (click)="setToZeroPosition()">Zero</button>
   <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
-  <button mat-button (click)="execWarp()">Warp</button>
+  <button mat-raised-button (click)="execWarp()">Warp</button>
 </mat-dialog-actions>

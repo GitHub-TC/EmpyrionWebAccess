@@ -27,14 +27,15 @@ export class PlayerDetailsComponent implements OnInit {
     private mPlayerService: PlayerService,
     private mFactionService: FactionService
   ) {
+    this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));
     mFactionService.GetFactions().subscribe(F => this.Factions = F);
   }
 
   SyncPlayer(aPlayer: PlayerModel) {
-    if (this.Changed) return;
+    if (this.Changed || !aPlayer) return;
 
-    this.Player = Object.assign({}, aPlayer);
+    this.Player = JSON.parse(JSON.stringify(aPlayer));
     this.Player.Food = Math.floor(this.Player.Food);
   }
 

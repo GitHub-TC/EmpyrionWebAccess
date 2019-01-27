@@ -42,6 +42,7 @@ export enum ActionType {
   deleteOldBackups        = "Delete old backups",
   deleteOldBackpacks      = "Delete old backpacks",
   deletePlayerOnPlayfield = "Delete player on playfield",
+  deleteHistoryBook       = "Delete HistoryBook",
   runShell                = "Run shell",
   consoleCommand          = "InGame console command",
 }

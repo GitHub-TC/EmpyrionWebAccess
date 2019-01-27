@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -104,10 +105,12 @@ namespace EmpyrionModWebHost.Controllers
     public class GameplayController : ControllerBase
     {
         public GameplayManager GameplayManager { get; }
+        public StructureManager StructureManager { get; }
 
         public GameplayController()
         {
             GameplayManager = Program.GetManager<GameplayManager>();
+            StructureManager = Program.GetManager<StructureManager>();
         }
 
         [HttpGet("GetAllItems")]
@@ -148,6 +151,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             var isPlayer = false;
             var isSamePlayfield = false;
+            var SourcePlayfield = aWarpToData.Playfield;
             try
             {
                 var playerInfo = GameplayManager.Request_Player_Info(new Id(aEntityId)).Result;
@@ -156,20 +160,40 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch{
                 // Enities always warp with Request_Entity_ChangePlayfield ?!?
-                //var structure = SearchEntity(await TaskWait.For(5, GameplayManager.Request_GlobalStructure_List()), aEntityId);
+                var structure = SearchEntity(StructureManager.GlobalStructureList(), aEntityId);
+                if (structure != null) SourcePlayfield = structure.Playfield;
                 isPlayer = false;
-                isSamePlayfield = false; // structure.Playfield == aWarpToData.Playfield;
+                isSamePlayfield = structure.Playfield == aWarpToData.Playfield;
             }
 
             var pos = new PVector3(aWarpToData.PosX, aWarpToData.PosY, aWarpToData.PosZ);
             var rot = new PVector3(aWarpToData.RotX, aWarpToData.RotY, aWarpToData.RotZ);
 
-            try { GameplayManager.Request_Load_Playfield(new PlayfieldLoad(20, aWarpToData.Playfield, 0)).Wait(); }
+            bool WaitForPlayfields = false;
+            try
+            {
+                if (!isSamePlayfield)
+                {
+                    GameplayManager.Request_Load_Playfield(new PlayfieldLoad(20, SourcePlayfield, 0)).Wait();
+                    WaitForPlayfields = true;
+                }
+            }
             catch { }  // Playfield already loaded
+
+            try {
+                GameplayManager.Request_Load_Playfield(new PlayfieldLoad(20, aWarpToData.Playfield, 0)).Wait();
+                WaitForPlayfields = true;
+            }
+            catch { }  // Playfield already loaded
+
+            if (WaitForPlayfields) Thread.Sleep(2000); // wait for Playfield finish
 
             if (isSamePlayfield)    GameplayManager.Request_Entity_Teleport         (new IdPositionRotation(aEntityId, pos, rot)).Wait();
             else if (isPlayer)      GameplayManager.Request_Player_ChangePlayerfield(new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot)).Wait();
             else                    GameplayManager.Request_Entity_ChangePlayfield  (new IdPlayfieldPositionRotation(aEntityId, aWarpToData.Playfield, pos, rot)).Wait();
+
+            TaskTools.Delay(10, () => GameplayManager.Request_GlobalStructure_Update(new PString(aWarpToData.Playfield)).Wait());
+            TaskTools.Delay(15, () => GameplayManager.Request_GlobalStructure_Update(new PString(SourcePlayfield)).Wait());
 
             return Ok();
         }

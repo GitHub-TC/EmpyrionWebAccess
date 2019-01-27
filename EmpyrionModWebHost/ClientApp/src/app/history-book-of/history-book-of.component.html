@@ -1,0 +1,297 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <div style="display:inline-block; width:100%">
+          <mat-form-field style="float:left;padding-right:1em">
+            <mat-label>From:</mat-label>
+            <input matInput [(ngModel)]="FromTime"
+                   [owlDateTime]="dtFrom3" [owlDateTimeTrigger]="dtFrom3">
+          </mat-form-field>
+          <owl-date-time [pickerMode]="'dialog'" #dtFrom3></owl-date-time>
+          <mat-form-field style="float:left;padding-right:1em">
+            <mat-label>To:</mat-label>
+            <input matInput [(ngModel)]="ToTime"
+                   [owlDateTime]="dtTo3" [owlDateTimeTrigger]="dtTo3">
+          </mat-form-field>
+          <owl-date-time [pickerMode]="'dialog'" #dtTo3></owl-date-time>
+          <mat-form-field style="float:left;padding-right:1em">
+            <mat-label>Distance</mat-label>
+            <input matInput type="number" [(ngModel)]="Distance" />
+          </mat-form-field>
+          <div style="float:left; padding-right:1em; position:relative; margin-top:2em">
+            <mat-checkbox [(ngModel)]="HideOnlyVisited" style="position:absolute; top:0px">Hide only visited</mat-checkbox>
+            <mat-checkbox [(ngModel)]="HideFirstRead" style="position:absolute; bottom:0px">Hide first read</mat-checkbox>
+          </div>
+          <button mat-raised-button *ngIf="mPlayerService.CurrentPlayer" (click)="WhatHappendAroundPlayer()" style="float:right;padding-left:1em">History of Player: {{mPlayerService.CurrentPlayer?.PlayerName}}</button>
+          <button mat-raised-button *ngIf="mStructureService.CurrentStructure" (click)="WhatHappendAroundStructure()" style="float:right;padding-left:1em">History of Structure: {{mStructureService.CurrentStructure?.name}}</button>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <mat-card style="margin-bottom:1em">
+        <mat-card-content class="HistoryTable">
+          <table mat-table [dataSource]="History" class="mat-elevation-z8" style="width:100%" matSort>
+            <ng-container matColumnDef="Timestamp" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef>
+                Timestamp
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.t | date : "dd.MM.yyyy HH:mm"}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Type" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let h">
+                <mat-icon *ngIf="h.IsFirstRead" title="First read (on program start)" style="color:green;">home</mat-icon>
+                <mat-icon *ngIf="h.IsNew" title="New structure" style="color:yellowgreen;">grade</mat-icon>
+                <mat-icon *ngIf="h.IsDeleted" title="Deleted structure" style="color:red;">delete</mat-icon>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Name" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef>
+                Name
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.PlayerNameOld">{{h.PlayerNameOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.name}}
+                <span *ngIf="h.Online || h.OnlineOld">
+                  <mat-icon *ngIf="h.OnlineOld" title="Online" style="font-size:small; color: green;">account_circle</mat-icon>
+                  <mat-icon *ngIf="!h.OnlineOld" title="Offline" style="font-size:small; color:mediumpurple;">offline_bolt</mat-icon>
+                  <mat-icon style="font-size:small">arrow_right_alt</mat-icon>
+                  <mat-icon *ngIf="h.Online" title="Online" style="font-size:small; color: green;">account_circle</mat-icon>
+                  <mat-icon *ngIf="!h.Online" title="Offline" style="font-size:small; color:mediumpurple;">offline_bolt</mat-icon>
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Distance">
+              <th mat-header-cell *matHeaderCellDef>
+                Distance
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.distance | number : "1.0-0"}}
+                <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{h.name}}" (click)="SavePosition(h)">flag</mat-icon>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="PosX">
+              <th mat-header-cell *matHeaderCellDef>
+                X
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.posX | number : "1.0-0"}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="PosY">
+              <th mat-header-cell *matHeaderCellDef>
+                Y
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.posY | number : "1.0-0"}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="PosZ">
+              <th mat-header-cell *matHeaderCellDef>
+                Z
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.posZ | number : "1.0-0"}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Playfield">
+              <th mat-header-cell *matHeaderCellDef>
+                Playfield
+              </th>
+              <td mat-cell *matCellDef="let h">
+                {{h.playfield}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="TypeName">
+              <th mat-header-cell *matHeaderCellDef>
+                Type
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.TypeNameOld">{{h.TypeNameOld}} <mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.TypeName}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="CoreName">
+              <th mat-header-cell *matHeaderCellDef>
+                Core
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.CoreNameOld">{{h.CoreNameOld}}<span *ngIf="!h.CoreNameOld && CoreTypeOld">({{h.CoreTypeOld}})</span><mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.CoreName}} <span *ngIf="!h.CoreName && h.CoreType">({{h.CoreType}})</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FactionName">
+              <th mat-header-cell *matHeaderCellDef>
+                Faction
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.FactionNameOld">{{h.FactionNameOld}}<span *ngIf="!h.FactionNameOld && h.FactionIdOld">({{h.FactionIdOld}})</span><mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.FactionName}} <span *ngIf="!h.FactionName && h.FactionId">({{h.FactionId}})</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FactionGroup">
+              <th mat-header-cell *matHeaderCellDef>
+                Factiongroup
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.FactionGroupNameOld">{{h.FactionGroupNameOld}}<span *ngIf="!h.FactionGroupNameOld && h.FactionGroupOld">({{h.FactionGroupOld}})</span><mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.FactionGroupName}} <span *ngIf="!h.FactionGroupName && h.FactionGroup">({{h.FactionGroup}})</span>
+                <span *ngIf="h.FactionRoleName || h.FactionRoleNameOld">{{h.FactionRoleNameOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon>{{h.FactionRoleName}}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dockedShips">
+              <th mat-header-cell *matHeaderCellDef>
+                Docked
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.DockedShipsOld">{{h.DockedShipsOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.DockedShips}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="classNr">
+              <th mat-header-cell *matHeaderCellDef>
+                Class
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.ClassNr}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cntLights">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Lights
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.CntLightsOld">{{h.CntLightsOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.CntLights}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cntTriangles">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Triangles
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.CntTrianglesOld">{{h.CntTrianglesOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.CntTriangles}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cntBlocks">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Blocks
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.CntBlocksOld">{{h.CntBlocksOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.CntBlocks}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cntDevices">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Devices
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.CntDevicesOld">{{h.CntDevicesOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.CntDevices}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="powered">
+              <th mat-header-cell *matHeaderCellDef>
+                Powered
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.PoweredOld">{{h.PoweredOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Powered}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="pilotId">
+              <th mat-header-cell *matHeaderCellDef>
+                Pilot
+              </th>
+              <td mat-cell *matCellDef="let h">
+                <span *ngIf="h.PilotIdOld">{{h.PilotIdOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.PilotId}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Credits">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Credits
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.CreditsOld">{{h.CreditsOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Credits}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Kills">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Kills
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.KillsOld">{{h.KillsOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Kills}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Died">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Died
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.DiedOld">{{h.DiedOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Died}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Exp">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Exp
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.ExpOld">{{h.ExpOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Exp}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Upgrade">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Upgrade
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.UpgradeOld">{{h.UpgradeOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Upgrade}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Permission">
+              <th mat-header-cell align="right" *matHeaderCellDef>
+                Permission
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                <span *ngIf="h.PermissionOld">{{h.CntBlocksOld}}<mat-icon style="font-size:small">arrow_right_alt</mat-icon></span>{{h.Permission}}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="LastVisited" [sticky]="true">
+              <th mat-header-cell *matHeaderCellDef>
+                LastVisited
+              </th>
+              <td mat-cell *matCellDef="let h" align="right">
+                {{h.LastVisitedUTC | date : "dd.MM.yyyy HH:mm"}}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+          <mat-paginator showFirstLastButtons [pageSizeOptions]="[100, 500, 1000]"></mat-paginator>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

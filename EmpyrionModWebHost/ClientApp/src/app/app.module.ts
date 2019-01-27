@@ -7,6 +7,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material-module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
+import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
+import { OWL_DATE_TIME_LOCALE } from 'ng-pick-datetime';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatComponent } from './chat/chat.component';
@@ -44,6 +47,7 @@ import { RestoreManagerComponent } from './restore-manager/restore-manager.compo
 import { PlayfieldViewComponent } from './playfield-view/playfield-view.component';
 import { EntitiesComponent } from './entities/entities.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
+import { HistoryBookOfComponent } from './history-book-of/history-book-of.component';
 
 @NgModule({
   declarations: [
@@ -81,7 +85,8 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
     RestoreManagerComponent,
     PlayfieldViewComponent,
     EntitiesComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    HistoryBookOfComponent
   ],
   imports: [
     BrowserModule,
@@ -92,7 +97,9 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
     MatNativeDateModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    OwlDateTimeModule,
+    OwlNativeDateTimeModule,
   ],
   entryComponents: [
     WarpDialogComponent,          WarpDialogContentComponent,
@@ -104,6 +111,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    { provide: OWL_DATE_TIME_LOCALE, useValue: 'de' },
   ],
   bootstrap: [AppComponent]
 })

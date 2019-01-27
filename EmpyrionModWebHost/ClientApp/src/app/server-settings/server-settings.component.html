@@ -21,14 +21,14 @@
           </mat-form-field>
           <mat-icon style="cursor:pointer; position:absolute; right: 5px;" (click)="Save()" title="Save settings">save</mat-icon>
         </div>
-        <button mat-button class="mat-raised-button" (click)="StartEGS()">Start EGS</button>
+        <button mat-raised-button class="mat-raised-button" (click)="StartEGS()">Start EGS</button>
         <mat-form-field style="margin-left:1em; margin-right:1em">
           <input matInput type="number" [(ngModel)]="WaitMinutes" placeholder="Stop/Restart wait for N minutes">
         </mat-form-field>
-        <button mat-button class="mat-raised-button" (click)="StopEGS()">Stop EGS</button>
-        <button mat-button class="mat-raised-button" (click)="RestartEGS()">Restart EGS</button>
+        <button mat-raised-button class="mat-raised-button" (click)="StopEGS()">Stop EGS</button>
+        <button mat-raised-button class="mat-raised-button" (click)="RestartEGS()">Restart EGS</button>
         <br />
-        <button mat-button class="mat-raised-button" (click)="ShutdownEGSandEWA()">Shutdown EGS & EWA</button>
+        <button mat-raised-button class="mat-raised-button" (click)="ShutdownEGSandEWA()">Shutdown EGS & EWA</button>
         <mat-icon style="color:red; vertical-align:sub">warning</mat-icon> EGS must then be started manually <mat-icon style="color:red; vertical-align:sub">warning</mat-icon>
       </mat-card>
       <mat-card style="margin:.5em">

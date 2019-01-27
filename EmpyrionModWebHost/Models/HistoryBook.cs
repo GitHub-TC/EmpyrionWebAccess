@@ -30,6 +30,7 @@ namespace EmpyrionModWebHost.Models
         public DateTime Timestamp { get; set; }
         public string Playfield { get; set; }
         public int EntityId { get; set; }
+        public string Name { get; set; }
         public int PosX { get; set; }
         public int PosY { get; set; }
         public int PosZ { get; set; }
@@ -47,9 +48,11 @@ namespace EmpyrionModWebHost.Models
         public DateTime Timestamp { get; set; }
         public string Playfield { get; set; }
         public string SteamId { get; set; }
+        public string Name { get; set; }
         public int PosX { get; set; }
         public int PosY { get; set; }
         public int PosZ { get; set; }
+        public bool Online { get; set; }
         /// <summary>
         /// JSON mit einem vollständigen Datensatz den geänderten Daten zum letzten vollständigen
         /// </summary>

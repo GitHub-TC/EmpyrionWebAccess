@@ -166,6 +166,7 @@ namespace EmpyrionModWebHost
                     Email = Program.LetsEncryptACME.EmailAddress, // "nitrado@cl-mail.eu", //LetsEncrypt will send you an e-mail here when the certificate is about to expire
                     UseStaging = false, //switch to true for testing
                     Domains = new[] { Program.LetsEncryptACME.DomainToUse },
+                    CertificateFriendlyName = Program.LetsEncryptACME.CertificateFriendlyName,
                     TimeUntilExpiryBeforeRenewal = TimeSpan.FromDays(30), //renew automatically 30 days before expiry
                     //TimeAfterIssueDateBeforeRenewal = TimeSpan.FromDays(7), //renew automatically 7 days after the last certificate was issued
                     CertificateSigningRequest = new CsrInfo() //these are your certificate details
@@ -235,8 +236,6 @@ namespace EmpyrionModWebHost
                 routes.MapODataServiceRoute("player",   "odata", PlayersController  .GetEdmModel());
                 routes.MapODataServiceRoute("faction",  "odata", FactionsController .GetEdmModel());
                 routes.MapODataServiceRoute("chat",     "odata", ChatsController    .GetEdmModel());
-                routes.MapODataServiceRoute("HistoryBookOfStructures",  "odata", HistoryBookOfStructuresController.GetEdmModel());
-                routes.MapODataServiceRoute("HistoryBookOfPlayers",     "odata", HistoryBookOfPlayersController.GetEdmModel());
                 routes.EnableDependencyInjection();
 
                 routes.MapRoute(name: "default", template: "{controller}/{action=Index}/{id?}");

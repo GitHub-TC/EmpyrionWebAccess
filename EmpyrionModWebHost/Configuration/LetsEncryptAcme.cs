@@ -10,5 +10,6 @@
         public string Organization { get; set; }
         public string OrganizationUnit { get; set; }
         public string State { get; set; }
+        public string CertificateFriendlyName { get; set; }
     }
 }

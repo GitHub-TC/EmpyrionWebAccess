@@ -34,6 +34,7 @@ export class FactoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     this.mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(this.Player = P));
   }
 
