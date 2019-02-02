@@ -42,7 +42,7 @@ export class PlayerService {
   }
 
   ReadPlayers(): any {
-    let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players?$orderby=PlayerName asc")
+    let locationsSubscription = this.http.get<ODataResponse<PlayerModel[]>>("odata/Players")
       .pipe(map(S => S.value))
       .subscribe(
         P => this.players.next(this.mPlayers = P.map(p => this.CorrectPlayer(p))),

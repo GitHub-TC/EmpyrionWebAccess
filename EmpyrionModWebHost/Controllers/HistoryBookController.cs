@@ -349,7 +349,7 @@ namespace EmpyrionModWebHost.Controllers
                 PlayerAround.Add(T);
             });
 
-            return PlayerAround;
+            return PlayerAround.OrderByDescending(T => T.t).ToList();
         }
 
         [HttpPost("WhatHappendAroundStructure")]
@@ -382,7 +382,7 @@ namespace EmpyrionModWebHost.Controllers
                 StructureAround.Add(T);
             });
 
-            return StructureAround;
+            return StructureAround.OrderByDescending(T => T.t).ToList();
         }
 
         private List<TimeFrameData> GetTimeFramedData(DateTime FromTime, DateTime ToTime)

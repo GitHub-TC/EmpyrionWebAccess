@@ -19,7 +19,7 @@ export class StructuresListComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
 
-  displayedColumns = ['Select', 'Id', 'Playfield', 'Name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
+  displayedColumns = ['Select', 'id', 'playfield', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);
@@ -64,6 +64,7 @@ export class StructuresListComponent implements OnInit {
   ngAfterViewInit() {
     this.structures.sort = this.sort;
     this.structures.paginator = this.paginator;
+    this.structures.sortingDataAccessor = (D, H) => typeof (D[H]) === "string" ? ("" + D[H]).toLowerCase() : D[H];
   }
 
   applyFilter(filterValue: string) {

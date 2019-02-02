@@ -47,6 +47,7 @@ export class PlayerListComponent implements OnInit {
 
   ngAfterViewInit() {
     this.players.sort = this.sort;
+    this.players.sortingDataAccessor = (D, H) => typeof(D[H])==="string" ? ("" + D[H]).toLowerCase() : D[H];
   }
 
   @Input()
