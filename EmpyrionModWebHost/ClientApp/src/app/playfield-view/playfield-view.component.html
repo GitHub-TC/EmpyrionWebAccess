@@ -17,7 +17,7 @@
   <div class="row">
     <div class="col col-lg-10">
       <mat-card style="margin-bottom:1em">
-        <div style="position:relative; overflow:auto" *ngIf="SelectedPlayfield">
+        <div style="position:relative; overflow:auto" [style.zoom]="ZoomValue" *ngIf="SelectedPlayfield">
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
             <img *ngIf="SelectedPlayfield.isPlanet" [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
             <div *ngIf="!SelectedPlayfield.isPlanet" style="background-color:black"></div>
@@ -65,6 +65,19 @@
                       [checked]="isSelected('HV')">
           <mat-icon>directions_car</mat-icon> HV
         </mat-checkbox><br />
+      </mat-card>
+      <mat-card>
+        <mat-label>
+          Zoom: {{ZoomValue * 100}}%</mat-label>
+        <mat-slider style="width: 100%"
+                    [max]="5"
+                    [min]="0.5"
+                    [step]="0.5"
+                    [thumbLabel]="true"
+                    [tickInterval]="1"
+                    [(ngModel)]="ZoomValue"
+                    [vertical]="false">
+        </mat-slider>
       </mat-card>
       <mat-card>
         <app-file-upload [UploadURL]="UploadURL(SelectedPlayfieldName)" [UploadTitle]="'Upload Map\'s'" (uploaded)="onUploaded()"></app-file-upload>

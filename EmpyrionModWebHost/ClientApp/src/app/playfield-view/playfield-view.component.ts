@@ -18,6 +18,7 @@ export class PlayfieldViewComponent implements OnInit {
   Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;
   mSelectedPlayfieldName: string = "";
+  ZoomValue: number = 1;
   MapUrl: string;
   mAllPlayers: PlayerModel[];
   PlayfieldPlayers: PlayerModel[];
