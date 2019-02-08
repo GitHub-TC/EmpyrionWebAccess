@@ -219,6 +219,7 @@ namespace EmpyrionModWebHost
             if(Program.AppSettings.UseHttpsRedirection) app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseErrorHandlingMiddleware();
 
             app.UseSignalR(routes => {
                 routes.MapHub<ChatHub>("/hubs/chat");

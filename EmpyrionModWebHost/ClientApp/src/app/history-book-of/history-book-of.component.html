@@ -20,11 +20,14 @@
             <input matInput type="number" [(ngModel)]="Distance" />
           </mat-form-field>
           <div style="float:left; padding-right:1em; position:relative; margin-top:2em">
-            <mat-checkbox [(ngModel)]="HideOnlyVisited" style="position:absolute; top:0px">Hide only visited</mat-checkbox>
+            <mat-checkbox [(ngModel)]="HideOnlyVisited" style="position:absolute; top:-.5em">Hide only visited</mat-checkbox>
             <mat-checkbox [(ngModel)]="HideFirstRead" style="position:absolute; bottom:0px">Hide first read</mat-checkbox>
+            <mat-checkbox [(ngModel)]="HideOnlyPositionChanged" style="position:absolute; top:1em">Hide player change only position</mat-checkbox>
           </div>
-          <button mat-raised-button *ngIf="mPlayerService.CurrentPlayer" (click)="WhatHappendAroundPlayer()" style="float:right;padding-left:1em">History of Player: {{mPlayerService.CurrentPlayer?.PlayerName}}</button>
-          <button mat-raised-button *ngIf="mStructureService.CurrentStructure" (click)="WhatHappendAroundStructure()" style="float:right;padding-left:1em">History of Structure: {{mStructureService.CurrentStructure?.name}}</button>
+          <div style="float:left; padding-left:16em; position:relative; margin-top:2em">
+            <button mat-raised-button [disabled]="!mPlayerService.CurrentPlayer" (click)="WhatHappendAroundPlayer()" style="position:absolute; top:0px">History of Player: {{mPlayerService.CurrentPlayer ? mPlayerService.CurrentPlayer.PlayerName : "none selected"}}</button>
+            <button mat-raised-button [disabled]="!mStructureService.CurrentStructure" (click)="WhatHappendAroundStructure()" style="position:absolute; bottom:5px">History of Structure: {{mStructureService.CurrentStructure ? mStructureService.CurrentStructure.name : "none selected"}}</button>
+          </div>
         </div>
       </mat-card>
     </div>

@@ -47,6 +47,7 @@ export class HistoryBookOfComponent implements OnInit {
   error: any;
   HideOnlyVisited: boolean = true;
   HideFirstRead: boolean = true;
+  HideOnlyPositionChanged: boolean = true;
 
   displayedColumns = [
     'Timestamp', "Type", 'Name', 'Distance', 'PosX', 'PosY', 'PosZ', 'Playfield', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup',
@@ -89,7 +90,8 @@ export class HistoryBookOfComponent implements OnInit {
         ToDateTime: this.ToTime,
         Distance: this.Distance,
         HideOnlyVisited: this.HideOnlyVisited,
-        HideFirstRead: this.HideFirstRead
+        HideFirstRead: this.HideFirstRead,
+        HideOnlyPositionChanged: this.HideOnlyPositionChanged
       })
       .pipe()
       .subscribe(
@@ -108,7 +110,8 @@ export class HistoryBookOfComponent implements OnInit {
         ToDateTime: this.ToTime,
         Distance: this.Distance,
         HideOnlyVisited: this.HideOnlyVisited,
-        HideFirstRead: this.HideFirstRead
+        HideFirstRead: this.HideFirstRead,
+        HideOnlyPositionChanged: this.HideOnlyPositionChanged
       })
       .pipe()
       .subscribe(

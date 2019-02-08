@@ -306,6 +306,7 @@ namespace EmpyrionModWebHost.Controllers
             public int Distance { get; set; }
             public bool HideOnlyVisited { get; set; }
             public bool HideFirstRead { get; set; }
+            public bool HideOnlyPositionChanged { get; set; }
         }
 
         public class HistoryQueryPlayer : HistoryQuery
@@ -322,6 +323,7 @@ namespace EmpyrionModWebHost.Controllers
         public ActionResult<List<TimeFrameData>> WhatHappendAroundPlayer([FromBody]HistoryQueryPlayer aParams)
         {
             HistoryBookOfPlayers LastKnownPlayer = null;
+            string PreviousEntrySteamId = null;
 
             var TimeFrameData = GetTimeFramedData(aParams.FromDateTime, aParams.ToDateTime);
 
@@ -330,6 +332,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 if (T.p?.SteamId == aParams.SteamId) LastKnownPlayer = T.p;
                 if (LastKnownPlayer == null) return;
+                if (LastKnownPlayer.Playfield != (T.p == null ? T.s.Playfield : T.p.Playfield)) return;
+                if (PreviousEntrySteamId != null && aParams.HideOnlyPositionChanged && PreviousEntrySteamId == T.p?.SteamId) return;
 
                 T.distance = CalcDistance(
                     T.p == null ? T.s.PosX : T.p.PosX,
@@ -346,6 +350,7 @@ namespace EmpyrionModWebHost.Controllers
                     if (aParams.HideFirstRead && Changes.ContainsKey("IsFirstRead")) return;
                 }
 
+                PreviousEntrySteamId = T.p?.SteamId;
                 PlayerAround.Add(T);
             });
 
@@ -356,6 +361,7 @@ namespace EmpyrionModWebHost.Controllers
         public ActionResult<List<TimeFrameData>> WhatHappendAroundStructure([FromBody]HistoryQueryStructure aParams)
         {
             HistoryBookOfStructures LastKnownStructure = null;
+            string PreviousEntrySteamId = null;
 
             var TimeFrameData = GetTimeFramedData(aParams.FromDateTime, aParams.ToDateTime);
 
@@ -363,6 +369,8 @@ namespace EmpyrionModWebHost.Controllers
             TimeFrameData.ForEach(T => {
                 if (T.s?.EntityId == aParams.Id) LastKnownStructure = T.s;
                 if (LastKnownStructure == null) return;
+                if (LastKnownStructure.Playfield != (T.p == null ? T.s.Playfield : T.p.Playfield)) return;
+                if (PreviousEntrySteamId != null && aParams.HideOnlyPositionChanged && PreviousEntrySteamId == T.p?.SteamId) return;
 
                 T.distance = CalcDistance(
                     T.p == null ? T.s.PosX : T.p.PosX,
@@ -379,6 +387,7 @@ namespace EmpyrionModWebHost.Controllers
                     if (aParams.HideFirstRead && Changes.ContainsKey("IsFirstRead")) return;
                 }
 
+                PreviousEntrySteamId = T.p?.SteamId;
                 StructureAround.Add(T);
             });
 

@@ -11,7 +11,7 @@
     "Kestrel": {
       "commandName": "Project",
       "commandLineArgs": "-EmpyrionToModPipe EmpyrionToEWAPipe0b9ed10ee0a340e3aa80a82c9667b807 -ModToEmpyrionPipe EWAToEmpyrionPipe9e54a6fbdbcb47f18983038642ce4b7e EmpyrionDedicated.exe -batchmode -nographics -dedicated dedicated_WEB.yaml -logFile Logs/1905/Dedicated_181101-111823-53.log -GameDir C:\\steamcmd\\empyrion",
-      "launchBrowser": true,
+      "launchUrl": "https://localhost:5001/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
