@@ -24,7 +24,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field style="width:5em">
+    <mat-form-field style="width:5em" *ngIf="t.repeat != 'manual'" >
       <input type="time" placeholder="Time" [(ngModel)]="t.timestamp" matInput>
     </mat-form-field>
 

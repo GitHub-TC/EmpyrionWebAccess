@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 import { StructureService } from '../services/structure.service';
 import { PlayerService } from '../services/player.service';
@@ -6,6 +7,7 @@ import { PlayfieldService } from '../services/playfield.service';
 import { PlayerModel, PVector3 } from '../model/player-model';
 import { PlayfieldModel } from '../model/playfield-model';
 import { GlobalStructureInfo } from '../model/structure-model';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-playfield-view',
@@ -13,6 +15,7 @@ import { GlobalStructureInfo } from '../model/structure-model';
   styleUrls: ['./playfield-view.component.less']
 })
 export class PlayfieldViewComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild("MapImage", { read: ElementRef }) MapImage: ElementRef;
 
   Playfields: PlayfieldModel[] = [];
@@ -34,8 +37,11 @@ export class PlayfieldViewComponent implements OnInit {
   ];
   AllDisplay: string = "POn,POff,BA,CV,SV,HV";
   mDisplay: string[] = this.AllDisplay.split(",");
+  mWipeData: string[] = [];
+  error: any;
 
   constructor(
+    private http: HttpClient,
     private mStructureService: StructureService,
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
@@ -186,5 +192,42 @@ export class PlayfieldViewComponent implements OnInit {
 
   isSelected(id: string) {
     return this.mDisplay.find(D => D == id);
+  }
+
+  Wipe(aType: string) {
+    return this.mWipeData.find(W => W == aType);
+  }
+
+  ChangeWipe(aType: string, aSet : boolean) {
+    let Found = this.mWipeData.find(W => W == aType);
+    if ( Found && !aSet) this.mWipeData = this.mWipeData.filter(W => W != aType);
+    if (!Found &&  aSet) this.mWipeData.push(aType);
+  }
+
+  ExecWipe() {
+    this.YesNo.openDialog({ title: "Wipe " + this.mWipeData.join(", ") + " of playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.get("Playfield/Wipe" +
+          "?Playfield=" + encodeURIComponent(this.SelectedPlayfieldName) +
+          "&WipeType=" + encodeURIComponent(this.mWipeData.join(" ")))
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
+  }
+
+  WipeComplete() {
+    this.YesNo.openDialog({ title: "Reset complete Playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.get("Playfield/ResetPlayfield" +
+          "?Playfield=" + encodeURIComponent(this.SelectedPlayfieldName))
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
   }
 }

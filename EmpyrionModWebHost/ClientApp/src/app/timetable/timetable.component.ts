@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 enum RepeatEnum {
+  manual = "manual",
   min5 = "5 min",
   min10 = "10 min",
   min15 = "15 min",

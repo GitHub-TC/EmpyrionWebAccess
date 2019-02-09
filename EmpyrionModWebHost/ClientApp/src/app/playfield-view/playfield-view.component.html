@@ -3,13 +3,45 @@
     <div class="col">
       <mat-card style="margin-bottom:1em">
         <div style="display:inline-block; width:100%">
-          <mat-form-field style="width:100%">
+          <mat-form-field style="width:90%">
             <mat-select placeholder="Playfield" [(value)]="SelectedPlayfieldName">
               <mat-option *ngFor="let i of Playfields" [value]="i.name">
                 {{i.name}}
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <button *ngIf="SelectedPlayfieldName" mat-icon-button [matMenuTriggerFor]="appMenu" style="position:absolute; top: 2em; right:10px;">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #appMenu="matMenu">
+            <mat-checkbox style="margin-left:10px"
+                          (change)="ChangeWipe('poi', $event.checked)"
+                          (click)="$event.stopPropagation()"
+                          [checked]="Wipe('poi')">
+              POIs
+            </mat-checkbox><br />
+            <mat-checkbox style="margin-left:10px"
+                          (change)="ChangeWipe('deposit', $event.checked)"
+                          (click)="$event.stopPropagation()"
+                          [checked]="Wipe('deposit')">
+              Deposits
+            </mat-checkbox><br />
+            <mat-checkbox style="margin-left:10px"
+                          (change)="ChangeWipe('terrain', $event.checked)"
+                          (click)="$event.stopPropagation()"
+                          [checked]="Wipe('terrain')">
+              Terrain
+            </mat-checkbox><br />
+            <mat-checkbox style="margin-left:10px"
+                          (change)="ChangeWipe('player', $event.checked)"
+                          (click)="$event.stopPropagation()"
+                          [checked]="Wipe('player')">
+              Playerstructures
+            </mat-checkbox><br />
+            <button mat-menu-item (click)="ExecWipe()">Wipe on next load</button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="WipeComplete()">Reset complete playfield</button>
+          </mat-menu>
         </div>
       </mat-card>
     </div>
@@ -103,3 +135,4 @@
     </div>
   </div>
 </div>
+<app-yes-no-dialog></app-yes-no-dialog>

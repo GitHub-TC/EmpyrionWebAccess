@@ -15,6 +15,7 @@ namespace EmpyrionModWebHost.Controllers
 {
     public enum RepeatEnum
     {
+        manual,
         min5,
         min10,
         min15,
@@ -153,6 +154,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             switch (aAction.repeat)
             {
+                case RepeatEnum.manual      : return DateTime.MaxValue;
                 case RepeatEnum.min5        : return DateTime.Now   + new TimeSpan(0,  5, 0);
                 case RepeatEnum.min10       : return DateTime.Now   + new TimeSpan(0, 10, 0);
                 case RepeatEnum.min15       : return DateTime.Now   + new TimeSpan(0, 15, 0);

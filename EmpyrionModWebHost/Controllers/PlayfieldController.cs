@@ -65,7 +65,7 @@ namespace EmpyrionModWebHost.Controllers
             var YamlLines = File.ReadAllLines(PlayfieldYaml).Select(L => L.Trim());
 
             Result.isPlanet = GetYamlValue(YamlLines, "PlayfieldType") == "Planet";
-            Result.size     = int.TryParse(GetYamlValue(YamlLines, "PlanetSize"), out int S) ? S : (Result.isPlanet ? 3 : 0);
+            Result.size = int.TryParse(GetYamlValue(YamlLines, "PlanetSize"), out int S) ? S : (Result.isPlanet ? 3 : 0);
 
             return Result;
         }
@@ -76,7 +76,7 @@ namespace EmpyrionModWebHost.Controllers
             if (Found == null) return null;
 
             var DelimiterPos = Found.IndexOf(':');
-            var CommentPos   = Found.IndexOf('#');
+            var CommentPos = Found.IndexOf('#');
             if (CommentPos == -1) CommentPos = Found.Length;
 
             return Found.Substring(DelimiterPos + 1, CommentPos - DelimiterPos - 1).Trim();
@@ -121,7 +121,7 @@ namespace EmpyrionModWebHost.Controllers
             DateTimeOffset? LastModified = new DateTimeOffset(System.IO.File.GetLastWriteTime(PlayfieldMap));
 
             return PhysicalFile(
-                PlayfieldMap, 
+                PlayfieldMap,
                 "image/png",
                 aPlayfieldname + ".png",
                 LastModified,
@@ -159,6 +159,25 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        public class WipeInfo
+        {
+            public string Playfield { get; set; }
+            public string WipeType { get; set; }
+        }
+
+        [HttpGet("Wipe")]
+        public IActionResult Wipe([FromQuery]string Playfield, [FromQuery]string WipeType)
+        {
+            PlayfieldManager.Request_ConsoleCommand(new PString($"wipe '{Playfield}' {WipeType}")).Wait();
+            return Ok();
+        }
+
+        [HttpGet("ResetPlayfield")]
+        public IActionResult ResetPlayfield([FromQuery]string Playfield)
+        {
+            Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", Playfield), true);
+            return Ok();
+        }
     }
 
 }
