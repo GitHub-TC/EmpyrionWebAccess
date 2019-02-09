@@ -58,6 +58,7 @@ namespace EmpyrionModWebHost.Controllers
         deleteHistoryBook,
         runShell,
         consoleCommand,
+        wipePlayfield,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -88,6 +89,7 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<ChatManager> ChatManager { get; }
         public Lazy<GameplayManager> GameplayManager { get; }
         public Lazy<PlayerManager> PlayerManager { get; }
+        public Lazy<PlayfieldManager> PlayfieldManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<BackpackManager> BackpackManager { get; }
         public Lazy<HistoryBookManager> HistoryBookManager { get; }
@@ -104,6 +106,7 @@ namespace EmpyrionModWebHost.Controllers
             ChatManager         = new Lazy<ChatManager>         (() => Program.GetManager<ChatManager>());
             GameplayManager     = new Lazy<GameplayManager>     (() => Program.GetManager<GameplayManager>());
             PlayerManager       = new Lazy<PlayerManager>       (() => Program.GetManager<PlayerManager>());
+            PlayfieldManager    = new Lazy<PlayfieldManager>    (() => Program.GetManager<PlayfieldManager>());
             SysteminfoManager   = new Lazy<SysteminfoManager>   (() => Program.GetManager<SysteminfoManager>());
             BackpackManager     = new Lazy<BackpackManager>     (() => Program.GetManager<BackpackManager>());
             HistoryBookManager  = new Lazy<HistoryBookManager>  (() => Program.GetManager<HistoryBookManager>());
@@ -208,6 +211,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.deleteHistoryBook       : HistoryBookManager.Value.DeleteHistory(int.TryParse(aAction.data, out int HistoryDays) ? HistoryDays : 14); break;
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;
+                case ActionType.wipePlayfield           : PlayfieldManager.Value.Wipe(aAction.data.Split(':')[1].Split(';').Select(P => P.Trim()), aAction.data.Split(':')[0]); break;
             }
 
             if(aAction.actionType != ActionType.restart) ExecSubActions(aAction);

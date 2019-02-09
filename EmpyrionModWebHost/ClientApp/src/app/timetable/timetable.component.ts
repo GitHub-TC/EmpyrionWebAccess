@@ -46,6 +46,7 @@ export enum ActionType {
   deleteHistoryBook       = "Delete HistoryBook",
   runShell                = "Run shell",
   consoleCommand          = "InGame console command",
+  wipePlayfield           = "Wipe playfields",
 }
 
 class SubTimetableAction{

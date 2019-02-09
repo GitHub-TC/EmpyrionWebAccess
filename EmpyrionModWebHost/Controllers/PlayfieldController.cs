@@ -9,6 +9,7 @@ using EmpyrionModWebHost.Services;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
 using System.IO.Compression;
+using EmpyrionModWebHost.Extensions;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -80,6 +81,11 @@ namespace EmpyrionModWebHost.Controllers
             if (CommentPos == -1) CommentPos = Found.Length;
 
             return Found.Substring(DelimiterPos + 1, CommentPos - DelimiterPos - 1).Trim();
+        }
+
+        internal void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
+        {
+            aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
         }
     }
 
@@ -168,7 +174,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("Wipe")]
         public IActionResult Wipe([FromQuery]string Playfield, [FromQuery]string WipeType)
         {
-            PlayfieldManager.Request_ConsoleCommand(new PString($"wipe '{Playfield}' {WipeType}")).Wait();
+            PlayfieldManager.Wipe(new[] { Playfield }, WipeType);
             return Ok();
         }
 
