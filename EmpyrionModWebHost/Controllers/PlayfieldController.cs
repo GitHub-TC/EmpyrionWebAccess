@@ -65,7 +65,7 @@ namespace EmpyrionModWebHost.Controllers
             var Result = new PlayfieldInfo() { name = Path.GetFileName(aFilename) };
             var YamlLines = File.ReadAllLines(PlayfieldYaml).Select(L => L.Trim());
 
-            Result.isPlanet = GetYamlValue(YamlLines, "PlayfieldType") == "Planet";
+            Result.isPlanet = new[] { "Planet", "Moon" }.Any(P => string.Compare(GetYamlValue(YamlLines, "PlayfieldType"), P, StringComparison.CurrentCultureIgnoreCase) == 0);
             Result.size = int.TryParse(GetYamlValue(YamlLines, "PlanetSize"), out int S) ? S : (Result.isPlanet ? 3 : 0);
 
             return Result;

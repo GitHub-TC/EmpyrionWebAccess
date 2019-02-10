@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -34,7 +34,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             PlayerHub = aPlayerHub;
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
-            ChatManager       = new Lazy<ChatManager      >(() => Program.GetManager<ChatManager>());
+            ChatManager = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
         }
 
         public void CreateAndUpdateDatabase()
@@ -116,9 +116,9 @@ namespace EmpyrionModWebHost.Controllers
 
                 if (IsNewPlayer)
                 {
-                    Player.Note        = string.Empty;
-                    Player.OnlineTime  = new TimeSpan();
-                    Player.LastOnline  = DateTime.Now;
+                    Player.Note = string.Empty;
+                    Player.OnlineTime = new TimeSpan();
+                    Player.LastOnline = DateTime.Now;
                     Player.OnlineHours = 0;
                     DB.Players.Add(Player);
 
@@ -134,7 +134,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage)) return;
 
-            TaskTools.Delay(60, () => ChatManager.Value.ChatMessage(null, null, "-ADM-", null, 
+            TaskTools.Delay(60, () => ChatManager.Value.ChatMessage(null, null, "-ADM-", null,
                 string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
         }
 
@@ -156,7 +156,8 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
-        public string PlayersDirectory {
+        public string PlayersDirectory
+        {
             get {
                 Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"));
                 return Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players");
@@ -183,7 +184,7 @@ namespace EmpyrionModWebHost.Controllers
                 Path = PlayersDirectory,
                 NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite |
                                NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                Filter              = "*.ply",
+                Filter = "*.ply",
                 EnableRaisingEvents = true,
             };
             mPlayersDirectoryFileWatcher.Deleted += (s, e) => SyncronizePlayersWithSaveGameDirectory();
@@ -199,8 +200,8 @@ namespace EmpyrionModWebHost.Controllers
                 if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), PlayerDisconnect);
                 else
                 {
-                    UpdatePlayer(DB => DB.Players.Where(P =>  onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
-                    UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) &&  P.Online), PlayerDisconnect);
+                    UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
+                    UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) && P.Online), PlayerDisconnect);
                 }
 
                 onlinePlayers.list?.AsParallel().ForEach(I => Request_Player_Info(new Id(I)));
@@ -234,10 +235,10 @@ namespace EmpyrionModWebHost.Controllers
 
         private static void PlayerDisconnect(Player aPlayer)
         {
-            aPlayer.Online      = false;
+            aPlayer.Online = false;
             aPlayer.OnlineTime += DateTime.Now - aPlayer.LastOnline;
             aPlayer.OnlineHours = (int)Math.Round(aPlayer.OnlineTime.TotalHours);
-            aPlayer.LastOnline  = DateTime.Now;
+            aPlayer.LastOnline = DateTime.Now;
         }
 
         private void PlayerConnected(Id ID)
@@ -321,4 +322,28 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
+    [Authorize]
+    [ApiController]
+    [Route("[controller]")]
+    public class PlayerController : ControllerBase
+    {
+        public PlayerManager PlayerManager { get; }
+
+        public PlayerController()
+        {
+            PlayerManager = Program.GetManager<PlayerManager>();
+        }
+
+        [HttpGet("GetElevatedUsers")]
+        public IEnumerable<EmpyrionConfiguration.AdminconfigYamlStruct.ElevatedUserStruct> GetElevatedUsers()
+        {
+            return EmpyrionConfiguration.AdminconfigYaml.ElevatedUsers;
+        }
+
+        [HttpGet("GetBannedUsers")]
+        public IEnumerable<EmpyrionConfiguration.AdminconfigYamlStruct.BannedUserStruct> GetBannedUsers()
+        {
+            return EmpyrionConfiguration.AdminconfigYaml.BannedUsers;
+        }
+    }
 }

@@ -43,6 +43,7 @@ namespace EmpyrionModWebHost.Controllers
     public enum ActionType
     {
         chat,
+        chatUntil,
         restart,
         startEGS,
         stopEGS,
@@ -132,13 +133,19 @@ namespace EmpyrionModWebHost.Controllers
 
             TimetableConfig.Current.Actions
                 .Where(A => A.active)
-                .Where(A => A.nextExecute <= DateTime.Now)
+                .Where(A => IsReverseTime(A) ? A.timestamp >= DateTime.Now && A.nextExecute <= DateTime.Now : A.nextExecute <= DateTime.Now)
                 .ToArray()
                 .ForEach(A => {
-                    A.nextExecute = GetNextExecute(A);
+                    if (IsReverseTime(A) && A.timestamp <= DateTime.Now) A.active = false;
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? RepeatEnum.hour1 : A.repeat);
                     TimetableConfig.Save();
                     RunThis(A);
                 });
+        }
+
+        private bool IsReverseTime(TimetableAction aAction)
+        {
+            return aAction.actionType == ActionType.chatUntil;
         }
 
         public void InitTimetableNextExecute(TimetableAction[] aActions)
@@ -149,13 +156,14 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(A => A.active)
                 .ToArray()
                 .ForEach(A => {
-                    A.nextExecute = GetNextExecute(A);
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? RepeatEnum.hour1 : A.repeat);
+                    if (IsReverseTime(A)) A.timestamp = A.nextExecute;
                 });
         }
 
-        private DateTime GetNextExecute(TimetableAction aAction)
+        private DateTime GetNextExecute(TimetableAction aAction, RepeatEnum aRepeat)
         {
-            switch (aAction.repeat)
+            switch (aRepeat)
             {
                 case RepeatEnum.manual      : return DateTime.MaxValue;
                 case RepeatEnum.min5        : return DateTime.Now   + new TimeSpan(0,  5, 0);
@@ -196,6 +204,7 @@ namespace EmpyrionModWebHost.Controllers
             switch (aAction.actionType)
             {
                 case ActionType.chat                    : ChatManager.Value.ChatMessage(null, null, null, aAction.data); break;
+                case ActionType.chatUntil               : ChatManager.Value.ChatMessage(null, null, null, aAction.data); break;
                 case ActionType.restart                 : EGSRestart(aAction); break;
                 case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
                 case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;

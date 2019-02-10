@@ -5,7 +5,6 @@ import { PVector3, PositionModel } from '../model/player-model';
 import { FactionService } from '../services/faction.service';
 import { PositionService } from '../services/position.service';
 import { PlayfieldService } from '../services/playfield.service';
-import { tap } from 'rxjs/operators';
 import { PlayfieldModel } from '../model/playfield-model';
 
 interface PlayfieldGlobalStructureInfo {
@@ -50,6 +49,7 @@ export class RestoreStructureComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  CurrentStructureType: string = "CV";
 
   constructor(
     private http: HttpClient,
@@ -136,6 +136,11 @@ export class RestoreStructureComponent implements OnInit {
   }
 
   Create() {
+    if (this.CurrentStructure.structureName) this.CreateFromBackup();
+    else                                     this.CreateFromEBP();
+  }
+
+  CreateFromBackup() {
     var send = JSON.parse(JSON.stringify(this.CurrentStructure));
     send.playfield = this.WarpData.playfield;
     send.pos = this.WarpData.pos;
@@ -147,4 +152,24 @@ export class RestoreStructureComponent implements OnInit {
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
   }
+
+  CreateFromEBP() {
+    var send = JSON.parse(JSON.stringify(this.CurrentStructure));
+    send.playfield = this.WarpData.playfield;
+    send.pos = this.WarpData.pos;
+    send.type = this.CurrentStructureType;
+    let locationsSubscription = this.http.post("Structure/CreateStructure", send)
+      .pipe()
+      .subscribe(
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+  }
+
+  onUploaded(aName: string) {
+    let FileNameStart = aName.lastIndexOf('\\');
+    this.mCurrentStructure = <any>{ name: aName.substr(FileNameStart + 1) };
+  }
+
 }

@@ -9,6 +9,7 @@
           <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
         </a>
         <mat-icon class="onlineState" *ngIf="Player?.Online" style="cursor:pointer; color: green; font-size:medium" title="Online">account_circle</mat-icon>
+        {{PlayerHint(Player)}}
       </mat-panel-description>
     </mat-expansion-panel-header>
     <table style="width:45%; margin-right:5%">

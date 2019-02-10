@@ -84,3 +84,14 @@ export class PlayerInfoSet {
   startPlayfield: string;
   radiation?: number;
 }
+
+export class ElevatedUserStruct {
+  steamId: string;
+  name: string;
+  permission: number;
+}
+
+export class BannedUserStruct {
+  steamId: string;
+  until: Date;
+}

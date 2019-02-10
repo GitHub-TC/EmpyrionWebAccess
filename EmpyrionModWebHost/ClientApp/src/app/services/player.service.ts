@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators'
 
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
-import { PlayerModel, PlayerInfoSet } from '../model/player-model';
+import { PlayerModel, PlayerInfoSet, ElevatedUserStruct, BannedUserStruct } from '../model/player-model';
 import { PLAYER } from '../model/player-mock';
 
 @Injectable({
@@ -25,6 +25,8 @@ export class PlayerService {
   public readonly currentPlayerObservable: Observable<PlayerModel> = this.currentPlayer.asObservable();
 
   error: any;
+  public ElevatedUser: ElevatedUserStruct[] = [];
+  public BannedUser: BannedUserStruct[] = [];
 
   constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
     this.hubConnection = builder.withAuthUrl('/hubs/player').build();
@@ -50,6 +52,28 @@ export class PlayerService {
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+
+    let locationsSubscription2 = this.http.get<ElevatedUserStruct[]>("Player/GetElevatedUsers")
+      .pipe()
+      .subscribe(
+        P => this.ElevatedUser = P,
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription2.unsubscribe(); }, 10000);
+
+    let locationsSubscription3 = this.http.get<BannedUserStruct[]>("Player/GetBannedUsers")
+      .pipe()
+      .subscribe(
+        P => this.BannedUser = P.map(p => {
+          try { p.until = new Date(p.until); } catch { }
+          return p;
+        }),
+        error => this.error = error // error path
+      );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription3.unsubscribe(); }, 10000);
+
   }
 
   CorrectPlayer(aPlayer: PlayerModel) {

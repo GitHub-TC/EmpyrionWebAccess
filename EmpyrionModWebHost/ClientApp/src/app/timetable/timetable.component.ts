@@ -30,23 +30,24 @@ enum RepeatEnum {
 }
 
 export enum ActionType {
-  chat                    = "Chat",
-  restart                 = "Server restart",
-  startEGS                = "Server start",
-  stopEGS                 = "Server stop",
-  backupFull              = "Backup (complete)",
-  backupStructure         = "Backup (structures)",
-  backupSavegame          = "Backup (savegame)",
-  backupScenario          = "Backup (scenario)",
-  backupMods              = "Backup (mods)",
-  backupEGSMainFiles      = "Backup (EGSMainFiles)",
-  deleteOldBackups        = "Delete old backups",
-  deleteOldBackpacks      = "Delete old backpacks",
-  deletePlayerOnPlayfield = "Delete player on playfield",
-  deleteHistoryBook       = "Delete HistoryBook",
-  runShell                = "Run shell",
-  consoleCommand          = "InGame console command",
-  wipePlayfield           = "Wipe playfields",
+  chat                    = "Chat | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
+  chatUntil               = "Chat until | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
+  restart                 = "Server restart | [minutes] (default:0)",
+  startEGS                = "Server start|",
+  stopEGS                 = "Server stop | [minutes] (default:0)",
+  backupFull              = "Backup (complete)|",
+  backupStructure         = "Backup (structures)|",
+  backupSavegame          = "Backup (savegame)|",
+  backupScenario          = "Backup (scenario)|",
+  backupMods              = "Backup (mods)|",
+  backupEGSMainFiles      = "Backup (EGSMainFiles)|",
+  deleteOldBackups        = "Delete old backups | [days] (default:14)",
+  deleteOldBackpacks      = "Delete old backpacks | [days] (default:14)",
+  deletePlayerOnPlayfield = "Delete player on playfield| [playfield[;playfield]] -> Example: Akua; Omicron; Masperon",
+  deleteHistoryBook       = "Delete HistoryBook | [days] (default:14)",
+  runShell                = "Run shell| [cmd] -> Working directory ist the current savegame folder",
+  consoleCommand          = "InGame console command | [cmd] -> Help description of commands in the console with 'help'",
+  wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield]] -> Example: poi deposit : Akua; Hsaa",
 }
 
 class SubTimetableAction{
@@ -62,6 +63,11 @@ class TimetableAction extends SubTimetableAction{
   subAction?: SubTimetableAction[];
 }
 
+class Enum<T>{
+  key: T;
+  value: string;
+  help: string;
+}
 
 @Component({
   selector: 'app-timetable',
@@ -72,15 +78,18 @@ export class TimetableComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   error: any;
   Timetable: TimetableAction[] = [];
-  Repeats: {}
-  Actions: {}
+  Repeats: Enum<RepeatEnum>[];
+  Actions: Enum<ActionType>[];
 
   constructor(
     public router: Router,
     private http: HttpClient,
   ) {
-    this.Repeats = Object.keys(RepeatEnum).map(key => { return { key: key, value: RepeatEnum[key] }; });
-    this.Actions = Object.keys(ActionType).map(key => { return { key: key, value: ActionType[key] }; });
+    this.Repeats = Object.keys(RepeatEnum).map(key => { return <Enum<RepeatEnum>>{ key: key, value: RepeatEnum[key] }; });
+    this.Actions = Object.keys(ActionType).map(key => {
+      let A = (<string>ActionType[key]).split('|').map(a => a.trim());
+      return <Enum<ActionType>>{ key: key, value: A[0], help:A[1] };
+    });
   }
 
   ngOnInit() {
@@ -107,6 +116,11 @@ export class TimetableComponent implements OnInit {
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+  }
+
+  ActionHelp(aAction) {
+    let Found = this.Actions.find(A => A.key == aAction.actionType);
+    return Found ? Found.help : null;
   }
 
   Save() {

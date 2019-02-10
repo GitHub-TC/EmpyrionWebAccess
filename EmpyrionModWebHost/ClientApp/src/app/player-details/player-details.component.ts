@@ -77,4 +77,19 @@ export class PlayerDetailsComponent implements OnInit {
         this.mPlayerService.WipePlayer(this.Player);
       });
   }
+
+  PlayerHint(aPlayer: PlayerModel) {
+    let FoundElevated = this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId);
+    if (FoundElevated) switch (FoundElevated.permission) {
+      case 3: return "GameMaster";
+      case 6: return "Moderator";
+      case 9: return "Admin";
+    }
+
+    let FoundBanned = this.mPlayerService.BannedUser.find(U => U.steamId == aPlayer.SteamId);
+    if (FoundBanned) return "Banned until " + FoundBanned.until.toLocaleString();
+
+    return "";
+  }
+
 }

@@ -42,7 +42,7 @@
               <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
             </mat-form-field>
           </mat-dialog-content>
-          <br/>
+          <br />
           <mat-dialog-actions>
             <div *ngIf="mPositionService.CurrentPosition?.description" style="display:block">
               <button mat-raised-button class="mat-raised-button" (click)="copyPosition()">Load {{mPositionService.CurrentPosition.description}}</button>
@@ -51,6 +51,18 @@
             <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
             <button mat-raised-button class="mat-raised-button mat-primary" (click)="Create()">Create</button>
           </mat-dialog-actions>
+        </mat-card>
+        <mat-card style="margin-top:.5em">
+          <h5>EBP spawn</h5>
+          <mat-form-field>
+            <mat-label>Type</mat-label>
+            <mat-select placeholder="Type" [(value)]="CurrentStructureType">
+              <mat-option *ngFor="let i of ['CV','HV','SV','BA']" [value]="i">
+                {{i}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field><br />
+          <app-file-upload [UploadURL]="'Structure/UploadEBPFile'" [UploadTitle]="'Upload EBP'" (uploaded)="onUploaded($event)"></app-file-upload>
         </mat-card>
       </div>
       <div class="col col-lg-9">

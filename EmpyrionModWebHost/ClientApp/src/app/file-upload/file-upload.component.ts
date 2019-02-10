@@ -13,7 +13,7 @@ public progress: number;
   public message: string;
   constructor(private http: HttpClient) { }
 
-  @Output() uploaded: EventEmitter<any> = new EventEmitter();
+  @Output() uploaded: EventEmitter<string> = new EventEmitter();
   @Input() UploadURL: string;
   @Input() UploadTitle: string = "Choose a file...";
 
@@ -37,7 +37,7 @@ public progress: number;
         this.progress = Math.round(100 * event.loaded / event.total);
       else if (event.type === HttpEventType.Response) {
         try { this.message = event.body.toString(); } catch { }
-        this.uploaded.emit();
+        this.uploaded.emit(mainEvent.srcElement.value);
         mainEvent.srcElement.value = null;
       }
     });
