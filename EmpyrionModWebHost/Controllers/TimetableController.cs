@@ -136,11 +136,46 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(A => IsReverseTime(A) ? A.timestamp >= DateTime.Now && A.nextExecute <= DateTime.Now : A.nextExecute <= DateTime.Now)
                 .ToArray()
                 .ForEach(A => {
-                    if (IsReverseTime(A) && A.timestamp <= DateTime.Now) A.active = false;
-                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? RepeatEnum.hour1 : A.repeat);
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat);
                     TimetableConfig.Save();
                     RunThis(A);
                 });
+
+            TimetableConfig.Current.Actions
+                .Where(A => A.active && IsReverseTime(A) && A.timestamp <= DateTime.Now)
+                .ToArray()
+                .ForEach(A => A.active = false);
+        }
+
+        private RepeatEnum ReverseAutoRepeatTime(RepeatEnum aRepeat)
+        {
+            switch (aRepeat)
+            {
+                case RepeatEnum.manual:
+                case RepeatEnum.min5:
+                case RepeatEnum.min10:
+                case RepeatEnum.min15:
+                case RepeatEnum.min20:
+                case RepeatEnum.min30:
+                case RepeatEnum.min45:
+                case RepeatEnum.hour1:
+                case RepeatEnum.hour2:
+                case RepeatEnum.hour3:
+                case RepeatEnum.hour6:
+                case RepeatEnum.hour12: return aRepeat;
+                case RepeatEnum.day1:
+                case RepeatEnum.dailyAt:
+                case RepeatEnum.mondayAt:
+                case RepeatEnum.tuesdayAt:
+                case RepeatEnum.wednesdayAt:
+                case RepeatEnum.thursdayAt:
+                case RepeatEnum.fridayAt:
+                case RepeatEnum.saturdayAt:
+                case RepeatEnum.sundayAt:
+                case RepeatEnum.monthly: return RepeatEnum.hour1;
+                case RepeatEnum.timeAt:
+                default: return RepeatEnum.hour1;
+            }
         }
 
         private bool IsReverseTime(TimetableAction aAction)
@@ -156,8 +191,8 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(A => A.active)
                 .ToArray()
                 .ForEach(A => {
-                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? RepeatEnum.hour1 : A.repeat);
-                    if (IsReverseTime(A)) A.timestamp = A.nextExecute;
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat);
+                    if (IsReverseTime(A) && A.timestamp.Year == 1) A.timestamp = GetNextExecute(A, A.repeat).Date + A.timestamp.TimeOfDay;
                 });
         }
 

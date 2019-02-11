@@ -120,6 +120,7 @@ namespace EmpyrionModWebHost.Controllers
                     Player.OnlineTime = new TimeSpan();
                     Player.LastOnline = DateTime.Now;
                     Player.OnlineHours = 0;
+                    Player.Online = true;
                     DB.Players.Add(Player);
 
                     SendWelcomeMessage(Player);

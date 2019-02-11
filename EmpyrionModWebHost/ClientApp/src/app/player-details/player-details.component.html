@@ -53,7 +53,7 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <mat-form-field>
-      <mat-select placeholder="Playfield" (change)="Changed=true" [(value)]="Player.StartPlayfield">
+      <mat-select placeholder="Playfield" (selectionChange)="Changed=true" [(value)]="Player.StartPlayfield">
         <mat-option *ngFor="let pl of Playfields" [value]="pl.name">
           {{pl.name}}
         </mat-option>
@@ -71,12 +71,12 @@
         Faction
       </mat-panel-title>
     </mat-expansion-panel-header>
-    <mat-select placeholder="Faction" (change)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
+    <mat-select placeholder="Faction" (selectionChange)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
       <mat-option *ngFor="let f of Factions" [value]="f.FactionId">
         ({{f.Abbrev}}) {{f.Name}}
       </mat-option>
     </mat-select>
-    <mat-select placeholder="Role" (change)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
+    <mat-select placeholder="Role" (selectionChange)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
       <mat-option *ngFor="let role of [{ id:0, text:'Owner' }, { id:1, text:'Admin' }, { id:2, text:'Member' }]" [value]="role.id">
         {{role.text}}
       </mat-option>
