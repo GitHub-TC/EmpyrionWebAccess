@@ -62,21 +62,11 @@ namespace EmpyrionModWebHost.Controllers
             return LastGlobalStructureList.Current;
         }
 
-        public async Task CreateStructureAsync(string currentEBPFile, PlayfieldGlobalStructureInfo aStructure)
+        public async Task CreateStructureAsync(string aEBPFile, PlayfieldGlobalStructureInfo aStructure)
         {
             var NewID = await Request_NewEntityId();
 
-            //aStructure.Type = "CV";
-
-            var TargetDir = Path.Combine(
-                EmpyrionConfiguration.ProgramPath,
-                "Content", "Scenarios",
-                EmpyrionConfiguration.DedicatedYaml.CustomScenarioName,
-                "Prefabs");
-
-            Directory.CreateDirectory(Path.GetDirectoryName(TargetDir));
-            var TargetFilename = Path.Combine(TargetDir, Path.GetFileName(CurrentEBPFile));
-            File.Copy(CurrentEBPFile, TargetFilename, true);
+            aStructure.Type = GetStructureInfo(aEBPFile);
 
             var SpawnInfo = new EntitySpawnInfo()
             {
@@ -87,8 +77,8 @@ namespace EmpyrionModWebHost.Controllers
                 name = $"EBP:{Path.GetFileNameWithoutExtension(aStructure.Name)}",
                 type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
-                prefabName = Path.GetFileNameWithoutExtension(CurrentEBPFile),
-                prefabDir  = Path.GetDirectoryName(CurrentEBPFile),
+                prefabName = Path.GetFileNameWithoutExtension(aEBPFile),
+                prefabDir  = Path.GetDirectoryName(aEBPFile),
                 factionGroup = 0,
                 factionId = 0, // erstmal auf "public" aStructure.Faction,
             };
@@ -103,10 +93,20 @@ namespace EmpyrionModWebHost.Controllers
             }
             finally
             {
-                try { File.Delete(TargetFilename); } catch { }
+                try { File.Delete(aEBPFile); } catch { }
             }
         }
 
+        private string GetStructureInfo(string aEBPFile)
+        {
+            switch(File.ReadAllBytes(aEBPFile)[8]){
+                default: return "BA";
+                case  2: return "BA";
+                case  4: return "SV";
+                case  8: return "CV";
+                case 16: return "HV";
+            }
+        }
     }
 
     [Authorize]

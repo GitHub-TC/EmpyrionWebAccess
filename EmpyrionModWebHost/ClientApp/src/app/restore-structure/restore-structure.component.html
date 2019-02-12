@@ -54,14 +54,6 @@
         </mat-card>
         <mat-card style="margin-top:.5em">
           <h5>EBP spawn</h5>
-          <mat-form-field>
-            <mat-label>Type</mat-label>
-            <mat-select placeholder="Type" [(value)]="CurrentStructureType">
-              <mat-option *ngFor="let i of ['CV','HV','SV','BA']" [value]="i">
-                {{i}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field><br />
           <app-file-upload [UploadURL]="'Structure/UploadEBPFile'" [UploadTitle]="'Upload EBP'" (uploaded)="onUploaded($event)"></app-file-upload>
         </mat-card>
       </div>

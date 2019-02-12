@@ -57,10 +57,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             var NewID = await Request_NewEntityId();
 
-            var ExportInfo = new EntityExportInfo(NewID.id,
-                Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}"),
-                false);
-
             var SpawnInfo = new EntitySpawnInfo()
             {
                 forceEntityId = NewID.id,

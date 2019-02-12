@@ -49,7 +49,6 @@ export class RestoreStructureComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  CurrentStructureType: string = "CV";
 
   constructor(
     private http: HttpClient,
@@ -157,7 +156,6 @@ export class RestoreStructureComponent implements OnInit {
     var send = JSON.parse(JSON.stringify(this.CurrentStructure));
     send.playfield = this.WarpData.playfield;
     send.pos = this.WarpData.pos;
-    send.type = this.CurrentStructureType;
     let locationsSubscription = this.http.post("Structure/CreateStructure", send)
       .pipe()
       .subscribe(
