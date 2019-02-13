@@ -158,8 +158,17 @@ export class PlayerService {
     this.currentPlayer.next(this.mCurrentPlayer = aPlayer);
   }
 
-  BanPlayer(aPlayer: PlayerModel): any {
-    this.http.get('gameplay/BanPlayer/' + aPlayer.SteamId + "/" + "12m")
+  KickPlayer(aPlayer: PlayerModel): any {
+    this.http.get('gameplay/KickPlayer/' + aPlayer.SteamId)
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
+  BanPlayer(aPlayer: PlayerModel, aDuration: string): any {
+    this.http.get('gameplay/BanPlayer/' + aPlayer.SteamId + "/" + aDuration)
       .pipe()
       .subscribe(
         () => { },

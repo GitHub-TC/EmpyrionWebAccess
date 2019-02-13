@@ -55,12 +55,21 @@ export class PlayerDetailsComponent implements OnInit {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);
   }
 
-  Ban(aPlayer: PlayerModel) {
+  Kick(aPlayer: PlayerModel) {
     this.contextMenuTrigger.closeMenu();
-    this.YesNo.openDialog({ title: "Ban player", question: aPlayer.PlayerName }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Kick player", question: aPlayer.PlayerName }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
-        this.mPlayerService.BanPlayer(this.Player);
+        this.mPlayerService.KickPlayer(this.Player);
+      });
+  }
+
+  Ban(aPlayer: PlayerModel, aDuration: string) {
+    this.contextMenuTrigger.closeMenu();
+    this.YesNo.openDialog({ title: "Ban player for " + aDuration, question: aPlayer.PlayerName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.mPlayerService.BanPlayer(this.Player, aDuration);
       });
   }
 

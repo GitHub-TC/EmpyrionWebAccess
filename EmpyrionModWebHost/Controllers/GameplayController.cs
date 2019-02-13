@@ -205,6 +205,13 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [HttpGet("KickPlayer/{aSteamId}")]
+        public IActionResult KickPlayer(string aSteamId)
+        {
+            GameplayManager.Request_ConsoleCommand(new PString($"kick {aSteamId} 'you have been kicked from the server'"));
+            return Ok();
+        }
+
         [HttpGet("BanPlayer/{aSteamId}/{aDuration}")]
         public IActionResult BanPlayer(string aSteamId, string aDuration)
         {
