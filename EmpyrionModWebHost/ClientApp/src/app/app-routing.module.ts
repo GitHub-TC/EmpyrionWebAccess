@@ -9,6 +9,7 @@ import { RestoreComponent } from './restore/restore.component';
 import { ServerComponent } from './server/server.component';
 import { EntitiesComponent } from './entities/entities.component';
 import { TimetableComponent } from './timetable/timetable.component';
+import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
 
 const appRoutes: Routes = [
   {
@@ -39,6 +40,10 @@ const appRoutes: Routes = [
   {
     path: 'timetable',
     component: TimetableComponent
+  },
+  {
+    path: 'galaxy',
+    component: GalaxyMapComponent
   },
 
   // otherwise redirect to home

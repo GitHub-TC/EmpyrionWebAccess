@@ -48,6 +48,8 @@ import { PlayfieldViewComponent } from './playfield-view/playfield-view.componen
 import { EntitiesComponent } from './entities/entities.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { HistoryBookOfComponent } from './history-book-of/history-book-of.component';
+import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
+import { ThreeJsModule } from './three-js/three-js.module';
 
 @NgModule({
   declarations: [
@@ -86,7 +88,8 @@ import { HistoryBookOfComponent } from './history-book-of/history-book-of.compon
     PlayfieldViewComponent,
     EntitiesComponent,
     FileUploadComponent,
-    HistoryBookOfComponent
+    HistoryBookOfComponent,
+    GalaxyMapComponent
   ],
   imports: [
     BrowserModule,
@@ -100,6 +103,7 @@ import { HistoryBookOfComponent } from './history-book-of/history-book-of.compon
     AppRoutingModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
+    ThreeJsModule,
   ],
   entryComponents: [
     WarpDialogComponent,          WarpDialogContentComponent,

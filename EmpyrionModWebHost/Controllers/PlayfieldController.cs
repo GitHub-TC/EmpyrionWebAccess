@@ -37,6 +37,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         public PlayfieldInfo[] Playfields { get; set; }
+        public FileSystemWatcher PlayfieldsWatcher { get; private set; }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
@@ -44,6 +45,11 @@ namespace EmpyrionModWebHost.Controllers
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
             ReadPlayfields();
+
+            PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"));
+            PlayfieldsWatcher.Created += (S, A) => ReadPlayfields();
+            PlayfieldsWatcher.Deleted += (S, A) => ReadPlayfields();
+            PlayfieldsWatcher.EnableRaisingEvents = true;
         }
 
         public void ReadPlayfields()
@@ -100,6 +106,12 @@ namespace EmpyrionModWebHost.Controllers
         public PlayfieldController()
         {
             PlayfieldManager = Program.GetManager<PlayfieldManager>();
+        }
+
+        [HttpGet("Sectors")]
+        public ActionResult<string> Sectors()
+        {
+            return System.IO.File.ReadAllText(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Sectors", "sectors.yaml"));
         }
 
         [HttpGet("Playfields")]

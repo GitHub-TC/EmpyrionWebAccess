@@ -1,0 +1,40 @@
+cameraX: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraX">
+{{ cameraX | number:'1.1-2'}} °<br>
+cameraY: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraY">
+{{ cameraY | number:'1.1-2'}} °<br>
+cameraZ: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraZ">
+{{ cameraZ | number:'1.1-2'}} °<br>
+<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+<hr>
+<three-orbit-controls [rotateSpeed]=1 [zoomSpeed]=1.2 [listeningControlElement]=mainRenderer.renderPane>
+  <three-webgl-renderer #mainRenderer>
+    <three-perspective-camera #mainCamera [fov]=60 [near]=1 [far]=1100 [positionX]="cameraX" [positionY]="cameraY" [positionZ]="cameraZ"></three-perspective-camera>
+    <three-scene [lateInit]="true">
+      <three-axes-helper size=200></three-axes-helper>
+      <!--<three-grid-helper size=100 divisions=10></three-grid-helper>-->
+      <three-point-light color="white" intensity="1" distance="1000" translateX=50 translateY=50 translateZ=50></three-point-light>
+      <three-point-light color="#FAFAF0" intensity="1" distance="1000" translateX=-50 translateY=50 translateZ=20></three-point-light>
+
+      <div *ngFor="let s of Sectors">
+        <text-loader [Text]="s.Playfields[0][1]"
+                     Size="2"
+                     Height=".5"
+                     Color="#000000"
+                     [translateX]="s.Coordinates[0]"
+                     [translateY]="s.Coordinates[1] + 2"
+                     [translateZ]="s.Coordinates[2]"
+                     [renderer]="mainRenderer">
+        </text-loader>
+        <three-object-loader model="assets/Model/Planet.json"
+                             [translateX]="s.Coordinates[0]"
+                             [translateY]="s.Coordinates[1]"
+                             [translateZ]="s.Coordinates[2]"
+                             [renderer]="mainRenderer"
+                             [rotateX]="rotationX"
+                             [rotateY]="rotationY"
+                             [rotateZ]="rotationZ">
+        </three-object-loader>
+      </div>
+    </three-scene>
+  </three-webgl-renderer>
+</three-orbit-controls>
