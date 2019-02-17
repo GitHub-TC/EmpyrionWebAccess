@@ -17,7 +17,7 @@ cameraZ: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="camer
 
       <div *ngFor="let s of Sectors">
         <text-loader [Text]="s.Playfields[0][1]"
-                     Size="2"
+                     Size="5"
                      Height=".5"
                      Color="#000000"
                      [translateX]="s.Coordinates[0]"
