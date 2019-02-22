@@ -6,6 +6,7 @@ import { AbstractModelLoader } from './abstract-model-loader';
 import '../../js/EnableThreeJs';
 import 'three/examples/js/loaders/OBJLoader';
 import 'three/examples/js/loaders/MTLLoader';
+import { PlainObject3D } from '../plain-object-3d';
 
 /**
  * Directive for employing THREE.OBJLoader to load [Wavefront *.obj files][1].
@@ -14,17 +15,26 @@ import 'three/examples/js/loaders/MTLLoader';
  */
 @Directive({
   selector: 'three-obj-loader',
-  providers: [{ provide: AbstractObject3D, useExisting: forwardRef(() => ObjLoaderDirective) }]
+  providers: [
+    { provide: AbstractObject3D, useExisting: forwardRef(() => ObjLoaderDirective) },
+    { provide: PlainObject3D, useExisting: forwardRef(() => ObjLoaderDirective) }]
 })
 export class ObjLoaderDirective extends AbstractModelLoader {
-  private loader = new THREE.OBJLoader();
-  private mtlLoader = new THREE.MTLLoader();
+  private loader: THREE.OBJLoader; 
+  private mtlLoader: THREE.MTLLoader;
 
   @Input()
   material: string;
 
   @Input()
   texturePath: string;
+
+  constructor() {
+    super();
+    let three = THREE;
+    this.loader    = new three.OBJLoader();
+    this.mtlLoader = new three.MTLLoader();
+  }
 
   protected async loadModelObject() {
     // TODO: make it nicer

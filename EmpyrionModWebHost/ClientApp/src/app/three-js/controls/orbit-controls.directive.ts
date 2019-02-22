@@ -76,12 +76,15 @@ export class OrbitControlsDirective implements AfterViewInit, OnChanges, OnDestr
   }
 
   private setUpOrbitControls() {
-    this.controls = new THREE.OrbitControls(
+    let three = THREE;
+
+    this.controls = new three.OrbitControls(
       this.childCameras.first.camera,
       this.listeningControlElement && this.listeningControlElement.nativeElement
     );
     this.controls.rotateSpeed = this.rotateSpeed;
     this.controls.zoomSpeed = this.zoomSpeed;
+    this.controls.enableKeys = false;
     this.controls.addEventListener('change', this.childRenderers.first.render);
     this.childRenderers.first.render();
   }

@@ -1,13 +1,14 @@
 import { Directive, Input, forwardRef, HostListener, SimpleChanges } from '@angular/core';
 import { AbstractCamera } from './abstract-camera';
 import * as THREE from 'three';
+import { WebGLRendererComponent } from '../renderer/webgl-renderer.component';
 
 @Directive({
   selector: 'three-perspective-camera',
   providers: [{ provide: AbstractCamera, useExisting: forwardRef(() => PerspectiveCameraDirective) }]
 })
 export class PerspectiveCameraDirective extends AbstractCamera<THREE.PerspectiveCamera> {
-
+  private _renderer: WebGLRendererComponent;
   // @Input() cameraTarget: THREE.Object3D;
 
   _fov: number;
@@ -68,6 +69,18 @@ export class PerspectiveCameraDirective extends AbstractCamera<THREE.Perspective
     this.camera.position.y = this.positionY;
     this.camera.position.z = this.positionZ;
     this.camera.updateProjectionMatrix();
+
+    this.renderer.render();
+  }
+
+  @Input()
+  public set renderer(newRenderer: WebGLRendererComponent) {
+    this._renderer = newRenderer;
+    this._renderer.render();
+  }
+
+  public get renderer() {
+    return this._renderer;
   }
 
   public updateAspectRatio(aspect: number) {

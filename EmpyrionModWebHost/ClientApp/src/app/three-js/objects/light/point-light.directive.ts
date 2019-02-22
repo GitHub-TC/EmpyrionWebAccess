@@ -1,10 +1,14 @@
 import { Directive, Input, AfterViewInit, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 import { AbstractObject3D } from '../abstract-object-3d';
+import { PlainObject3D } from '../plain-object-3d';
 
 @Directive({
   selector: 'three-point-light',
-  providers: [{ provide: AbstractObject3D, useExisting: forwardRef(() => PointLightDirective) }]
+  providers: [
+    { provide: AbstractObject3D, useExisting: forwardRef(() => PointLightDirective) },
+    { provide: PlainObject3D, useExisting: forwardRef(() => PointLightDirective) }
+  ]
 })
 export class PointLightDirective extends AbstractObject3D<THREE.PointLight> {
 

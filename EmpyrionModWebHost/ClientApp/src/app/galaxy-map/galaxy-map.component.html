@@ -1,40 +1,85 @@
-cameraX: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraX">
-{{ cameraX | number:'1.1-2'}} °<br>
-cameraY: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraY">
-{{ cameraY | number:'1.1-2'}} °<br>
-cameraZ: <input type="range" min="-1000" max="1000" step="10" [(ngModel)]="cameraZ">
-{{ cameraZ | number:'1.1-2'}} °<br>
-<mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
-<hr>
-<three-orbit-controls [rotateSpeed]=1 [zoomSpeed]=1.2 [listeningControlElement]=mainRenderer.renderPane>
-  <three-webgl-renderer #mainRenderer>
-    <three-perspective-camera #mainCamera [fov]=60 [near]=1 [far]=1100 [positionX]="cameraX" [positionY]="cameraY" [positionZ]="cameraZ"></three-perspective-camera>
-    <three-scene [lateInit]="true">
-      <three-axes-helper size=200></three-axes-helper>
-      <!--<three-grid-helper size=100 divisions=10></three-grid-helper>-->
-      <three-point-light color="white" intensity="1" distance="1000" translateX=50 translateY=50 translateZ=50></three-point-light>
-      <three-point-light color="#FAFAF0" intensity="1" distance="1000" translateX=-50 translateY=50 translateZ=20></three-point-light>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-9">
+      <mat-card style="margin-bottom:1em" class="matMap">
+        <three-orbit-controls [rotateSpeed]=1 [zoomSpeed]=1.2 [listeningControlElement]=mainRenderer.renderPane>
+          <three-webgl-renderer #mainRenderer>
+            <three-perspective-camera #mainCamera
+                                      [renderer]="mainRenderer"
+                                      [fov]=60 [near]=1 [far]=1100
+                                      [positionX]="cameraX" [positionY]="cameraY" [positionZ]="cameraZ">
+            </three-perspective-camera>
+            <three-scene [lateInit]="true">
+              <!--<three-axes-helper size=1000></three-axes-helper>-->
+              <!--<three-grid-helper size=100 divisions=10></three-grid-helper>-->
+              <three-point-light color="white" intensity="1" distance="1000" translateX=50 translateY=50 translateZ=50></three-point-light>
+              <three-point-light color="#FAFAF0" intensity="1" distance="1000" translateX=-50 translateY=50 translateZ=20></three-point-light>
 
-      <div *ngFor="let s of Sectors">
-        <text-loader [Text]="s.Playfields[0][1]"
-                     Size="5"
-                     Height=".5"
-                     Color="#000000"
-                     [translateX]="s.Coordinates[0]"
-                     [translateY]="s.Coordinates[1] + 2"
-                     [translateZ]="s.Coordinates[2]"
-                     [renderer]="mainRenderer">
-        </text-loader>
-        <three-object-loader model="assets/Model/Planet.json"
-                             [translateX]="s.Coordinates[0]"
-                             [translateY]="s.Coordinates[1]"
-                             [translateZ]="s.Coordinates[2]"
-                             [renderer]="mainRenderer"
-                             [rotateX]="rotationX"
-                             [rotateY]="rotationY"
-                             [rotateZ]="rotationZ">
-        </three-object-loader>
-      </div>
-    </three-scene>
-  </three-webgl-renderer>
-</three-orbit-controls>
+              <text-loader *ngFor="let s of Sectors.Sectors"
+                           [Text]="s.Playfields[s.Playfields.length - 1][1]"
+                           Size="5"
+                           Height=".5"
+                           Color="#000000"
+                           [translateX]="s.Coordinates[0]"
+                           [translateY]="s.Coordinates[1] + 2"
+                           [translateZ]="s.Coordinates[2]"
+                           [renderer]="mainRenderer">
+              </text-loader>
+              <three-object-loader *ngFor="let s of Sectors.Sectors"
+                                   model="assets/Model/Planet.json"
+                                   [translateX]="s.Coordinates[0]"
+                                   [translateY]="s.Coordinates[1]"
+                                   [translateZ]="s.Coordinates[2]"
+                                   [renderer]="mainRenderer"
+                                   [rotateX]="rotationX"
+                                   [rotateY]="rotationY"
+                                   [rotateZ]="rotationZ">
+              </three-object-loader>
+              <line-object-loader *ngFor="let w of WarpRoutes"
+                                  [Start]="w.start"
+                                  [End]="w.end"
+                                  [Color]="w.color">
+              </line-object-loader>
+              <cone-object-loader *ngFor="let w of OneWayRoutes"
+                                  [Start]="w.start"
+                                  [End]="w.end"
+                                  [Color]="w.color">
+              </cone-object-loader>
+            </three-scene>
+          </three-webgl-renderer>
+        </three-orbit-controls>
+      </mat-card>
+    </div>
+    <div class="col-3">
+      <mat-card style="margin-bottom:1em">
+        <div>
+          <mat-form-field style="width:85%">
+            <input matInput (keyup)="applyFilter($event)" placeholder="Filter">
+          </mat-form-field>
+          <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
+        </div>
+        <div class="treeSectors">
+          <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+            <!-- This is the tree node template for leaf nodes -->
+            <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+              <!-- use a disabled button to provide padding for tree leaf -->
+              <button mat-icon-button disabled></button>
+              <div (click)="Goto(node)">{{node.name}}</div>
+            </mat-tree-node>
+            <!-- This is the tree node template for expandable nodes -->
+            <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+              <button mat-icon-button matTreeNodeToggle
+                      [attr.aria-label]="'toggle ' + node.name">
+                <mat-icon class="mat-icon-rtl-mirror">
+                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+              </button>
+              <div (click)="Goto(node)">{{node.name}}</div>
+            </mat-tree-node>
+          </mat-tree>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>
+

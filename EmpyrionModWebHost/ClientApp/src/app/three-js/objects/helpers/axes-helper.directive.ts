@@ -1,10 +1,14 @@
 import { Directive, Input, AfterViewInit, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 import { AbstractObject3D } from '../abstract-object-3d';
+import { PlainObject3D } from '../plain-object-3d';
 
 @Directive({
   selector: 'three-axes-helper',
-  providers: [{ provide: AbstractObject3D, useExisting: forwardRef(() => AxesHelperDirective) }]
+  providers: [
+    { provide: AbstractObject3D, useExisting: forwardRef(() => AxesHelperDirective) },
+    { provide: PlainObject3D, useExisting: forwardRef(() => AxesHelperDirective) }
+  ]
 })
 export class AxesHelperDirective extends AbstractObject3D<THREE.AxesHelper> {
 

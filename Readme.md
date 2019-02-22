@@ -124,6 +124,10 @@ Spielerdateien:
 Playfields:
 ![](EmpyrionModWebHost/Screenshots/RestorePlayfields.png)
 
+## Galaxy
+Hier wird die Galaxiekarte mir den Warpverbindungen angezeigt und die Liste der Orbits und Planeten.
+![](EmpyrionModWebHost/Screenshots/Galaxy.png)
+
 ## Start/Stop
 EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
 Fehlt diese Datei wird der EWA automatisch gestoppt bzw. gar nicht erst gestartet. 
@@ -327,6 +331,22 @@ With this you can determine what happened in the selected period and distance fr
 
 ## Restore
 Recovery of backpacks, structures, player files and playfields from backups
+![](EmpyrionModWebHost/Screenshots/RestoreBackpack.png)
+
+Structures:
+![](EmpyrionModWebHost/Screenshots/RestoreStructure.png)
+
+The deleted / destroyed structures of the current savegame can be restored by selecting "### Current Savegame ###" as backup
+
+Player files:
+![](EmpyrionModWebHost/Screenshots/RestorePlayer.png)
+
+Playfields:
+![](EmpyrionModWebHost/Screenshots/RestorePlayfields.png)
+
+## Galaxy
+Here the galaxy map is displayed with the warp links and the list of orbits and planets.
+![](EmpyrionModWebHost/Screenshots/Galaxy.png)
 
 ## Start/Stop
 EmpyrionWebAccess does not start automatically there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.

@@ -3,10 +3,14 @@ import { AbstractObject3D } from '../abstract-object-3d';
 import { AbstractModelLoader } from './abstract-model-loader';
 
 import * as THREE from 'three';
+import { PlainObject3D } from '../plain-object-3d';
 
 @Directive({
   selector: 'three-object-loader',
-  providers: [{ provide: AbstractObject3D, useExisting: forwardRef(() => ObjectLoaderDirective) }]
+  providers: [
+    { provide: AbstractObject3D, useExisting: forwardRef(() => ObjectLoaderDirective) },
+    { provide: PlainObject3D, useExisting: forwardRef(() => ObjectLoaderDirective) }
+  ]
 })
 export class ObjectLoaderDirective extends AbstractModelLoader {
   private loader = new THREE.ObjectLoader();

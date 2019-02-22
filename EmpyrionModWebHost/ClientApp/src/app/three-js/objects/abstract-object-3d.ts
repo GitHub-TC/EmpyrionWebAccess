@@ -1,17 +1,8 @@
-import {
-  AfterViewInit,
-  ContentChildren,
-  Input,
-  OnChanges,
-  QueryList,
-  SimpleChanges
-} from '@angular/core';
+import { AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as THREE from 'three';
+import { PlainObject3D } from './plain-object-3d';
 
-export abstract class AbstractObject3D<T extends THREE.Object3D> implements AfterViewInit, OnChanges {
-
-  @ContentChildren(AbstractObject3D, { descendants: false }) childNodes: QueryList<AbstractObject3D<THREE.Object3D>>;
-
+export abstract class AbstractObject3D<T extends THREE.Object3D> extends PlainObject3D<T> implements AfterViewInit, OnChanges {
   /**
    * Rotation in Euler angles (radians) with order X, Y, Z.
    */
@@ -32,8 +23,6 @@ export abstract class AbstractObject3D<T extends THREE.Object3D> implements Afte
   @Input() translateZ: number;
 
   @Input() lateInit: boolean = false;
-
-  private object: T;
 
   protected rerender() {
   }
@@ -69,20 +58,6 @@ export abstract class AbstractObject3D<T extends THREE.Object3D> implements Afte
     if (!this.lateInit) this.InitChilds();
   }
 
-  public InitChilds() {
-    if (this.childNodes !== undefined && this.childNodes.length > 1) {
-      this.childNodes.filter(i => i !== this && i.getObject() !== undefined).forEach(i => {
-        // console.log("Add child for " + this.constructor.name);
-        // console.log(i);
-        this.addChild(i.getObject());
-      });
-    } else {
-      // console.log("No child Object3D for: " + this.constructor.name);
-    }
-
-    this.afterInit();
-  }
-
   protected applyRotation(): void {
     const angles = [
       this.rotateX,
@@ -105,21 +80,5 @@ export abstract class AbstractObject3D<T extends THREE.Object3D> implements Afte
       this.translateZ || 0
     );
   }
-
-  protected addChild(object: THREE.Object3D): void {
-    this.object.add(object);
-  }
-
-  protected removeChild(object: THREE.Object3D): void {
-    this.object.remove(object);
-  }
-
-  public getObject(): T {
-    return this.object;
-  }
-
-  protected abstract newObject3DInstance(): T;
-
-  protected abstract afterInit(): void;
 
 }

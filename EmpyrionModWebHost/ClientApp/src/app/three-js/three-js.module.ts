@@ -13,6 +13,8 @@ import { GridHelperDirective } from './objects/helpers/grid-helper.directive';
 import { ObjectLoaderDirective } from './objects/loaders/object-loader.directive';
 import { PointLightDirective } from './objects/light/point-light.directive';
 import { TextLoaderDirective } from './objects/loaders/text-loader.directive';
+import { LineLoaderDirective } from './objects/line-object.directive';
+import { ConeLoaderDirective } from './objects/cone-object.directive';
 
 // TODO: Ideally move all to three-wrapper library. But can't move js/EnableThreeExamples.js to library :(
 @NgModule({
@@ -32,7 +34,9 @@ import { TextLoaderDirective } from './objects/loaders/text-loader.directive';
     GridHelperDirective,
     ObjectLoaderDirective,
     TextLoaderDirective,
-    PointLightDirective
+    PointLightDirective,
+    LineLoaderDirective,
+    ConeLoaderDirective,
   ],
   exports: [
     OrbitControlsDirective,
@@ -47,7 +51,9 @@ import { TextLoaderDirective } from './objects/loaders/text-loader.directive';
     GridHelperDirective,
     ObjectLoaderDirective,
     TextLoaderDirective,
-    PointLightDirective
+    PointLightDirective,
+    LineLoaderDirective,
+    ConeLoaderDirective,
   ]
 })
 export class ThreeJsModule { }

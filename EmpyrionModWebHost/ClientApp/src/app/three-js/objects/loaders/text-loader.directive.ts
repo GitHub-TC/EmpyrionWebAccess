@@ -4,10 +4,14 @@ import { AbstractModelLoader } from './abstract-model-loader';
 
 import * as THREE from 'three';
 import { FontService } from '../../services/font.service';
+import { PlainObject3D } from '../plain-object-3d';
 
 @Directive({
   selector: 'text-loader',
-  providers: [{ provide: AbstractObject3D, useExisting: forwardRef(() => TextLoaderDirective) }]
+  providers: [
+    { provide: AbstractObject3D, useExisting: forwardRef(() => TextLoaderDirective) },
+    { provide: PlainObject3D, useExisting: forwardRef(() => TextLoaderDirective) }
+  ]
 })
 export class TextLoaderDirective extends AbstractModelLoader {
   @Input() Text: string;
