@@ -1,0 +1,18 @@
+<div class="PlayerArea" *ngIf="Player">
+  <mat-card>
+    <mat-card-title>
+      Personal note: {{Player.PlayerName}}
+      <a href="https://steamcommunity.com/profiles/{{Player.SteamId}}" target="_blank">
+        <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
+      </a>
+      <mat-icon class="onlineState" *ngIf="Player?.Online" style="cursor:pointer; color: green; font-size:medium" title="Online">account_circle</mat-icon>
+    </mat-card-title>
+    <mat-card-content>
+      <textarea class="noteArea" (change)="Changed=true" (keydown)="Changed=true" [(ngModel)]="Player.Note" placeholder="Note"></textarea>
+    </mat-card-content>
+  </mat-card>
+</div>
+<mat-menu #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
+  <button mat-menu-item (click)="SaveChanges()">Save</button>
+</mat-menu>
+<app-yes-no-dialog></app-yes-no-dialog>

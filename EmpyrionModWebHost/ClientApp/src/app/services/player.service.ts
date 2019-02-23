@@ -142,6 +142,18 @@ export class PlayerService {
       );
   }
 
+  saveNote(aPlayer: PlayerModel): any {
+    this.http.post('Player/SaveNote', {
+      SteamId: aPlayer.SteamId,
+      Note: aPlayer.Note
+    })
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
   GetPlayer(aSelect: (PlayerModel) => boolean) {
     return this.players.getValue().find(aSelect);
   }

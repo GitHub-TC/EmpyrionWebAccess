@@ -109,6 +109,14 @@ Verzeichnis kopiert werden
 
 Hiermit kann man ermitteln was in dem ausgewählten Zeitraum und Abstand von dem gewählten Objekt (Spieler oder Struktur) passiert ist.
 
+Die History der Stukturen wird in den Abständen ermittelt die in der "appsettings.json" mit
+```
+  "AppSettings": {
+    "GlobalStructureUpdateInSeconds": 60
+  },
+```
+eingestellt werden kann. (Standard ist 60 Sekunden)
+
 ## Restore
 Wiederherstellung von Backpacks: 
 ![](EmpyrionModWebHost/Screenshots/RestoreBackpack.png)

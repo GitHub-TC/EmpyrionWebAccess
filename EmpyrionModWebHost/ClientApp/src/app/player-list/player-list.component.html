@@ -15,6 +15,7 @@
           <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
         </a>
         <mat-icon class="onlineState" *ngIf="player.Online" style="cursor:pointer" title="Online">account_circle</mat-icon>
+        <mat-icon class="noteState" *ngIf="player.Note" style="cursor:pointer" title="{{player.Note}}">speaker_notes</mat-icon>
       </td>
     </ng-container>
 

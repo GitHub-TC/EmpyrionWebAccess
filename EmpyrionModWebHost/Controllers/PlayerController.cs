@@ -201,7 +201,7 @@ namespace EmpyrionModWebHost.Controllers
                 if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), PlayerDisconnect);
                 else
                 {
-                    UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
+                    UpdatePlayer(DB => DB.Players.Where(P =>  onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
                     UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) && P.Online), PlayerDisconnect);
                 }
 
@@ -287,6 +287,10 @@ namespace EmpyrionModWebHost.Controllers
             Request_Player_SetPlayerInfo(aSet);
         }
 
+        public void ChangePlayerNote(string aSteamId, string aNote)
+        {
+            UpdatePlayer(DB => DB.Players.Where(P => P.SteamId == aSteamId), P => P.Note = aNote);
+        }
     }
 
     [Authorize]
@@ -321,6 +325,7 @@ namespace EmpyrionModWebHost.Controllers
             PlayerManager.ChangePlayerInfo(player);
             return Ok();
         }
+
     }
 
     [Authorize]
@@ -346,5 +351,18 @@ namespace EmpyrionModWebHost.Controllers
         {
             return EmpyrionConfiguration.AdminconfigYaml.BannedUsers;
         }
+
+        public class SaveNoteData{
+            public string SteamId { get; set; }
+            public string Note { get; set; }
+        }
+
+        [HttpPost("SaveNote")]
+        public IActionResult SaveNote([FromBody]SaveNoteData Note)
+        {
+            PlayerManager.ChangePlayerNote(Note.SteamId, Note.Note);
+            return Ok();
+        }
+
     }
 }

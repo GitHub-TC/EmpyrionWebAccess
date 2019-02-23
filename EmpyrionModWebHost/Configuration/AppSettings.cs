@@ -5,5 +5,6 @@
         public string Secret { get; set; }
         public string BackupDirectory { get; set; }
         public bool UseHttpsRedirection { get; set; } = true;
+        public int GlobalStructureUpdateInSeconds { get; set; } = 60;
     }
 }

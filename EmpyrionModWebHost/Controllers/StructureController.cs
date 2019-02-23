@@ -46,7 +46,7 @@ namespace EmpyrionModWebHost.Controllers
 
             API_Exit += () => { try { System.IO.File.Delete(CurrentEBPFile); } catch { } };
 
-            TaskTools.Intervall(10000, () => GlobalStructureList());
+            TaskTools.Intervall(Math.Max(1, Program.AppSettings.GlobalStructureUpdateInSeconds) * 1000, () => GlobalStructureList());
         }
 
 

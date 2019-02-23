@@ -32,6 +32,13 @@
                 </ng-template>
                 <app-factory #FactoryEdit></app-factory>
               </mat-tab>
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  Note
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerNote.Changed" (click)="PlayerNote.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                </ng-template>
+                <app-player-note #PlayerNote></app-player-note>
+              </mat-tab>
             </mat-tab-group>
           </div>
         </div>

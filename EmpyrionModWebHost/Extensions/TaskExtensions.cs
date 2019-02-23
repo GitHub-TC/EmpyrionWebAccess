@@ -6,10 +6,13 @@ namespace EmpyrionModWebHost.Extensions
     public static class TaskTools
     {
 
-        public static void Intervall(int aMillisecondsIntervall, Action aAction)
+        public static ManualResetEvent Intervall(int aMillisecondsIntervall, Action aAction)
         {
+            var localExit = new ManualResetEvent(false);
+            Program.AppLifetime.StopApplicationEvent += (S, A) => localExit.Set();
             new Thread(() => {
-                while (!Program.AppLifetime.Exit)
+                bool isLocalExit = false;
+                while (!Program.AppLifetime.Exit && !isLocalExit)
                 {
                     try
                     {
@@ -19,9 +22,10 @@ namespace EmpyrionModWebHost.Extensions
                     {
                         Console.WriteLine(Error);
                     }
-                    Thread.Sleep(aMillisecondsIntervall);
+                    isLocalExit = localExit.WaitOne(aMillisecondsIntervall);
                 }
             }).Start();
+            return localExit;
         }
 
         public static void Delay(int aSeconds, Action aAction)
@@ -29,19 +33,22 @@ namespace EmpyrionModWebHost.Extensions
             Delay(new TimeSpan(0,0, aSeconds), aAction);
         }
 
-        public static void Delay(TimeSpan aExecAfterTimeout, Action aAction)
+        public static ManualResetEvent Delay(TimeSpan aExecAfterTimeout, Action aAction)
         {
+            var localExit = new ManualResetEvent(false);
+            Program.AppLifetime.StopApplicationEvent += (S, A) => localExit.Set();
             new Thread(() => {
                 try
                 {
-                Thread.Sleep((int)aExecAfterTimeout.TotalMilliseconds);
-                aAction();
+                    localExit.WaitOne(aExecAfterTimeout);
+                    aAction();
                 }
                 catch (Exception Error)
                 {
                     Console.WriteLine(Error);
                 }
             }).Start();
+            return localExit;
         }
 
     }

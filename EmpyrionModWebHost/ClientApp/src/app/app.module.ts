@@ -50,6 +50,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { HistoryBookOfComponent } from './history-book-of/history-book-of.component';
 import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
 import { ThreeJsModule } from './three-js/three-js.module';
+import { PlayerNoteComponent } from './player-note/player-note.component';
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { ThreeJsModule } from './three-js/three-js.module';
     EntitiesComponent,
     FileUploadComponent,
     HistoryBookOfComponent,
-    GalaxyMapComponent
+    GalaxyMapComponent,
+    PlayerNoteComponent
   ],
   imports: [
     BrowserModule,

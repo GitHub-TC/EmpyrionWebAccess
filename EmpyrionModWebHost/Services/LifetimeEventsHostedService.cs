@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ namespace EmpyrionModWebHost.Services
     {
         private readonly ILogger _logger;
         public IApplicationLifetime AppLifetime { get; private set; }
+        public event EventHandler StopApplicationEvent;
 
         public bool Exit { get; private set; }
 
@@ -48,6 +50,7 @@ namespace EmpyrionModWebHost.Services
         private void OnStopping()
         {
             try{ _logger.LogInformation("OnStopping has been called."); }catch{}
+            if (StopApplicationEvent != null) StopApplicationEvent.Invoke(this, EventArgs.Empty);
             Exit = true;
             // Perform on-stopping activities here
         }
