@@ -1,5 +1,6 @@
 ﻿using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace EmpyrionModWebHost.Services
 {
     public interface IUserService
     {
+        User CurrentUser { get; set; }
         User Authenticate(string username, string password);
         IEnumerable<User> GetAll();
         User GetById(int id);
@@ -24,6 +26,7 @@ namespace EmpyrionModWebHost.Services
         {
             _context = context;
         }
+        public User CurrentUser { get; set; }
 
         public User Authenticate(string username, string password)
         {
@@ -96,7 +99,9 @@ namespace EmpyrionModWebHost.Services
             }
 
             // update user properties
-            user.Username = userParam.Username;
+            user.Username       = userParam.Username;
+            user.InGameSteamId  = userParam.InGameSteamId;
+            user.Role           = userParam.Role;
 
             // update password if it was entered
             if (!string.IsNullOrWhiteSpace(password))

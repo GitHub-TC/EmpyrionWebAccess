@@ -14,7 +14,8 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
-
+using EmpyrionModWebHost.Services;
+using System.Security.Claims;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -135,8 +136,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage)) return;
 
-            TaskTools.Delay(60, () => ChatManager.Value.ChatMessage(null, null, "-ADM-", null,
-                string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
+            TaskTools.Delay(60, () => ChatManager.Value.ChatMessageADM(string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
         }
 
         public Player GetPlayer(int aPlayerId)
@@ -292,11 +292,12 @@ namespace EmpyrionModWebHost.Controllers
             UpdatePlayer(DB => DB.Players.Where(P => P.SteamId == aSteamId), P => P.Note = aNote);
         }
     }
-
+    
     [Authorize]
     public class PlayersController : ODataController
     {
         public PlayerManager PlayerManager { get; }
+        public IUserService UserService { get; }
         public PlayerContext DB { get; }
 
         public static IEdmModel GetEdmModel()
@@ -307,18 +308,31 @@ namespace EmpyrionModWebHost.Controllers
         }
 
 
-        public PlayersController(PlayerContext aPlayerContext)
+        public PlayersController(IUserService aUserService, PlayerContext aPlayerContext)
         {
-            DB = aPlayerContext;
+            UserService   = aUserService;
+            DB            = aPlayerContext;
             PlayerManager = Program.GetManager<PlayerManager>();
         }
 
         [EnableQuery]
         public IActionResult Get()
         {
-            return Ok(DB.Players);
+            switch (UserService.CurrentUser.Role)
+            {
+                case Role.ServerAdmin:
+                case Role.InGameAdmin:
+                case Role.Moderator:
+                case Role.GameMaster:   return Ok(DB.Players);
+                case Role.VIP:          var Faction = DB.Players.Where(P => P.SteamId == UserService.CurrentUser.InGameSteamId).FirstOrDefault()?.FactionId;
+                                        return Ok(DB.Players.Where(P => P.FactionId == Faction));
+                case Role.Player:       return Ok(DB.Players.Where(P => P.SteamId == UserService.CurrentUser.InGameSteamId));
+                case Role.None: return Ok();
+                default:        return Ok();
+            }
         }
 
+        [Authorize(Roles = nameof(Role.Moderator))]
         [EnableQuery]
         public IActionResult Post([FromBody]PlayerInfoSet player)
         {
@@ -328,7 +342,7 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Authorize]
+    [Authorize(Roles = nameof(Role.Moderator))]
     [ApiController]
     [Route("[controller]")]
     public class PlayerController : ControllerBase

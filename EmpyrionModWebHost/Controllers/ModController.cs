@@ -11,6 +11,7 @@ using System.Threading;
 using System.Diagnostics;
 using EmpyrionModWebHost.Extensions;
 using Microsoft.AspNetCore.SignalR;
+using EmpyrionModWebHost.Models;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -68,8 +69,8 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.ServerAdmin))]
     [Route("[controller]")]
     public class ModController : ControllerBase
     {

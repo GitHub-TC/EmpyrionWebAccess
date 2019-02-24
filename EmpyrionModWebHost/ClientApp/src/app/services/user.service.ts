@@ -28,7 +28,12 @@ export class UserService {
   }
 
   createNewUser(newUser: User) {
-    this.http.post<any>('users/register', { Username: newUser.username, Password: newUser.password })
+    this.http.post<any>('users/register', {
+      Username: newUser.username,
+      Password: newUser.password,
+      InGameSteamId: newUser.inGameSteamId,
+      Role: newUser.role,
+    })
       .pipe()
       .subscribe(
         () => this.getAll(),
@@ -37,7 +42,13 @@ export class UserService {
   }
 
   saveUser(aUser: User): any {
-    this.http.post<any>('users/update', { Id: aUser.id, Username: aUser.username, Password: aUser.password })
+    this.http.post<any>('users/update', {
+      Id: aUser.id,
+      Username: aUser.username,
+      Password: aUser.password,
+      InGameSteamId: aUser.inGameSteamId,
+      Role: aUser.role,
+    })
       .pipe()
       .subscribe(
         () => this.getAll(),

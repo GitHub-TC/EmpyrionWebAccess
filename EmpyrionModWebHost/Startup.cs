@@ -11,6 +11,7 @@ using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -71,6 +73,8 @@ namespace EmpyrionModWebHost
                 .Handled();
             });
             services.AddSingleton<LifetimeEventsHostedService>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSingleton<ModHostDLL>();
             services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
@@ -129,11 +133,18 @@ namespace EmpyrionModWebHost
                     {
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
-                        var user = userService.GetById(userId);
-                        if (user == null)
+                        userService.CurrentUser = userService.GetById(userId);
+                        
+                        if (userService.CurrentUser == null || userService.CurrentUser.Role == Role.None)
                         {
-                            // return unauthorized if user no longer exists
                             context.Fail("Unauthorized");
+                        }
+                        else
+                        {
+                            for (int r = (int)userService.CurrentUser.Role; r < (int)Role.None; r++)
+                            {
+                                ((ClaimsIdentity)context.Principal.Identity).AddClaims(new[] { new Claim(ClaimTypes.Role, ((Role)r).ToString()) });
+                            }
                         }
                         return Task.CompletedTask;
                     }
@@ -200,7 +211,7 @@ namespace EmpyrionModWebHost
                 .AllowAnyHeader()
                 .AllowCredentials()
                 );
-
+            
             app.UseExceptionHandlingPolicies();
             if (Program.LetsEncryptACME.UseLetsEncrypt) app.UseFluffySpoonLetsEncryptChallengeApprovalMiddleware();
 

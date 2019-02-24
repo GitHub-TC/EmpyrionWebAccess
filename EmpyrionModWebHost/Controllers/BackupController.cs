@@ -203,7 +203,7 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
+    [Authorize(Roles = nameof(Role.Moderator))]
     [ApiController]
     [Route("[controller]")]
     public class BackupsController : ControllerBase

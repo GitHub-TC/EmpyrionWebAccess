@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { Enum } from '../model/Enum';
 
 enum RepeatEnum {
   manual = "manual",
@@ -61,12 +62,6 @@ class TimetableAction extends SubTimetableAction{
   repeat?: RepeatEnum;
   nextExecute?: string;
   subAction?: SubTimetableAction[];
-}
-
-class Enum<T>{
-  key: T;
-  value: string;
-  help: string;
 }
 
 @Component({

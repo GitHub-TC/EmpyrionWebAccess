@@ -155,7 +155,7 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Authorize]
+    [Authorize(Roles = nameof(Role.GameMaster))]
     [ApiController]
     [Route("[controller]")]
     public class BackpacksController : ControllerBase

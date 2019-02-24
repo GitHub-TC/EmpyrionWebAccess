@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
+using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
@@ -238,8 +239,8 @@ namespace EmpyrionModWebHost.Controllers
         {
             switch (aAction.actionType)
             {
-                case ActionType.chat                    : ChatManager.Value.ChatMessage(null, null, null, aAction.data); break;
-                case ActionType.chatUntil               : ChatManager.Value.ChatMessage(null, null, null, aAction.data); break;
+                case ActionType.chat                    : ChatManager.Value.ChatMessageSERV(aAction.data); break;
+                case ActionType.chatUntil               : ChatManager.Value.ChatMessageSERV(aAction.data); break;
                 case ActionType.restart                 : EGSRestart(aAction); break;
                 case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
                 case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;
@@ -322,8 +323,8 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.InGameAdmin))]
     [Route("[controller]")]
     public class TimetableController : ControllerBase
     {

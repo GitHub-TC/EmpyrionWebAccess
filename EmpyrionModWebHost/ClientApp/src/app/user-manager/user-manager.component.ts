@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../services/user.service';
-import { User } from '../model/user';
+import { User, RoleEnum } from '../model/user';
 import { Router } from '@angular/router';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { Enum } from '../model/Enum';
 
 @Component({
   selector: 'app-user-manager',
@@ -11,10 +12,13 @@ import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.
 })
 export class UserManagerComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  Roles: Enum<RoleEnum>[];
   users: User[] = [];
-  newUser: User = { id: 0, username: "", password: "" };
+  newUser: User = { id: 0, username: "", password: "", role: RoleEnum.None };
 
-  constructor(public mUserService: UserService, public router: Router) { }
+  constructor(public mUserService: UserService, public router: Router) {
+    this.Roles = Object.keys(RoleEnum).map(key => { return <Enum<RoleEnum>>{ key: key, value: RoleEnum[key] }; });
+  }
 
   ngOnInit() {
     this.mUserService.getAll().subscribe(U => {
@@ -34,8 +38,8 @@ export class UserManagerComponent implements OnInit {
     this.mUserService.saveUser(aUser);
   }
 
-  createNewUser() {
-    this.mUserService.createNewUser(this.newUser);
-    this.newUser = { id: 0, username: "", password: "" };
+  createNewUser(aUser: User) {
+    this.mUserService.createNewUser(aUser);
+    this.newUser = { id: 0, username: "", password: "", role: RoleEnum.None };
   }
 }

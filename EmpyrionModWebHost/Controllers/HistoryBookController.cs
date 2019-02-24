@@ -275,8 +275,8 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.Moderator))]
     [Route("[controller]")]
     public class HistoryBookController : ControllerBase
     {

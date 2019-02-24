@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../services/authentication.service';
-import { User } from '../model/user';
+import { User, RoleEnum } from '../model/user';
 import { MatTabChangeEvent, MatTab } from '@angular/material';
 import { PlayerDetailsComponent } from '../player-details/player-details.component';
 import { PlayerBackpackComponent } from '../player-backpack/player-backpack.component';
@@ -14,7 +14,7 @@ import { PlayerNoteComponent } from '../player-note/player-note.component';
   styleUrls: ['./home.component.less']
 })
 export class HomeComponent implements AfterViewInit {
-  currentUser: User = { id: 0, username: null, password: null };
+  currentUser: User = { id: 0, username: null, password: null, role: RoleEnum.None };
   CurrentDetailsTab: MatTab;
   CurrentComponent: any;
   @ViewChild(PlayerBackpackComponent) playerBackpackComponent;

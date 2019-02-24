@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
 using System.IO.Compression;
 using EmpyrionModWebHost.Extensions;
+using EmpyrionModWebHost.Models;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -95,8 +96,8 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.GameMaster))]
     [Route("[controller]")]
     public class PlayfieldController : ControllerBase
     {
@@ -184,6 +185,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("Wipe")]
+        [Authorize(Roles = nameof(Role.InGameAdmin))]
         public IActionResult Wipe([FromQuery]string Playfield, [FromQuery]string WipeType)
         {
             PlayfieldManager.Wipe(new[] { Playfield }, WipeType);
@@ -191,6 +193,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("ResetPlayfield")]
+        [Authorize(Roles = nameof(Role.InGameAdmin))]
         public IActionResult ResetPlayfield([FromQuery]string Playfield)
         {
             Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", Playfield), true);

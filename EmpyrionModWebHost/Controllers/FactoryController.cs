@@ -1,5 +1,6 @@
 ﻿using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
+using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +23,8 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.Moderator))]
     [Route("[controller]")]
     public class FactoryController : ControllerBase
     {
@@ -71,6 +72,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("FinishBlueprint/{aPlayerId}")]
+        [Authorize(Roles = nameof(Role.GameMaster))]
         public IActionResult FinishBlueprint(int aPlayerId)
         {
             try

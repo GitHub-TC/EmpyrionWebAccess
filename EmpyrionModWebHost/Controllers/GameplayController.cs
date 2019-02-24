@@ -1,6 +1,7 @@
 ﻿using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
+using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -99,16 +100,18 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.GameMaster))]
     [Route("[controller]")]
     public class GameplayController : ControllerBase
     {
+        public IUserService UserService { get; }
         public GameplayManager GameplayManager { get; }
         public StructureManager StructureManager { get; }
 
-        public GameplayController()
+        public GameplayController(IUserService aUserService)
         {
+            UserService = aUserService;
             GameplayManager = Program.GetManager<GameplayManager>();
             StructureManager = Program.GetManager<StructureManager>();
         }
@@ -199,6 +202,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("PlayerSetCredits/{aEntityId}/{aCredits}")]
+        [Authorize(Roles = nameof(Role.Moderator))]
         public IActionResult PlayerSetCredits(int aEntityId, int aCredits)
         {
             GameplayManager.Request_Player_SetCredits(new IdCredits() { id = aEntityId, credits = aCredits });
@@ -215,6 +219,11 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("BanPlayer/{aSteamId}/{aDuration}")]
         public IActionResult BanPlayer(string aSteamId, string aDuration)
         {
+            switch (UserService.CurrentUser.Role)
+            {
+                case Role.Moderator:  aDuration = aDuration == "1h" ? aDuration : aDuration == "1d" ? aDuration : "1d"; break;
+                case Role.GameMaster: aDuration = "1h"; break;
+            }
             GameplayManager.Request_ConsoleCommand(new PString($"ban {aSteamId} {aDuration}"));
             return Ok();
         }
@@ -227,6 +236,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("WipePlayer/{aSteamId}")]
+        [Authorize(Roles = nameof(Role.Moderator))]
         public IActionResult WipePlayer(string aSteamId)
         {
             GameplayManager.WipePlayer(aSteamId);

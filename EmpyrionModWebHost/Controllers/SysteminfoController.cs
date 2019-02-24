@@ -1,5 +1,6 @@
 ﻿using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
+using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
@@ -399,6 +400,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("EGSStart")]
+        [Authorize(Roles = nameof(Role.Moderator))]
         public IActionResult EGSStart()
         {
             SysteminfoManager.EGSStart();
@@ -406,6 +408,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("EGSStop/{aWaitMinutes}")]
+        [Authorize(Roles = nameof(Role.Moderator))]
         public IActionResult EGSStop(int aWaitMinutes)
         {
             SysteminfoManager.EGSStop(aWaitMinutes);
@@ -414,6 +417,7 @@ namespace EmpyrionModWebHost.Controllers
 
         
         [HttpGet("EGSRestart/{aWaitMinutes}")]
+        [Authorize(Roles = nameof(Role.Moderator))]
         public IActionResult EGSRestart(int aWaitMinutes)
         {
             SysteminfoManager.EGSStop(aWaitMinutes);
@@ -422,6 +426,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("ShutdownEGSandEWA")]
+        [Authorize(Roles = nameof(Role.ServerAdmin))]
         public IActionResult ShutdownEGSandEWA()
         {
             SysteminfoManager.EGSStop(0);
@@ -436,6 +441,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("SystemConfig")]
+        [Authorize(Roles = nameof(Role.ServerAdmin))]
         public IActionResult SetCurrentSystemConfig([FromBody] SystemConfig aSystemConfig)
         {
             var SaveInfos = SysteminfoManager.SystemConfig.Current.ProcessInformation;
@@ -446,6 +452,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("UploadFile")]
+        [Authorize(Roles = nameof(Role.ServerAdmin))]
         [DisableRequestSizeLimit]
         public IActionResult UploadFile()
         {

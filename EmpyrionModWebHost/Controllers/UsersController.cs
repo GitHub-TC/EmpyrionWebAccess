@@ -35,12 +35,12 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize]
     [ApiController]
+    [Authorize(Roles = nameof(Role.InGameAdmin))]
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private IUserService _userService;
+        private IUserService UserService { get; }
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
 
@@ -49,7 +49,7 @@ namespace EmpyrionModWebHost.Controllers
             IMapper mapper,
             IOptions<AppSettings> appSettings)
         {
-            _userService = userService;
+            UserService = userService;
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
@@ -58,7 +58,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody]UserDto userDto)
         {
-            var user = _userService.Authenticate(userDto.Username, userDto.Password);
+            var user = UserService.Authenticate(userDto.Username, userDto.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -94,8 +94,8 @@ namespace EmpyrionModWebHost.Controllers
 
             try
             {
-                // save 
-                _userService.Create(user, userDto.Password);
+                if(UserService.CurrentUser != null) user.Role = (Role)Math.Max((int)user.Role, (int)UserService.CurrentUser.Role);
+                UserService.Create(user, userDto.Password);
                 return Ok();
             }
             catch (AppException ex)
@@ -109,7 +109,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var users = _userService.GetAll();
+            var users = UserService.GetAll();
             var userDtos = _mapper.Map<IList<UserDto>>(users);
             return Ok(userDtos);
         }
@@ -117,7 +117,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var user = _userService.GetById(id);
+            var user = UserService.GetById(id);
             var userDto = _mapper.Map<UserDto>(user);
             return Ok(userDto);
         }
@@ -130,8 +130,8 @@ namespace EmpyrionModWebHost.Controllers
 
             try
             {
-                // save 
-                _userService.Update(user, userDto.Password);
+                if (user.Role < UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+                UserService.Update(user, userDto.Password);
                 return Ok();
             }
             catch (AppException ex)
@@ -144,7 +144,9 @@ namespace EmpyrionModWebHost.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            _userService.Delete(id);
+            var user = UserService.GetById(id);
+            if (user.Role <= UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+            UserService.Delete(id);
             return Ok();
         }
     }

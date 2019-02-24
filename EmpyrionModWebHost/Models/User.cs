@@ -10,6 +10,19 @@ namespace EmpyrionModWebHost.Models
         public int Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public string Role { get; set; }
+        public string InGameSteamId { get; set; }
+    }
+
+    public enum Role
+    {
+        ServerAdmin = 0,
+        InGameAdmin,
+        Moderator,
+        GameMaster,
+        VIP,
+        Player,
+        None
     }
 
     public class User
@@ -18,6 +31,8 @@ namespace EmpyrionModWebHost.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Username { get; set; }
+        public Role Role { get; set; }
+        public string InGameSteamId { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
     }
