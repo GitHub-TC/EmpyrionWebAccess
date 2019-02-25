@@ -30,7 +30,7 @@ namespace EWAModClient
         public ServerMessagePipe InServer { get; private set; }
         public Process mHostProcess { get; private set; }
         public DateTime? mHostProcessAlive { get; private set; }
-        public static string ProgramPath { get; private set; } = Directory.GetCurrentDirectory();
+        public static string ProgramPath { get; private set; } = GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt");
         public bool Exit { get; private set; }
         public bool ExposeShutdownHost { get; private set; }
         public bool WithinUpdate { get; private set; }
@@ -163,7 +163,7 @@ namespace EWAModClient
                         Arguments = Environment.GetCommandLineArgs().Aggregate(
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
                             $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
-                            $"-GameDir \"{Directory.GetCurrentDirectory()}\"",
+                            $"-GameDir \"{GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt")}\"",
                             (C, A) => C + " " + A) +
                             (CurrentConfig.Current.AdditionalArguments == null ? "" : " " + CurrentConfig.Current.AdditionalArguments),
                     }
@@ -179,6 +179,13 @@ namespace EWAModClient
                 GameAPI.Console_Write($"ModClientDll: host start error '{HostFilename} -> {Error}'");
                 mHostProcess = null;
             }
+        }
+
+        public static string GetDirWith(string aTestDir, string aTestFile)
+        {
+            return File.Exists(Path.Combine(aTestDir, aTestFile))
+                ? aTestDir
+                : GetDirWith(Path.GetDirectoryName(aTestDir), aTestFile);
         }
 
         private void CreateConfigFile(string aEWAConfigFile)
