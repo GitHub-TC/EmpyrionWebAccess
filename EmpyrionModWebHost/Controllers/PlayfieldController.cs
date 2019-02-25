@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -103,9 +105,11 @@ namespace EmpyrionModWebHost.Controllers
     {
         public PlayfieldManager PlayfieldManager { get; }
         public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "Maps");
+        public ILogger<PlayfieldController> Logger { get; set; }
 
-        public PlayfieldController()
+        public PlayfieldController(ILogger<PlayfieldController> aLogger)
         {
+            Logger = aLogger;
             PlayfieldManager = Program.GetManager<PlayfieldManager>();
         }
 
@@ -128,6 +132,7 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult GetPlayfieldMap(string aPlayfieldname)
         {
             if (!Directory.Exists(MapsPath)) return NotFound();
+            if (PlayfieldManager.Playfields == null) PlayfieldManager.ReadPlayfields();
 
             var PlayfieldMap = Path.Combine(
                     EmpyrionConfiguration.SaveGameModPath,
@@ -135,7 +140,22 @@ namespace EmpyrionModWebHost.Controllers
                     aPlayfieldname,
                     "map.png");
 
-            if (!System.IO.File.Exists(PlayfieldMap)) return NotFound();
+            if (!System.IO.File.Exists(PlayfieldMap) && PlayfieldManager.Playfields == null) return NotFound();
+
+            var CurrentPlayfield = PlayfieldManager.Playfields.FirstOrDefault(P => P.name == aPlayfieldname);
+
+            if (!System.IO.File.Exists(PlayfieldMap) && (CurrentPlayfield == null || CurrentPlayfield.isPlanet)) return NotFound();
+
+            if (!CurrentPlayfield.isPlanet &&
+               (!System.IO.File.Exists(PlayfieldMap) || (DateTime.Now - System.IO.File.GetLastWriteTime(PlayfieldMap)).TotalDays > 1))
+            {
+                try { ReadFromHubbleImages(PlayfieldMap); }
+                catch (Exception Error)
+                {
+                    Logger.LogError(Error, "LoadSpace: {0} to {1}", aPlayfieldname, PlayfieldMap);
+                    return NotFound();
+                }
+            }
 
             DateTimeOffset? LastModified = new DateTimeOffset(System.IO.File.GetLastWriteTime(PlayfieldMap));
 
@@ -147,6 +167,24 @@ namespace EmpyrionModWebHost.Controllers
                 new Microsoft.Net.Http.Headers.EntityTagHeaderValue("\"" + ETagGenerator.GetETag(PlayfieldMap, System.IO.File.ReadAllBytes(PlayfieldMap)) + "\""),
                 true
                 );
+        }
+
+        private void ReadFromHubbleImages(string aPlayfieldMap)
+        {
+            using (System.Net.WebClient client = new System.Net.WebClient())
+            {
+                client.Headers.Add("content-type", "application/json");
+                Stream data = client.OpenRead("http://hubblesite.org/api/v3/news_release/last");
+                using (StreamReader messageReader = new StreamReader(data))
+                {
+                    dynamic Content = JsonConvert.DeserializeObject(messageReader.ReadToEnd());
+                    using (var clientImg = new System.Net.WebClient())
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(aPlayfieldMap));
+                        clientImg.DownloadFile(new Uri(Content.keystone_image_2x.ToString()), aPlayfieldMap);
+                    }
+                }
+            }
         }
 
         [HttpPost("UploadMapFile")]

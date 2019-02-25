@@ -51,8 +51,7 @@
       <mat-card style="margin-bottom:1em">
         <div style="position:relative; overflow:auto" [style.zoom]="ZoomValue" *ngIf="SelectedPlayfield">
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
-            <img *ngIf="SelectedPlayfield.isPlanet" [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png">
-            <div *ngIf="!SelectedPlayfield.isPlanet" style="background-color:black"></div>
+            <img [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
           </div>
           <div *ngFor="let s of PlayfieldStructures">
             <div *ngIf="isSelected(s.TypeName)" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">

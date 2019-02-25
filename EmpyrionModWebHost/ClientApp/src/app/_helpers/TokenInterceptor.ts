@@ -19,7 +19,7 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!this.currentUser || !this.currentUser.token) return next.handle(request.clone());
+    if (!this.currentUser || !this.currentUser.token || request.url.startsWith("http://hubblesite.org")) return next.handle(request.clone());
 
     request = request.clone({
       setHeaders: {

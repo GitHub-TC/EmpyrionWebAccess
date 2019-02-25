@@ -39,13 +39,14 @@ export class PlayfieldViewComponent implements OnInit {
   mDisplay: string[] = this.AllDisplay.split(",");
   mWipeData: string[] = [];
   error: any;
+    SpaceImageUrl: any;
 
   constructor(
     private http: HttpClient,
     private mStructureService: StructureService,
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.mSelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
@@ -62,7 +63,6 @@ export class PlayfieldViewComponent implements OnInit {
       this.mAllStructures = S;
       this.SelectedPlayfieldName = this.mSelectedPlayfieldName;
     });
-
   }
 
   ngAfterViewInit() {
@@ -75,7 +75,6 @@ export class PlayfieldViewComponent implements OnInit {
     this.mStructureService.CurrentStructure = aStructure;
   }
 
-
   get SelectedPlayfieldName() {
     return this.mSelectedPlayfieldName;
   }
@@ -84,8 +83,8 @@ export class PlayfieldViewComponent implements OnInit {
     this.mSelectedPlayfieldName = aPlayfieldName;
     if (!aPlayfieldName) return;
 
-    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName);
-    this.SelectedPlayfield   = this.Playfields.find(P => P.name == aPlayfieldName);
+    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName)
+    this.SelectedPlayfield = this.Playfields.find(P => P.name == aPlayfieldName);
 
     this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield == aPlayfieldName);
     this.PlayfieldPlayers    = this.mAllPlayers.filter(P => P.Playfield == this.SelectedPlayfieldName);
