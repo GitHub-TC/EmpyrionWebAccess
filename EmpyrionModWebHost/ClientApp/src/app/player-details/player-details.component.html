@@ -87,12 +87,12 @@
   </mat-expansion-panel>
 </div>
 <mat-menu #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
-  <button mat-menu-item (click)="SaveChanges(Player)" *ngIf="Player?.Online">Save</button>
-  <button mat-menu-item (click)="Kick(Player)">Kick</button>
-  <button mat-menu-item (click)="Ban(Player, '1h')">Ban 1h</button>
-  <button mat-menu-item (click)="Ban(Player, '1d')">Ban 1d</button>
-  <button mat-menu-item (click)="Ban(Player, '12m')">Ban 12m</button>
-  <button mat-menu-item (click)="UnBan(Player)">Unban</button>
-  <button mat-menu-item (click)="Wipe(Player)">Wipe</button>
+  <button mat-menu-item (click)="SaveChanges(Player)" *ngIf="Player?.Online && role.is(UserRole.GameMaster)">Save</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)"  (click)="Kick(Player)">Kick</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)"  (click)="Ban(Player, '1h')">Ban 1h</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="Ban(Player, '1d')">Ban 1d</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="Ban(Player, '12m')">Ban 12m</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)"  (click)="UnBan(Player)">Unban</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="Wipe(Player)">Wipe</button>
 </mat-menu>
 <app-yes-no-dialog></app-yes-no-dialog>

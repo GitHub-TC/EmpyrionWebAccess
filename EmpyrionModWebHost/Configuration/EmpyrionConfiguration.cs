@@ -11,15 +11,22 @@ namespace EmpyrionModWebHost
     {
         public static string ProgramPath { get; private set; } = Environment.GetCommandLineArgs().Contains("-GameDir")
                                                                             ? Environment.GetCommandLineArgs().SkipWhile(A => string.Compare(A, "-GameDir", StringComparison.InvariantCultureIgnoreCase) != 0).Skip(1).FirstOrDefault()
-                                                                            : Directory.GetCurrentDirectory();
+                                                                            : GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt");
         public static string ModPath { get; private set; } = Path.Combine(ProgramPath, @"Content\Mods");
         public static string DedicatedFilename { get; private set; } = Environment.GetCommandLineArgs().Contains("-dedicated")
                                                                             ? Environment.GetCommandLineArgs().SkipWhile(A => string.Compare(A, "-dedicated", StringComparison.InvariantCultureIgnoreCase) != 0).Skip(1).FirstOrDefault()
                                                                             : "dedicated.yaml";
 
+        public static string GetDirWith(string aTestDir, string aTestFile)
+        {
+            return File.Exists(Path.Combine(aTestDir, aTestFile))
+                ? aTestDir
+                : GetDirWith(Path.GetDirectoryName(aTestDir), aTestFile);
+        }
+
         public static string SaveGamePath
         {
-            get { return Path.Combine(ProgramPath, DedicatedYaml.SaveDirectory ?? "", "Games", DedicatedYaml.SaveGameName ?? "");  }
+            get { return Path.Combine(ProgramPath, DedicatedYaml.SaveDirectory ?? "Saves", "Games", DedicatedYaml.SaveGameName ?? "");  }
         }
 
         public static string SaveGameModPath
@@ -96,15 +103,15 @@ namespace EmpyrionModWebHost
 
                     var Root = (YamlMappingNode)yaml.Documents[0].RootNode;
 
-                    var ServerConfigNode = Root.Children[new YamlScalarNode("ServerConfig")] as YamlMappingNode;
+                    var ServerConfigNode = Root.GetChild("ServerConfig") as YamlMappingNode;
 
-                    ServerName = ServerConfigNode?.Children[new YamlScalarNode("Srv_Name")]?.ToString();
-                    SaveDirectory = ServerConfigNode?.Children[new YamlScalarNode("SaveDirectory")]?.ToString();
+                    ServerName          = ServerConfigNode.GetChild("Srv_Name")?.ToString();
+                    SaveDirectory       = ServerConfigNode.GetChild("SaveDirectory")?.ToString();
 
-                    var GameConfigNode = Root.Children[new YamlScalarNode("GameConfig")] as YamlMappingNode;
+                    var GameConfigNode  = Root.GetChild("GameConfig") as YamlMappingNode;
 
-                    SaveGameName = GameConfigNode?.Children[new YamlScalarNode("GameName")]?.ToString();
-                    CustomScenarioName = GameConfigNode?.Children[new YamlScalarNode("CustomScenario")]?.ToString();
+                    SaveGameName        = GameConfigNode.GetChild("GameName")?.ToString();
+                    CustomScenarioName  = GameConfigNode.GetChild("CustomScenario")?.ToString();
                 }
             }
         }
@@ -153,35 +160,29 @@ namespace EmpyrionModWebHost
 
                     var Root = (YamlMappingNode)yaml.Documents[0].RootNode;
 
-                    var ElevatedNode = (Root.Children[new YamlScalarNode("Elevated")] as YamlSequenceNode)?.Children;
+                    var ElevatedNode = (Root.GetChild("Elevated") as YamlSequenceNode)?.Children;
 
                     ElevatedUsers = ElevatedNode?.OfType<YamlMappingNode>().Select(N =>
                     {
                         return new ElevatedUserStruct()
                         {
                             SteamId = N.Children[new YamlScalarNode("Id")]?.ToString(),
-                            Name = GetValueOf(N, "Name"),
-                            Permission = int.TryParse(N.Children[new YamlScalarNode("Permission")]?.ToString(), out int Result) ? Result : 0,
+                            Name = N.GetChild("Name")?.ToString(),
+                            Permission = int.TryParse(N.GetChild("Permission")?.ToString(), out int Result) ? Result : 0,
                         };
                     }).ToArray();
 
-                    var BannedNode = (Root.Children[new YamlScalarNode("Banned")] as YamlSequenceNode)?.Children;
+                    var BannedNode = (Root.GetChild("Banned") as YamlSequenceNode)?.Children;
 
                     BannedUsers = BannedNode?.OfType<YamlMappingNode>().Select(N =>
                     {
                         return new BannedUserStruct()
                         {
-                            SteamId = N.Children[new YamlScalarNode("Id")]?.ToString(),
-                            Until = DateTime.TryParse(N.Children[new YamlScalarNode("Until")]?.ToString(), out DateTime Result) ? Result : DateTime.MinValue,
+                            SteamId = N.GetChild("Id")?.ToString(),
+                            Until = DateTime.TryParse(N.GetChild("Until")?.ToString(), out DateTime Result) ? Result : DateTime.MinValue,
                         };
                     }).ToArray();
                 }
-            }
-
-            private static string GetValueOf(YamlMappingNode aNode, string aKey)
-            {
-                var Found = aNode.Children.FirstOrDefault(P => P.Key.ToString() == aKey);
-                return Found.Value?.ToString();
             }
         }
     }

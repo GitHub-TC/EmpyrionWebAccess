@@ -82,6 +82,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 Id = user.Id,
                 Username = user.Username,
+                Role = user.Role,
                 Token = tokenString
             });
         }

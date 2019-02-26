@@ -7,6 +7,8 @@ import { FactionModel } from '../model/faction-model';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { PlayfieldModel } from '../model/playfield-model';
+import { RoleService } from '../services/role.service';
+import { UserRole } from '../model/user';
 
 @Component({
   selector: 'app-player-details',
@@ -21,11 +23,13 @@ export class PlayerDetailsComponent implements OnInit {
   @Output() Changed: boolean;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
+  UserRole = UserRole;
 
   constructor(
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
-    private mFactionService: FactionService
+    private mFactionService: FactionService,
+    public role: RoleService
   ) {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));

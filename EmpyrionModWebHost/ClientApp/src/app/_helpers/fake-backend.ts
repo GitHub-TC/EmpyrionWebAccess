@@ -3,13 +3,13 @@ import { HttpRequest, HttpResponse, HttpHandler, HttpEvent, HttpInterceptor, HTT
 import { Observable, of, throwError } from 'rxjs';
 import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 
-import { User, RoleEnum } from '../model/user';
+import { User, UserRole } from '../model/user';
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const users: User[] = [
-          { id: 1, username: 'test', password: 'test', role: RoleEnum.None }
+          { id: 1, username: 'test', password: 'test', role: UserRole.None }
         ];
 
         const authHeader = request.headers.get('Authorization');

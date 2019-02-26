@@ -98,7 +98,7 @@ namespace EWAModClient
             var EWAConfigFile = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "appsettings.json");
             if (!File.Exists(EWAConfigFile)) CreateConfigFile(EWAConfigFile);
 
-            GameAPI.Console_Write($"ModClientDll (CurrentDir:{Directory.GetCurrentDirectory()}): Config:{CurrentConfig.ConfigFilename}");
+            GameAPI.Console_Write($"ModClientDll (CurrentDir:{Directory.GetCurrentDirectory()} Root:{ProgramPath}): Config:{CurrentConfig.ConfigFilename}");
 
             InServerMessageHandler = new Dictionary<Type, Action<object>> {
                 { typeof(EmpyrionGameEventData), M => HandleGameEvent               ((EmpyrionGameEventData)M) },
@@ -163,7 +163,7 @@ namespace EWAModClient
                         Arguments = Environment.GetCommandLineArgs().Aggregate(
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
                             $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
-                            $"-GameDir \"{GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt")}\"",
+                            $"-GameDir \"{ProgramPath}\"",
                             (C, A) => C + " " + A) +
                             (CurrentConfig.Current.AdditionalArguments == null ? "" : " " + CurrentConfig.Current.AdditionalArguments),
                     }

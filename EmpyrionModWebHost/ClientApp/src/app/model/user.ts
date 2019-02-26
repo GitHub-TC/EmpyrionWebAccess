@@ -1,11 +1,11 @@
-export enum RoleEnum {
-  ServerAdmin = "Server Admin",
-  InGameAdmin = "In Game Admin",
-  Moderator   = "Moderator",
-  GameMaster  = "Game Master",
-  VIP         = "VIP Player",
-  Player      = "Player",
-  None        = "No Access"
+export enum UserRole {
+  ServerAdmin = 0,
+  InGameAdmin = 1,
+  Moderator   = 2,
+  GameMaster  = 3,
+  VIP         = 4,
+  Player      = 5,
+  None        = 6
 }
 
 export class User {
@@ -13,6 +13,6 @@ export class User {
     username: string;
     password: string;
     inGameSteamId?: string;
-    role: RoleEnum;
+    role: UserRole;
     token?: string;
 }
