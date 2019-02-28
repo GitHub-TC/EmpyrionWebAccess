@@ -9,6 +9,8 @@ import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
 import { MatTableDataSource, MatSort } from '@angular/material';
 import { PLAYER } from '../model/player-mock';
+import { RoleService } from '../services/role.service';
+import { UserRole } from '../model/user';
 
 @Component({
   selector: 'app-player-list',
@@ -27,12 +29,15 @@ export class PlayerListComponent implements OnInit {
   mFactions: FactionModel[];
   mSelectedPlayfield: string;
   mAllPlayers: PlayerModel[];
+  UserRole = UserRole;
 
   constructor(
     private mFactionService: FactionService,
     private mPlayerService: PlayerService,
     private mPositionService: PositionService,
-    private mChatService: ChatService) {
+    private mChatService: ChatService,
+    public role: RoleService,
+  ) {
   }
 
   ngOnInit() {

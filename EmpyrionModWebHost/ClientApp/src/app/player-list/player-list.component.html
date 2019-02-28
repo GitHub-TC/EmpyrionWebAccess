@@ -26,7 +26,7 @@
         <div *ngIf="player.Online" style="white-space:nowrap">
           <div style="display:inline-block; margin-top:2px" [style.color]="PlayerColor(player)" title="{{PlayerHint(player)}}">{{player.PlayerName}}</div>
           <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
-            <app-warp-dialog [WarpData]="{
+            <app-warp-dialog *ngIf="role.is(UserRole.GameMaster)" [WarpData]="{
                                     entityId: player.EntityId,
                                     description: 'Player: ' + player.PlayerName,
                                     playfield:player.Playfield,
@@ -58,7 +58,7 @@
 
     <ng-container matColumnDef="PosX">
       <th mat-header-cell *matHeaderCellDef>E/W</th>
-      <td mat-cell *matCellDef="let player" align="right">{{player.PosX | number : "1.1-1"}}<mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon></td>
+      <td mat-cell *matCellDef="let player" align="right">{{player.PosX | number : "1.1-1"}}<mat-icon *ngIf="role.is(UserRole.GameMaster)" style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon></td>
     </ng-container>
 
     <ng-container matColumnDef="PosY">

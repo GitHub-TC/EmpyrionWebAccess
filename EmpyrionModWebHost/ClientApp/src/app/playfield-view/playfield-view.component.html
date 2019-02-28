@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class="row">
+  <div class="row" *ngIf="role.is(UserRole.GameMaster)">
     <div class="col">
       <mat-card style="margin-bottom:1em">
         <div style="display:inline-block; width:100%">
@@ -110,7 +110,7 @@
                     [vertical]="false">
         </mat-slider>
       </mat-card>
-      <mat-card>
+      <mat-card *ngIf="role.is(UserRole.Moderator)">
         <app-file-upload [UploadURL]="UploadURL(SelectedPlayfieldName)" [UploadTitle]="'Upload Map\'s'" (uploaded)="onUploaded()"></app-file-upload>
       </mat-card>
     </div>

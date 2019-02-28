@@ -29,7 +29,7 @@ export class PlayerDetailsComponent implements OnInit {
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
     private mFactionService: FactionService,
-    public role: RoleService
+    public role: RoleService,
   ) {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));

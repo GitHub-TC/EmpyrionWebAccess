@@ -2,6 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { PlayerService } from '../services/player.service';
 import { PlayerModel } from '../model/player-model';
 import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-player-note',
@@ -14,8 +16,12 @@ export class PlayerNoteComponent implements OnInit {
 
   Changed: boolean;
   Player: PlayerModel = {};
+  UserRole = UserRole;
 
-  constructor(private mPlayerService: PlayerService) {
+  constructor(
+    private mPlayerService: PlayerService,
+    public role: RoleService,
+  ) {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));
   }

@@ -3,8 +3,8 @@
     <div class="col">
       <mat-card style="margin-bottom:1em">
         <mat-menu #appMenu="matMenu">
-          <button mat-menu-item (click)="Destroy()">Destroy</button>
-          <button mat-menu-item (click)="ChangeFaction()">Change Faction</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.VIP)"       (click)="Destroy()">Destroy</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="ChangeFaction()">Change Faction</button>
         </mat-menu>
 
         <div style="position:relative; width:100%; height:3em">
@@ -45,7 +45,7 @@
               </th>
               <td mat-cell *matCellDef="let s" align="right" (click)="select(s)">
                 {{s.id}}
-                <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{s.name}}" (click)="SavePosition(s)">flag</mat-icon>
+                <mat-icon *ngIf="role.is(UserRole.GameMaster)" style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{s.name}}" (click)="SavePosition(s)">flag</mat-icon>
               </td>
             </ng-container>
 
@@ -64,7 +64,8 @@
               </th>
               <td mat-cell *matCellDef="let s" (click)="select(s)">
                 <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
-                  <app-warp-dialog [WarpData]="{
+                  <app-warp-dialog *ngIf="role.is(UserRole.GameMaster)"
+                                   [WarpData]="{
                                     entityId: s.id,
                                     description: 'Structure: ' + s.name,
                                     playfield:s.playfield,

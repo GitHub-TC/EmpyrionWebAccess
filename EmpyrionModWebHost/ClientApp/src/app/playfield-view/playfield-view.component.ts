@@ -8,6 +8,8 @@ import { PlayerModel, PVector3 } from '../model/player-model';
 import { PlayfieldModel } from '../model/playfield-model';
 import { GlobalStructureInfo } from '../model/structure-model';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-playfield-view',
@@ -39,13 +41,15 @@ export class PlayfieldViewComponent implements OnInit {
   mDisplay: string[] = this.AllDisplay.split(",");
   mWipeData: string[] = [];
   error: any;
-    SpaceImageUrl: any;
+  SpaceImageUrl: any;
+  UserRole = UserRole;
 
   constructor(
     private http: HttpClient,
     private mStructureService: StructureService,
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
+    public role: RoleService,
   ) {}
 
   ngOnInit() {

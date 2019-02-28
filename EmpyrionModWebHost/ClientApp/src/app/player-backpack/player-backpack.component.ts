@@ -12,6 +12,8 @@ import { ItemStackModel } from '../model/itemstack-model';
 import { SelectItemDialogComponent } from '../select-item-dialog/select-item-dialog.component';
 import { PlayerModel } from '../model/player-model';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
+import { UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-player-backpack',
@@ -27,6 +29,7 @@ export class PlayerBackpackComponent implements OnInit {
   @ViewChild(SelectItemDialogComponent) selectItem: SelectItemDialogComponent;
   error: any;
   Player: PlayerModel;
+  UserRole = UserRole;
 
   constructor(
     private http: HttpClient,
@@ -34,6 +37,7 @@ export class PlayerBackpackComponent implements OnInit {
     private mBackpackService: BackpackService,
     private mPlayerService: PlayerService,
     private mItemService: ItemService,
+    public role: RoleService,
   ) { }
 
   ngOnInit() {

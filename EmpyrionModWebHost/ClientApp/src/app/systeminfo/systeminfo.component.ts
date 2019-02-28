@@ -6,7 +6,8 @@ import { SystemInfoModel } from '../model/systeminfo-model';
 import { SYSTEMINFO } from '../model/systeminfo-mock';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
-import { User } from '../model/user';
+import { User, UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-systeminfo',
@@ -16,11 +17,14 @@ import { User } from '../model/user';
 export class SysteminfoComponent implements OnInit {
   @Output() CurrentSystemInfo: SystemInfoModel = SYSTEMINFO;
   currentUser: User;
+  UserRole = UserRole;
 
   constructor(
     public router: Router,
     private authenticationService: AuthenticationService,
-    private mSystemInfoService: SystemInfoService) {
+    private mSystemInfoService: SystemInfoService,
+    public role: RoleService,
+  ) {
       this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
 

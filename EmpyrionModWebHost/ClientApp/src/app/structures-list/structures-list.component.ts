@@ -9,6 +9,8 @@ import { FactionService } from '../services/faction.service';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { PlayerService } from '../services/player.service';
 import { FactionSelectDialogComponent } from '../faction-select-dialog/faction-select-dialog.component';
+import { UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-structures-list',
@@ -30,6 +32,7 @@ export class StructuresListComponent implements OnInit {
   error: any;
   mAllStructures: GlobalStructureInfo[];
   mSelectedPlayfield: string;
+  UserRole = UserRole;
 
   constructor(
     private http: HttpClient,
@@ -37,6 +40,7 @@ export class StructuresListComponent implements OnInit {
     private mStructureService: StructureService,
     private mPositionService: PositionService,
     public FactionService: FactionService,
+    public role: RoleService,
   ) { }
 
   ngOnInit() {

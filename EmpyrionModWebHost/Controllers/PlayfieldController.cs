@@ -99,20 +99,25 @@ namespace EmpyrionModWebHost.Controllers
     }
 
     [ApiController]
-    [Authorize(Roles = nameof(Role.GameMaster))]
+    [Authorize(Roles = nameof(Role.VIP))]
     [Route("[controller]")]
     public class PlayfieldController : ControllerBase
     {
         public PlayfieldManager PlayfieldManager { get; }
+        public PlayerManager PlayerManager { get; }
         public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "Maps");
         public ILogger<PlayfieldController> Logger { get; set; }
+        public IUserService UserService { get; }
 
-        public PlayfieldController(ILogger<PlayfieldController> aLogger)
+        public PlayfieldController(ILogger<PlayfieldController> aLogger, IUserService aUserService)
         {
-            Logger = aLogger;
+            Logger           = aLogger;
+            UserService      = aUserService;
             PlayfieldManager = Program.GetManager<PlayfieldManager>();
+            PlayerManager    = Program.GetManager<PlayerManager>();
         }
 
+        [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpGet("Sectors")]
         public ActionResult<string> Sectors()
         {
@@ -123,6 +128,20 @@ namespace EmpyrionModWebHost.Controllers
         public ActionResult<PlayfieldInfo[]> Playfields()
         {
             if (PlayfieldManager.Playfields == null) PlayfieldManager.ReadPlayfields();
+
+            if (UserService.CurrentUser.Role == Role.VIP)
+            {
+                var CurrentPlayer = PlayerManager.CurrentPlayer;
+                var Faction = CurrentPlayer?.FactionId;
+                if (Faction == 0) return new PlayfieldInfo[] { };
+
+                var FactionOnPlanets = new List<string>();
+                PlayerManager.QueryPlayer(
+                    PlayerDB => PlayerDB.Players.Where(P => P.FactionId == Faction), 
+                    P => FactionOnPlanets.Add(P.Playfield));
+                
+                return PlayfieldManager.Playfields.Where(P => FactionOnPlanets.Contains(P.name)).ToArray();
+            }
 
             return PlayfieldManager.Playfields;
         }
@@ -187,6 +206,7 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("UploadMapFile")]
         [DisableRequestSizeLimit]
         public IActionResult UploadMapFile([FromQuery]string PlayfieldName)

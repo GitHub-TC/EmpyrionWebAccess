@@ -12,6 +12,8 @@ import { FactionModel } from '../model/faction-model';
 import { PlayfieldService } from '../services/playfield.service';
 import { PlayfieldModel } from '../model/playfield-model';
 import { Router } from '@angular/router';
+import { UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-active-playfields',
@@ -22,6 +24,7 @@ export class ActivePlayfieldsComponent implements OnInit {
   playfields: ActivePlayfieldModel[] = ACTIVEPLAYFIELDS;
   mCurrentPlayer: PlayerModel;
   mFactions: FactionModel[];
+  UserRole = UserRole;
 
   mPlayfieldsOpen: string[] = [];
 
@@ -31,8 +34,9 @@ export class ActivePlayfieldsComponent implements OnInit {
     private mPositionService: PositionService,
     private mChatService: ChatService,
     private mPlayerService: PlayerService,
-    private mPlayfields: PlayfieldService)
-  { }
+    private mPlayfields: PlayfieldService,
+    public role: RoleService,
+  ) { }
 
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {

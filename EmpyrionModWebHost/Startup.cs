@@ -92,6 +92,8 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(ModManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(HistoryBookManager));
 
+            services.AddTransient<IProvider<IUserService>, ServiceInstanceProvider<IUserService>>();
+
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();
             services.AddDbContext<FactionContext>();

@@ -1,10 +1,12 @@
 ﻿using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
+using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,6 +14,12 @@ using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
+
+    public class PlayfieldStructureData
+    {
+        public string Playfield { get; set; }
+        public GlobalStructureInfo StructureInfo { get; set; }
+    }
 
     public class GlobalStructureListBackup
     {
@@ -62,6 +70,18 @@ namespace EmpyrionModWebHost.Controllers
             return LastGlobalStructureList.Current;
         }
 
+        public Dictionary<int, PlayfieldStructureData> CurrentGlobalStructures
+        {
+            get {
+                return LastGlobalStructureList.Current.globalStructures
+                        .Aggregate(new Dictionary<int, PlayfieldStructureData>(), (L, K) =>
+                        {
+                            K.Value.ForEach(S => L.Add(S.id, new PlayfieldStructureData() { Playfield = K.Key, StructureInfo = S }));
+                            return L;
+                        });
+            }
+        }
+
         public async Task CreateStructureAsync(string aEBPFile, PlayfieldGlobalStructureInfo aStructure)
         {
             var NewID = await Request_NewEntityId();
@@ -109,21 +129,42 @@ namespace EmpyrionModWebHost.Controllers
         }
     }
 
-    [Authorize(Roles = nameof(Role.Moderator))]
+    [Authorize(Roles = nameof(Role.VIP))]
     [ApiController]
     [Route("[controller]")]
     public class StructureController : ControllerBase
     {
+        public IUserService UserService { get; }
         public StructureManager StructureManager { get; }
+        public PlayerManager PlayerManager { get; }
 
-        public StructureController()
+        public StructureController(IUserService aUserService)
         {
+            UserService = aUserService;
             StructureManager = Program.GetManager<StructureManager>();
+            PlayerManager = Program.GetManager<PlayerManager>();
         }
 
         [HttpGet("GlobalStructureList")]
         public IActionResult GlobalStructureList()
         {
+            if (UserService.CurrentUser.Role == Role.VIP)
+            {
+                var Result = new GlobalStructureList() { globalStructures = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GlobalStructureInfo>>() };
+                var CurrentPlayer = PlayerManager.CurrentPlayer;
+                if (CurrentPlayer == null) return Ok();
+
+                StructureManager.GlobalStructureList().globalStructures
+                    .ForEach(P => {
+                        var L = P.Value.Where(S => 
+                            S.factionId == CurrentPlayer.FactionId ||
+                            (S.factionGroup == 1 && S.factionId == CurrentPlayer.EntityId)
+                        ).ToList();
+                        if (L.Count > 0) Result.globalStructures.Add(P.Key, L);
+                    });
+                return Ok(Result);
+            }
+
             return Ok(StructureManager.GlobalStructureList());
         }
 
@@ -134,19 +175,33 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("DeleteStructures")]
-        public IActionResult DeleteStructures([FromBody]DeleteStructuresData[] aEntites)
+        public IActionResult DeleteStructures([FromBody]DeleteStructuresData[] aEntities)
         {
-            aEntites
-                .OrderBy(E => E.playfield)
-                .ForEach(I =>
+            var Structures = StructureManager.CurrentGlobalStructures.Where(S => aEntities.Any(I => I.id == S.Key));
+
+            if (UserService.CurrentUser.Role == Role.VIP)
+            {
+                var CurrentPlayer = PlayerManager.CurrentPlayer;
+                if (CurrentPlayer == null) return NotFound();
+
+                var Faction = CurrentPlayer?.FactionId;
+
+                Structures = Structures.Where(S => S.Value.StructureInfo.factionId == Faction ||
+                        (S.Value.StructureInfo.factionGroup == 1 && S.Value.StructureInfo.factionId == CurrentPlayer.EntityId))
+                        .ToArray();
+            }
+
+            Structures
+                .OrderBy(S => S.Value.Playfield)
+                .ForEach(S =>
                 {
                     try
                     {
-                        StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, I.playfield, 0)).Wait();
+                        StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, S.Value.Playfield, 0)).Wait();
                         Thread.Sleep(2000); // wait for Playfield finish
                     }
                     catch { }  // Playfield already loaded
-                    StructureManager.Request_Entity_Destroy(new Id(I.id));
+                    StructureManager.Request_Entity_Destroy(new Id(S.Value.StructureInfo.id));
                 });
             return Ok();
         }
@@ -157,6 +212,7 @@ namespace EmpyrionModWebHost.Controllers
             public int[] EntityIds { get; set; }
         }
 
+        [Authorize(Roles = nameof(Role.Moderator))]
         [HttpPost("SetFactionOfStuctures")]
         public IActionResult SetFactionOfStuctures([FromBody]SetFactionOfStucturesData aData)
         {
@@ -164,6 +220,7 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = nameof(Role.Moderator))]
         [HttpPost("UploadEBPFile")]
         [DisableRequestSizeLimit]
         public IActionResult UploadEBPFile()
@@ -185,6 +242,7 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = nameof(Role.Moderator))]
         [HttpPost("CreateStructure")]
         public IActionResult CreateStructure([FromBody]PlayfieldGlobalStructureInfo aData)
         {

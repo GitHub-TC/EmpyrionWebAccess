@@ -208,14 +208,14 @@ namespace EmpyrionModWebHost.Controllers
     {
         public IUserService UserService { get; }
         public ChatContext DB { get; }
-        public PlayerContext PlayerDB { get; }
+        public PlayerManager PlayerManager { get; }
         public ChatManager ChatManager { get; }
 
-        public ChatsController(IUserService aUserService, ChatContext aChatContext, PlayerContext aPlayerContext)
+        public ChatsController(IUserService aUserService, ChatContext aChatContext)
         {
             UserService = aUserService;
             DB = aChatContext;
-            PlayerDB = aPlayerContext;
+            PlayerManager = Program.GetManager<PlayerManager>();
             ChatManager = Program.GetManager<ChatManager>();
         }
 
@@ -228,7 +228,7 @@ namespace EmpyrionModWebHost.Controllers
                 case Role.InGameAdmin:
                 case Role.Moderator:
                 case Role.GameMaster:   return Ok(DB.Chats);
-                case Role.VIP:          var Faction = PlayerDB.Players.Where(P => P.SteamId == UserService.CurrentUser.InGameSteamId).FirstOrDefault()?.FactionId;
+                case Role.VIP:          var Faction = PlayerManager.CurrentPlayer?.FactionId;
                                         return Ok(DB.Chats.Where(P => P.FactionId == Faction || P.Type == (byte)ChatType.Global));
                 case Role.Player:       return Ok(DB.Chats.Where(P => P.Type == (byte)ChatType.Global));
                 case Role.None: return Ok();

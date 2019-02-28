@@ -155,7 +155,7 @@ namespace EmpyrionModWebHost.Controllers
 
     }
 
-    [Authorize(Roles = nameof(Role.GameMaster))]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class BackpacksController : ControllerBase
@@ -177,6 +177,7 @@ namespace EmpyrionModWebHost.Controllers
             BackpackManager = Program.GetManager<BackpackManager>();
         }
 
+        [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("AddItem")]
         public IActionResult AddItem([FromBody]IdItemStack aItem)
         {
@@ -198,12 +199,14 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(_db.Backpacks.FirstOrDefault(B => B.Id == key && B.Timestamp == DateTime.MinValue));
         }
 
+        [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpGet("Backpacks/{key}")]
         public IActionResult Backpacks(string key)
         {
             return Ok(_db.Backpacks.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
         }
 
+        [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("SetBackpack")]
         public IActionResult SetBackpack([FromBody]BackpackModel aInventory)
         {

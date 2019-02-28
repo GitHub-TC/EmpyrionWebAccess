@@ -9,7 +9,7 @@
 </div>
 <app-select-item-dialog></app-select-item-dialog>
 <mat-menu *ngIf="Player?.Online" #contextMenu="matMenu" [matMenuTriggerFor]="contextMenu" style="position:absolute; top: -2em; right: 2em; z-index:100;">
-  <button mat-menu-item (click)="SetBlueprintResources()">Save</button>
-  <button mat-menu-item (click)="FinishBlueprint()">Finish</button>
-  <button mat-menu-item (click)="AddItem()">Add item</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="SetBlueprintResources()">Save</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)" (click)="FinishBlueprint()">Finish</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="AddItem()">Add item</button>
 </mat-menu>

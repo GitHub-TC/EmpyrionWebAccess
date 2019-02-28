@@ -28,12 +28,14 @@ namespace EmpyrionModWebHost.Controllers
     public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public IHubContext<PlayerHub> PlayerHub { get; internal set; }
+        public IProvider<IUserService> UserService { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<ChatManager> ChatManager { get; }
         public ModGameAPI GameAPI { get; private set; }
-        public PlayerManager(IHubContext<PlayerHub> aPlayerHub)
+        public PlayerManager(IHubContext<PlayerHub> aPlayerHub, IProvider<IUserService> aUserService)
         {
             PlayerHub = aPlayerHub;
+            UserService = aUserService;
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
             ChatManager = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
         }
@@ -166,6 +168,15 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         public FileSystemWatcher mPlayersDirectoryFileWatcher { get; private set; }
+
+        public Player CurrentPlayer {
+            get {
+                using (var DB = new PlayerContext())
+                {
+                    return DB.Players.Where(P => P.SteamId == UserService.Get().CurrentUser.InGameSteamId).FirstOrDefault();
+                }
+            }
+        }
 
         public override void Initialize(ModGameAPI dediAPI)
         {
@@ -324,7 +335,7 @@ namespace EmpyrionModWebHost.Controllers
                 case Role.InGameAdmin:
                 case Role.Moderator:
                 case Role.GameMaster:   return Ok(DB.Players);
-                case Role.VIP:          var Faction = DB.Players.Where(P => P.SteamId == UserService.CurrentUser.InGameSteamId).FirstOrDefault()?.FactionId;
+                case Role.VIP:          var Faction = PlayerManager.CurrentPlayer?.FactionId;
                                         return Ok(DB.Players.Where(P => P.FactionId == Faction));
                 case Role.Player:       return Ok(DB.Players.Where(P => P.SteamId == UserService.CurrentUser.InGameSteamId));
                 case Role.None: return Ok();

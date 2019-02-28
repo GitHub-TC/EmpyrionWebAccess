@@ -6,6 +6,8 @@ import { PlayerService } from '../services/player.service';
 import { ItemStackModel } from '../model/itemstack-model';
 import { ItemService } from '../services/item.service';
 import { SelectItemDialogComponent } from '../select-item-dialog/select-item-dialog.component';
+import { RoleService } from '../services/role.service';
+import { UserRole } from '../model/user';
 
 interface BlueprintResources {
   playerId: number;
@@ -26,11 +28,13 @@ export class FactoryComponent implements OnInit {
   Resources: BlueprintResources;
   @Output() Changed: boolean = false;
   error: any;
+  UserRole = UserRole;
 
   constructor(
     private http: HttpClient,
     private mPlayerService: PlayerService,
     private mItemService: ItemService,
+    public role: RoleService,
   ) { }
 
   ngOnInit() {

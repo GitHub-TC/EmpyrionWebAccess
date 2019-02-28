@@ -1,17 +1,17 @@
 <div style="position:relative">
   <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
   <mat-tab-group>
-    <mat-tab label="Playfield">
+    <mat-tab label="Playfield" *ngIf="role.is(UserRole.VIP)">
       <ng-template matTabContent>
         <app-playfield-view></app-playfield-view>
       </ng-template>
     </mat-tab>
-    <mat-tab label="Structures">
+    <mat-tab label="Structures" *ngIf="role.is(UserRole.VIP)">
       <ng-template matTabContent>
         <app-structures-list></app-structures-list>
       </ng-template>
     </mat-tab>
-    <mat-tab label="History">
+    <mat-tab label="History" *ngIf="role.is(UserRole.Moderator)">
       <ng-template matTabContent>
         <app-history-book-of></app-history-book-of>
       </ng-template>

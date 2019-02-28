@@ -23,12 +23,6 @@ namespace EmpyrionModWebHost.Controllers
 
     public class HistoryBookManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
-        public class PlayfieldStructureData
-        {
-            public string Playfield { get; set; }
-            public GlobalStructureInfo StructureInfo { get; set; }
-        }
-        
         public ModGameAPI GameAPI { get; private set; }
         public Lazy<StructureManager> StructureManager { get; }
         public Lazy<PlayerManager> PlayerManager { get; }
@@ -72,12 +66,7 @@ namespace EmpyrionModWebHost.Controllers
 
             using (var DB = new HistoryBookContext())
             {
-                var Structures = StructureManager.Value.LastGlobalStructureList.Current.globalStructures
-                    .Aggregate(new Dictionary<int, PlayfieldStructureData>(), (L, K) =>
-                    {
-                        K.Value.ForEach(S => L.Add(S.id, new PlayfieldStructureData() { Playfield = K.Key, StructureInfo = S }));
-                        return L;
-                    });
+                var Structures = StructureManager.Value.CurrentGlobalStructures;
 
                 HistoryLogStructures(DB, LastStructuresData, Structures);
                 PlayerManager.Value.QueryPlayer(PDB => PDB.Players, P => HistoryLog(DB, LastPlayerData, P));
