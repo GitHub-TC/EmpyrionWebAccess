@@ -93,6 +93,8 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(HistoryBookManager));
 
             services.AddTransient<IProvider<IUserService>, ServiceInstanceProvider<IUserService>>();
+            services.AddTransient<IRoleHubContext<ChatHub>,   RoleHub<ChatHub>>();
+            services.AddTransient<IRoleHubContext<PlayerHub>, RoleHub<PlayerHub>>();
 
             services.AddDbContext<PlayerContext>();
             services.AddDbContext<BackpackContext>();

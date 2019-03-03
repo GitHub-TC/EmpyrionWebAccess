@@ -16,28 +16,32 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using EmpyrionModWebHost.Services;
 using System.Security.Claims;
+using System.Collections.Concurrent;
 
 namespace EmpyrionModWebHost.Controllers
 {
+
     [Authorize]
-    public class PlayerHub : Hub
+    public class PlayerHub : RoleHubBase
     {
-        private PlayerManager PlayerManager { get; set; }
     }
 
     public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
-        public IHubContext<PlayerHub> PlayerHub { get; internal set; }
+        public IRoleHubContext<PlayerHub> PlayerHub { get; internal set; }
         public IProvider<IUserService> UserService { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<ChatManager> ChatManager { get; }
+        public Lazy<UserManager> UserManager { get; }
         public ModGameAPI GameAPI { get; private set; }
-        public PlayerManager(IHubContext<PlayerHub> aPlayerHub, IProvider<IUserService> aUserService)
+
+        public PlayerManager(IRoleHubContext<PlayerHub> aPlayerHub, IProvider<IUserService> aUserService)
         {
             PlayerHub = aPlayerHub;
             UserService = aUserService;
-            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
-            ChatManager = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
+            SysteminfoManager   = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+            ChatManager         = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
+            UserManager         = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
         }
 
         public void CreateAndUpdateDatabase()
@@ -69,7 +73,7 @@ namespace EmpyrionModWebHost.Controllers
                 count = await DB.SaveChangesAsync();
             }
 
-            if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers)).Wait();
+            if (count > 0) PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
         }
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -130,7 +134,7 @@ namespace EmpyrionModWebHost.Controllers
                 }
                 var count = DB.SaveChanges();
 
-                if (count > 0) PlayerHub?.Clients.All.SendAsync("UpdatePlayer", JsonConvert.SerializeObject(Player)).Wait();
+                if (count > 0) PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
             }
         }
 
@@ -146,6 +150,14 @@ namespace EmpyrionModWebHost.Controllers
             using (var DB = new PlayerContext())
             {
                 return DB.Players.FirstOrDefault(P => P.EntityId == aPlayerId);
+            }
+        }
+
+        public Player GetPlayer(string aSteamId)
+        {
+            using (var DB = new PlayerContext())
+            {
+                return DB.Players.FirstOrDefault(P => P.SteamId == aSteamId);
             }
         }
 
@@ -301,6 +313,30 @@ namespace EmpyrionModWebHost.Controllers
         public void ChangePlayerNote(string aSteamId, string aNote)
         {
             UpdatePlayer(DB => DB.Players.Where(P => P.SteamId == aSteamId), P => P.Note = aNote);
+        }
+
+        public async void AddConnectionAsync(string aConnectionId, ClaimsPrincipal aUser, IGroupManager aGroups)
+        {
+            User CurrentUser = UserManager.Value.GetById(int.Parse(aUser.Identity.Name));
+            if (CurrentUser.Role <= Role.GameMaster) await aGroups.AddToGroupAsync(aConnectionId, RoleHubBase.AdminsGroupName);
+            else
+            {
+                await aGroups.AddToGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
+                var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
+                await aGroups.AddToGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+            }
+        }
+
+        public async void RemoveConnectionAsync(string aConnectionId, ClaimsPrincipal aUser, IGroupManager aGroups)
+        {
+            User CurrentUser = UserManager.Value.GetById(int.Parse(aUser.Identity.Name));
+            if (CurrentUser.Role <= Role.GameMaster) await aGroups.RemoveFromGroupAsync(aConnectionId, RoleHubBase.AdminsGroupName);
+            else
+            {
+                await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
+                var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
+                await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+            }
         }
     }
     

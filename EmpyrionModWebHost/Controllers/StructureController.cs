@@ -156,9 +156,9 @@ namespace EmpyrionModWebHost.Controllers
 
                 StructureManager.GlobalStructureList().globalStructures
                     .ForEach(P => {
-                        var L = P.Value.Where(S => 
-                            S.factionId == CurrentPlayer.FactionId ||
-                            (S.factionGroup == 1 && S.factionId == CurrentPlayer.EntityId)
+                        var L = P.Value.Where(S =>
+                            (S.factionGroup == (byte)Factions.Faction && S.factionId == CurrentPlayer.FactionId) ||
+                            (S.factionGroup == (byte)Factions.Private && S.factionId == CurrentPlayer.EntityId)
                         ).ToList();
                         if (L.Count > 0) Result.globalStructures.Add(P.Key, L);
                     });
@@ -186,8 +186,9 @@ namespace EmpyrionModWebHost.Controllers
 
                 var Faction = CurrentPlayer?.FactionId;
 
-                Structures = Structures.Where(S => S.Value.StructureInfo.factionId == Faction ||
-                        (S.Value.StructureInfo.factionGroup == 1 && S.Value.StructureInfo.factionId == CurrentPlayer.EntityId))
+                Structures = Structures.Where(S => 
+                        (S.Value.StructureInfo.factionGroup == (byte)Factions.Faction && S.Value.StructureInfo.factionId == Faction) ||
+                        (S.Value.StructureInfo.factionGroup == (byte)Factions.Private && S.Value.StructureInfo.factionId == CurrentPlayer.EntityId))
                         .ToArray();
             }
 

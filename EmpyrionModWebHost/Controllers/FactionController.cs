@@ -14,6 +14,12 @@ using System.Linq;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    public enum Factions
+    {
+        Faction = 0,
+        Private = 1,
+    }
+
     [Authorize]
     public class FactionHub : Hub
     {

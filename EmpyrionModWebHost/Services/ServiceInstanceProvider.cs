@@ -22,7 +22,7 @@ namespace EmpyrionModWebHost.Services
 
         T IProvider<T>.Get()
         {
-            return (T)contextAccessor.HttpContext.RequestServices.GetService(typeof(T));
+            return (T)contextAccessor?.HttpContext?.RequestServices?.GetService(typeof(T));
         }
     }
 }

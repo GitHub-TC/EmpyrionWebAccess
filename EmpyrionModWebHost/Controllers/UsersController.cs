@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -33,6 +34,30 @@ namespace EmpyrionModWebHost.Controllers
         public override void Initialize(ModGameAPI dediAPI)
         {
         }
+        public IEnumerable<User> GetAll()
+        {
+            using (var DB = new UserContext())
+            {
+                return DB.Users;
+            }
+        }
+
+        public User GetById(int id)
+        {
+            using (var DB = new UserContext())
+            {
+                return DB.Users.Find(id);
+            }
+        }
+
+        public User GetBySteamId(string aSteamId)
+        {
+            using (var DB = new UserContext())
+            {
+                return DB.Users.FirstOrDefault(U => U.InGameSteamId == aSteamId);
+            }
+        }
+
     }
 
     [ApiController]

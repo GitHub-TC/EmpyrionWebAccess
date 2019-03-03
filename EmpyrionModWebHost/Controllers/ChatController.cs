@@ -26,18 +26,18 @@ namespace EmpyrionModWebHost.Controllers
 
 
     [Authorize(Roles = nameof(Role.VIP))]
-    public class ChatHub : Hub
+    public class ChatHub : RoleHubBase
     {
         public IUserService UserService { get; }
         private ChatManager ChatManager { get; set; }
         public PlayerManager PlayerManager { get; }
         public FactionManager FactionManager { get; }
 
-        public ChatHub(IUserService aUserService)
+        public ChatHub(IUserService aUserService) 
         {
-            UserService = aUserService;
-            ChatManager = Program.GetManager<ChatManager>();
-            PlayerManager = Program.GetManager<PlayerManager>();
+            UserService    = aUserService;
+            ChatManager    = Program.GetManager<ChatManager>();
+            PlayerManager  = Program.GetManager<PlayerManager>();
             FactionManager = Program.GetManager<FactionManager>();
         }
 
@@ -62,11 +62,11 @@ namespace EmpyrionModWebHost.Controllers
     public class ChatManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
         public ModGameAPI GameAPI { get; private set; }
-        public IHubContext<ChatHub> ChatHub { get; private set; }
+        public IRoleHubContext<ChatHub> ChatHub { get; private set; }
         public PlayerManager PlayerManager { get; private set; }
         public FactionManager FactionManager { get; private set; }
 
-        public ChatManager(IHubContext<ChatHub> aChatHub)
+        public ChatManager(IRoleHubContext<ChatHub> aChatHub)
         {
             ChatHub = aChatHub;
         }
@@ -84,7 +84,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             var player = PlayerManager.GetPlayer(aChatInfo.playerId);
 
-            AddChatToDB(new Chat()
+            AddChatToDB(player, new Chat()
             {
                 Timestamp     = DateTime.Now,
                 PlayerSteamId = player?.SteamId,
@@ -96,22 +96,23 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
-        public async void AddChatToDB(Chat aChat)
+        public void AddChatToDB(Player aPlayer, Chat aChat)
         {
-            using(var DB = new ChatContext())
+            using (var DB = new ChatContext())
             {
                 DB.Add(aChat);
                 DB.SaveChanges();
             }
 
-            await ChatHub?.Clients.All.SendAsync("Send", JsonConvert.SerializeObject(aChat));
+            if(aChat.Type == (byte)ChatType.Global) ChatHub?.Clients.All.SendAsync(         "Send", JsonConvert.SerializeObject(aChat));
+            else                                    ChatHub?.RoleSendAsync        (aPlayer, "Send", JsonConvert.SerializeObject(aChat));
         }
 
         public void ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aFactionName, string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
-            AddChatToDB(new Chat()
+            AddChatToDB(null, new Chat()
             {
                 Timestamp = DateTime.Now,
                 PlayerSteamId = "",
@@ -129,7 +130,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
-            AddChatToDB(new Chat()
+            AddChatToDB(null, new Chat()
             {
                 Timestamp = DateTime.Now,
                 PlayerSteamId = "",
@@ -147,7 +148,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
-            AddChatToDB(new Chat()
+            AddChatToDB(null, new Chat()
             {
                 Timestamp     = DateTime.Now,
                 PlayerSteamId = "",
