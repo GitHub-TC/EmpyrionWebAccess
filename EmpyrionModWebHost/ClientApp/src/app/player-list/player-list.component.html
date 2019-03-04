@@ -22,9 +22,9 @@
     <ng-container matColumnDef="PlayerName" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
       <td mat-cell *matCellDef="let player">
-        <div *ngIf="!player.Online" [style.color]="PlayerColor(player)" title="{{PlayerHint(player)}}">{{player.PlayerName}}</div>
+        <div *ngIf="!player.Online" class="playerCell" [style.color]="PlayerColor(player)" title="{{PlayerHint(player)}}">{{player.PlayerName}}</div>
         <div *ngIf="player.Online" style="white-space:nowrap">
-          <div style="display:inline-block; margin-top:2px" [style.color]="PlayerColor(player)" title="{{PlayerHint(player)}}">{{player.PlayerName}}</div>
+          <div style="display:inline-block; margin-top:2px" class="playerCell" [style.color]="PlayerColor(player)" title="{{PlayerHint(player)}}">{{player.PlayerName}}</div>
           <div style="display:inline-block; margin-top:2px; margin-left:5px; height:0px;">
             <app-warp-dialog *ngIf="role.is(UserRole.GameMaster)" [WarpData]="{
                                     entityId: player.EntityId,
@@ -43,7 +43,7 @@
 
     <ng-container matColumnDef="Origin">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Origin </th>
-      <td mat-cell *matCellDef="let player"> {{player.Origin}} </td>
+      <td mat-cell *matCellDef="let player"> {{Origin(player)}} </td>
     </ng-container>
 
     <ng-container matColumnDef="Faction">

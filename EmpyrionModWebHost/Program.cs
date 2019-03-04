@@ -41,7 +41,7 @@ namespace EmpyrionModWebHost
 
         public static T GetManager<T>() where T : class
         {
-            return Host.Plugins?.Where(P => P is T).FirstOrDefault() as T;
+            return Host?.Plugins?.Where(P => P is T).FirstOrDefault() as T;
         }
 
         public static void Main(string[] args)

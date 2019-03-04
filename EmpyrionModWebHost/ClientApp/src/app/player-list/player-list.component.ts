@@ -11,6 +11,7 @@ import { MatTableDataSource, MatSort } from '@angular/material';
 import { PLAYER } from '../model/player-mock';
 import { RoleService } from '../services/role.service';
 import { UserRole } from '../model/user';
+import { OriginService } from '../services/origin.service';
 
 @Component({
   selector: 'app-player-list',
@@ -18,7 +19,7 @@ import { UserRole } from '../model/user';
   styleUrls: ['./player-list.component.less']
 })
 export class PlayerListComponent implements OnInit {
-  displayedColumns = ['Online', 'PlayerName', 'Origin', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'LastOnline', 'OnlineHours', 'EntityId', 'SteamId'];
+  displayedColumns = ['Online', 'PlayerName', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'Origin', 'LastOnline', 'OnlineHours', 'EntityId', 'SteamId'];
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
 
@@ -26,7 +27,8 @@ export class PlayerListComponent implements OnInit {
 
   message: string;
   autoscroll: boolean = true;
-  mFactions: FactionModel[];
+  mFactions: FactionModel[] = [];
+  mOrigins: { [id: number]: string; } = [];
   mSelectedPlayfield: string;
   mAllPlayers: PlayerModel[];
   UserRole = UserRole;
@@ -36,6 +38,7 @@ export class PlayerListComponent implements OnInit {
     private mPlayerService: PlayerService,
     private mPositionService: PositionService,
     private mChatService: ChatService,
+    private mOriginService: OriginService,
     public role: RoleService,
   ) {
   }
@@ -48,6 +51,7 @@ export class PlayerListComponent implements OnInit {
       }, 10);
     });
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
+    this.mOriginService.GetOrigins().subscribe(O => this.mOrigins = O);
   }
 
   ngAfterViewInit() {
@@ -101,6 +105,10 @@ export class PlayerListComponent implements OnInit {
 
   Faction(aPlayer: PlayerModel) {
     return aPlayer ? this.mFactions.find(F => F.FactionId == aPlayer.FactionId) : "";
+  }
+
+  Origin(aPlayer: PlayerModel) {
+    return aPlayer ? this.mOrigins[aPlayer.Origin] : "";
   }
 
   PlayerColor(aPlayer: PlayerModel) {

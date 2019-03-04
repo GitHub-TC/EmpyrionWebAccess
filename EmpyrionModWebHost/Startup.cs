@@ -91,6 +91,7 @@ namespace EmpyrionModWebHost
             services.AddSingleton(typeof(IEWAPlugin), typeof(PlayfieldManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(ModManager));
             services.AddSingleton(typeof(IEWAPlugin), typeof(HistoryBookManager));
+            services.AddSingleton(typeof(IEWAPlugin), typeof(SectorsManager));
 
             services.AddTransient<IProvider<IUserService>, ServiceInstanceProvider<IUserService>>();
             services.AddTransient<IRoleHubContext<ChatHub>,   RoleHub<ChatHub>>();
