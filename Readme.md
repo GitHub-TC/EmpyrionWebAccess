@@ -148,6 +148,20 @@ Fehlt diese Datei wird der EWA automatisch gestoppt bzw. gar nicht erst gestarte
 * Start, Stop, Restart des EGS Servers mit einer wählbaren Vorwarnzeit
 * EGS und EWA herunterfahren - Achtung: EGS muss danach über einen anderen Weg gestartet werden
 
+## User and roles
+![](EmpyrionModWebHost/Screenshots/UserAndRoles.png)
+
+Hier können die Benutzer des EWA angelegt, geändert oder gelöscht werden. Außerdem kann ihnen hier eine Rolle zugewiesen werden.
+
+Damit die Rollen VIP Player & Player korrekt funktionieren MÜSSEN hier die SteamIDs der Spieler eingetragen werden. Bei den anderen Rollen ist dies zur Zeit optional.
+
+* Server Admin
+* InGame Admin
+* Moderator
+* Game Master
+* VIP Player
+* Player
+
 ### Update EWA
 Einfach die EWALoaderXYZ.zip Datei der neuen Version für ein Upload auswählen. Der Upload startet automatisch.
 Je nachdem ob der EGS Server läuft wird zunächst das EWA und dann beim nächsten Stop des EGS der EWALoaderClient akualisiert

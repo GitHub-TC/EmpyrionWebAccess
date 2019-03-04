@@ -51,36 +51,32 @@ namespace EmpyrionModWebHost.Controllers
 
         public async void RoleSendAsync(Player aCurrentPlayer, string aMethod, object aArg1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await HubContext.Clients.Groups(RoleHubBase.AdminsGroupName)?.SendAsync(aMethod, aArg1);
+            await HubContext?.Clients?.Groups(RoleHubBase.AdminsGroupName)?.SendAsync(aMethod, aArg1);
 
-            try
+            var CurrentPlayer = aCurrentPlayer;
+            User CurrentUser = null;
+
+            if (CurrentPlayer == null)
             {
-                var CurrentPlayer = aCurrentPlayer;
-                User CurrentUser = null;
-
-                if (CurrentPlayer == null)
-                {
-                    var PlayerManager = Program.GetManager<PlayerManager>();
-                    CurrentUser = ContextUserService.Get()?.CurrentUser;
-                    if (CurrentUser == null || PlayerManager == null) return;
-                    CurrentPlayer = PlayerManager.GetPlayer(CurrentUser.InGameSteamId);
-                }
-
-                if (CurrentUser == null)
-                {
-                    var UserService = Program.GetManager<UserManager>();
-                   CurrentUser = UserService.GetBySteamId(CurrentPlayer.SteamId);
-                }
-
-                if ((CurrentUser.Role == Role.Player && CurrentPlayer.SteamId == CurrentUser.InGameSteamId) ||
-                    (CurrentUser.Role == Role.VIP    && CurrentPlayer.FactionGroup == (byte)Factions.Private))
-                {
-                    await HubContext.Clients.Groups(CurrentUser.InGameSteamId)?.SendAsync(aMethod, aArg1);
-                }
-                else await HubContext.Clients.Groups(CurrentPlayer.FactionId.ToString())?.SendAsync(aMethod, aArg1);
-
+                var PlayerManager = Program.GetManager<PlayerManager>();
+                CurrentUser = ContextUserService.Get()?.CurrentUser;
+                if (CurrentUser == null || PlayerManager == null) return;
+                CurrentPlayer = PlayerManager.GetPlayer(CurrentUser.InGameSteamId);
             }
-            catch { }
+
+            if (CurrentUser == null)
+            {
+                var UserService = Program.GetManager<UserManager>();
+                if (UserService == null) return;
+                CurrentUser = UserService.GetBySteamId(CurrentPlayer.SteamId);
+            }
+
+            if ((CurrentUser.Role == Role.Player && CurrentPlayer.SteamId == CurrentUser.InGameSteamId) ||
+                (CurrentUser.Role == Role.VIP    && CurrentPlayer.FactionGroup == (byte)Factions.Private))
+            {
+                await HubContext?.Clients?.Groups(CurrentUser.InGameSteamId)?.SendAsync(aMethod, aArg1);
+            }
+            else await HubContext?.Clients?.Groups(CurrentPlayer.FactionId.ToString())?.SendAsync(aMethod, aArg1);
         }
     }
 }

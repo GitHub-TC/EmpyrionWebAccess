@@ -46,16 +46,28 @@ namespace EmpyrionModWebHost
 
         public static void Main(string[] args)
         {
-            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
 
-            Application = CreateWebHostBuilder(args).Build();
+                Application = CreateWebHostBuilder(args).Build();
 
-            AppLifetime =  Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;
+                AppLifetime = Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;
 
-            Host = Application.Services.GetService(typeof(ModHostDLL)) as ModHostDLL;
-            Host.InitComunicationChannels();
+                Host = Application.Services.GetService(typeof(ModHostDLL)) as ModHostDLL;
+                Host.InitComunicationChannels();
 
-            Application.Run();
+                Application.Run();
+            }
+            catch (Exception Error)
+            {
+                var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
+                Directory.CreateDirectory(logDir);
+                File.AppendAllText(
+                    Path.Combine(logDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa_crash.log"), 
+                    $"{DateTime.Now.ToString("yyyyMMdd HHmm")}: {Error}"
+                    );
+            }
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
