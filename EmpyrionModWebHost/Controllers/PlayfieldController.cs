@@ -92,10 +92,26 @@ namespace EmpyrionModWebHost.Controllers
             return Found.Substring(DelimiterPos + 1, CommentPos - DelimiterPos - 1).Trim();
         }
 
-        internal void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
+        public void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
         {
             aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
         }
+
+        public void ResetPlayfield(params string[] aPlayfields)
+        {
+            aPlayfields.AsParallel().ForEach(P => Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true));
+        }
+
+        public void RecreatePlayfield(params string[] aPlayfields)
+        {
+            aPlayfields.AsParallel().ForEach(P =>
+            {
+                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Playfields", P), true);
+                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Templates",  P), true);
+                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath,  "Playfields", P), true);
+            });
+        }
+
     }
 
     [ApiController]
@@ -254,9 +270,10 @@ namespace EmpyrionModWebHost.Controllers
         [Authorize(Roles = nameof(Role.InGameAdmin))]
         public IActionResult ResetPlayfield([FromQuery]string Playfield)
         {
-            Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", Playfield), true);
+            PlayfieldManager.ResetPlayfield(Playfield);
             return Ok();
         }
+
     }
 
 }

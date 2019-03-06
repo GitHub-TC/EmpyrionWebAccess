@@ -29,6 +29,11 @@ namespace EmpyrionModWebHost
             get { return Path.Combine(ProgramPath, DedicatedYaml.SaveDirectory ?? "Saves", "Games", DedicatedYaml.SaveGameName ?? "");  }
         }
 
+        public static string SaveGameCachePath
+        {
+            get { return Path.Combine(ProgramPath, DedicatedYaml.SaveDirectory ?? "Saves", "Cache", DedicatedYaml.SaveGameName ?? ""); }
+        }
+
         public static string SaveGameModPath
         {
             get { return Path.Combine(SaveGamePath, @"Mods\EWA"); }

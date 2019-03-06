@@ -61,6 +61,8 @@ namespace EmpyrionModWebHost.Controllers
         runShell,
         consoleCommand,
         wipePlayfield,
+        resetPlayfield,
+        recreatePlayfield,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -257,9 +259,11 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;
                 case ActionType.wipePlayfield           : PlayfieldManager.Value.Wipe(aAction.data.Split(':')[1].Split(';').Select(P => P.Trim()), aAction.data.Split(':')[0]); break;
+                case ActionType.resetPlayfield          : PlayfieldManager.Value.ResetPlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
+                case ActionType.recreatePlayfield       : PlayfieldManager.Value.RecreatePlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
             }
 
-            if(aAction.actionType != ActionType.restart) ExecSubActions(aAction);
+            if (aAction.actionType != ActionType.restart) ExecSubActions(aAction);
         }
 
         private void DeletePlayerOnPlayfield(SubTimetableAction aAction)

@@ -49,6 +49,8 @@ export enum ActionType {
   runShell                = "Run shell| [cmd] -> Working directory ist the current savegame folder",
   consoleCommand          = "InGame console command | [cmd] -> Help description of commands in the console with 'help'",
   wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield]] -> Example: poi deposit : Akua; Hsaa",
+  resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
+  recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
 }
 
 class SubTimetableAction{
