@@ -51,6 +51,8 @@ import { HistoryBookOfComponent } from './history-book-of/history-book-of.compon
 import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
 import { ThreeJsModule } from './three-js/three-js.module';
 import { PlayerNoteComponent } from './player-note/player-note.component';
+import { PlayfieldPlanetview3dComponent } from './playfield-planetview3d/playfield-planetview3d.component';
+import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield-spaceview3d.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +93,9 @@ import { PlayerNoteComponent } from './player-note/player-note.component';
     FileUploadComponent,
     HistoryBookOfComponent,
     GalaxyMapComponent,
-    PlayerNoteComponent
+    PlayerNoteComponent,
+    PlayfieldPlanetview3dComponent,
+    PlayfieldSpaceview3dComponent
   ],
   imports: [
     BrowserModule,

@@ -43,6 +43,7 @@ export class PlayfieldViewComponent implements OnInit {
   error: any;
   SpaceImageUrl: any;
   UserRole = UserRole;
+  View2D: boolean = true;
 
   constructor(
     private http: HttpClient,

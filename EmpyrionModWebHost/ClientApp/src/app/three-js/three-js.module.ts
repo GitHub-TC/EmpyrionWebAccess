@@ -15,6 +15,7 @@ import { PointLightDirective } from './objects/light/point-light.directive';
 import { TextLoaderDirective } from './objects/loaders/text-loader.directive';
 import { LineLoaderDirective } from './objects/line-object.directive';
 import { ConeLoaderDirective } from './objects/cone-object.directive';
+import { OrthographicCameraDirective } from './cameras/orthographic-camera.directive';
 
 // TODO: Ideally move all to three-wrapper library. But can't move js/EnableThreeExamples.js to library :(
 @NgModule({
@@ -28,6 +29,7 @@ import { ConeLoaderDirective } from './objects/cone-object.directive';
     Rad2DegPipe,
     Deg2RadPipe,
     PerspectiveCameraDirective,
+    OrthographicCameraDirective,
     WebGLRendererComponent,
     SceneDirective,
     AxesHelperDirective,
@@ -45,6 +47,7 @@ import { ConeLoaderDirective } from './objects/cone-object.directive';
     Rad2DegPipe,
     Deg2RadPipe,
     PerspectiveCameraDirective,
+    OrthographicCameraDirective,
     WebGLRendererComponent,
     SceneDirective,
     AxesHelperDirective,

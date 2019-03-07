@@ -1,0 +1,14 @@
+<three-orbit-controls [rotateSpeed]=1 [zoomSpeed]=1.2 [listeningControlElement]=mainRenderer.renderPane>
+  <three-webgl-renderer #mainRenderer>
+    <three-perspective-camera #mainCamera
+                              [renderer]="mainRenderer"
+                              [fov]=60 [near]=1 [far]=100000
+                              [positionX]="cameraX" [positionY]="cameraY" [positionZ]="cameraZ">
+    </three-perspective-camera>
+    <three-scene [lateInit]="true">
+      <three-axes-helper size=10000></three-axes-helper>
+      <three-grid-helper size=10000 divisions=100></three-grid-helper>
+      <three-point-light color="white" intensity="1" distance="100" translateX=100 translateY=100 translateZ=100></three-point-light>
+    </three-scene>
+  </three-webgl-renderer>
+</three-orbit-controls>

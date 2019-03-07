@@ -4,6 +4,7 @@ import { AbstractObject3D } from '../abstract-object-3d';
 import { AbstractModelLoader } from './abstract-model-loader';
 
 import '../../js/EnableThreeJs';
+import '../../js/LegacyJSONLoader';
 import 'three/examples/js/loaders/OBJLoader';
 import 'three/examples/js/loaders/MTLLoader';
 import { PlainObject3D } from '../plain-object-3d';

@@ -3,13 +3,17 @@
     <div class="col">
       <mat-card style="margin-bottom:1em">
         <div style="display:inline-block; width:100%">
-          <mat-form-field style="width:90%">
+          <mat-form-field style="width:80%">
             <mat-select placeholder="Playfield" [(value)]="SelectedPlayfieldName">
               <mat-option *ngFor="let i of Playfields" [value]="i.name">
                 {{i.name}}
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-radio-group [(ngModel)]="View2D" style="position:relative; margin-left:1em">
+            <mat-radio-button [value]="(true)" style="position:absolute;">2D</mat-radio-button>
+            <mat-radio-button [value]="(false)" style="position:absolute; bottom:-2em">3D</mat-radio-button>
+          </mat-radio-group>
           <button *ngIf="SelectedPlayfieldName" mat-icon-button [matMenuTriggerFor]="appMenu" style="position:absolute; top: 2em; right:10px;">
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -51,18 +55,26 @@
       <mat-card style="margin-bottom:1em">
         <div style="position:relative; overflow:auto" [style.zoom]="ZoomValue" *ngIf="SelectedPlayfield">
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
-            <img [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
+            <ng-container *ngIf="!View2D">
+              <app-playfield-planetview3d *ngIf="SelectedPlayfield.isPlanet" [PlanetSurfacePNG]="MapUrl"></app-playfield-planetview3d>
+              <app-playfield-spaceview3d *ngIf="!SelectedPlayfield.isPlanet" [Structures]="PlayfieldStructures"></app-playfield-spaceview3d>
+            </ng-container>
+            <ng-container *ngIf="View2D">
+              <img [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
+            </ng-container>
           </div>
-          <div *ngFor="let s of PlayfieldStructures">
-            <div *ngIf="isSelected(s.TypeName)" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
-              <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+          <ng-container *ngIf="View2D">
+            <div *ngFor="let s of PlayfieldStructures">
+              <div *ngIf="isSelected(s.TypeName)" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
+                <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
+              </div>
             </div>
-          </div>
-          <div *ngFor="let p of PlayfieldPlayers">
-            <div *ngIf="isSelected(p.Online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
-              <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
+            <div *ngFor="let p of PlayfieldPlayers">
+              <div *ngIf="isSelected(p.Online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
+                <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </mat-card>
     </div>
