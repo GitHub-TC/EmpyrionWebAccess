@@ -42,12 +42,12 @@ namespace EmpyrionModWebHost.Controllers
         public SectorsManager()
         {
             PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Sectors"), "Sectors.yaml");
-            PlayfieldsWatcher.Created += (S, A) => ReadSectors();
-            PlayfieldsWatcher.Deleted += (S, A) => ReadSectors();
-            PlayfieldsWatcher.Changed += (S, A) => ReadSectors();
+            PlayfieldsWatcher.Created += (S, A) => TaskTools.Delay(10, ReadSectors);
+            PlayfieldsWatcher.Deleted += (S, A) => TaskTools.Delay(10, ReadSectors);
+            PlayfieldsWatcher.Changed += (S, A) => TaskTools.Delay(10, ReadSectors);
             PlayfieldsWatcher.EnableRaisingEvents = true;
 
-            ReadSectors();
+            TaskTools.Delay(1, ReadSectors);
         }
 
         public override void Initialize(ModGameAPI dediAPI)
