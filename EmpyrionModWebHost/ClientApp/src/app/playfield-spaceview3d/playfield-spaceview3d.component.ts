@@ -196,6 +196,14 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
 
         insertStructure.userData.tooltipText = (S.FactionName ? "(" + S.FactionName + ") " : "") + S.name;
 
+        let ColorMaterial = new THREE.MeshBasicMaterial({ color: new Color(this.StructurColor(S)).multiplyScalar(0.7) });
+
+        this.ChangeColor(insertStructure, M => {
+          M.userData.saveMaterial = M.material;
+          M.material = ColorMaterial;
+          return true;
+        });
+
         this.StructureObjectView.push({ id: S.id, object: insertStructure });
 
         this.scene.addChild(insertStructure);
@@ -206,6 +214,28 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
 
     this.renderer.render();
   }
+
+  StructurColor(aStructure: GlobalStructureInfo) {
+    if (aStructure.factionGroup == 5 || (aStructure.CoreName && aStructure.CoreName.includes("Admin"))) return "purple";
+
+    switch (aStructure.factionGroup) {
+      case 0: return "magenta"; // Faction
+      case 1: return "aqua"; // Privat
+      case 2: return "tomato"; // Zirax
+      case 3: return "tomato"; // Predator
+      case 4: return "tomato"; // Prey
+      case 5: return "purple"; // Admin;
+      case 6: return "green";  // Talons
+      case 7: return "blue";   // Polaris
+      case 8: return "red";    // Aliens
+      case 11: return "white"; // "Unknown";
+      case 10: return "gold"; // Public
+      case 12: return "white"; // "None";
+      case 255: return "lightblue";   // No Core
+      default: return "white";
+    }
+  }
+
 
   RenderPlayers(): any {
     if (!this.rerenderPlayers || !this.objPlayer || !this.Players) return;
@@ -262,7 +292,12 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
 
   ngAfterViewInit() {
     setTimeout(() => this.scene.InitChilds(), 1);
-    setTimeout(() => { this.rerenderStructures = true; this.rerenderPlayers = true; this.renderer.startRendering(); }, 2);
+    setTimeout(() => {
+      this.rerenderStructures = true;
+      this.rerenderPlayers = true;
+      this.renderer.startRendering();
+      this.renderer.scene.background = new Color("lightgray");
+    }, 2);
   }
 
 }
