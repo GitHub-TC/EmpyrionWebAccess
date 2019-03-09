@@ -29,7 +29,9 @@
             "styles": [
               "src/styles.less"
             ],
-            "scripts": []
+            "scripts": [
+              "src/app/three-js/js/LegacyJSONLoader.js"
+            ]
           },
           "configurations": {
             "production": {

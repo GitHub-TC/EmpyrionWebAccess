@@ -48,11 +48,11 @@ export abstract class PlainObject3D<T extends THREE.Object3D> implements AfterVi
     this.afterInit();
   }
 
-  protected addChild(object: THREE.Object3D): void {
+  public addChild(object: THREE.Object3D): void {
     this.object.add(object);
   }
 
-  protected removeChild(object: THREE.Object3D): void {
+  public removeChild(object: THREE.Object3D): void {
     this.object.remove(object);
   }
 

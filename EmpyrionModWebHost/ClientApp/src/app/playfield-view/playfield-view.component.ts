@@ -26,9 +26,23 @@ export class PlayfieldViewComponent implements OnInit {
   ZoomValue: number = 1;
   MapUrl: string;
   mAllPlayers: PlayerModel[];
-  PlayfieldPlayers: PlayerModel[];
+
+  mPlayfieldPlayers: PlayerModel[]
+  get PlayfieldPlayers() { return this.mPlayfieldPlayers; }
+  set PlayfieldPlayers(p: PlayerModel[]) {
+    this.mPlayfieldPlayers = p;
+    this.UpdateSelectedPlayfieldPlayers();
+  };
+
   mAllStructures: GlobalStructureInfo[];
-  PlayfieldStructures: GlobalStructureInfo[];
+
+  mPlayfieldStructures: GlobalStructureInfo[];
+  get PlayfieldStructures() { return this.mPlayfieldStructures; }
+  set PlayfieldStructures(g: GlobalStructureInfo[]) {
+    this.mPlayfieldStructures = g;
+    this.UpdateSelectedPlayfieldStructures();
+  }
+
   PlanetSize = [
     { w: 10000,  h: 10000 },
     { w:  4100,  h:  2500 },
@@ -44,6 +58,9 @@ export class PlayfieldViewComponent implements OnInit {
   SpaceImageUrl: any;
   UserRole = UserRole;
   View2D: boolean = true;
+
+  public SelectedPlayfieldStructures: GlobalStructureInfo[];
+  public SelectedPlayfieldPlayers: PlayerModel[];
 
   constructor(
     private http: HttpClient,
@@ -63,21 +80,34 @@ export class PlayfieldViewComponent implements OnInit {
     this.mPlayerService.GetPlayers().subscribe(P => {
       this.mAllPlayers = P;
       this.PlayfieldPlayers = P.filter(p => p.Playfield == this.SelectedPlayfieldName);
+      this.UpdateSelectedPlayfieldPlayers();
     });
     this.mStructureService.GetGlobalStructureList().subscribe(S => {
       this.mAllStructures = S;
       this.SelectedPlayfieldName = this.mSelectedPlayfieldName;
+      this.UpdateSelectedPlayfieldStructures();
     });
   }
 
   ngAfterViewInit() {
     this.SelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
+
+    this.UpdateSelectedPlayfieldPlayers();
+    this.UpdateSelectedPlayfieldStructures();
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
     if (this.mStructureService.CurrentStructure = aStructure) return;
 
     this.mStructureService.CurrentStructure = aStructure;
+  }
+
+  UpdateSelectedPlayfieldStructures() {
+    this.SelectedPlayfieldStructures = this.PlayfieldStructures.filter(S => this.isSelected(S.TypeName));
+  }
+
+  UpdateSelectedPlayfieldPlayers() {
+    this.SelectedPlayfieldPlayers = this.PlayfieldPlayers.filter(P => this.isSelected(P.Online ? 'POn' : 'POff'));
   }
 
   get SelectedPlayfieldName() {
@@ -183,6 +213,9 @@ export class PlayfieldViewComponent implements OnInit {
 
   masterToggle() {
     this.mDisplay = this.isAllSelected() ? [] : this.AllDisplay.split(",");
+
+    this.UpdateSelectedPlayfieldPlayers();
+    this.UpdateSelectedPlayfieldStructures();
   }
 
   isAllSelected() {
@@ -192,10 +225,13 @@ export class PlayfieldViewComponent implements OnInit {
   selectionToggle(id: string) {
     if (this.mDisplay.find(D => D == id)) this.mDisplay = this.mDisplay.filter(D => D != id);
     else                                  this.mDisplay.push(id);
+
+    this.UpdateSelectedPlayfieldPlayers();
+    this.UpdateSelectedPlayfieldStructures();
   }
 
   isSelected(id: string) {
-    return this.mDisplay.find(D => D == id);
+    return !!this.mDisplay.find(D => D == id);
   }
 
   Wipe(aType: string) {

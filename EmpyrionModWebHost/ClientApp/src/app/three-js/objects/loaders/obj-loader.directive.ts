@@ -9,8 +9,6 @@ import 'three/examples/js/loaders/OBJLoader';
 import 'three/examples/js/loaders/MTLLoader';
 import { PlainObject3D } from '../plain-object-3d';
 
-(<any>THREE).LegacyJSONLoader = require('LegacyJSONLoader');
-
 /**
  * Directive for employing THREE.OBJLoader to load [Wavefront *.obj files][1].
  *

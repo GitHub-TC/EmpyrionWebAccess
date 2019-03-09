@@ -20,6 +20,7 @@ import { RoleService } from '../services/role.service';
 export class StructuresListComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
+  @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
   displayedColumns = ['Select', 'id', 'playfield', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
@@ -97,6 +98,7 @@ export class StructuresListComponent implements OnInit {
     this.mStructureService.CurrentStructure = row;
     this.selection.clear();
     this.selection.toggle(row);
+    this.SelectStructure.emit(row);
   }
 
   SavePosition(aStruct: GlobalStructureInfo) {

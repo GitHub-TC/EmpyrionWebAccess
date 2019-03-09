@@ -57,20 +57,20 @@
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
             <ng-container *ngIf="!View2D">
               <app-playfield-planetview3d *ngIf="SelectedPlayfield.isPlanet" [PlanetSurfacePNG]="MapUrl"></app-playfield-planetview3d>
-              <app-playfield-spaceview3d *ngIf="!SelectedPlayfield.isPlanet" [Structures]="PlayfieldStructures"></app-playfield-spaceview3d>
+              <app-playfield-spaceview3d *ngIf="!SelectedPlayfield.isPlanet" [Structures]="SelectedPlayfieldStructures" [Players]="SelectedPlayfieldPlayers"></app-playfield-spaceview3d>
             </ng-container>
             <ng-container *ngIf="View2D">
-              <img [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
+              <img [src]="MapUrl" alt="[Savegame]\MODs\EWA\Maps\{{SelectedPlayfield.name}}\map.png not found upload or copy it from your client cache [Cache]\Playfields\{{SelectedPlayfield.name}}\map.png" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '100%'" [style.width]="SelectedPlayfield.isPlanet ? '' : '100%'">
             </ng-container>
           </div>
           <ng-container *ngIf="View2D">
-            <div *ngFor="let s of PlayfieldStructures">
-              <div *ngIf="isSelected(s.TypeName)" (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
+            <div *ngFor="let s of SelectedPlayfieldStructures">
+              <div (click)="SelectStructure(s)" title="{{s?.name}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(s?.pos)" [style.top]="CalcTop(s?.pos)" [style.z-index]="StructurZIndex(s)">
                 <mat-icon style="margin-left:-.5em; margin-top:.5em" [style.color]="StructurColor(s)">{{StructurIcon(s)}}</mat-icon>
               </div>
             </div>
-            <div *ngFor="let p of PlayfieldPlayers">
-              <div *ngIf="isSelected(p.Online ? 'POn' : 'POff')" (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
+            <div *ngFor="let p of SelectedPlayfieldPlayers">
+              <div (click)="SelectPlayer(p)" title="{{p?.PlayerName}}" style="position:absolute; cursor:pointer;" [style.left]="CalcLeft(p.Pos)" [style.top]="CalcTop(p.Pos)" [style.z-index]="PlayerZIndex(p)">
                 <mat-icon style="margin-left:-.5em; margin-top:.5em;" [style.color]="PlayerColor(p)">person</mat-icon>
               </div>
             </div>
@@ -109,7 +109,7 @@
           <mat-icon>directions_car</mat-icon> HV
         </mat-checkbox><br />
       </mat-card>
-      <mat-card>
+      <mat-card *ngIf="View2D">
         <mat-label>
           Zoom: {{ZoomValue * 100}}%</mat-label>
         <mat-slider style="width: 100%"
@@ -122,7 +122,7 @@
                     [vertical]="false">
         </mat-slider>
       </mat-card>
-      <mat-card *ngIf="role.is(UserRole.Moderator)">
+      <mat-card *ngIf="View2D && role.is(UserRole.Moderator)">
         <app-file-upload [UploadURL]="UploadURL(SelectedPlayfieldName)" [UploadTitle]="'Upload Map\'s'" (uploaded)="onUploaded()"></app-file-upload>
       </mat-card>
     </div>
@@ -133,7 +133,7 @@
         <mat-tab-group>
           <mat-tab label="Structures">
             <ng-template matTabContent>
-              <app-structures-list [SelectedPlayfield]="SelectedPlayfieldName" (SelectStructure)="onSelectStructure($event)"></app-structures-list>
+              <app-structures-list [SelectedPlayfield]="SelectedPlayfieldName"></app-structures-list>
             </ng-template>
           </mat-tab>
           <mat-tab label="Player">

@@ -4,6 +4,11 @@ import { SceneDirective } from '../three-js/objects/scene.directive';
 import * as THREE from 'three';
 import { Color, Object3D } from 'three';
 import { GlobalStructureInfo } from '../model/structure-model';
+import { MouseIntersection } from '../three-js/cameras/perspective-camera.directive';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { StructureService } from '../services/structure.service';
+import { PlayerService } from '../services/player.service';
+import { PlayerModel } from '../model/player-model';
 
 @Component({
   selector: 'app-playfield-spaceview3d',
@@ -11,14 +16,22 @@ import { GlobalStructureInfo } from '../model/structure-model';
   styleUrls: ['./playfield-spaceview3d.component.less']
 })
 export class PlayfieldSpaceview3dComponent implements OnInit {
-  @ViewChild(WebGLRendererComponent) renderer;
-  @ViewChild(SceneDirective) scene;
+  @ViewChild(WebGLRendererComponent) renderer: WebGLRendererComponent;
+  @ViewChild(SceneDirective) scene: SceneDirective;
+
+  ToolTipText: string;
+  ToolTipX: string;
+  ToolTipY: string;
 
   loader: THREE.ObjectLoader = new THREE.ObjectLoader();
   mStructures: GlobalStructureInfo[];
+  mPlayers: PlayerModel[];
 
   get Structures() { return this.mStructures; }
-  @Input() set Structures(aStructures: GlobalStructureInfo[]) { this.mStructures = aStructures; this.rerender = true; this.RenderStructures(); }
+  @Input() set Structures(aStructures: GlobalStructureInfo[]) { this.mStructures = aStructures; this.rerenderStructures = true; this.RenderStructures(); }
+
+  get Players() { return this.mPlayers; }
+  @Input() set Players(aPlayers: PlayerModel[]) { this.mPlayers = aPlayers; this.rerenderPlayers = true; this.RenderPlayers(); }
 
   public rotationX = 0.0;
   public rotationY = 0.0;
@@ -32,18 +45,27 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
   public cameraNear = 1.0;
   public cameraFovr = 60.0;
 
-  rerender: boolean;
+  rerenderPlayers: boolean;
+  rerenderStructures: boolean;
   objBASpace:  THREE.Object3D;
   objCV:       THREE.Object3D;
   objCVSmall:  THREE.Object3D;
   objCVMedium: THREE.Object3D;
   objHV:       THREE.Object3D;
   objSV:       THREE.Object3D;
+  objPlayer:   THREE.Object3D;
+
+  lastCurrentStructure: { structure: GlobalStructureInfo, object: THREE.Object3D };
+  lastCurrentPlayer:    { player: PlayerModel,            object: THREE.Object3D };
 
   PI2: number = Math.PI / 180;
   StructureObjectView: Array<{ id: number, object: THREE.Object3D }> = [];
+  PlayerObjectView: Array<{ steamId: string, object: THREE.Object3D }> = [];
 
-  constructor() {
+  constructor(
+    private mStructureService: StructureService,
+    private mPlayerService: PlayerService,
+  ) {
     this.loader.load("assets/Model/BASpace.json", O => {
       this.objBASpace = O; this.RenderStructures();
       this.objBASpace.scale.x = 10;
@@ -61,9 +83,6 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
     });
     this.loader.load("assets/Model/CVSmall.json", O => {
       this.objCVSmall = O; this.RenderStructures();
-      this.objCVSmall.scale.x = 2;
-      this.objCVSmall.scale.y = 2;
-      this.objCVSmall.scale.z = 2;
     });
     this.loader.load("assets/Model/HV.json", O => {
       this.objHV = O; this.RenderStructures();
@@ -74,15 +93,82 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
       this.objSV.scale.y = 10;
       this.objSV.scale.z = 10;
     });
+    this.loader.load("assets/Model/Player.json", O => {
+      this.objPlayer = O; this.RenderPlayers();
+      this.objPlayer.scale.x = 4;
+      this.objPlayer.scale.y = 4;
+      this.objPlayer.scale.z = 4;
+    });
+
+    mStructureService.GetCurrentStructure().subscribe(S => this.HighlightCurrentStructure(S));
+    mPlayerService.GetCurrentPlayer().subscribe(P => this.HighlightCurrentPlayer(P));
   }
 
   ngOnInit() {
   }
 
-  RenderStructures(): any {
-    if (!this.rerender || !this.objBASpace || !this.objCVSmall || !this.objHV || !this.objSV || !this.Structures || !this.Structures.length) return;
+  HighlightCurrentStructure(structure: GlobalStructureInfo) {
+    if (this.lastCurrentStructure) {
+      this.ChangeColor(this.lastCurrentStructure.object, M => {
+        M.material = M.userData.saveMaterial;
+        return true;
+      });
+    }
+    this.lastCurrentStructure = null;
 
-    this.rerender = false;
+    if (!structure || !this.StructureObjectView) return;
+
+    let Found = this.StructureObjectView.find(S => S.id == structure.id);
+    if (!Found) return;
+
+    this.ChangeColor(Found.object, M => {
+      M.userData.saveMaterial = M.material;
+      M.material = new THREE.MeshBasicMaterial({ color: new Color(0x007f00) });
+      return true;
+    });
+
+    this.lastCurrentStructure = { structure: structure, object: Found.object };
+  }
+
+  HighlightCurrentPlayer(Player: PlayerModel) {
+    if (this.lastCurrentPlayer) {
+      this.ChangeColor(this.lastCurrentPlayer.object, M => {
+        M.material = M.userData.saveMaterial;
+        return true;
+      });
+    }
+    this.lastCurrentPlayer = null;
+
+    if (!Player || !this.PlayerObjectView) return;
+
+    let Found = this.PlayerObjectView.find(S => S.steamId == Player.SteamId);
+    if (!Found) return;
+
+    this.ChangeColor(Found.object, M => {
+      M.userData.saveMaterial = M.material;
+      M.material = new THREE.MeshBasicMaterial({ color: new Color(0x007f00) });
+      return true;
+    });
+
+    this.lastCurrentPlayer = { player: Player, object: Found.object };
+  }
+
+  ChangeColor(aObject: Object3D, aChange: (M: THREE.Mesh) => boolean): any {
+    let S = aObject as THREE.Scene;
+    if (S) {
+      let changed = false;
+      S.children.map(C => {
+        let MC = C as THREE.Mesh;
+        if (MC && aChange(MC)) changed = true;
+      });
+      if (changed) this.renderer.render();
+    }
+  }
+
+  RenderStructures(): any {
+    if (!this.rerenderStructures || !this.objPlayer || !this.objBASpace || !this.objCVSmall || !this.objHV || !this.objSV || !this.Structures) return;
+
+    this.rerenderStructures = false;
     this.StructureObjectView.map(O => this.scene.removeChild(O.object));
     this.StructureObjectView = [];
 
@@ -105,17 +191,76 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
         insertStructure.position.y = S.pos.y / 5;
         insertStructure.position.z = S.pos.z / 5;
 
+        insertStructure.userData.tooltipText = (S.FactionName ? "(" + S.FactionName + ") " : "") + S.name;
+
         this.StructureObjectView.push({ id: S.id, object: insertStructure });
 
         this.scene.addChild(insertStructure);
       }
     });
 
+    this.HighlightCurrentStructure(this.mStructureService.CurrentStructure);
+
     this.renderer.render();
+  }
+
+  RenderPlayers(): any {
+    if (!this.rerenderPlayers || !this.objPlayer || !this.Players) return;
+
+    this.rerenderPlayers = false;
+    this.PlayerObjectView.map(O => this.scene.removeChild(O.object));
+    this.PlayerObjectView = [];
+
+    this.Players.map(P => {
+      let insertPlayer: THREE.Object3D = P.Online ? this.objPlayer : this.objPlayer;
+
+      if (insertPlayer) {
+
+        insertPlayer = insertPlayer.clone();
+        insertPlayer.position.x = P.Pos.x / 5;
+        insertPlayer.position.y = P.Pos.y / 5;
+        insertPlayer.position.z = P.Pos.z / 5;
+
+        insertPlayer.userData.tooltipText = P.PlayerName;
+
+        this.PlayerObjectView.push({ steamId: P.SteamId, object: insertPlayer });
+
+        this.scene.addChild(insertPlayer);
+      }
+    });
+
+    this.HighlightCurrentPlayer(this.mPlayerService.CurrentPlayer);
+
+    this.renderer.render();
+  }
+
+  selectedTargets(selected: MouseIntersection) {
+    this.ToolTipText = null;
+    let Found = selected.targets[0].object;
+    while (Found && !Found.userData.tooltipText) {
+      Found = Found.parent;
+    }
+    if (!Found) return;
+
+    if (selected.event.type == "click") {
+      let FoundStructure = this.StructureObjectView.find(S => S.object == Found);
+      if (FoundStructure) this.mStructureService.CurrentStructure = this.Structures.find(S => S.id == FoundStructure.id);
+
+      let FoundPlayer = this.PlayerObjectView.find(S => S.object == Found);
+      if (FoundPlayer) this.mPlayerService.CurrentPlayer = this.Players.find(S => S.SteamId == FoundPlayer.steamId);
+    }
+
+    let canvasBounds = this.renderer.canvas.getBoundingClientRect();
+
+    this.ToolTipText = Found.userData.tooltipText;
+    this.ToolTipX = (selected.event.clientX - canvasBounds.left) + "px";
+    this.ToolTipY = (selected.event.clientY - canvasBounds.top)  + "px";
   }
 
   ngAfterViewInit() {
     setTimeout(() => this.scene.InitChilds(), 1);
-    setTimeout(() => { this.rerender = true; this.renderer.startRendering(); }, 2);
+    setTimeout(() => { this.rerenderStructures = true; this.rerenderPlayers = true; this.renderer.startRendering(); }, 2);
   }
+
 }
+

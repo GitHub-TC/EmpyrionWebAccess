@@ -1,7 +1,12 @@
-import { Directive, Input, forwardRef, HostListener, SimpleChanges } from '@angular/core';
+import { Directive, Input, forwardRef, HostListener, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { AbstractCamera } from './abstract-camera';
 import * as THREE from 'three';
 import { WebGLRendererComponent } from '../renderer/webgl-renderer.component';
+
+export class MouseIntersection {
+  public event: MouseEvent;
+  public targets: THREE.Intersection[];
+}
 
 @Directive({
   selector: 'three-perspective-camera',
@@ -9,7 +14,10 @@ import { WebGLRendererComponent } from '../renderer/webgl-renderer.component';
 })
 export class PerspectiveCameraDirective extends AbstractCamera<THREE.PerspectiveCamera> {
   private _renderer: WebGLRendererComponent;
-  // @Input() cameraTarget: THREE.Object3D;
+  @Output() cameraTargets = new EventEmitter<MouseIntersection>();
+
+  selectedObject = null;
+  raycaster = new THREE.Raycaster();
 
   _fov: number;
   _near: number;
@@ -36,8 +44,8 @@ export class PerspectiveCameraDirective extends AbstractCamera<THREE.Perspective
   @Input() set positionZ(n: number) { this._positionZ = n; this.UpdateCamera(); }
 
   constructor() {
-    console.log('PerspectiveCameraDirective.constructor');
     super();
+    console.log('PerspectiveCameraDirective.constructor');
   }
 
   protected afterInit(): void {
@@ -52,6 +60,24 @@ export class PerspectiveCameraDirective extends AbstractCamera<THREE.Perspective
 
     // Set position and look at
     this.UpdateCamera();
+    window.addEventListener("mousemove", E => this.onDocumentMouseEvent(E), false);
+    window.addEventListener("click",     E => this.onDocumentMouseEvent(E), false);
+  }
+
+  onDocumentMouseEvent(event: MouseEvent) {
+    if (!this._renderer.isViewInitialized) return;
+
+    let bounds = this._renderer.canvas.getBoundingClientRect()
+    let mouse = new THREE.Vector2();
+    mouse.x =   ((event.clientX - bounds.left) / this._renderer.canvas.clientWidth) * 2 - 1;
+    mouse.y = - ((event.clientY - bounds.top) / this._renderer.canvas.clientHeight) * 2 + 1;
+    this.raycaster.setFromCamera(mouse, this.camera);
+    var intersects = this.raycaster.intersectObjects(this._renderer.scene.children, true);
+    if (intersects.length > 0) {
+      event.preventDefault();
+      //console.log("Objects:" + intersects.length);
+      this.cameraTargets.emit({ event: event, targets: intersects });
+    }
   }
 
   public get rotation() {

@@ -30,6 +30,7 @@ export class WebGLRendererComponent implements AfterViewInit {
 
   @ContentChildren(SceneDirective) sceneComponents: QueryList<SceneDirective>; // TODO: Multiple scenes
   @ContentChildren(AbstractCamera) cameraComponents: QueryList<AbstractCamera<THREE.Camera>>; // TODO: Multiple cameras
+    sceneComponent: SceneDirective;
 
   constructor() {
     console.log('RendererComponent.constructor');
@@ -62,7 +63,7 @@ export class WebGLRendererComponent implements AfterViewInit {
     return this.canvasRef;
   }
 
-  private get canvas(): HTMLCanvasElement {
+  public get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;
   }
 
@@ -89,14 +90,22 @@ export class WebGLRendererComponent implements AfterViewInit {
     // if (this.sceneComponents != undefined && this.sceneComponents.length == 1 &&
     //     this.cameraComponents != undefined && this.cameraComponents.length == 1) {
     if (this.viewInitialized) {
-      const sceneComponent = this.sceneComponents.first;
+      this.sceneComponent = this.sceneComponents.first;
       const cameraComponent = this.cameraComponents.first;
       // console.log("render");
       // console.log(scene.getObject());
       // console.log(camera.camera);
-      this.renderer.render(sceneComponent.getObject(), cameraComponent.camera);
+      this.renderer.render(this.sceneComponent.getObject(), cameraComponent.camera);
     }
     // }
+  }
+
+  public get isViewInitialized() {
+    return this.viewInitialized;
+  }
+
+  public get scene() {
+    return this.sceneComponent.getObject();
   }
 
   private calculateAspectRatio(): number {

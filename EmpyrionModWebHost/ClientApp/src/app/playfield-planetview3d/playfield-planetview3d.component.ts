@@ -60,7 +60,7 @@ export class PlayfieldPlanetview3dComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    let PoleSkip = (Math.PI / 180) * 10;
+    let PoleSkip = (Math.PI / 180) * 36.87 / 2;
     this.geometryPlanetMap = new THREE.SphereBufferGeometry(200, 40, 40, 0, Math.PI * 2, PoleSkip, Math.PI - 2 * PoleSkip);
     let geometryPole = new THREE.SphereBufferGeometry(199.5, 40, 40);
     let materialPole = new THREE.MeshLambertMaterial({ color: new Color(0xffffff) });
