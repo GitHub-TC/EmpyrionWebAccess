@@ -74,6 +74,9 @@ export class PlayfieldSpaceview3dComponent implements OnInit {
     });
     this.loader.load("assets/Model/CV.json", O => {
       this.objCV = O; this.RenderStructures();
+      this.objCV.scale.x = 6;
+      this.objCV.scale.y = 6;
+      this.objCV.scale.z = 6;
     });
     this.loader.load("assets/Model/CVMedium.json", O => {
       this.objCVMedium = O; this.RenderStructures();
