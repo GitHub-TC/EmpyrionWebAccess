@@ -51,7 +51,7 @@ export class PlayfieldViewComponent implements OnInit {
     { w: 16400,  h: 10200 },
     { w: 32800,  h: 20200 }
   ];
-  AllDisplay: string = "POn,POff,BA,CV,SV,HV";
+  AllDisplay: string = "POn,POff,BA,CV,SV,HV,AstVoxel";
   mDisplay: string[] = this.AllDisplay.split(",");
   mWipeData: string[] = [];
   error: any;
@@ -91,9 +91,6 @@ export class PlayfieldViewComponent implements OnInit {
 
   ngAfterViewInit() {
     this.SelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
-
-    this.UpdateSelectedPlayfieldPlayers();
-    this.UpdateSelectedPlayfieldStructures();
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
@@ -103,10 +100,12 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   UpdateSelectedPlayfieldStructures() {
+    if (!this.PlayfieldStructures) return;
     this.SelectedPlayfieldStructures = this.PlayfieldStructures.filter(S => this.isSelected(S.TypeName));
   }
 
   UpdateSelectedPlayfieldPlayers() {
+    if (!this.PlayfieldPlayers) return;
     this.SelectedPlayfieldPlayers = this.PlayfieldPlayers.filter(P => this.isSelected(P.Online ? 'POn' : 'POff'));
   }
 
@@ -122,7 +121,10 @@ export class PlayfieldViewComponent implements OnInit {
     this.SelectedPlayfield = this.Playfields.find(P => P.name == aPlayfieldName);
 
     this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield == aPlayfieldName);
-    this.PlayfieldPlayers    = this.mAllPlayers.filter(P => P.Playfield == this.SelectedPlayfieldName);
+    this.PlayfieldPlayers = this.mAllPlayers.filter(P => P.Playfield == this.SelectedPlayfieldName);
+
+    this.UpdateSelectedPlayfieldPlayers();
+    this.UpdateSelectedPlayfieldStructures();
   }
 
   CalcLeft(aPos: PVector3) {
@@ -159,6 +161,7 @@ export class PlayfieldViewComponent implements OnInit {
       case "CV": return "local_play";
       case "SV": return "flight";
       case "HV": return "directions_car";
+      case "AstVoxel": return "star";
       default: return "place";
     }
   }

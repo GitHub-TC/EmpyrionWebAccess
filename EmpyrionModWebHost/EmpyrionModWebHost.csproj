@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>3.0.1</Version>
+    <Version>3.0.5</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -83,6 +83,7 @@
     <None Remove="ClientApp\src\app\model\systeminfo-mock.ts" />
     <None Remove="ClientApp\src\app\model\systeminfo-model.ts" />
     <None Remove="ClientApp\src\app\pipes\KeysPipe.ts" />
+    <None Remove="ClientApp\src\app\playfield-view3d\playfield-view3d.ts" />
     <None Remove="ClientApp\src\app\three-js\js\LegacyJSONLoader.js" />
     <None Remove="EmpyrionWebAccess.pfx" />
   </ItemGroup>
@@ -134,6 +135,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\model\ODataResponse.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-mock.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\model\player-model.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\playfield-view3d\playfield-view3d.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\three-js\js\LegacyJSONLoader.js" />
   </ItemGroup>
 

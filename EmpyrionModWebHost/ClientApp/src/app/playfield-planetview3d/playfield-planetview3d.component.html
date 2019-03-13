@@ -1,6 +1,7 @@
 <three-orbit-controls [rotateSpeed]=1 [zoomSpeed]=1.2 [listeningControlElement]=mainRenderer.renderPane>
   <three-webgl-renderer #mainRenderer>
     <three-perspective-camera #mainCamera
+                              (cameraTargets)="selectedTargets($event)"
                               [renderer]="mainRenderer"
                               [fov]=60 [near]=1 [far]=100000
                               [positionX]="cameraX" [positionY]="cameraY" [positionZ]="cameraZ">
@@ -19,3 +20,4 @@
     </three-scene>
   </three-webgl-renderer>
 </three-orbit-controls>
+<div class="StructureTooltip" [hidden]="!ToolTipText" [style.left]="ToolTipX" [style.top]="ToolTipY">{{ToolTipText}}</div>

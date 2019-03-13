@@ -56,7 +56,7 @@
         <div style="position:relative; overflow:auto" [style.zoom]="ZoomValue" *ngIf="SelectedPlayfield">
           <div #MapImage style="width:1024px;" [style.height]="SelectedPlayfield.isPlanet ? '512px' : '1024px'">
             <ng-container *ngIf="!View2D">
-              <app-playfield-planetview3d *ngIf="SelectedPlayfield.isPlanet" [PlanetSurfacePNG]="MapUrl"></app-playfield-planetview3d>
+              <app-playfield-planetview3d *ngIf="SelectedPlayfield.isPlanet" [Structures]="SelectedPlayfieldStructures" [Players]="SelectedPlayfieldPlayers" [PlayfieldSize]="SelectedPlayfield?.size" [PlanetSurfacePNG]="MapUrl"></app-playfield-planetview3d>
               <app-playfield-spaceview3d *ngIf="!SelectedPlayfield.isPlanet" [Structures]="SelectedPlayfieldStructures" [Players]="SelectedPlayfieldPlayers"></app-playfield-spaceview3d>
             </ng-container>
             <ng-container *ngIf="View2D">
@@ -107,6 +107,10 @@
         <mat-checkbox (change)="$event ? selectionToggle('HV') : null"
                       [checked]="isSelected('HV')">
           <mat-icon>directions_car</mat-icon> HV
+        </mat-checkbox><br />
+        <mat-checkbox (change)="$event ? selectionToggle('AstVoxel') : null"
+                      [checked]="isSelected('AstVoxel')">
+          <mat-icon>star</mat-icon> Asteroid
         </mat-checkbox><br />
       </mat-card>
       <mat-card *ngIf="View2D">

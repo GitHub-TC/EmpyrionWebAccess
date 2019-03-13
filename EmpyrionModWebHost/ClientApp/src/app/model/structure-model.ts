@@ -1,6 +1,6 @@
 import { PVector3 } from "./player-model";
 
-  export class GlobalStructureInfo
+export class GlobalStructureInfo
   {
     id: number;
     playfield?: string;
@@ -18,11 +18,11 @@ import { PVector3 } from "./player-model";
     name?: string;
     factionId?: number;
     factionGroup?: number;
-    FactionGroup: string;
-    FactionName: string;
+    FactionGroup?: string;
+    FactionName?: string;
     type?: number;
     TypeName: string;
     coreType?: number;
-    CoreName: string;
+    CoreName?: string;
     pilotId?: number;
 }
