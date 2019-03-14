@@ -65,33 +65,36 @@ export class PlayfieldPlanetview3dComponent extends PlayfieldView3D  {
     });
     this.loader.load("assets/Model/CV/CV.json", O => {
       this.objCV = O; this.RenderStructures();
-      this.objCV.scale.x = 6;
-      this.objCV.scale.y = 6;
-      this.objCV.scale.z = 6;
     });
     this.loader.load("assets/Model/CVMedium/CV.json", O => {
       this.objCVMedium = O; this.RenderStructures();
-      this.objCVMedium.scale.x = .5;
-      this.objCVMedium.scale.y = .5;
-      this.objCVMedium.scale.z = .5;
+      this.objCVMedium.scale.x = .7;
+      this.objCVMedium.scale.y = .7;
+      this.objCVMedium.scale.z = .7;
     });
     this.loader.load("assets/Model/CVSmall/CV.json", O => {
       this.objCVSmall = O; this.RenderStructures();
+      this.objCVSmall.scale.x = .5;
+      this.objCVSmall.scale.y = .5;
+      this.objCVSmall.scale.z = .5;
     });
     this.loader.load("assets/Model/HV.json", O => {
       this.objHV = O; this.RenderStructures();
+      this.objHV.scale.x = 2;
+      this.objHV.scale.y = 2;
+      this.objHV.scale.z = 2; 
     });
     this.loader.load("assets/Model/SV.json", O => {
       this.objSV = O; this.RenderStructures();
-      //this.objSV.scale.x = 10;
-      //this.objSV.scale.y = 10;
-      //this.objSV.scale.z = 10;
+      this.objSV.scale.x = 2;
+      this.objSV.scale.y = 2;
+      this.objSV.scale.z = 2;
     });
     this.loader.load("assets/Model/Player/Player.json", O => {
       this.objPlayer = O; this.RenderPlayers();
-      //this.objPlayer.scale.x = 4;
-      //this.objPlayer.scale.y = 4;
-      //this.objPlayer.scale.z = 4;
+      this.objPlayer.scale.x = 2;
+      this.objPlayer.scale.y = 2;
+      this.objPlayer.scale.z = 2;
     });
     this.loader.load("assets/Model/Asteroid.json", O => {
       this.objAsteroid = O; this.RenderStructures();
@@ -100,34 +103,20 @@ export class PlayfieldPlanetview3dComponent extends PlayfieldView3D  {
 
   SetStructurePos(aObject: THREE.Object3D, S: GlobalStructureInfo): any {
     let pos = this.NormESGPos(S.pos);
-    let phi   = (Math.PI * 2 / this.PlanetSize[this.PlayfieldSize].w) * pos.x;
-    let theta = this.PI2 - (this.PI2 / this.PlanetSize[this.PlayfieldSize].h) * pos.z;
-    let vec = new THREE.Vector3(
-      this.radius * Math.sin(theta) * Math.cos(phi),
-      this.radius * Math.cos(theta),
-      this.radius * Math.sin(theta) * Math.sin(phi)
-    );
-    aObject.position.x = vec.x;
-    aObject.position.z = vec.z;
-    aObject.position.y = vec.y;
-    aObject.rotateY(this.PI2 - phi);
-    aObject.rotateX(theta)
+    aObject.position.x = pos.vec.x;
+    aObject.position.z = pos.vec.z;
+    aObject.position.y = pos.vec.y;
+    aObject.rotateY(this.PI2 - pos.phi);
+    aObject.rotateX(pos.theta)
   }
 
   SetPlayerPos(aObject: THREE.Object3D, P: PlayerModel): any {
     let pos = this.NormESGPos(P.Pos);
-    let phi = (Math.PI * 2 / this.PlanetSize[this.PlayfieldSize].w) * pos.x;
-    let theta = this.PI2 - (this.PI2 / this.PlanetSize[this.PlayfieldSize].h) * pos.z;
-    let vec = new THREE.Vector3(
-      this.radius * Math.sin(theta) * Math.cos(phi),
-      this.radius * Math.cos(theta),
-      this.radius * Math.sin(theta) * Math.sin(phi)
-    );
-    aObject.position.x = vec.x;
-    aObject.position.z = vec.z;
-    aObject.position.y = vec.y;
-    aObject.rotateY(this.PI2 - phi);
-    aObject.rotateX(theta)
+    aObject.position.x = pos.vec.x;
+    aObject.position.z = pos.vec.z;
+    aObject.position.y = pos.vec.y;
+    aObject.rotateY(this.PI2 - pos.phi);
+    aObject.rotateX(pos.theta)
   }
 
   ngAfterViewInit() {
@@ -140,15 +129,20 @@ export class PlayfieldPlanetview3dComponent extends PlayfieldView3D  {
     this.scene.addChild(meshPole);
   }
 
-  NormESGPos(aPos: PVector3) : THREE.Vector3 {
+  NormESGPos(aPos: PVector3) {
     let X = aPos.x;
     let Width2 = this.PlanetSize[this.PlayfieldSize].w / 2;
     if (X < -Width2) X = 2 * this.PlanetSize[this.PlayfieldSize].w + X;
 
-    let Width = 1024 / 2;
-    X = (Width / 2) + ((Width / this.PlanetSize[this.PlayfieldSize].w) * X);
+    let phi   = -(-this.PI2 + (Math.PI / this.PlanetSize[this.PlayfieldSize].w) * X);
+    let theta = this.PI2 - (this.PI2 / this.PlanetSize[this.PlayfieldSize].h) * aPos.z;
 
-    return new THREE.Vector3(X, aPos.y, aPos.z);
+    return {
+      phi: phi, theta: theta, vec: new THREE.Vector3(
+        this.radius * Math.sin(theta) * Math.cos(phi),
+        this.radius * Math.cos(theta),
+        this.radius * Math.sin(theta) * Math.sin(phi)
+      )};
   }
 
 }

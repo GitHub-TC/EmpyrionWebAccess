@@ -104,6 +104,13 @@ Hinweis: Um eine Karte des Playfields einblenden zu können muss diese map.png e
 \\MODs\\EWA\\Maps\\\[Playfield\]\\map.png 
 Verzeichnis kopiert werden
 
+Das Playfield kann in einer 2D und einer 3D Ansicht angezeigt werden
+![](EmpyrionModWebHost/Screenshots/Planet3DView.png)
+![](EmpyrionModWebHost/Screenshots/Orbit3DView.png)
+
+![](EmpyrionModWebHost/Screenshots/OrbitView.png)
+Hinweis: Bei der 2D Orbitalansicht wird das aktuelle Bild der http://hubblesite.org/ als Hintergrund eingeblendet angezeigt.
+
 ## History
 ![](EmpyrionModWebHost/Screenshots/HistoryBook.png)
 

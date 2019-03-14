@@ -148,7 +148,7 @@ export class PlayfieldViewComponent implements OnInit {
     if (!this.MapImage) return "0px";
 
     let Height = this.MapImage.nativeElement.clientHeight / 2;
-    return (Height - ((Height / this.PlanetSize[this.SelectedPlayfield.size].h) * aPos.z)) + "px";
+    return ((Height - (((Height + 70) / this.PlanetSize[this.SelectedPlayfield.size].h) * aPos.z)) - 20) + "px";
   }
 
   SelectStructure(aStructur: GlobalStructureInfo) {
