@@ -78,7 +78,6 @@ export class PlayfieldSpaceview3dComponent extends PlayfieldView3D {
 
   ngAfterViewInit() {
     super.ngAfterViewInit();
-    setTimeout(() => this.renderer.scene.background = new Color("lightgray"), 3);
   }
 }
 

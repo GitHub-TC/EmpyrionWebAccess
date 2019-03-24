@@ -124,7 +124,7 @@ export class PlayfieldPlanetview3dComponent extends PlayfieldView3D  {
     let PoleSkip = (Math.PI / 180) * 36.87 / 2;
     this.geometryPlanetMap = new THREE.SphereBufferGeometry(this.radius, 40, 40, 0, Math.PI * 2, PoleSkip, Math.PI - 2 * PoleSkip);
     let geometryPole = new THREE.SphereBufferGeometry(this.radius - 0.5, 40, 40);
-    let materialPole = new THREE.MeshLambertMaterial({ color: new Color(0xffffff) });
+    let materialPole = new THREE.MeshBasicMaterial({ color: new Color(0xffffff) });
     let meshPole = new THREE.Mesh(geometryPole, materialPole);
     this.scene.addChild(meshPole);
   }

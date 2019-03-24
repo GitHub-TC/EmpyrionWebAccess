@@ -171,7 +171,7 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult Delete(int id)
         {
             var user = UserService.GetById(id);
-            if (user.Role <= UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+            if (UserService.CurrentUser.Role != Role.ServerAdmin && user.Role <= UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
             UserService.Delete(id);
             return Ok();
         }

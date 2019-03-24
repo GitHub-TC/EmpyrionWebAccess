@@ -293,6 +293,7 @@ export class PlayfieldView3D {
       this.rerenderPlayers    = true;
       this.renderer.startRendering();
     }, 2);
+    setTimeout(() => this.renderer.scene.background = new Color("lightgray"), 3);
   }
 
 }
