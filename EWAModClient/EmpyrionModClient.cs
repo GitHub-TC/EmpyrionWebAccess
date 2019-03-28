@@ -195,8 +195,11 @@ namespace EWAModClient
             Directory.CreateDirectory(Path.GetDirectoryName(aEWAConfigFile));
             Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(aEWAConfigFile), "DB"));
 
+            var Secret = new int[5].Aggregate("", (S, I) => S + Guid.NewGuid().ToString("D"));
+
             File.WriteAllText(aEWAConfigFile,
                 File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "appsettings.json"))
+                .Replace("{Secret}", Secret)
                 .Replace("{LocalIp}", LocalIp)
                 .Replace("{Domain}", Domain)
                 .Replace("{Host}", Host)
