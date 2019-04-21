@@ -187,6 +187,20 @@ Zunächst muss der ModLoader installiert werden. Danach können die gewünschten
 Hinweis: Um Änderungen an den Mods zu übernehmen muss der ModLoader gestoppt und erneut gestartet werden. 
 In der Zwischenzeit sind alle installierten Mods des ModLoaders vom Spiel aus nicht erreichbar.
 
+### Konfigurations von MODs
+Mods können über eine Steuerdatei (ModAppConfig.json) den Pfad zu ihrer Konfiguration hinterlegen. Diese wird dann vom EWA zum Ändern (das Zahnradsymbol) angeboten.
+
+![](EmpyrionModWebHost/Screenshots/ModAppConfigJson.png)
+
+```
+z.B.
+[EGS]\Content\Mods\ModLoader\MODs\VotingRewardMod\ModAppConfig.json
+
+{
+  "ModConfigFile": "VotingReward/Configuration.json"
+}
+```
+
 ### Unterstützte MOD Dateien
 * Eine einfache DLL
 * Eine ZIP Datei mit den Dateien einer Mod und deren Unterverzeichnissen - ggf. muss hier noch die richtige DLL ausgewählt werden
@@ -263,7 +277,6 @@ https://github.com/GitHub-TC/EmpyrionModHost
 # Was kommt noch?
 * VirtualAutominer 
 * ChatBot Hilfsbefehle
-* CombatLog
 * ...
 * was wir/ich sonst noch so brauchen :-)
 
