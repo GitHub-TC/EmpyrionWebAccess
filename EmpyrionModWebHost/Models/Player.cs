@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EmpyrionNetAPITools;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 
@@ -17,10 +18,11 @@ namespace EmpyrionModWebHost.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+            var ewaDbPath = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB");
+            Directory.CreateDirectory(ewaDbPath);
             optionsBuilder.UseSqlite(
                 DBFile == null
-                ? $"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Players.db"
+                ? $"Filename={ewaDbPath}/Players.db"
                 : $"Filename={DBFile}");
         }
 

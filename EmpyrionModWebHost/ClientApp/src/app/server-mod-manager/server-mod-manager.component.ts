@@ -8,6 +8,7 @@ export class ModData {
   name: string;
   possibleNames: string[];
   active: boolean;
+    configurationType: string;
 }
 
 @Component({
@@ -18,6 +19,10 @@ export class ModData {
 export class ServerModManagerComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Mods: ModData[] = [];
+  _SelectedModConfig: ModData;
+  get SelectedModConfig() : ModData { return this._SelectedModConfig; }
+  ShortModName: string;
+  selectedMatTabIndex: number = 0;
   error: any;
   IsModLoaderInstalled: string;
   ModsStarted: boolean;
@@ -138,6 +143,18 @@ export class ServerModManagerComponent implements OnInit {
         if (!YesNoData.result) return;
         this.http.post("Mod/DeleteMod", aMod).subscribe(M => this.ModInfos(), error => this.error = error);
       });
+  }
+
+  set SelectedModConfig(selected: ModData) {
+    this._SelectedModConfig = selected;
+    this.ShortModName = selected.name;
+
+    if (!this.ShortModName) return;
+    let p = this.ShortModName.lastIndexOf(".");
+    if(p >= 0) this.ShortModName = this.ShortModName.substr(0, p);
+
+    p = Math.max(this.ShortModName.lastIndexOf("/"), this.ShortModName.lastIndexOf("\\"));
+    if (p >= 0) this.ShortModName = this.ShortModName.substr(p + 1);
   }
 
   onUploaded() {

@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using Eleon.Modding;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Services;
+using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNetCore;
@@ -48,7 +49,7 @@ namespace EmpyrionModWebHost
         {
             try
             {
-                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
+                Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB"));
 
                 Application = CreateWebHostBuilder(args).Build();
 
@@ -76,7 +77,7 @@ namespace EmpyrionModWebHost
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
                 config.AddJsonFile("appsettings.json", optional: true)
-                      .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "appsettings.json"), optional: true);
+                      .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true);
                 config.AddEnvironmentVariables();
             })
             .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(

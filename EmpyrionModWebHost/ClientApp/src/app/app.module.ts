@@ -9,6 +9,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { OWL_DATE_TIME_LOCALE } from 'ng-pick-datetime';
+import { NgJsonEditorModule } from 'ang-jsoneditor';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -53,6 +54,7 @@ import { ThreeJsModule } from './three-js/three-js.module';
 import { PlayerNoteComponent } from './player-note/player-note.component';
 import { PlayfieldPlanetview3dComponent } from './playfield-planetview3d/playfield-planetview3d.component';
 import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield-spaceview3d.component';
+import { ModConfigurationComponent } from './mod-configuration/mod-configuration.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +97,8 @@ import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield
     GalaxyMapComponent,
     PlayerNoteComponent,
     PlayfieldPlanetview3dComponent,
-    PlayfieldSpaceview3dComponent
+    PlayfieldSpaceview3dComponent,
+    ModConfigurationComponent
   ],
   imports: [
     BrowserModule,
@@ -110,6 +113,7 @@ import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
     ThreeJsModule,
+    NgJsonEditorModule,
   ],
   entryComponents: [
     WarpDialogComponent,          WarpDialogContentComponent,

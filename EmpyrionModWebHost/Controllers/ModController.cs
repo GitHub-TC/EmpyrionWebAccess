@@ -12,6 +12,8 @@ using System.Diagnostics;
 using EmpyrionModWebHost.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using EmpyrionModWebHost.Models;
+using EmpyrionNetAPITools;
+using EmpyrionModWebHost.Services;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -134,7 +136,8 @@ namespace EmpyrionModWebHost.Controllers
             public string[] possibleNames { get; set; }
             public bool active { get; set; }
             public string infos { get; set; }
-
+            public bool withConfiguration { get; set; }
+            public string configurationType { get; internal set; }
         }
 
         [HttpGet("ModInfos")]
@@ -145,13 +148,16 @@ namespace EmpyrionModWebHost.Controllers
                 .Select(L =>
                 {
                     var ModDll = L.Length > ModsInstallPath.Length ? L.Substring(ModsInstallPath.Length + (L.StartsWith("#") ? 1 : 0)) : L;
+                    var modConfig = GetModAppConfig(ModDll);
 
                     return new ModData()
                     {
-                        active          = !L.StartsWith("#"),
-                        name            = ModDll,
-                        possibleNames   = ReadPossibleDLLs(ModDll),
-                        infos           = ReadDllInfos(Path.Combine(ModLoaderHostPath, ModsInstallPath, ModDll))
+                        active            = !L.StartsWith("#"),
+                        name              = ModDll,
+                        possibleNames     = ReadPossibleDLLs(ModDll),
+                        infos             = ReadDllInfos(Path.Combine(ModLoaderHostPath, ModsInstallPath, ModDll)),
+                        withConfiguration = modConfig != null,
+                        configurationType = modConfig != null ? Path.GetExtension(modConfig.Current.ModConfigFile).Substring(1).ToLower() : null,
                     };
                 }).ToArray();
         }
@@ -246,6 +252,84 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(); 
         }
 
+        public class ModAppConfig
+        {
+            public string ModConfigFile { get; set; }
+        }
+
+        [HttpGet("GetModConfig/{modDllName}")]
+        public IActionResult GetModConfig(string modDllName)
+        {
+            var modConfig = GetModAppConfig(modDllName);
+            if (modConfig == null) return NotFound();
+
+            var modConfigFile = Path.Combine(EmpyrionConfiguration.SaveGameModPath, modConfig.Current.ModConfigFile);
+            if (!System.IO.File.Exists(modConfigFile)) return NotFound();
+
+
+            DateTimeOffset? LastModified = new DateTimeOffset(System.IO.File.GetLastWriteTime(modConfigFile));
+
+            return PhysicalFile(
+                modConfigFile,
+                "application/" + Path.GetExtension(modConfigFile).Substring(1).ToLower(),
+                Path.GetFileName(modConfigFile),
+                LastModified,
+                new Microsoft.Net.Http.Headers.EntityTagHeaderValue("\"" + ETagGenerator.GetETag(modConfigFile, System.IO.File.ReadAllBytes(modConfigFile)) + "\""),
+                true
+                );
+        }
+
+        [HttpPost("UploadModConfigFile/{modDllName}")]
+        [DisableRequestSizeLimit]
+        public IActionResult UploadModConfigFile(string modDllName)
+        {
+            Program.CreateTempPath();
+
+            foreach (var file in Request.Form.Files)
+            {
+                try { Directory.Delete(Path.Combine(ModLoaderHostPath, "Temp"), true); } catch { }
+                Thread.Sleep(1000);
+                try { Directory.CreateDirectory(Path.Combine(ModLoaderHostPath, "Temp")); } catch { }
+
+                var TargetFile = Path.Combine(ModLoaderHostPath, "Temp", file.Name);
+                using (var ToFile = System.IO.File.Create(TargetFile))
+                {
+                    file.OpenReadStream().CopyTo(ToFile);
+                }
+
+                var modConfig = GetModAppConfig(modDllName);
+                if (modConfig != null) System.IO.File.Copy(TargetFile, Path.Combine(EmpyrionConfiguration.SaveGameModPath, modConfig.Current.ModConfigFile));
+
+                Directory.Delete(Path.Combine(ModLoaderHostPath, "Temp"), true);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("UploadModConfig/{modDllName}")]
+        [DisableRequestSizeLimit]
+        public IActionResult UploadModConfig(string modDllName)
+        {
+            foreach (var key in Request.Form.Keys)
+            {
+                var modConfig = GetModAppConfig(modDllName);
+                if (modConfig != null) System.IO.File.WriteAllText(Path.Combine(EmpyrionConfiguration.SaveGameModPath, modConfig.Current.ModConfigFile), Request.Form[key]);
+            }
+            return Ok();
+        }
+
+        public static ConfigurationManager<ModAppConfig> GetModAppConfig(string modDllPath)
+        {
+            var ModDirName       = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetDirectoryName(modDllPath));
+            var ModAppConfigFile = Path.Combine(ModDirName, "ModAppConfig.json");
+            if (!Directory.Exists(ModDirName) || !System.IO.File.Exists(ModAppConfigFile)) return null;
+
+            var ModAppConfig = new ConfigurationManager<ModAppConfig>() { UseJSON = true, ConfigFilename = ModAppConfigFile };
+            ModAppConfig.Load();
+            return ModAppConfig;
+           
+        }
+
         private void InstallDLLFile(string aDllFile)
         {
             var TargetDir = Path.Combine(ModLoaderHostPath, ModsInstallPath, Path.GetFileNameWithoutExtension(aDllFile));
@@ -260,9 +344,12 @@ namespace EmpyrionModWebHost.Controllers
 
         private void AddToDllNamesIfNotExists(string aDllName)
         {
-           if(System.IO.File.ReadAllLines(DllNamesFile).Any(L => L.Contains(aDllName))) return;
+            var lines = System.IO.File.ReadAllLines(DllNamesFile).ToList();
+            if (lines.Any(L => L.Contains(aDllName))) return;
 
-           System.IO.File.AppendAllLines(DllNamesFile,new[] { $"#{ModsInstallPath}{aDllName}" });
+            lines.Add($"#{ModsInstallPath}{aDllName}");
+
+            System.IO.File.WriteAllLines(DllNamesFile, lines);
         }
 
         private void InstallZipFile(string aZipFile)

@@ -6,6 +6,7 @@ using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Controllers;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
+using EmpyrionNetAPITools;
 using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -200,7 +201,7 @@ namespace EmpyrionModWebHost
                     }
                 });
 
-                var StorePath = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "LetsEncrypt");
+                var StorePath = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "LetsEncrypt");
                 try { Directory.CreateDirectory(StorePath); } catch { }
 
                 //the following line tells the library to persist the certificate to a file, so that if the server restarts, the certificate can be re-used without generating a new one.

@@ -2,6 +2,7 @@
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
+using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -91,7 +92,7 @@ namespace EmpyrionModWebHost.Controllers
 
             SystemConfig = new ConfigurationManager<SystemConfig>
             {
-                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "SystemConfig.xml")
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "SystemConfig.xml")
             };
             SystemConfig.Load();
         }

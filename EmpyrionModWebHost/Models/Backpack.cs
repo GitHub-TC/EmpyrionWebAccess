@@ -1,4 +1,5 @@
 ﻿using Eleon.Modding;
+using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
@@ -13,8 +14,9 @@ namespace EmpyrionModWebHost.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB"));
-            optionsBuilder.UseSqlite($"Filename={EmpyrionConfiguration.SaveGameModPath}/DB/Backpacks.db");
+            var ewaDbPath = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB");
+            Directory.CreateDirectory(ewaDbPath);
+            optionsBuilder.UseSqlite($"Filename={ewaDbPath}/Backpacks.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,0 +1,4 @@
+<div style="overflow:hidden">
+  <json-editor *ngIf="ModData.configurationType == 'json'" [options]="editorOptions" [data]="ConfigData" (change)="updateData($event)"></json-editor>
+  <textarea matInput *ngIf="ModData.configurationType != 'json'" [(ngModel)]="ConfigData" (ngModelChange)="updateData($event)"></textarea>
+</div>

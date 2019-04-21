@@ -3,10 +3,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
+using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -117,7 +119,7 @@ namespace EmpyrionModWebHost.Controllers
 
             TimetableConfig = new ConfigurationManager<Timetable>
             {
-                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB", "Timetable.xml")
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "Timetable.xml")
             };
             TimetableConfig.Load();
         }
@@ -322,7 +324,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (aAction is TimetableAction MainAction && MainAction.subAction != null)
             {
-                MainAction.subAction.ForEach(A => Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}"));
+                MainAction.subAction.ForEach(async A => await Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}"));
             }
         }
     }
@@ -358,9 +360,9 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpPost("RunThis")]
-        public IActionResult RunThis([FromBody]SubTimetableAction aAction)
+        public async Task<IActionResult> RunThis([FromBody]SubTimetableAction aAction)
         {
-            Program.Host.SaveApiCall(() => TimetableManager.RunThis(aAction), TimetableManager, $"{aAction.actionType}");
+            await Program.Host.SaveApiCall(() => TimetableManager.RunThis(aAction), TimetableManager, $"{aAction.actionType}");
             return Ok();
         }
 

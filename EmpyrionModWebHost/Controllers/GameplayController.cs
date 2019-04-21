@@ -3,6 +3,7 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
+using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

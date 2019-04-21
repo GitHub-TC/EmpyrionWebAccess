@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using EmpyrionModWebHost.Services;
 using System.Security.Claims;
 using System.Collections.Concurrent;
+using EmpyrionNetAPITools;
 
 namespace EmpyrionModWebHost.Controllers
 {

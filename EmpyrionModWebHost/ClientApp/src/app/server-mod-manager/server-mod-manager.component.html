@@ -4,36 +4,48 @@
   </mat-card-title>
   <button (click)="InstallModLoader()">InstallModLoader</button>
 </mat-card>
-<mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
-  <mat-card-title>
-    <h3>Mods</h3>
-    <mat-icon *ngIf="ModsStarted" class="RunState" style="color: red;" (click)="StopMods()" title="Stop all Mods">stop</mat-icon>
-    <mat-icon *ngIf="!ModsStarted" class="RunState" style="color:green;" (click)="StartMods()" title="Start all Mods">play_arrow</mat-icon>
-  </mat-card-title>
-  <div *ngFor="let t of Mods" style="background-color:aliceblue; width:100%; margin-bottom:10px">
-    <mat-checkbox (change)="Save()" [(ngModel)]="t.active" style="margin-left:1em" [disabled]="ModsStarted">Active</mat-checkbox>
-    <mat-form-field style="width:80%; margin-left:1em; margin-right:2em">
-      <mat-select placeholder="Mod DLL" (change)="Save()" [(value)]="t.name" [disabled]="ModsStarted && t.active">
-        <mat-option *ngFor="let a of t.possibleNames" [value]="a">
-          {{a}}
-        </mat-option>
-      </mat-select>
-      <mat-hint align="start"><strong>{{t.infos}}</strong></mat-hint>
-    </mat-form-field>
-    <mat-icon style="cursor:pointer; margin-right:5px;" *ngIf="!ModsStarted || !t.active" (click)="DeleteMod(t)" title="Delete this action">delete</mat-icon>
-  </div>
-  <div style="font-size:x-small; margin-top:1em;">
-    ModLoader:
-    <mat-icon style="cursor:pointer; font-size:small; color:blue;" (click)="DeleteAllMods()" title="Delete ModLoader and mods">delete_forever</mat-icon>
-    {{IsModLoaderInstalled}}
-    <mat-icon style="cursor:pointer; font-size:small; color:blue; margin-right:5px;" *ngIf="!ModsStarted" (click)="InstallModLoader()" title="Update ModLoader">refresh</mat-icon>
-  </div>
-</mat-card>
-<mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
-  <div>
-    <h3>Install or update</h3>
-    <app-file-upload [UploadURL]="'Mod/UploadFile'" [UploadTitle]="'Choose a MOD file (DLL or ZIP)'"  (uploaded)="onUploaded()"></app-file-upload>
-  </div>
-</mat-card>
+<mat-tab-group [(selectedIndex)]="selectedMatTabIndex">
+  <mat-tab label="Installed Mods">
+    <mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
+      <mat-card-title>
+        <h3>Mods</h3>
+        <mat-icon *ngIf="ModsStarted" class="RunState" style="color: red;" (click)="StopMods()" title="Stop all Mods">stop</mat-icon>
+        <mat-icon *ngIf="!ModsStarted" class="RunState" style="color:green;" (click)="StartMods()" title="Start all Mods">play_arrow</mat-icon>
+      </mat-card-title>
+      <div *ngFor="let t of Mods" style="background-color:aliceblue; width:100%; margin-bottom:10px">
+        <mat-checkbox (change)="Save()" [(ngModel)]="t.active" style="margin-left:1em" [disabled]="ModsStarted">Active</mat-checkbox>
+        <mat-form-field style="width:80%; margin-left:1em; margin-right:2em">
+          <mat-select placeholder="Mod DLL" (change)="Save()" [(value)]="t.name" [disabled]="ModsStarted && t.active">
+            <mat-option *ngFor="let a of t.possibleNames" [value]="a">
+              {{a}}
+            </mat-option>
+          </mat-select>
+          <mat-hint align="start"><strong>{{t.infos}}</strong></mat-hint>
+        </mat-form-field>
+        <mat-icon style="cursor:pointer; margin-right:5px;" *ngIf="!ModsStarted || !t.active" (click)="DeleteMod(t)" title="Delete this mod">delete</mat-icon>
+        <mat-icon style="cursor:pointer; margin-right:5px;" *ngIf="t.withConfiguration" (click)="SelectedModConfig = t; selectedMatTabIndex = 1" title="Configurate this mod">settings</mat-icon>
+      </div>
+      <div style="font-size:x-small; margin-top:1em;">
+        ModLoader:
+        <mat-icon style="cursor:pointer; font-size:small; color:blue;" (click)="DeleteAllMods()" title="Delete ModLoader and mods">delete_forever</mat-icon>
+        {{IsModLoaderInstalled}}
+        <mat-icon style="cursor:pointer; font-size:small; color:blue; margin-right:5px;" *ngIf="!ModsStarted" (click)="InstallModLoader()" title="Update ModLoader">refresh</mat-icon>
+      </div>
+    </mat-card>
+    <mat-card style="margin:.5em" *ngIf="IsModLoaderInstalled">
+      <div>
+        <h3>Install or update</h3>
+        <app-file-upload [UploadURL]="'Mod/UploadFile'" [UploadTitle]="'Choose a MOD file (DLL or ZIP)'" (uploaded)="onUploaded()"></app-file-upload>
+      </div>
+    </mat-card>
+  </mat-tab>
+  <mat-tab *ngIf="SelectedModConfig">
+    <ng-template mat-tab-label>
+      <mat-icon style="cursor:pointer;" *ngIf="ModConfig.ChangedData" (click)="ModConfig.Save()" title="Save settings">save</mat-icon>
+      Configuration of&nbsp;<b>{{ShortModName}}</b>
+    </ng-template>
+    <app-mod-configuration #ModConfig [ModData]="SelectedModConfig"></app-mod-configuration>
+  </mat-tab>
+</mat-tab-group>
 <app-yes-no-dialog></app-yes-no-dialog>
 

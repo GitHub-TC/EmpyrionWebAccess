@@ -13,6 +13,7 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using EmpyrionNetAPITools;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -121,7 +122,7 @@ namespace EmpyrionModWebHost.Controllers
     {
         public PlayfieldManager PlayfieldManager { get; }
         public PlayerManager PlayerManager { get; }
-        public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "Maps");
+        public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "Maps");
         public ILogger<PlayfieldController> Logger { get; set; }
         public IUserService UserService { get; }
 
@@ -171,6 +172,7 @@ namespace EmpyrionModWebHost.Controllers
 
             var PlayfieldMap = Path.Combine(
                     EmpyrionConfiguration.SaveGameModPath,
+                    "EWA",
                     "Maps",
                     aPlayfieldname,
                     "map.png");

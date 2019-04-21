@@ -3,6 +3,7 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
+using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -38,7 +39,7 @@ namespace EmpyrionModWebHost.Controllers
             LastGlobalStructureList = new ConfigurationManager<GlobalStructureList>()
             {
                 UseJSON = true,
-                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "DB", "GlobalStructureList.json")
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "GlobalStructureList.json")
             };
             LastGlobalStructureList.Load();
         }

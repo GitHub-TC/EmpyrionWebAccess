@@ -28,7 +28,7 @@ namespace EmpyrionModWebHost
             Logger  = aLogger;
             Plugins = aPlugins;
 
-            Parallel.ForEach(Plugins.OfType<IDatabaseConnect>(), P => SaveApiCall(() => P.CreateAndUpdateDatabase(), P, "CreateAndUpdateDatabase"));
+            Parallel.ForEach(Plugins.OfType<IDatabaseConnect>(), async P => await SaveApiCall(() => P.CreateAndUpdateDatabase(), P, "CreateAndUpdateDatabase"));
 
             InServerMessageHandler = new Dictionary<Type, Action<object>> {
                 { typeof(EmpyrionGameEventData), M => HandleGameEvent               ((EmpyrionGameEventData)M) },
@@ -51,8 +51,8 @@ namespace EmpyrionModWebHost
 
             FromEmpyrion.Callback = Msg => { if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg); };
 
-            Parallel.ForEach(Plugins.OfType<IClientHostCommunication>() , P => SaveApiCall(() => P.ToEmpyrion = ToEmpyrion, P, "ToEmpyrion"));
-            Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Start(this), P, "Game_Start"));
+            Parallel.ForEach(Plugins.OfType<IClientHostCommunication>() , async P => await SaveApiCall(() => P.ToEmpyrion = ToEmpyrion, P, "ToEmpyrion"));
+            Parallel.ForEach(Plugins, async P => await SaveApiCall(() => P.Game_Start(this), P, "Game_Start"));
         }
 
         private void LogOut(string aMsg)
@@ -65,9 +65,9 @@ namespace EmpyrionModWebHost
             //Console.WriteLine($"{aMsg.Command} = {aMsg.Data}");
             switch (aMsg.Command)
             {
-                default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), P => SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
+                default: Parallel.ForEach(Plugins.OfType<IClientHostCommunication>(), async P => await SaveApiCall(() => P.ClientHostMessage(aMsg), P, "ClientHostMessage")); break;
                 case ClientHostCommand.Game_Exit: HandleGameExit(false); break;
-                case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
+                case ClientHostCommand.Game_Update: Parallel.ForEach(Plugins, async P => await SaveApiCall(() => P.Game_Update(), P, "Game_Update")); break;
                 case ClientHostCommand.UpdateEWA: HandleGameExit(true); break;
             }
         }
@@ -76,7 +76,7 @@ namespace EmpyrionModWebHost
         {
             if (!aForce && DateTime.Now - mStartTime < new TimeSpan(0, 0, 30)) return; // Ignore Gamestop in the first 30 seconds
 
-            Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Exit(), P, "Game_Exit"));
+            Parallel.ForEach(Plugins, async P => await SaveApiCall(() => P.Game_Exit(), P, "Game_Exit"));
             if (aForce || !mExposeShutdownHost)
             {
                 Logger.LogInformation("Game_Exit: called");
@@ -89,7 +89,7 @@ namespace EmpyrionModWebHost
         private void HandleGameEvent(EmpyrionGameEventData aMsg)
         {
             var msg = aMsg.GetEmpyrionObject();
-            Parallel.ForEach(Plugins, P => SaveApiCall(() => P.Game_Event(aMsg.eventId, aMsg.seqNr, msg), P, $"CmdId:{aMsg.eventId} seqNr:{aMsg.seqNr} data:{msg}"));
+            Parallel.ForEach(Plugins, async P => await SaveApiCall(() => P.Game_Event(aMsg.eventId, aMsg.seqNr, msg), P, $"CmdId:{aMsg.eventId} seqNr:{aMsg.seqNr} data:{msg}"));
         }
 
         public void Console_Write(string aMsg)
@@ -112,11 +112,11 @@ namespace EmpyrionModWebHost
             return true;
         }
 
-        public void SaveApiCall(Action aCall, object aMod, string aErrorInfo)
+        public async Task SaveApiCall(Action aCall, object aMod, string aErrorInfo)
         {
             try
             {
-                aCall();
+                await Task.Run(aCall);
             }
             catch (Exception Error)
             {
