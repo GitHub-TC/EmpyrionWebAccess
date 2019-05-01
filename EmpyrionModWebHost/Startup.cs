@@ -62,7 +62,7 @@ namespace EmpyrionModWebHost
                     })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddAutoMapper();
+            //services.AddAutoMapper();
             services.AddSignalR();
 
             services.AddExceptionHandlingPolicies(options =>

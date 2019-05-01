@@ -324,7 +324,7 @@ namespace EmpyrionModWebHost.Controllers
             var ModAppConfigFile = Path.Combine(ModDirName, "ModAppConfig.json");
             if (!Directory.Exists(ModDirName) || !System.IO.File.Exists(ModAppConfigFile)) return null;
 
-            var ModAppConfig = new ConfigurationManager<ModAppConfig>() { UseJSON = true, ConfigFilename = ModAppConfigFile };
+            var ModAppConfig = new ConfigurationManager<ModAppConfig>() { ConfigFilename = ModAppConfigFile };
             ModAppConfig.Load();
             return ModAppConfig;
            
@@ -388,6 +388,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             return Directory.EnumerateFiles(aTargetDir)
                 .Select(D => Path.GetFileName(D))
+                .Where(D => Path.GetExtension(D).ToLower() == ".dll")
                 .FirstOrDefault() ?? "???";
         }
 

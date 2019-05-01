@@ -130,12 +130,15 @@ namespace EmpyrionModWebHost.Controllers
                     Player.OnlineHours = 0;
                     Player.Online = true;
                     DB.Players.Add(Player);
-
-                    SendWelcomeMessage(Player);
                 }
                 var count = DB.SaveChanges();
 
-                if (count > 0) PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
+                if (count > 0)
+                {
+                    PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
+                }
+
+                if (IsNewPlayer) SendWelcomeMessage(Player);
             }
         }
 

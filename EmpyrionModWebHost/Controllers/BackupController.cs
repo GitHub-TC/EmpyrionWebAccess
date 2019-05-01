@@ -390,7 +390,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("ReadStructuresDB")]
         public ActionResult<GlobalStructureList> ReadStructuresDB([FromBody]BackupData aSelectBackupDir)
         {
-            var BackupGlobalStructureList = new ConfigurationManager<GlobalStructureList>() { UseJSON = true };
+            var BackupGlobalStructureList = new ConfigurationManager<GlobalStructureList>();
 
             BackupGlobalStructureList.ConfigFilename = Path.Combine(
                 BackupManager.BackupDir, aSelectBackupDir.backup,
