@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Eleon.Modding;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Services;
@@ -54,6 +55,8 @@ namespace EmpyrionModWebHost
                 Application = CreateWebHostBuilder(args).Build();
 
                 AppLifetime = Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;
+
+                SynchronizationContext.SetSynchronizationContext(Application.Services.GetService(typeof(AsyncSynchronizationContext)) as AsyncSynchronizationContext);
 
                 Host = Application.Services.GetService(typeof(ModHostDLL)) as ModHostDLL;
                 Host.InitComunicationChannels();

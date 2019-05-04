@@ -79,6 +79,7 @@ namespace EmpyrionModWebHost
                 .Handled();
             });
             services.AddSingleton<LifetimeEventsHostedService>();
+            services.AddSingleton<AsyncSynchronizationContext>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
