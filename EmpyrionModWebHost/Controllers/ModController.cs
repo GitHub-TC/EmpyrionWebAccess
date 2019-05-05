@@ -25,6 +25,8 @@ namespace EmpyrionModWebHost.Controllers
 
     public class ModManager : EmpyrionModBase, IEWAPlugin
     {
+        public static string StopFileName = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader", "Client", "stop.txt");
+
         public IHubContext<ModinfoHub> ModinfoHub { get; }
         public ModGameAPI GameAPI { get; private set; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
@@ -64,10 +66,21 @@ namespace EmpyrionModWebHost.Controllers
             try {
                 if (SysteminfoManager.Value.ProcessInformation == null) return false;
                 EGSProcess = Process.GetProcessById(SysteminfoManager.Value.ProcessInformation.Id);
-            } catch { }
-            var ESGChildProcesses = EGSProcess?.GetChildProcesses().Where(P => P.ProcessName == "EmpyrionModHost").ToArray();
 
-            return ESGChildProcesses?.FirstOrDefault() != null;
+                var AllChilds = EGSProcess?.GetChildProcesses().ToList();
+
+                // Fallback falls die Processinfos nicht existieren
+                if (AllChilds == null || AllChilds.Count == 0) return !File.Exists(StopFileName);
+
+                var ESGChildProcesses = AllChilds.Where(P => P.ProcessName.StartsWith("EmpyrionModHost", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+
+                return ESGChildProcesses?.FirstOrDefault() != null;
+            }
+            catch
+            {
+                // Fallback falls die Processinfos nicht existieren
+                return !File.Exists(StopFileName);
+            }
         }
     }
 
@@ -77,7 +90,6 @@ namespace EmpyrionModWebHost.Controllers
     public class ModController : ControllerBase
     {
         public const string  ModsInstallPath = @"..\MODs\";
-        public static string StopFileName = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader", "Client", "stop.txt");
         public static string ModLoaderHostPath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods", "ModLoader", "Host");
         public static string DllNamesFile = Path.Combine(ModLoaderHostPath, "DllNames.txt");
 
@@ -212,14 +224,14 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("StartMods")]
         public IActionResult StartMods()
         {
-            if (System.IO.File.Exists(StopFileName)) System.IO.File.Delete(StopFileName);
+            if (System.IO.File.Exists(ModManager.StopFileName)) System.IO.File.Delete(ModManager.StopFileName);
             return Ok();
         }
 
         [HttpGet("StopMods")]
         public IActionResult StopMods()
         {
-            System.IO.File.WriteAllText(StopFileName, "stopped");
+            System.IO.File.WriteAllText(ModManager.StopFileName, "stopped");
             return Ok();
         }
 
