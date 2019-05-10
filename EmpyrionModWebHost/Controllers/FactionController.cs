@@ -77,7 +77,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdateFactions()
         {
-            var factions = Request_Get_Factions(new Id(1)).Result.factions;
+            var factions = Request_Get_Factions(new Id(0)).Result.factions;
 
             using (var DB = new FactionContext())
             {

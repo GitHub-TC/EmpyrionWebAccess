@@ -119,6 +119,7 @@ namespace EmpyrionModWebHost.Controllers
 
             TimetableConfig = new ConfigurationManager<Timetable>
             {
+                FileFormat     = ConfigurationFileFormat.XML,
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "Timetable.xml")
             };
             TimetableConfig.Load();

@@ -92,6 +92,7 @@ namespace EmpyrionModWebHost.Controllers
 
             SystemConfig = new ConfigurationManager<SystemConfig>
             {
+                FileFormat = ConfigurationFileFormat.XML,
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "SystemConfig.xml")
             };
             SystemConfig.Load();
