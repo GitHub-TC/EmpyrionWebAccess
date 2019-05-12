@@ -1,6 +1,7 @@
 ﻿using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 
 namespace EmpyrionModWebHost.Models
@@ -24,6 +25,8 @@ namespace EmpyrionModWebHost.Models
     public class Faction
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public int FactionId { get; set; }
         public byte Origin { get; set; }
         public string Name { get; set; }

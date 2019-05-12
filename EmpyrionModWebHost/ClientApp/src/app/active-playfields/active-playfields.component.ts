@@ -14,6 +14,8 @@ import { PlayfieldModel } from '../model/playfield-model';
 import { Router } from '@angular/router';
 import { UserRole } from '../model/user';
 import { RoleService } from '../services/role.service';
+import { SystemInfoService } from '../services/systeminfo.service';
+import { SystemInfoModel } from '../model/systeminfo-model';
 
 @Component({
   selector: 'app-active-playfields',
@@ -25,6 +27,7 @@ export class ActivePlayfieldsComponent implements OnInit {
   mCurrentPlayer: PlayerModel;
   mFactions: FactionModel[];
   UserRole = UserRole;
+  public CurrentSystemInfo: SystemInfoModel = {};
 
   mPlayfieldsOpen: string[] = [];
 
@@ -36,6 +39,7 @@ export class ActivePlayfieldsComponent implements OnInit {
     private mPlayerService: PlayerService,
     private mPlayfields: PlayfieldService,
     public role: RoleService,
+    private systeminfo: SystemInfoService,
   ) { }
 
   ngOnInit() {
@@ -49,6 +53,7 @@ export class ActivePlayfieldsComponent implements OnInit {
       this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
     });
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
+    this.systeminfo.GetSystemInfos().subscribe(S => this.CurrentSystemInfo = S);
   }
 
   SavePosition(aPlayer: PlayerModel) {

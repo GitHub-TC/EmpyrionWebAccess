@@ -32,7 +32,7 @@ export class SystemInfoService {
     // message coming from the server
     this.hubConnection.on("Update", D => {
       this.LastSystemUpdateTime = new Date();
-      this.SystemInfos.next(this.mCurrentSystemInfo = JSON.parse(D));
+      this.CurrentSystemInfo = JSON.parse(D);
     });
     this.hubConnection.on("UPC", D => {
       this.LastSystemUpdateTime = new Date();
@@ -44,7 +44,7 @@ export class SystemInfoService {
       if (perf.r  ) this.mCurrentSystemInfo.ramAvailableMB = perf.r;
       if (perf.tpf) this.mCurrentSystemInfo.totalPlayfieldserver = perf.tpf;
       if (perf.tpfm) this.mCurrentSystemInfo.totalPlayfieldserverRamMB = perf.tpfm;
-      this.SystemInfos.next(this.mCurrentSystemInfo);
+      this.CurrentSystemInfo = this.mCurrentSystemInfo;
     });
 
     // starting the connection
@@ -57,7 +57,7 @@ export class SystemInfoService {
     interval(1000).pipe().subscribe(() => {
       if ((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 30000) {
         this.mCurrentSystemInfo.online = "D";
-        this.SystemInfos.next(this.mCurrentSystemInfo);
+        this.CurrentSystemInfo = this.mCurrentSystemInfo;
         if((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 120000) this.TestIfOnlineAgain();
       }
     });
@@ -67,7 +67,7 @@ export class SystemInfoService {
       .subscribe(
       I => {
         this.LastSystemUpdateTime = new Date();
-        this.SystemInfos.next(this.mCurrentSystemInfo = I);
+        this.CurrentSystemInfo = I;
       },
         error => this.error = error // error path
       );
@@ -95,4 +95,9 @@ export class SystemInfoService {
   get CurrentSystemInfo() {
     return this.mCurrentSystemInfo;
   }
+
+  set CurrentSystemInfo(nextInfo: SystemInfoModel) {
+    this.SystemInfos.next(this.mCurrentSystemInfo = nextInfo);
+  }
+
 }

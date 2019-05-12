@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>3.8.3</Version>
+    <Version>3.9.0</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -32,7 +32,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />
     <PackageReference Include="Certes" Version="2.3.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.0.3" />
-    <PackageReference Include="EmpyrionNetAPI" Version="1.0.1" />
+    <PackageReference Include="EmpyrionNetAPI" Version="2.0.3" />
     <PackageReference Include="Karambolo.Extensions.Logging.File" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.1.0" />
@@ -62,6 +62,12 @@
     <Compile Remove="Migrations\Chat\20181122185425_InitialCreate.Designer.cs" />
     <Compile Remove="Migrations\Faction\20181122185442_InitialCreate.cs" />
     <Compile Remove="Migrations\Faction\20181122185442_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\Faction\20181216181611_InitialCreate.cs" />
+    <Compile Remove="Migrations\Faction\20181216181611_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\Faction\20190512074057_FactionId.cs" />
+    <Compile Remove="Migrations\Faction\20190512074057_FactionId.Designer.cs" />
+    <Compile Remove="Migrations\Faction\20190512074435_FactionId.cs" />
+    <Compile Remove="Migrations\Faction\20190512074435_FactionId.Designer.cs" />
     <Compile Remove="Migrations\User\20181123221506_InitialCreate.cs" />
     <Compile Remove="Migrations\User\20181123221506_InitialCreate.Designer.cs" />
   </ItemGroup>

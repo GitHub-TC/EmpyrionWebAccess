@@ -10,15 +10,16 @@ namespace EmpyrionModWebHost.Migrations.Faction
                 name: "Factions",
                 columns: table => new
                 {
-                    FactionId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    FactionId = table.Column<int>(nullable: false),
                     Origin = table.Column<byte>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Abbrev = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Factions", x => x.FactionId);
+                    table.PrimaryKey("PK_Factions", x => x.Id);
                 });
         }
 

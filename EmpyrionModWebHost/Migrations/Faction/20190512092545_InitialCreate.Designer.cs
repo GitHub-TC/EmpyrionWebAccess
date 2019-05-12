@@ -8,27 +8,29 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmpyrionModWebHost.Migrations.Faction
 {
     [DbContext(typeof(FactionContext))]
-    [Migration("20181216181611_InitialCreate")]
+    [Migration("20190512092545_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024");
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
 
             modelBuilder.Entity("EmpyrionModWebHost.Models.Faction", b =>
                 {
-                    b.Property<int>("FactionId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Abbrev");
+
+                    b.Property<int>("FactionId");
 
                     b.Property<string>("Name");
 
                     b.Property<byte>("Origin");
 
-                    b.HasKey("FactionId");
+                    b.HasKey("Id");
 
                     b.ToTable("Factions");
                 });

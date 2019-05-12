@@ -17,12 +17,13 @@ import { UserRole } from '../model/user';
 })
 export class PlayerDetailsComponent implements OnInit {
   @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
-  Player: PlayerModel;
-  Playfields: PlayfieldModel[];
-  Factions: FactionModel[];
+  Player: PlayerModel = {};
+  Playfields: PlayfieldModel[] = [];
+  Factions: FactionModel[] = [];
   @Output() Changed: boolean;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
+  Roles = [{ id: 0, text: 'Owner' }, { id: 1, text: 'Admin' }, { id: 2, text: 'Member' }];
   UserRole = UserRole;
 
   constructor(
@@ -31,9 +32,6 @@ export class PlayerDetailsComponent implements OnInit {
     private mFactionService: FactionService,
     public role: RoleService,
   ) {
-    this.SyncPlayer(this.mPlayerService.CurrentPlayer);
-    mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));
-    mFactionService.GetFactions().subscribe(F => this.Factions = F);
   }
 
   SyncPlayer(aPlayer: PlayerModel) {
@@ -44,7 +42,10 @@ export class PlayerDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.SyncPlayer(this.mPlayerService.CurrentPlayer);
     this.mPlayfields.PlayfieldNames.subscribe(PL => this.Playfields = PL);
+    this.mPlayerService.GetCurrentPlayer().subscribe(P => this.SyncPlayer(P));
+    this.mFactionService.GetFactions().subscribe(F => this.Factions = F);
   }
 
   SaveChanges() {

@@ -14,30 +14,38 @@
             </button>
             <mat-tab-group (selectedTabChange)="DetailsTabChanged($event)">
               <mat-tab label="Backpack">
-                <div class="BackPack">
-                  <app-player-backpack [PlayerSteamId]="playerlist.CurrentPlayerSteamId"></app-player-backpack>
-                </div>
+                <ng-template matTabContent>
+                  <div class="BackPack">
+                    <app-player-backpack [PlayerSteamId]="playerlist.CurrentPlayerSteamId"></app-player-backpack>
+                  </div>
+                </ng-template>
               </mat-tab>
               <mat-tab>
                 <ng-template mat-tab-label>
                   Playerdetails
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerDetails.Changed" (click)="PlayerDetails.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerDetails?.Changed" (click)="PlayerDetails.DiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
-                <app-player-details #PlayerDetails></app-player-details>
+                <ng-template matTabContent>
+                  <app-player-details #PlayerDetails></app-player-details>
+                </ng-template>
               </mat-tab>
               <mat-tab>
                 <ng-template mat-tab-label>
                   Factory
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="FactoryEdit.Changed" (click)="FactoryEdit.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="FactoryEdit?.Changed" (click)="FactoryEdit.DiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
-                <app-factory #FactoryEdit></app-factory>
+                <ng-template matTabContent>
+                  <app-factory #FactoryEdit></app-factory>
+                </ng-template>
               </mat-tab>
               <mat-tab>
                 <ng-template mat-tab-label>
                   Note
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerNote.Changed" (click)="PlayerNote.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerNote?.Changed" (click)="PlayerNote.DiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
-                <app-player-note #PlayerNote></app-player-note>
+                <ng-template matTabContent>
+                  <app-player-note #PlayerNote></app-player-note>
+                </ng-template>
               </mat-tab>
             </mat-tab-group>
           </div>
@@ -46,7 +54,6 @@
     </div>
     <div class="col col-lg-2" style="padding-right:0px; padding-left:0px">
       <app-active-playfields [(CurrentPlayer)]="playerlist.CurrentPlayer"></app-active-playfields>
-      <div class="version">EWA {{SystemInfo.CurrentSystemInfo.version}} by {{SystemInfo.CurrentSystemInfo.copyright}}</div>
     </div>
     <div class="col col-lg-5" style="padding-left:0px; padding-right:0px">
       <div class="container">

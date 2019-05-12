@@ -32,6 +32,8 @@ export class FactionService {
     } catch (Error) {
       this.error = Error;
     }
+
+    this.ReadFactions();
   }
 
   ReadFactions(): any {
@@ -46,7 +48,6 @@ export class FactionService {
   }
 
   GetFactions(): Observable<FactionModel[]> {
-    if (!this.mFactions || !this.mFactions.length) this.ReadFactions();
     return this.factionsObservable;
   }
 

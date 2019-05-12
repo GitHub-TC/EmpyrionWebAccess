@@ -1,10 +1,34 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Extensions
 {
     public static class TaskTools
     {
+
+        public static ManualResetEvent IntervallAsync(int aMillisecondsIntervall, Func<Task> aAction)
+        {
+            var localExit = new ManualResetEvent(false);
+            Program.AppLifetime.StopApplicationEvent += (S, A) => localExit.Set();
+            new Thread(() => {
+                bool isLocalExit = false;
+                while (!Program.AppLifetime.Exit && !isLocalExit)
+                {
+                    try
+                    {
+                        aAction().Wait(aMillisecondsIntervall);
+                    }
+                    catch (Exception Error)
+                    {
+                        Console.WriteLine(Error);
+                    }
+                    isLocalExit = localExit.WaitOne(aMillisecondsIntervall);
+                }
+            }).Start();
+            return localExit;
+        }
+
 
         public static ManualResetEvent Intervall(int aMillisecondsIntervall, Action aAction)
         {

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -70,34 +71,55 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Faction_Changed += F => UpdateFactions();
+            Event_Faction_Changed += F => UpdateFactions().Wait();
 
-            TaskTools.Intervall(10000, () => UpdateFactions());
+            TaskTools.IntervallAsync(10000, UpdateFactions);
         }
 
-        private void UpdateFactions()
+        private async Task UpdateFactions()
         {
-            var factions = Request_Get_Factions(new Id(0)).Result.factions;
+            var factions = await Request_Get_Factions(new Id(0));
 
             using (var DB = new FactionContext())
             {
-                foreach (var faction in factions)
-                {
-                    var Faction = DB.Find<Faction>(faction.factionId) ?? new Faction();
-                    var IsNewFaction = Faction.FactionId == 0;
+                CleanupFactionDB(factions, DB);
 
-                    if (IsNewFaction) Faction.FactionId = faction.factionId;
-                    Faction.Name   = faction.name;
+                foreach (var faction in factions.factions)
+                {
+
+                    var Faction = DB.Factions.FirstOrDefault(F => faction.factionId == 0 ? F.Abbrev == faction.abbrev : F.FactionId == faction.factionId) ?? new Faction();
+                    var IsNewFaction = string.IsNullOrEmpty(Faction.Abbrev);
+
+                    Faction.FactionId = faction.factionId;
+                    Faction.Name = faction.name;
                     Faction.Origin = faction.origin;
                     Faction.Abbrev = faction.abbrev;
 
                     if (IsNewFaction) DB.Factions.Add(Faction);
                 }
 
-                if(DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(DB.Factions)).Wait();
+                if (DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(DB.Factions)).Wait();
             }
         }
 
+        private static void CleanupFactionDB(FactionInfoList factions, FactionContext DB)
+        {
+            try
+            {
+                var dictFactions = factions.factions.ToDictionary(K => K.abbrev, K => K);
+
+                DB.Factions
+                    .Where(F => !dictFactions.ContainsKey(F.Abbrev))
+                    .ToList()
+                    .ForEach(F => DB.Factions.Remove(F));
+
+                DB.SaveChanges();
+            }
+            catch (System.Exception Error)
+            {
+                System.Console.WriteLine(Error);
+            }
+        }
     }
 
     [Authorize]

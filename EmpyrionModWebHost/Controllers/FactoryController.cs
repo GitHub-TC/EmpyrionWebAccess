@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -36,11 +37,14 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("GetBlueprintResources/{aPlayerId}")]
-        public async System.Threading.Tasks.Task<ActionResult<BlueprintResources>> GetBlueprintResourcesAsync(int aPlayerId)
+        public async Task<ActionResult<BlueprintResources>> GetBlueprintResources(int aPlayerId)
         {
             try
             {
-                var PlayerInfo = await FactoryManager.Request_Player_Info(new Id(aPlayerId));
+                var onlinePlayers = await FactoryManager.Request_Player_List();
+                if(!onlinePlayers.list.Contains(aPlayerId)) return NotFound($"Player {aPlayerId} not online");
+
+                var PlayerInfo = await FactoryManager.Request_Player_Info(aPlayerId.ToId());
 
                 var Result = new BlueprintResources()
                 {
