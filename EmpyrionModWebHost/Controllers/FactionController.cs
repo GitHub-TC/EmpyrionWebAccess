@@ -78,7 +78,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private async Task UpdateFactions()
         {
-            var factions = await Request_Get_Factions(new Id(0));
+            var factions = await Request_Get_Factions(new Id(1));
 
             using (var DB = new FactionContext())
             {
