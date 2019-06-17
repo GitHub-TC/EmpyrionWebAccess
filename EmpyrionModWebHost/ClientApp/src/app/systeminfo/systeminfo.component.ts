@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
 import { User, UserRole } from '../model/user';
 import { RoleService } from '../services/role.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-systeminfo',
@@ -24,6 +25,7 @@ export class SysteminfoComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private mSystemInfoService: SystemInfoService,
     public role: RoleService,
+    private titleService: Title
   ) {
       this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
@@ -31,6 +33,7 @@ export class SysteminfoComponent implements OnInit {
   ngOnInit() {
     this.mSystemInfoService.GetSystemInfos().subscribe(S => {
       this.CurrentSystemInfo = S;
+      if (this.titleService) this.titleService.setTitle(S.activePlayers ? "(" + S.activePlayers + "/" + S.activePlayfields + ") Empyrion Web Access" : "Empyrion Web Access");
     });
   }
 

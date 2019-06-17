@@ -33,6 +33,14 @@ export class HomeComponent implements AfterViewInit {
     this.CurrentComponent = this.playerBackpackComponent;
   }
 
+  public get PlayerDetailsChanged() { return this.playerDetailsComponent ? this.playerDetailsComponent.Changed : false; }
+  public get FactoryEditChanged  () { return this.playerFactoryComponent ? this.playerFactoryComponent.Changed : false; }
+  public get PlayerNoteChanged   () { return this.playerNoteComponent    ? this.playerNoteComponent.Changed : false; }
+
+  public PlayerDetailsDiscardChanges() { this.playerDetailsComponent.DiscardChanges(); }
+  public FactoryEditDiscardChanges  () { this.playerFactoryComponent.DiscardChanges(); }
+  public PlayerNoteDiscardChanges   () { this.playerNoteComponent   .DiscardChanges(); }
+
   public DetailsTabChanged(tabChangeEvent: MatTabChangeEvent): void {
     switch (tabChangeEvent.index) {
       case 0: this.CurrentComponent = this.playerBackpackComponent; break;

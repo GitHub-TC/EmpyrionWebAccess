@@ -23,7 +23,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   Playerdetails
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerDetails?.Changed" (click)="PlayerDetails.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerDetailsChanged" (click)="PlayerDetailsDiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
                 <ng-template matTabContent>
                   <app-player-details #PlayerDetails></app-player-details>
@@ -32,7 +32,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   Factory
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="FactoryEdit?.Changed" (click)="FactoryEdit.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="FactoryEditChanged" (click)="FactoryEditDiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
                 <ng-template matTabContent>
                   <app-factory #FactoryEdit></app-factory>
@@ -41,7 +41,7 @@
               <mat-tab>
                 <ng-template mat-tab-label>
                   Note
-                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerNote?.Changed" (click)="PlayerNote.DiscardChanges()" title="Discard changes">cancel</mat-icon>
+                  <mat-icon style="cursor:pointer; color:red" *ngIf="PlayerNoteChanged" (click)="PlayerNoteDiscardChanges()" title="Discard changes">cancel</mat-icon>
                 </ng-template>
                 <ng-template matTabContent>
                   <app-player-note #PlayerNote></app-player-note>

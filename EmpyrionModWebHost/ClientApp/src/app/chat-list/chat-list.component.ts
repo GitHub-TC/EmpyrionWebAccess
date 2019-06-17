@@ -26,7 +26,7 @@ export class ChatListComponent implements OnInit {
   messages: MatTableDataSource<ChatModel> = new MatTableDataSource([]);
   message: string;
   ChatKeywords: string[] = ["admin", "server", "playfield", "wipe"];
-  ModKeywords: string[] = ["/", "am:", "cb:"];
+  ModKeywords: string[] = ["/", "am:", "cb:", "\\", "!"];
   autoscroll: boolean = true;
   mFactions: FactionModel[];
   error: any;

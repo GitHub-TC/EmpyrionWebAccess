@@ -14,7 +14,7 @@ export class PlayerNoteComponent implements OnInit {
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
 
-  Changed: boolean;
+  public Changed: boolean;
   Player: PlayerModel = {};
   UserRole = UserRole;
 

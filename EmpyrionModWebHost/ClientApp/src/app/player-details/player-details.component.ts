@@ -20,7 +20,7 @@ export class PlayerDetailsComponent implements OnInit {
   Player: PlayerModel = {};
   Playfields: PlayfieldModel[] = [];
   Factions: FactionModel[] = [];
-  @Output() Changed: boolean;
+  public Changed: boolean;
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   Roles = [{ id: 0, text: 'Owner' }, { id: 1, text: 'Admin' }, { id: 2, text: 'Member' }];

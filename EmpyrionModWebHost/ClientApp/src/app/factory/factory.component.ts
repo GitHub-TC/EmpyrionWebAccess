@@ -26,7 +26,7 @@ export class FactoryComponent implements OnInit {
   @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;
   Player: PlayerModel;
   Resources: BlueprintResources;
-  @Output() Changed: boolean = false;
+  public Changed: boolean = false;
   error: any;
   UserRole = UserRole;
 
