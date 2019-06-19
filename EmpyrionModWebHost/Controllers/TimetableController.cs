@@ -141,7 +141,7 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(A => IsReverseTime(A) ? A.timestamp >= DateTime.Now && A.nextExecute <= DateTime.Now : A.nextExecute <= DateTime.Now)
                 .ToArray()
                 .ForEach(A => {
-                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat);
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat, false);
                     TimetableConfig.Save();
                     RunThis(A);
                 });
@@ -196,28 +196,28 @@ namespace EmpyrionModWebHost.Controllers
                 .Where(A => A.active)
                 .ToArray()
                 .ForEach(A => {
-                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat);
-                    if (IsReverseTime(A) && A.timestamp.Year == 1) A.timestamp = GetNextExecute(A, A.repeat).Date + A.timestamp.TimeOfDay;
+                    A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat, true);
+                    if (IsReverseTime(A) && A.timestamp.Year == 1) A.timestamp = GetNextExecute(A, A.repeat, true).Date + A.timestamp.TimeOfDay;
                 });
         }
 
-        private DateTime GetNextExecute(TimetableAction aAction, RepeatEnum aRepeat)
+        private DateTime GetNextExecute(TimetableAction aAction, RepeatEnum aRepeat, bool initMode)
         {
             switch (aRepeat)
             {
                 case RepeatEnum.manual      : return DateTime.MaxValue;
-                case RepeatEnum.min5        : return DateTime.Now   + new TimeSpan(0,  5, 0);
-                case RepeatEnum.min10       : return DateTime.Now   + new TimeSpan(0, 10, 0);
-                case RepeatEnum.min15       : return DateTime.Now   + new TimeSpan(0, 15, 0);
-                case RepeatEnum.min20       : return DateTime.Now   + new TimeSpan(0, 20, 0);
-                case RepeatEnum.min30       : return DateTime.Now   + new TimeSpan(0, 30, 0);
-                case RepeatEnum.min45       : return DateTime.Now   + new TimeSpan(0, 45, 0);
-                case RepeatEnum.hour1       : return DateTime.Now   + new TimeSpan(1,  0, 0);
-                case RepeatEnum.hour2       : return DateTime.Now   + new TimeSpan(2,  0, 0);
-                case RepeatEnum.hour3       : return DateTime.Now   + new TimeSpan(3,  0, 0);
-                case RepeatEnum.hour6       : return DateTime.Now   + new TimeSpan(6,  0, 0);
-                case RepeatEnum.hour12      : return DateTime.Now   + new TimeSpan(12, 0, 0);
-                case RepeatEnum.day1        : return DateTime.Now   + new TimeSpan(24, 0, 0);
+                case RepeatEnum.min5        : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0,  5, 0));
+                case RepeatEnum.min10       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 10, 0));
+                case RepeatEnum.min15       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 15, 0));
+                case RepeatEnum.min20       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 20, 0));
+                case RepeatEnum.min30       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 30, 0));
+                case RepeatEnum.min45       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 45, 0));
+                case RepeatEnum.hour1       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(1,  0, 0));
+                case RepeatEnum.hour2       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(2,  0, 0));
+                case RepeatEnum.hour3       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(3,  0, 0));
+                case RepeatEnum.hour6       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(6,  0, 0));
+                case RepeatEnum.hour12      : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(12, 0, 0));
+                case RepeatEnum.day1        : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(24, 0, 0));
                 case RepeatEnum.dailyAt     : return DateTime.Today + new TimeSpan(aAction.timestamp.TimeOfDay > DateTime.Now.TimeOfDay ? 0 : 24, 0, 0) + aAction.timestamp.TimeOfDay;
                 case RepeatEnum.mondayAt    : return GetNextWeekday(DateTime.Today, DayOfWeek.Monday)    + aAction.timestamp.TimeOfDay;
                 case RepeatEnum.tuesdayAt   : return GetNextWeekday(DateTime.Today, DayOfWeek.Tuesday)   + aAction.timestamp.TimeOfDay;
