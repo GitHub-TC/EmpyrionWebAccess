@@ -35,6 +35,7 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<ChatManager> ChatManager { get; }
         public Lazy<UserManager> UserManager { get; }
         public ModGameAPI GameAPI { get; private set; }
+        public ConcurrentDictionary<string, Player> UpdatePlayersQueue { get; set; } = new ConcurrentDictionary<string, Player>();
 
         public PlayerManager(IRoleHubContext<PlayerHub> aPlayerHub, IProvider<IUserService> aUserService)
         {
@@ -43,6 +44,17 @@ namespace EmpyrionModWebHost.Controllers
             SysteminfoManager   = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
             ChatManager         = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
             UserManager         = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
+
+            TaskTools.Intervall(1000, SendPlayerUpdates);
+        }
+
+        private void SendPlayerUpdates()
+        {
+            var keys = UpdatePlayersQueue.Keys.ToArray();
+            var updateKey = keys[new Random().Next(0, keys.Length - 1)];
+            UpdatePlayersQueue.TryRemove(updateKey, out var ChangedPlayer);
+
+            PlayerHub?.RoleSendAsync(null, "UpdatePlayer", JsonConvert.SerializeObject(ChangedPlayer));
         }
 
         public void CreateAndUpdateDatabase()
@@ -74,7 +86,8 @@ namespace EmpyrionModWebHost.Controllers
                 count = await DB.SaveChangesAsync();
             }
 
-            if (count > 0) PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
+            if (count > 0) ChangedPlayers.ForEach(P => UpdatePlayersQueue.AddOrUpdate(P.Id, P, (S, O) => P));
+//                PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
         }
 
         private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -135,7 +148,8 @@ namespace EmpyrionModWebHost.Controllers
 
                 if (count > 0)
                 {
-                    PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
+                    UpdatePlayersQueue.AddOrUpdate(Player.Id, Player, (S, O) => Player);
+                    //PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
                 }
 
                 if (IsNewPlayer) SendWelcomeMessage(Player);

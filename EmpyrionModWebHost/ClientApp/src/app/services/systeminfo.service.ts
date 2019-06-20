@@ -54,7 +54,7 @@ export class SystemInfoService {
       this.error = Error;
     }
 
-    interval(1000).pipe().subscribe(() => {
+    interval(5000).pipe().subscribe(() => {
       if ((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 30000) {
         this.mCurrentSystemInfo.online = "D";
         this.CurrentSystemInfo = this.mCurrentSystemInfo;

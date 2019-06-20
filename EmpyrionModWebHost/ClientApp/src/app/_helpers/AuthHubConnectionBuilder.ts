@@ -17,4 +17,10 @@ export class AuthHubConnectionBuilder extends HubConnectionBuilder {
   withAuthUrl(url: string): HubConnectionBuilder {
     return super.withUrl(url, { accessTokenFactory: () => this.currentUser.token });
   }
+
+  public build() {
+    let hub = super.build();
+    hub.onclose(() => setTimeout(() => hub.start(), 2000));
+    return hub;
+  }
 }
