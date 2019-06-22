@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>4.2.2</Version>
+    <Version>4.2.6</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -33,7 +33,7 @@ Empyrion &gt;= A10</Description>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />
     <PackageReference Include="Certes" Version="2.3.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.0.3" />
-    <PackageReference Include="EmpyrionNetAPI" Version="3.0.0" />
+    <PackageReference Include="EmpyrionNetAPI" Version="4.0.2" />
     <PackageReference Include="Karambolo.Extensions.Logging.File" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.1.0" />
@@ -71,6 +71,10 @@ Empyrion &gt;= A10</Description>
     <Compile Remove="Migrations\Faction\20190512074435_FactionId.Designer.cs" />
     <Compile Remove="Migrations\User\20181123221506_InitialCreate.cs" />
     <Compile Remove="Migrations\User\20181123221506_InitialCreate.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -146,6 +150,10 @@ Empyrion &gt;= A10</Description>
     <None Update="PublishAddOns\ModLoader.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\favicon.ico" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -18,6 +18,7 @@ using EmpyrionModWebHost.Services;
 using System.Security.Claims;
 using System.Collections.Concurrent;
 using EmpyrionNetAPITools;
+using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -51,6 +52,8 @@ namespace EmpyrionModWebHost.Controllers
         private void SendPlayerUpdates()
         {
             var keys = UpdatePlayersQueue.Keys.ToArray();
+            if (keys.Length == 0) return;
+
             var updateKey = keys[new Random().Next(0, keys.Length - 1)];
             UpdatePlayersQueue.TryRemove(updateKey, out var ChangedPlayer);
 
@@ -90,7 +93,7 @@ namespace EmpyrionModWebHost.Controllers
 //                PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
         }
 
-        private void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
+        private async void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
         {
             using (var DB = new PlayerContext())
             {
@@ -144,7 +147,7 @@ namespace EmpyrionModWebHost.Controllers
                     Player.Online = true;
                     DB.Players.Add(Player);
                 }
-                var count = DB.SaveChanges();
+                var count = await DB.SaveChangesAsync();
 
                 if (count > 0)
                 {
@@ -213,9 +216,9 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Player_Info += PlayerManager_Event_Player_Info;
-            Event_Player_Connected += PlayerConnected;
-            Event_Player_Disconnected += PlayerDisconnected;
+            Event_Player_Info           += PlayerManager_Event_Player_Info;
+            Event_Player_Connected      += PlayerConnected;
+            Event_Player_Disconnected   += PlayerDisconnected;
 
             UpdateOnlinePlayers();
 
@@ -264,7 +267,7 @@ namespace EmpyrionModWebHost.Controllers
                         .Where(P => !KnownPlayers.Contains(P.SteamId))
                         .ForEach(P => DB.Players.Remove(P));
 
-                    DB.SaveChanges();
+                    DB.SaveChangesAsync();
                 }
 
             });
@@ -322,7 +325,7 @@ namespace EmpyrionModWebHost.Controllers
                 if (!string.IsNullOrEmpty(aSet.startPlayfield)) player.StartPlayfield = aSet.startPlayfield;
                 if (aSet.radiation.HasValue) player.Radiation = aSet.radiation.Value;
 
-                DB.SaveChanges();
+                DB.SaveChangesAsync();
             }
 
             Request_Player_SetPlayerInfo(aSet);

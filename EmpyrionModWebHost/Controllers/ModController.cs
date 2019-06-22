@@ -190,7 +190,7 @@ namespace EmpyrionModWebHost.Controllers
             if (!System.IO.File.Exists(aDLL)) return $"File not found: {aDLL}";
 
             var i = FileVersionInfo.GetVersionInfo(aDLL);
-            return $"{i.CompanyName} Version:{i.FileVersion} {i.LegalCopyright}";
+            return $"{i.CompanyName} Version:{i.FileVersion} {i.LegalCopyright} LastChanged:{System.IO.File.GetLastWriteTime(aDLL).ToString("dd.MM.yyyy HH:mm:ss")}";
         }
 
         [HttpPost("ModInfos")]
