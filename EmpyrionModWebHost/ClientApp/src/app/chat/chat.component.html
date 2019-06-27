@@ -1,10 +1,10 @@
 <mat-card>
   <mat-card-content>
-    <section class="line-section">
-      <mat-checkbox [(ngModel)]="ChatService.ChatToAll" [disabled]="ChatService.ChatToAll" style="float:left;">Chat to all</mat-checkbox>
-      <mat-checkbox *ngIf="role.is(UserRole.GameMaster)" [(ngModel)]="chatAsUser" style="float:left;padding-left:1em">Chat as {{currentUser.username}}</mat-checkbox>
-      <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;">Autoscroll</mat-checkbox>
-      <mat-checkbox [(ngModel)]="chatList.filterServerMsg" style="float:right;padding-right:1em">Filter Server</mat-checkbox>
+    <section class="line-section select">
+      <mat-checkbox [(ngModel)]="ChatService.ChatToAll" [disabled]="ChatService.ChatToAll" style="float:left;"><div class="lablewrap">Chat to all</div></mat-checkbox>
+      <mat-checkbox *ngIf="role.is(UserRole.GameMaster)" [(ngModel)]="chatAsUser" style="float:left;padding-left:1em"><div class="lablewrap">Chat as {{currentUser.username}}</div></mat-checkbox>
+      <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;"><div class="lablewrap">Auto scroll</div></mat-checkbox>
+      <mat-checkbox [(ngModel)]="chatList.filterServerMsg" style="float:right;padding-right:1em"><div class="lablewrap">Filter Server</div></mat-checkbox>
     </section>
     <section class="line-section">
       <mat-form-field style="width:100%">

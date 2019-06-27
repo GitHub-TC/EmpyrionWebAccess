@@ -35,6 +35,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 DB.Database.Migrate();
                 DB.Database.EnsureCreated();
+                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
             }
         }
 

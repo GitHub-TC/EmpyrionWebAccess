@@ -2,6 +2,7 @@
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
+using EmpyrionNetAPIDefinitions;
 using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
@@ -224,6 +225,11 @@ namespace EmpyrionModWebHost.Controllers
                 EGSRunState(true);
                 Program.Host.ExposeShutdownHost();
 
+                var stoptime = DateTime.Now.AddMinutes(aWaitMinutes);
+                var exit = aWaitMinutes == 0 ? null : TaskTools.Intervall(10000, () => {
+                    Request_InGameMessage_AllPlayers(Timeouts.NoResponse, $"Server shutdown in {(stoptime - DateTime.Now).ToString(@"mm\:ss")}".ToIdMsgPrio(0, MessagePriorityType.Alarm));
+                });
+
                 try
                 {
                     Process EGSProcess = null;
@@ -237,11 +243,13 @@ namespace EmpyrionModWebHost.Controllers
                         Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: Wait:" + aWaitMinutes);
                         EGSProcess?.WaitForExit((aWaitMinutes + 1) * 60000);
                     }
+                    exit?.Set();
 
                     CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "o", false);
                 }
                 catch (Exception Error)
                 {
+                    exit?.Set();
                     Logger.LogError(Error, "EGSStop: WaitForExit");
                     Thread.Sleep(10000);
                 }

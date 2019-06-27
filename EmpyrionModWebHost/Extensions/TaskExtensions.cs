@@ -6,6 +6,59 @@ namespace EmpyrionModWebHost.Extensions
 {
     public static class TaskTools
     {
+        public static void Retry(Action action)
+        {
+            Retry(10, 1000, action);
+        }
+
+        public static void Retry(int count, Action action)
+        {
+            Retry(count, 1000, action);
+        }
+
+        public static void Retry(int count, int millisecondsTimeout, Action action)
+        {
+            for (int i = 1; i <= count; i++)
+            {
+                try
+                {
+                    action();
+                }
+                catch
+                {
+                    if (i == count) throw;
+                    Thread.Sleep(millisecondsTimeout);
+                }
+            }
+        }
+
+        public static T Retry<T>(Func<T> func)
+        {
+            return Retry(10, 1000, func);
+        }
+
+        public static T Retry<T>(int count, Func<T> func)
+        {
+            return Retry(count, 1000, func);
+        }
+
+        public static T Retry<T>(int count, int millisecondsTimeout, Func<T> func)
+        {
+            for (int i = 1; i <= count; i++)
+            {
+                try
+                {
+                    return func();
+                }
+                catch
+                {
+                    if (i == count) throw;
+                    Thread.Sleep(millisecondsTimeout);
+                }
+            }
+
+            return default(T);
+        }
 
         public static ManualResetEvent IntervallAsync(int aMillisecondsIntervall, Func<Task> aAction)
         {

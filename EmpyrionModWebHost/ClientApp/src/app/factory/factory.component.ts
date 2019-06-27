@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatMenu, MatMenuTrigger } from '@angular/material';
 import { PlayerModel } from '../model/player-model';
@@ -8,8 +8,9 @@ import { ItemService } from '../services/item.service';
 import { SelectItemDialogComponent } from '../select-item-dialog/select-item-dialog.component';
 import { RoleService } from '../services/role.service';
 import { UserRole } from '../model/user';
+import { Router } from '@angular/router';
 
-interface BlueprintResources {
+export interface BlueprintResources {
   playerId: number;
   itemStacks: ItemStackModel[];
   replaceExisting?: boolean;
@@ -24,14 +25,16 @@ export class FactoryComponent implements OnInit {
   @ViewChild(MatMenu) contextMenu: MatMenu;
   @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;
+  @Input() WithEdit: boolean = true;
   Player: PlayerModel;
-  Resources: BlueprintResources;
+  @Input() Resources: BlueprintResources;
   public Changed: boolean = false;
   error: any;
   UserRole = UserRole;
 
   constructor(
     private http: HttpClient,
+    public router: Router,
     private mPlayerService: PlayerService,
     private mItemService: ItemService,
     public role: RoleService,
@@ -43,7 +46,7 @@ export class FactoryComponent implements OnInit {
   }
 
   SyncPlayer(aPlayer: PlayerModel) {
-    if (this.Changed || !aPlayer) return;
+    if (this.Changed || !aPlayer || !this.WithEdit) return;
 
     this.http.get<BlueprintResources>('Factory/GetBlueprintResources/' + aPlayer.EntityId)
       .pipe()

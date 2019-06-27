@@ -55,6 +55,7 @@ import { PlayerNoteComponent } from './player-note/player-note.component';
 import { PlayfieldPlanetview3dComponent } from './playfield-planetview3d/playfield-planetview3d.component';
 import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield-spaceview3d.component';
 import { ModConfigurationComponent } from './mod-configuration/mod-configuration.component';
+import { RestoreFactoryItemsComponent } from './restore-factoryitems/restore-factoryitems.component';
 
 @NgModule({
   declarations: [
@@ -76,6 +77,7 @@ import { ModConfigurationComponent } from './mod-configuration/mod-configuration
     StructuresListComponent,
     RestoreComponent,
     ServerComponent,
+    RestoreFactoryItemsComponent,
     RestoreBackpackComponent,
     RestoreStructureComponent,
     RestorePlayerComponent,

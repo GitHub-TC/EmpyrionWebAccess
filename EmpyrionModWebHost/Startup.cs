@@ -110,6 +110,7 @@ namespace EmpyrionModWebHost
             services.AddDbContext<ChatContext>();
             services.AddDbContext<UserContext>();
             services.AddDbContext<HistoryBookContext>();
+            services.AddDbContext<FactoryItemsContext>();
 
             // LetsEncryptACME config
             var LetsEncryptACMESection = Configuration.GetSection("LetsEncryptACME");
