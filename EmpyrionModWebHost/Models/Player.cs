@@ -74,5 +74,7 @@ namespace EmpyrionModWebHost.Models
         public DateTime LastOnline { get; set; }
         public string Note { get; set; }
         public int OnlineHours { get; set; }
+        public string BpInFactory { get; set; }
+        public float BpRemainingTime { get; set; }
     }
 }

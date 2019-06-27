@@ -90,6 +90,11 @@ export class FactoryComponent implements OnInit {
     return found ? found.name : mStack.id;
   }
 
+  get RemainingTime() {
+    if (!this.Player) return null;
+    return new Date(0, 0, 0, 0, 0, this.Player.BpRemainingTime);
+  }
+
   AddItem() {
     this.contextMenuTrigger.closeMenu();
     this.selectNewItem.openDialog(new ItemStackModel()).afterClosed().subscribe(

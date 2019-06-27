@@ -74,6 +74,10 @@ export class RestoreFactoryItemsComponent implements OnInit {
     return aData.itemStacks ? aData.itemStacks.length : 0;
   }
 
+  ItemsCount(aData: FactoryItems) {
+    return aData.itemStacks ? aData.itemStacks.map(I => I.count).reduce((S, I) => S + I) : 0;
+  }
+
   RestoreCurrentFactoryItems() {
     this.YesNo.openDialog({ title: "Restore FactoryItems for", question: this.CurrentPlayer.PlayerName }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {

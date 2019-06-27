@@ -24,10 +24,18 @@
               {{SlotCount(b)}}
             </td>
           </ng-container>
-          
 
-          <tr mat-header-row *matHeaderRowDef="['Timestamp', 'Slots']; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['Timestamp', 'Slots'];"
+          <ng-container matColumnDef="Items">
+            <th mat-header-cell align="center" *matHeaderCellDef>
+              Items #
+            </th>
+            <td mat-cell align="right" *matCellDef="let b">
+              {{ItemsCount(b)}}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['Timestamp', 'Slots', 'Items']; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['Timestamp', 'Slots', 'Items'];"
               [ngClass]="{'highlight': SelectedFactoryItems == row}"
               (click)="SetCurrentFactoryItems(row)"></tr>
         </table>
@@ -40,7 +48,7 @@
       </div>
       <br />
       InProduction: <b>{{CurrentFactoryItems?.inProduction}}</b><br />
-      Produced:<div *ngFor="let s of CurrentFactoryItems?.produced?.split('\t')">{{s}}<br /></div>
+      Produced:<div style="display:inline-block" *ngFor="let s of CurrentFactoryItems?.produced?.split('\t')">{{s}}<br /></div>
       <br />
       <mat-icon *ngIf="CurrentPlayer?.Online" style="font-size:5em; cursor: pointer; color:darkgreen;" (click)="RestoreCurrentFactoryItems()" title="Restore factory items for {{CurrentPlayer?.PlayerName}}">settings_backup_restore</mat-icon>
     </div>

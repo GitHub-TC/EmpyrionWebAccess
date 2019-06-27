@@ -124,6 +124,8 @@ namespace EmpyrionModWebHost.Controllers
                     Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
                     Player.PlayerName = aPlayerInfo.playerName;
                     Player.Playfield = aPlayerInfo.playfield;
+                    Player.BpInFactory = aPlayerInfo.bpInFactory;
+                    Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
                     Player.StartPlayfield = aPlayerInfo.startPlayfield;
                     Player.StaminaMax = aPlayerInfo.staminaMax;
                     Player.FactionGroup = aPlayerInfo.factionGroup;
