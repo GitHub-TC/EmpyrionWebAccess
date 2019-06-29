@@ -1,10 +1,12 @@
 <mat-card>
   <mat-card-content class="SystemInfo">
     <div style="display:inline-block; position:relative; width:100%;">
-      <div class="logo">
-        <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
-        <div class="EmpyrionVersion">{{CurrentSystemInfo.versionESG}} - {{CurrentSystemInfo.versionESGBuild}}</div>
-      </div>
+      <a target="_blank" href="https://empyriononline.com/" style="color:black" title="Empyrion - Galactic Survival - Communitiy Formus">
+        <div class="logo">
+          <img class="EmpyrionLogo" alt="Empyrion Web Access" src="../../assets/Empyrion.png" />
+          <div class="EmpyrionVersion">{{CurrentSystemInfo.versionESG}} - {{CurrentSystemInfo.versionESGBuild}}</div>
+        </div>
+      </a>
       <div class="gameinfo">
         <div class="EWAName">Empyrion Web Access</div>
         <div class="ServerName">{{CurrentSystemInfo.serverName}}</div>
@@ -24,16 +26,16 @@
         <div [ngClass]="GetStateClass()" class="state-pos">{{GetStateDescription()}}</div>
         <mat-menu #appMenu="matMenu">
           <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="router.navigate(['user'])">User</button>
-          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="router.navigate(['restore'])">Restore</button>
-          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="router.navigate(['server'])">Server</button>
-          <button mat-menu-item *ngIf="role.is(UserRole.VIP)"         (click)="router.navigate(['entities'])">Entities</button>
-          <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)"  (click)="router.navigate(['galaxy'])">Galaxy</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['restore'])">Restore</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['server'])">Server</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.VIP)" (click)="router.navigate(['entities'])">Entities</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)" (click)="router.navigate(['galaxy'])">Galaxy</button>
           <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="router.navigate(['timetable'])">Timetable</button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()"><b>Logout</b></button>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="openHelp()">Help</button>
-          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="latestVersion()">Update &gt;{{CurrentSystemInfo.version}} ?</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="latestVersion()">Update &gt;{{CurrentSystemInfo.version}} ?</button>
         </mat-menu>
 
         <button mat-icon-button [matMenuTriggerFor]="appMenu" style="position:absolute; top: 2em; right:-10px;">

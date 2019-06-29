@@ -296,7 +296,6 @@ namespace EmpyrionModWebHost.Controllers
             catch (Exception Error)
             {
                 Logger.LogError(Error, "EGSStart");
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
             EGSRunState(false);
         }
@@ -339,7 +338,6 @@ namespace EmpyrionModWebHost.Controllers
             catch (Exception Error)
             {
                 Logger.LogError(Error, "UpdateClient");
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
         }
 
@@ -365,7 +363,6 @@ namespace EmpyrionModWebHost.Controllers
             catch (Exception Error)
             {
                 Logger.LogError(Error, "UpdateClient");
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
         }
 

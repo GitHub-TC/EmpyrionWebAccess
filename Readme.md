@@ -87,6 +87,10 @@ Hier werden die Daten des ausgewählten Spielers angezeigt und können geändert
 ![](EmpyrionModWebHost/Screenshots/Factory.png)
 Hier können Items in die Fabrik des Spielers hinzugefügt, die Anzahl geändert oder der aktuelle Bauauftrag fertiggestellt werden.
 
+![](EmpyrionModWebHost/Screenshots/FactoryItemsMenu.png)
+Hier können die Fabrikinhalte des Spielers über die Zeit eingesehen und widerhergestellt werden
+![](EmpyrionModWebHost/Screenshots/RestoreFactoryItems.png)
+
 ## Strukturen
 ![](EmpyrionModWebHost/Screenshots/Structures.png)
 

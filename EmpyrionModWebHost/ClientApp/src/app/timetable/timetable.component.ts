@@ -46,6 +46,7 @@ export enum ActionType {
   deleteOldBackpacks      = "Delete old backpacks | [days] (default:14)",
   deletePlayerOnPlayfield = "Delete player on playfield| [playfield[;playfield]] -> Example: Akua; Omicron; Masperon",
   deleteHistoryBook       = "Delete HistoryBook | [days] (default:14)",
+  deleteOldFactoryItems   = "Delete old factory items | [days] (default:14)",
   runShell                = "Run shell| [cmd] -> Working directory ist the current savegame folder",
   consoleCommand          = "InGame console command | [cmd] -> Help description of commands in the console with 'help'",
   wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield]] -> Example: poi deposit : Akua; Hsaa",

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.SignalR;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPITools;
 using EmpyrionModWebHost.Services;
+using EmpyrionNetAPIDefinitions;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -224,13 +225,18 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("StartMods")]
         public IActionResult StartMods()
         {
-            if (System.IO.File.Exists(ModManager.StopFileName)) System.IO.File.Delete(ModManager.StopFileName);
+            if (System.IO.File.Exists(ModManager.StopFileName))
+            {
+                ModManager.log($"Start: ModLoader", LogLevel.Message);
+                System.IO.File.Delete(ModManager.StopFileName);
+            }
             return Ok();
         }
 
         [HttpGet("StopMods")]
         public IActionResult StopMods()
         {
+            ModManager.log($"Stop: ModLoader", LogLevel.Message);
             System.IO.File.WriteAllText(ModManager.StopFileName, "stopped");
             return Ok();
         }

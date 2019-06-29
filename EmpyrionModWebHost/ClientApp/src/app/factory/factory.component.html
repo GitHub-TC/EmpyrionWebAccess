@@ -16,5 +16,5 @@
   <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="SetBlueprintResources()">Save</button>
   <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)" (click)="FinishBlueprint()">Finish</button>
   <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="AddItem()">Add item</button>
-  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['restore'])">Restore items</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['restore/restorefactoryitems'])">Restore items</button>
 </mat-menu>

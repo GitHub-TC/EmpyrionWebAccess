@@ -1,6 +1,6 @@
 <div style="position:relative">
   <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
-  <mat-tab-group>
+  <mat-tab-group #MatTabGroup>
     <mat-tab label="Backpack">
       <ng-template matTabContent>
         <app-restore-backpack></app-restore-backpack>

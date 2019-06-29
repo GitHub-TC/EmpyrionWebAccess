@@ -10,6 +10,7 @@ import { ServerComponent } from './server/server.component';
 import { EntitiesComponent } from './entities/entities.component';
 import { TimetableComponent } from './timetable/timetable.component';
 import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
+import { RestoreFactoryItemsComponent } from './restore-factoryitems/restore-factoryitems.component';
 
 const appRoutes: Routes = [
   {
@@ -27,7 +28,13 @@ const appRoutes: Routes = [
   },
   {
     path: 'restore',
-    component: RestoreComponent
+    component: RestoreComponent,
+    children: [
+      {
+        path: ':restorefactoryitems',
+        component: RestoreFactoryItemsComponent
+      }
+    ],
   },
   {
     path: 'server',

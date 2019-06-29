@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -30,6 +31,7 @@ namespace EmpyrionModWebHost.Controllers
 
     public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
+        public ILogger<PlayerManager> Logger { get; set; }
         public IRoleHubContext<PlayerHub> PlayerHub { get; internal set; }
         public IProvider<IUserService> UserService { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
@@ -38,9 +40,13 @@ namespace EmpyrionModWebHost.Controllers
         public ModGameAPI GameAPI { get; private set; }
         public ConcurrentDictionary<string, Player> UpdatePlayersQueue { get; set; } = new ConcurrentDictionary<string, Player>();
 
-        public PlayerManager(IRoleHubContext<PlayerHub> aPlayerHub, IProvider<IUserService> aUserService)
+        public PlayerManager(
+            ILogger<PlayerManager> aLogger,
+            IRoleHubContext<PlayerHub> aPlayerHub, 
+            IProvider<IUserService> aUserService)
         {
-            PlayerHub = aPlayerHub;
+            Logger      = aLogger;
+            PlayerHub   = aPlayerHub;
             UserService = aUserService;
             SysteminfoManager   = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
             ChatManager         = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
@@ -165,7 +171,7 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch (Exception error)
             {
-                log($"PlayerManager_Event_Player_Info: {error}", LogLevel.Error);
+                Logger?.LogError(error, "PlayerManager_Event_Player_Info");
             }
         }
 

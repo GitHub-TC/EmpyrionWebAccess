@@ -60,6 +60,7 @@ namespace EmpyrionModWebHost.Controllers
         deleteOldBackpacks,
         deletePlayerOnPlayfield,
         deleteHistoryBook,
+        deleteOldFactoryItems,
         runShell,
         consoleCommand,
         wipePlayfield,
@@ -99,6 +100,7 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<BackpackManager> BackpackManager { get; }
         public Lazy<HistoryBookManager> HistoryBookManager { get; }
+        public Lazy<FactoryManager> FactoryManager { get; }
         public ConfigurationManager<Timetable> TimetableConfig { get; private set; }
 
         public ILogger<TimetableManager> Logger { get; set; }
@@ -116,6 +118,7 @@ namespace EmpyrionModWebHost.Controllers
             SysteminfoManager   = new Lazy<SysteminfoManager>   (() => Program.GetManager<SysteminfoManager>());
             BackpackManager     = new Lazy<BackpackManager>     (() => Program.GetManager<BackpackManager>());
             HistoryBookManager  = new Lazy<HistoryBookManager>  (() => Program.GetManager<HistoryBookManager>());
+            FactoryManager      = new Lazy<FactoryManager>      (() => Program.GetManager<FactoryManager>());
 
             TimetableConfig = new ConfigurationManager<Timetable>
             {
@@ -258,6 +261,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.deleteOldBackpacks      : BackpackManager.Value.DeleteOldBackpacks(int.TryParse(aAction.data, out int BackpackDays) ? BackpackDays : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
                 case ActionType.deleteHistoryBook       : HistoryBookManager.Value.DeleteHistory(int.TryParse(aAction.data, out int HistoryDays) ? HistoryDays : 14); break;
+                case ActionType.deleteOldFactoryItems   : FactoryManager.Value.DeleteOldFactoryItems(int.TryParse(aAction.data, out int FactoryItemsDays) ? FactoryItemsDays : 14); break;
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;
                 case ActionType.wipePlayfield           : PlayfieldManager.Value.Wipe(aAction.data.Split(':')[1].Split(';').Select(P => P.Trim()), aAction.data.Split(':')[0]); break;
@@ -298,7 +302,6 @@ namespace EmpyrionModWebHost.Controllers
             catch (Exception Error)
             {
                 Logger.LogError(Error, "EGSRestart");
-                log(Error.ToString(), EmpyrionNetAPIDefinitions.LogLevel.Error);
             }
 
             RestartState(false);
@@ -347,7 +350,9 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("GetTimetable")]
         public ActionResult<TimetableAction[]> GetTimetable()
         {
-            return TimetableManager.TimetableConfig.Current.Actions;
+            return TimetableManager.TimetableConfig.Current.Actions
+                .OrderBy(A => A.repeat)
+                .ToArray();
         }
 
         [HttpPost("SetTimetable")]

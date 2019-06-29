@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Eleon.Modding;
+using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNet.OData.Builder;
@@ -54,6 +55,28 @@ namespace EmpyrionModWebHost.Controllers
 
         public void UpdateBackpack(string aPlayerSteamId, ItemStack[] aToolbar, ItemStack[] aBag)
         {
+            Backpack backpack = TaskTools.Retry(() => backpack = ExecUpdate(aPlayerSteamId, aToolbar, aBag));
+            if(backpack != null) BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(backpack)).Wait();
+        }
+
+        private bool IsEqual(ItemStack[] aLeft, ItemStack[] aRight)
+        {
+            if (aLeft == null && aRight != null) return false;
+            if (aLeft != null && aRight == null) return false;
+            if (aLeft == null && aRight == null) return true;
+            if (aLeft.Length != aRight.Length) return false;
+
+            for (int i = aLeft.Length - 1; i >= 0; i--)
+            {
+                if (aLeft[i].id    != aRight[i].id   ) return false;
+                if (aLeft[i].count != aRight[i].count) return false;
+            }
+
+            return true;
+        }
+
+        private Backpack ExecUpdate(string aPlayerSteamId, ItemStack[] aToolbar, ItemStack[] aBag)
+        {
             using (var DB = new BackpackContext())
             {
                 var Backpack = DB.Backpacks
@@ -61,12 +84,12 @@ namespace EmpyrionModWebHost.Controllers
                     .FirstOrDefault(B => B.Id == aPlayerSteamId);
                 var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
                 var ToolbarContent = JsonConvert.SerializeObject(aToolbar);
-                var BagContent     = JsonConvert.SerializeObject(aBag);
+                var BagContent = JsonConvert.SerializeObject(aBag);
 
-                if(Backpack != null)
+                if (Backpack != null)
                 {
-                    if(IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.ToolbarContent), aToolbar) &&
-                       IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.BagContent), aBag)) return;
+                    if (IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.ToolbarContent), aToolbar) &&
+                        IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.BagContent), aBag)) return null;
                 }
 
                 if (IsNewBackpack)
@@ -85,35 +108,20 @@ namespace EmpyrionModWebHost.Controllers
 
                 Backpack = DB.Backpacks.FirstOrDefault(B => B.Id == aPlayerSteamId && B.Timestamp == DateTime.MinValue);
                 IsNewBackpack = Backpack == null;
-                if(IsNewBackpack) Backpack = new Backpack() {
-                                                                Id = aPlayerSteamId,
-                                                                Timestamp = DateTime.MinValue,
-                                                            };
+                if (IsNewBackpack) Backpack = new Backpack()
+                {
+                    Id          = aPlayerSteamId,
+                    Timestamp   = DateTime.MinValue,
+                };
 
                 Backpack.ToolbarContent = ToolbarContent;
-                Backpack.BagContent     = BagContent;
+                Backpack.BagContent = BagContent;
                 if (IsNewBackpack) DB.Backpacks.Add(Backpack);
 
                 var count = DB.SaveChanges();
 
-                BackpackHub?.Clients.All.SendAsync("UpdateBackpack", JsonConvert.SerializeObject(Backpack)).Wait();
+                return Backpack;
             }
-        }
-
-        private bool IsEqual(ItemStack[] aLeft, ItemStack[] aRight)
-        {
-            if (aLeft == null && aRight != null) return false;
-            if (aLeft != null && aRight == null) return false;
-            if (aLeft == null && aRight == null) return true;
-            if (aLeft.Length != aRight.Length) return false;
-
-            for (int i = aLeft.Length - 1; i >= 0; i--)
-            {
-                if (aLeft[i].id    != aRight[i].id   ) return false;
-                if (aLeft[i].count != aRight[i].count) return false;
-            }
-
-            return true;
         }
 
         public override void Initialize(ModGameAPI dediAPI)

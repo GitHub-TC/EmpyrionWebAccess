@@ -29,7 +29,7 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
 
-        public void DeleteOldBackpacks(int aDays)
+        public void DeleteOldFactoryItems(int aDays)
         {
             using (var DB = new FactoryItemsContext())
             {
