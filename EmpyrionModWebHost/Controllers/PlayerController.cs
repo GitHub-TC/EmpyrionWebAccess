@@ -52,7 +52,7 @@ namespace EmpyrionModWebHost.Controllers
             ChatManager         = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
             UserManager         = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
 
-            TaskTools.Intervall(1000, SendPlayerUpdates);
+            TaskTools.Intervall(10000, SendPlayerUpdates);
         }
 
         private void SendPlayerUpdates()
@@ -60,10 +60,12 @@ namespace EmpyrionModWebHost.Controllers
             var keys = UpdatePlayersQueue.Keys.ToArray();
             if (keys.Length == 0) return;
 
-            var updateKey = keys[new Random().Next(0, keys.Length - 1)];
-            UpdatePlayersQueue.TryRemove(updateKey, out var ChangedPlayer);
+            //var updateKey = keys[new Random().Next(0, keys.Length - 1)];
+            //UpdatePlayersQueue.TryRemove(updateKey, out var ChangedPlayer);
 
-            PlayerHub?.RoleSendAsync(null, "UpdatePlayer", JsonConvert.SerializeObject(ChangedPlayer));
+            PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(UpdatePlayersQueue.Values.ToArray()));
+
+            UpdatePlayersQueue.Clear();
         }
 
         public void CreateAndUpdateDatabase()
