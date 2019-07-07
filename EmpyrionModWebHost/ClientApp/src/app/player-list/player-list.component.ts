@@ -112,28 +112,28 @@ export class PlayerListComponent implements OnInit {
   }
 
   PlayerColor(aPlayer: PlayerModel) {
-    let FoundElevated = this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId);
+    let FoundElevated = this.mPlayerService.ElevatedUser ? this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId) : null;
     if (FoundElevated) switch (FoundElevated.permission) {
       case 3: return "green"; //GameMaster
       case 6: return "brown"; //Moderator
       case 9: return "blue"; //Admin
     }
 
-    let FoundBanned = this.mPlayerService.BannedUser.find(U => U.steamId == aPlayer.SteamId);
+    let FoundBanned = this.mPlayerService.BannedUser ? this.mPlayerService.BannedUser.find(U => U.steamId == aPlayer.SteamId) : null;
     if (FoundBanned) return "red";
 
     return "black";
   }
 
   PlayerHint(aPlayer: PlayerModel) {
-    let FoundElevated = this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId);
+    let FoundElevated = this.mPlayerService.ElevatedUser ? this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId) : null;
     if (FoundElevated) switch (FoundElevated.permission) {
       case 3: return "GameMaster";
       case 6: return "Moderator";
       case 9: return "Admin"; 
     }
 
-    let FoundBanned = this.mPlayerService.BannedUser.find(U => U.steamId == aPlayer.SteamId);
+    let FoundBanned = this.mPlayerService.BannedUser ? this.mPlayerService.BannedUser.find(U => U.steamId == aPlayer.SteamId) : null;
     if (FoundBanned) return "Banned until " + FoundBanned.until.toLocaleString();
 
     return "";
