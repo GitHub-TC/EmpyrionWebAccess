@@ -8,6 +8,7 @@ import { ChatModel } from '../model/chat-model'
 import { CHAT } from '../model/chat-mock';
 import { PlayerModel } from '../model/player-model';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
+import { FactionModel } from '../model/faction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,8 @@ export class ChatService {
   private lastMessages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mLastMessages);
   public readonly lastMessagesObservable: Observable<ChatModel[]> = this.lastMessages.asObservable();
 
-  private mChatToPlayer: PlayerModel;
+  private mChatTo: string;
+  private mChatToInfo: string;
     error: any;
   
   constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
@@ -83,27 +85,33 @@ export class ChatService {
   }
 
   ChatToPlayer(aPlayer: PlayerModel) {
-    this.mChatToPlayer = aPlayer;
+    this.mChatToInfo = aPlayer.PlayerName;
+    this.mChatTo     = "p:" + aPlayer.EntityId;
+  }
+
+  ChatToFaction(aFaction: FactionModel) {
+    this.mChatToInfo = aFaction.Abbrev;
+    this.mChatTo     = "f:" + aFaction.Abbrev;
   }
 
   get ChatTarget() {
-    return this.mChatToPlayer ? "@" + this.mChatToPlayer.PlayerName : "All";
+    return this.mChatTo ? "@" + this.mChatToInfo : "All";
   }
 
   get ChatToAll() {
-    return !this.mChatToPlayer;
+    return !this.mChatTo;
   }
 
   set ChatToAll(aToAll: boolean) {
-    this.mChatToPlayer = null;
+    this.mChatTo = null;
   }
 
   SendMessage(aAsUser: string, aMessage: string): void {
     let chatTarget = null;
     let chatTargetHint = null;
-    if (this.mChatToPlayer) {
-      chatTarget = "p:" + this.mChatToPlayer.EntityId;
-      chatTargetHint = "@" + this.mChatToPlayer.PlayerName + ": ";
+    if (this.mChatTo) {
+      chatTarget     = this.mChatTo;
+      chatTargetHint = "@" + this.mChatToInfo + ": ";
     }
 
     this.hubConnection.invoke("SendMessage", chatTarget, chatTargetHint, aAsUser, aMessage);

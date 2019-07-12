@@ -62,8 +62,12 @@ export class ChatListComponent implements OnInit {
     if (this.displayFilter) setTimeout(() => FilterInput.focus(), 0);
   }
 
-  ChatTo(aMsg: ChatModel) {
+  ChatToPlayer(aMsg: ChatModel) {
     this.mChatService.ChatToPlayer(this.mPlayerService.GetPlayer(P => P.SteamId == aMsg.PlayerSteamId));
+  }
+
+  ChatToFaction(aMsg: ChatModel) {
+    this.mChatService.ChatToFaction(this.mFactions.find(F => F.Abbrev == aMsg.FactionName));
   }
 
   Faction(aMsg: ChatModel) {

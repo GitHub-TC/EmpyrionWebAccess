@@ -30,12 +30,15 @@
 
     <ng-container matColumnDef="faction">
       <th mat-header-cell *matHeaderCellDef> Fac. </th>
-      <td mat-cell *matCellDef="let chat">{{Faction(chat)?.Abbrev}}</td>
+      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" (click)="ChatToFaction(chat)" title="Chat to {{Faction(chat)?.Abbrev}}">
+        <mat-icon style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
+        {{Faction(chat)?.Abbrev}}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="playerName">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" class="PlayerName" (click)="ChatTo(chat)" title="Chat to {{chat.PlayerName}}">
+      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" class="PlayerName" (click)="ChatToPlayer(chat)" title="Chat to {{chat.PlayerName}}">
         <mat-icon style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
         {{chat.PlayerName}}
       </td>

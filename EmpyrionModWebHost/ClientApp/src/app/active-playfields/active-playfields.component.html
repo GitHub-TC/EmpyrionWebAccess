@@ -17,7 +17,7 @@
     <div style="position: absolute; left:3.8em" class="playerCell" (click)="mPlayerService.CurrentPlayer = player">{{player.PlayerName}}</div>
     <div style="position: absolute; right:0px">
       <mat-icon style="font-size:medium; cursor: pointer; color: darkmagenta;" (click)="SavePosition(player)" title="Save position of {{player.PlayerName}}">flag</mat-icon>
-      <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
+      <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatToPlayer(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
     </div>
     <br />
   </div>

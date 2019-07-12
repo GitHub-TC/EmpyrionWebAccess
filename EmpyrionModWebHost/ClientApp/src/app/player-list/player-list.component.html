@@ -35,7 +35,7 @@
                                    }"></app-warp-dialog>
           </div>
           <div style="display:inline-block; margin-top:2px; margin-left:-5px">
-            <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatTo(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
+            <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatToPlayer(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
           </div>
         </div>
       </td>
@@ -48,7 +48,10 @@
 
     <ng-container matColumnDef="Faction">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Faction </th>
-      <td mat-cell *matCellDef="let player">{{Faction(player)?.Abbrev}}</td>
+      <td mat-cell *matCellDef="let player">
+        <mat-icon *ngIf="Faction(player)?.Abbrev" style="font-size:medium; height:10px; cursor: pointer; color: lightblue;" (click)="ChatToFaction(player)" title="Chat to {{Faction(player)?.Abbrev}}">chat</mat-icon>
+        {{Faction(player)?.Abbrev}}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="Playfield">

@@ -56,7 +56,15 @@ export class PlayerListComponent implements OnInit {
 
   ngAfterViewInit() {
     this.players.sort = this.sort;
-    this.players.sortingDataAccessor = (D, H) => typeof(D[H])==="string" ? ("" + D[H]).toLowerCase() : D[H];
+    this.players.sortingDataAccessor = (D, H) => typeof (D[H]) === "string" ? ("" + D[H]).toLowerCase() : D[H];
+    this.players.filterPredicate =
+      (data: PlayerModel, filter: string) =>
+        data.PlayerName                   .trim().toLowerCase().indexOf(filter) != -1 ||
+        data.Playfield                    .trim().toLowerCase().indexOf(filter) != -1 ||
+        data.EntityId                     .toString()          .indexOf(filter) != -1 ||
+        data.SteamId                                           .indexOf(filter) != -1 ||
+        this.Origin(data)                 .trim().toLowerCase().indexOf(filter) != -1 ||
+        this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1;
   }
 
   @Input()
@@ -99,12 +107,16 @@ export class PlayerListComponent implements OnInit {
     };
   }
 
-  ChatTo(aPlayer: PlayerModel) {
+  ChatToPlayer(aPlayer: PlayerModel) {
     this.mChatService.ChatToPlayer(aPlayer);
   }
 
+  ChatToFaction(aPlayer: PlayerModel) {
+    this.mChatService.ChatToFaction(this.mFactions.find(F => F.FactionId == aPlayer.FactionId));
+  }
+
   Faction(aPlayer: PlayerModel) {
-    return aPlayer ? this.mFactions.find(F => F.FactionId == aPlayer.FactionId) : "";
+    return aPlayer ? this.mFactions.find(F => F.FactionId == aPlayer.FactionId) : new FactionModel();
   }
 
   Origin(aPlayer: PlayerModel) {

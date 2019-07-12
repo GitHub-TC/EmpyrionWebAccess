@@ -66,7 +66,7 @@ export class ActivePlayfieldsComponent implements OnInit {
     };
   }
 
-  ChatTo(aPlayer: PlayerModel) {
+  ChatToPlayer(aPlayer: PlayerModel) {
     this.mChatService.ChatToPlayer(aPlayer);
   }
 

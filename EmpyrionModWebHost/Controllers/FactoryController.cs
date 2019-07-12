@@ -171,6 +171,21 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
+                if (aRessources.ReplaceExisting)
+                {
+                    var p = await FactoryManager.Request_Player_Info(aRessources.PlayerId.ToId());
+                    var setRes = new List<ItemStack>();
+                    aRessources.ItemStacks.ForEach(I => {
+                        if (p.bpResourcesInFactory.TryGetValue(I.id, out var count))
+                        {
+                            if(count < I.count) setRes.Add(new ItemStack(I.id, I.count - (int)count));
+                        }
+                        else setRes.Add(I);
+                    });
+                    aRessources.ItemStacks      = setRes;
+                    aRessources.ReplaceExisting = false;
+                }
+
                 await FactoryManager.Request_Blueprint_Resources(aRessources);
                 return Ok();
             }
