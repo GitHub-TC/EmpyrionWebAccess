@@ -412,7 +412,7 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
-        private PlayfieldGlobalStructureInfo GenerateGlobalStructureInfo(string aInfoTxtFile)
+        public static PlayfieldGlobalStructureInfo GenerateGlobalStructureInfo(string aInfoTxtFile)
         {
             var Info = new PlayfieldGlobalStructureInfo();
             Info.structureName = Path.GetFileNameWithoutExtension(aInfoTxtFile);
@@ -425,29 +425,42 @@ namespace EmpyrionModWebHost.Controllers
                 if (FirstLine == null || LastLine == null) return Info;
 
                 var FieldNames  = FirstLine.Split(',');
-                var FieldValues = LastLine .Split(',');
+                var FieldValues = LastLine .Split(',').ToList();
 
-                string   StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
+                var posField = Array.FindIndex(FieldNames, N => N == "pos");
+                FieldValues[posField] =
+                    FieldValues[posField    ] + "." + FieldValues[posField + 1] + "." +
+                    FieldValues[posField + 2] + "." + FieldValues[posField + 3];
+                FieldValues.RemoveRange(posField + 1, 3);
+
+                var rotField = Array.FindIndex(FieldNames, N => N == "rot");
+                FieldValues[rotField] =
+                    FieldValues[rotField    ] + "." + FieldValues[rotField + 1] + "." +
+                    FieldValues[rotField + 2] + "." + FieldValues[rotField + 3];
+                FieldValues.RemoveRange(rotField + 1, 3);
+
+                string StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
                 int      IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }
                 bool     BoolValue      (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && bool.TryParse(FieldValues[pos], out bool Result) && Result; }
                 PVector3 PVector3Value  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? new PVector3() : GetPVector3(FieldValues[pos]); }
-                DateTime DateTimeValue  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && DateTime.TryParse(FieldValues[pos], CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MinValue; }
+                DateTime DateTimeValue  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && DateTime.TryParseExact(FieldValues[pos], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MinValue; }
 
                 Info.Playfield  = StringValue("playfield");
                 Info.Id         = IntValue("id");
                 Info.Name       = StringValue("name")?.Trim('\'');
                 Info.Type       = StringValue("type");
-                Info.Faction    = ToIntOrZero(StringValue("faction")?.Replace("[Fac", "").Replace("]", "").Trim());
+                var faction     = StringValue("faction")?.Trim();
+                Info.Faction    = ToIntOrZero(faction?.Replace("]", "").Substring(faction.IndexOf(' ') + 1).Trim());
 
-                Info.Blocks = IntValue("blocks");
-                Info.Devices = IntValue("devices");
-                Info.Touched_ticks = IntValue("touched_ticks");
-                Info.Touched_id = IntValue("touched_id");
-                Info.Saved_ticks = IntValue("saved_ticks");
+                Info.Blocks         = IntValue("blocks");
+                Info.Devices        = IntValue("devices");
+                Info.Touched_ticks  = IntValue("touched_ticks");
+                Info.Touched_id     = IntValue("touched_id");
+                Info.Saved_ticks    = IntValue("saved_ticks");
 
-                Info.Docked = BoolValue("docked");
-                Info.Powered = BoolValue("powered");
-                Info.Core = BoolValue("core");
+                Info.Docked     = BoolValue("docked");
+                Info.Powered    = BoolValue("powered");
+                Info.Core       = BoolValue("core");
 
                 Info.Pos = PVector3Value("pos");
                 Info.Rot = PVector3Value("rot");
@@ -455,7 +468,7 @@ namespace EmpyrionModWebHost.Controllers
                 Info.Saved_time   = DateTimeValue("saved_time");
                 Info.Touched_time = DateTimeValue("touched_time");
                 Info.Touched_name = StringValue("touched_name")?.Trim('\'');
-                Info.Add_info = StringValue("add_info");
+                Info.Add_info     = $"{StringValue("add_info")} {faction}";
             }
             catch (Exception)
             {
@@ -464,7 +477,7 @@ namespace EmpyrionModWebHost.Controllers
             return Info;
         }
 
-        private PVector3 GetPVector3(string aValue)
+        private static PVector3 GetPVector3(string aValue)
         {
             var d = aValue.Split(' ');
             return new PVector3() { x = ToFloatOrZero(d[0]), y = ToFloatOrZero(d[1]), z = ToFloatOrZero(d[2]) };
@@ -472,7 +485,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private static int ToIntOrZero(string aValue)
         {
-            return (int.TryParse(aValue, out int Result) ? Result : 0);
+            return (int.TryParse(aValue?.TrimStart('0'), out int Result) ? Result : 0);
         }
 
         private static float ToFloatOrZero(string aValue)

@@ -6,6 +6,8 @@ import { FactionService } from '../services/faction.service';
 import { PositionService } from '../services/position.service';
 import { PlayfieldService } from '../services/playfield.service';
 import { PlayfieldModel } from '../model/playfield-model';
+import { StructureService } from '../services/structure.service';
+import { GlobalStructureInfo } from '../model/structure-model';
 
 interface PlayfieldGlobalStructureInfo {
   structureName: string;
@@ -53,6 +55,7 @@ export class RestoreStructureComponent implements OnInit {
   constructor(
     private http: HttpClient,
     public FactionService: FactionService,
+    private mStructureService: StructureService,
     public mPositionService: PositionService,
     private mPlayfields: PlayfieldService,
   ) { }
@@ -70,7 +73,7 @@ export class RestoreStructureComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
   ngAfterViewInit() {
@@ -79,6 +82,14 @@ export class RestoreStructureComponent implements OnInit {
     this.sort.sortChange.subscribe(E => {
       console.log(E);
     });
+
+    this.structures.filterPredicate =
+      (data: PlayfieldGlobalStructureInfo, filter: string) =>
+         data.id                                 .toString()   .indexOf(filter) != -1  ||
+        (data.name       && data.name     .trim().toLowerCase().indexOf(filter) != -1) ||
+        (data.playfield  && data.playfield.trim().toLowerCase().indexOf(filter) != -1) ||
+        (data.type       && data.type     .trim().toLowerCase().indexOf(filter) != -1) ||
+        (data.add_info   && data.add_info .trim().toLowerCase().indexOf(filter) != -1);
   }
 
   applyFilter(filterValue: string) {
@@ -101,6 +112,7 @@ export class RestoreStructureComponent implements OnInit {
     this.WarpData.playfield = aStructure.playfield;
     this.WarpData.pos = JSON.parse(JSON.stringify(aStructure.pos));
     this.WarpData.rot = JSON.parse(JSON.stringify(aStructure.rot));
+    this.mStructureService.CurrentStructure = <GlobalStructureInfo><any>aStructure;
   }
 
   copyPosition() {
@@ -131,7 +143,7 @@ export class RestoreStructureComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
   Create() {
@@ -149,7 +161,7 @@ export class RestoreStructureComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
   CreateFromEBP() {
@@ -162,7 +174,7 @@ export class RestoreStructureComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
   onUploaded(aName: string) {

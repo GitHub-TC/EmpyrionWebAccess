@@ -64,7 +64,8 @@ export class PlayerListComponent implements OnInit {
         data.EntityId                     .toString()          .indexOf(filter) != -1 ||
         data.SteamId                                           .indexOf(filter) != -1 ||
         this.Origin(data)                 .trim().toLowerCase().indexOf(filter) != -1 ||
-        this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1;
+        this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1 ||
+        ('' + data.FactionId).indexOf(filter) != -1;
   }
 
   @Input()

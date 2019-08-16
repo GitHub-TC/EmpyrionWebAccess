@@ -33,7 +33,7 @@ export class RestorePlayfieldComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
     this.mStructureService.GetGlobalStructureList()
       .subscribe(S => this.mAllStructures = S );
   }
@@ -51,7 +51,7 @@ export class RestorePlayfieldComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
 
     let locationsSubscription2 = this.http.post<any>("Backups/ReadStructures", { backup: this.SelectedBackup })
       .pipe()
@@ -60,7 +60,7 @@ export class RestorePlayfieldComponent implements OnInit {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription2.unsubscribe(); }, 20000);
+    setTimeout(() => { locationsSubscription2.unsubscribe(); }, 120000);
   }
 
   get SelectedPlayfield() {
@@ -92,7 +92,7 @@ export class RestorePlayfieldComponent implements OnInit {
             error => this.error = error // error path
           );
         // Stop listening for location after 10 seconds
-        setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+        setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
       });
   }
   

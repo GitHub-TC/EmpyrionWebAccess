@@ -381,8 +381,8 @@ namespace EmpyrionModWebHost.Controllers
 
         private List<TimeFrameData> GetTimeFramedData(DateTime FromTime, DateTime ToTime)
         {
-            var TimeFrameData = DB.Players.Where(P => P.Timestamp >= FromTime && P.Timestamp <= ToTime).Select(H => new TimeFrameData() { t = H.Timestamp, p = H }).ToList();
-            TimeFrameData.AddRange(DB.Structures.Where(S => S.Timestamp >= FromTime && S.Timestamp <= ToTime).Select(H => new TimeFrameData() { t = H.Timestamp, s = H }));
+            var TimeFrameData =    DB.Players   .Where(P => P.Timestamp >= FromTime.ToLocalTime() && P.Timestamp <= ToTime.ToLocalTime()).Select(H => new TimeFrameData() { t = H.Timestamp, p = H }).ToList();
+            TimeFrameData.AddRange(DB.Structures.Where(S => S.Timestamp >= FromTime.ToLocalTime() && S.Timestamp <= ToTime.ToLocalTime()).Select(H => new TimeFrameData() { t = H.Timestamp, s = H }));
 
             return TimeFrameData.OrderBy(T => T.t).ToList();
         }

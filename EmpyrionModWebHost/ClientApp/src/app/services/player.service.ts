@@ -51,7 +51,7 @@ export class PlayerService {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
 
     let locationsSubscription2 = this.http.get<ElevatedUserStruct[]>("Player/GetElevatedUsers")
       .pipe()
@@ -60,7 +60,7 @@ export class PlayerService {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription2.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription2.unsubscribe(); }, 120000);
 
     let locationsSubscription3 = this.http.get<BannedUserStruct[]>("Player/GetBannedUsers")
       .pipe()
@@ -72,7 +72,7 @@ export class PlayerService {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription3.unsubscribe(); }, 10000);
+    setTimeout(() => { locationsSubscription3.unsubscribe(); }, 120000);
 
   }
 

@@ -52,11 +52,11 @@ export class StructureService {
     return this.currentStructureObservable;
   }
 
-  get CurrentStructure() {
+  public get CurrentStructure() {
     return this.mCurrentStructure;
   }
 
-  set CurrentStructure(aStructure: GlobalStructureInfo) {
+  public set CurrentStructure(aStructure: GlobalStructureInfo) {
     this.currentStructure.next(this.mCurrentStructure = aStructure);
   }
 
