@@ -33,11 +33,13 @@ namespace EmpyrionModWebHost.Controllers
     public class PlayfieldManager : EmpyrionModBase, IEWAPlugin
     {
         public IHubContext<PlayfieldHub> PlayfieldHub { get; internal set; }
+        public Lazy<StructureManager> StructureManager { get; }
         public ModGameAPI GameAPI { get; private set; }
 
         public PlayfieldManager(IHubContext<PlayfieldHub> aPlayfieldHub)
         {
-            PlayfieldHub = aPlayfieldHub;
+            PlayfieldHub        = aPlayfieldHub;
+            StructureManager    = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
         }
 
         public PlayfieldInfo[] Playfields { get; set; }
@@ -113,6 +115,18 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
+        public void ResetPlayfieldIfEmpty(string[] playfields)
+        {
+            playfields.AsParallel()
+                .Where(NoPlayerStuffPresent)
+                .ForEach(P => Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true));
+        }
+
+        private bool NoPlayerStuffPresent(string playfield)
+        {
+            return StructureManager.Value.LastGlobalStructureList.Current.globalStructures.TryGetValue(playfield, out var structures) &&
+                structures.All(S => S.factionGroup != (byte)Factions.Faction && S.factionGroup != (byte)Factions.Private);
+        }
     }
 
     [ApiController]
@@ -190,7 +204,7 @@ namespace EmpyrionModWebHost.Controllers
                 catch (Exception Error)
                 {
                     Logger.LogError(Error, "LoadSpace: {0} to {1}", aPlayfieldname, PlayfieldMap);
-                    return NotFound();
+                    PlayfieldMap = Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\ClientApp\dist\ClientApp\empty.png");
                 }
             }
 
@@ -218,7 +232,7 @@ namespace EmpyrionModWebHost.Controllers
                     using (var clientImg = new System.Net.WebClient())
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(aPlayfieldMap));
-                        clientImg.DownloadFile(new Uri(Content.keystone_image_2x.ToString()), aPlayfieldMap);
+                        clientImg.DownloadFile(new Uri("http:" + Content.keystone_image_2x.ToString()), aPlayfieldMap);
                     }
                 }
             }

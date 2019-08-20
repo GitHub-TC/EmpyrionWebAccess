@@ -66,6 +66,7 @@ namespace EmpyrionModWebHost.Controllers
         wipePlayfield,
         resetPlayfield,
         recreatePlayfield,
+        resetPlayfieldIfEmpty,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -267,6 +268,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.wipePlayfield           : PlayfieldManager.Value.Wipe(aAction.data.Split(':')[1].Split(';').Select(P => P.Trim()), aAction.data.Split(':')[0]); break;
                 case ActionType.resetPlayfield          : PlayfieldManager.Value.ResetPlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
                 case ActionType.recreatePlayfield       : PlayfieldManager.Value.RecreatePlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
+                case ActionType.resetPlayfieldIfEmpty   : PlayfieldManager.Value.ResetPlayfieldIfEmpty(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
             }
 
             if (aAction.actionType != ActionType.restart) ExecSubActions(aAction);

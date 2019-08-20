@@ -52,6 +52,7 @@ export enum ActionType {
   wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield]] -> Example: poi deposit : Akua; Hsaa",
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
+  resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",
 }
 
 class SubTimetableAction{

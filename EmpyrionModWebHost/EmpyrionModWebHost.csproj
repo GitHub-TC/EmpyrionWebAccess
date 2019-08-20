@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>4.5.12</Version>
+    <Version>4.6.0</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -102,6 +102,7 @@ Empyrion &gt;= A10</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ClientApp\src\empty.png" />
     <Content Include="EmpyrionWebAccess.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
