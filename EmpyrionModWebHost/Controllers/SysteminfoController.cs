@@ -47,7 +47,7 @@ namespace EmpyrionModWebHost.Controllers
         public long diskUsedSpace;
         public float cpuTotalLoad;
         public float ramAvailableMB;
-        public long ramTotalMB;
+        public ulong ramTotalMB;
         public string serverName;
     }
 
@@ -69,9 +69,34 @@ namespace EmpyrionModWebHost.Controllers
     {
         public SysteminfoDataModel CurrentSysteminfo = new SysteminfoDataModel();
 
-        [DllImport("kernel32.dll")]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        private class MEMORYSTATUSEX
+        {
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+            public MEMORYSTATUSEX()
+            {
+                this.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+            }
+        }
+
+        public ulong InstalledTotalMemory()
+        {
+            MEMORYSTATUSEX memStatus = new MEMORYSTATUSEX();
+            return GlobalMemoryStatusEx(memStatus) ? memStatus.ullTotalPhys : 0;
+        }
+
+
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetPhysicallyInstalledSystemMemory(out long TotalMemoryInKilobytes);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern bool GlobalMemoryStatusEx([In, Out] MEMORYSTATUSEX lpBuffer);
 
         public IHubContext<SysteminfoHub> SysteminfoHub { get; internal set; }
         public PlayerManager PlayerManager { get; private set; }
@@ -140,13 +165,13 @@ namespace EmpyrionModWebHost.Controllers
 
             var GameDrive = DriveInfo.GetDrives().FirstOrDefault(D => D.RootDirectory.FullName == Path.GetPathRoot(ProcessInformation == null ? Directory.GetCurrentDirectory() : ProcessInformation.CurrentDirecrory));
 
-            GetPhysicallyInstalledSystemMemory(out long memKb);
+            ulong memBytes = InstalledTotalMemory();
 
-            CurrentSysteminfo.cpuTotalLoad = CpuTotalLoad.NextValue();
-            CurrentSysteminfo.ramAvailableMB = RamAvailable.NextValue();
-            CurrentSysteminfo.ramTotalMB = memKb / 1024;
-            CurrentSysteminfo.diskUsedSpace = GameDrive.TotalSize - GameDrive.TotalFreeSpace;
-            CurrentSysteminfo.diskFreeSpace = GameDrive.TotalFreeSpace;
+            CurrentSysteminfo.cpuTotalLoad      = CpuTotalLoad.NextValue();
+            CurrentSysteminfo.ramAvailableMB    = RamAvailable.NextValue();
+            CurrentSysteminfo.ramTotalMB        = memBytes / (1024 * 1024);
+            CurrentSysteminfo.diskUsedSpace     = GameDrive.TotalSize - GameDrive.TotalFreeSpace;
+            CurrentSysteminfo.diskFreeSpace     = GameDrive.TotalFreeSpace;
         }
 
         public string SetState(string aState, string aStateChar, bool aStateSet)
