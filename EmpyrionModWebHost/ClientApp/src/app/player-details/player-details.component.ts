@@ -92,6 +92,16 @@ export class PlayerDetailsComponent implements OnInit {
       });
   }
 
+  SetRole(aPlayer: PlayerModel, aRole: string) {
+    this.contextMenuTrigger.closeMenu();
+    this.YesNo.openDialog({ title: "Set role for player to " + aRole, question: aPlayer.PlayerName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.mPlayerService.SetRoleOfPlayer(this.Player, aRole);
+      });
+  }
+
+
   PlayerHint(aPlayer: PlayerModel) {
     let FoundElevated = this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId);
     if (FoundElevated) switch (FoundElevated.permission) {

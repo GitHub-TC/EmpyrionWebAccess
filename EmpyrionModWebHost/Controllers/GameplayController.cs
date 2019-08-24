@@ -229,6 +229,14 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [HttpGet("SetRoleOfPlayer/{aSteamId}/{aRole}")]
+        [Authorize(Roles = nameof(Role.InGameAdmin))]
+        public IActionResult SetRoleOfPlayer(string aSteamId, string aRole)
+        {
+            GameplayManager.Request_ConsoleCommand(new PString($"setrole {aSteamId} {aRole}"));
+            return Ok();
+        }
+
         [HttpGet("UnBanPlayer/{aSteamId}")]
         public IActionResult UnBanPlayer(string aSteamId)
         {

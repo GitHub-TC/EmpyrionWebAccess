@@ -206,4 +206,13 @@ export class PlayerService {
       );
   }
 
+  SetRoleOfPlayer(player: PlayerModel, role: string) {
+    this.http.get('gameplay/SetRoleOfPlayer/' + player.SteamId + '/' + role)
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
 }

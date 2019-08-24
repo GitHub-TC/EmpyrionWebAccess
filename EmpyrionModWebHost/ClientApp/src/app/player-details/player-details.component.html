@@ -98,5 +98,9 @@
   <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="Ban(Player, '12m')">Ban 12m</button>
   <button mat-menu-item *ngIf="role.is(UserRole.GameMaster)"  (click)="UnBan(Player)">Unban</button>
   <button mat-menu-item *ngIf="role.is(UserRole.Moderator)"   (click)="Wipe(Player)">Wipe</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="SetRole(Player, 'player')">Role: Player</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="SetRole(Player, 'gamemaster')">Role: Gamemaster</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="SetRole(Player, 'moderator')">Role: Moderator</button>
+  <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="SetRole(Player, 'admin')">Role: InGameAdmin</button>
 </mat-menu>
 <app-yes-no-dialog></app-yes-no-dialog>
