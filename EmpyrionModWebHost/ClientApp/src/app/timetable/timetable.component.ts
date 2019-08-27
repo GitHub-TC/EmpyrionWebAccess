@@ -42,6 +42,7 @@ export enum ActionType {
   backupScenario          = "Backup (scenario)|",
   backupMods              = "Backup (mods)|",
   backupEGSMainFiles      = "Backup (EGSMainFiles)|",
+  backupPlayfields        = "Backup (playfields)| [playfield[;playfield]] -> Example: Akua; Omicron; Masperon",
   deleteOldBackups        = "Delete old backups | [days] (default:14)",
   deleteOldBackpacks      = "Delete old backpacks | [days] (default:14)",
   deletePlayerOnPlayfield = "Delete player on playfield| [playfield[;playfield]] -> Example: Akua; Omicron; Masperon",

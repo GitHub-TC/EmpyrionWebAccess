@@ -16,6 +16,7 @@ import { FactionModel } from '../model/faction-model';
 export class ChatService {
   public hubConnection: HubConnection;
   mFilterServerMsg: boolean = true;
+  mFilterCMDsMsg: boolean = true;
 
   private mMessages: ChatModel[] = [];// CHAT;
   private messages: BehaviorSubject<ChatModel[]> = new BehaviorSubject(this.mMessages);
@@ -36,6 +37,7 @@ export class ChatService {
     this.hubConnection.on("Send", (message) => {
       let Msg = JSON.parse(message);
       if (this.mFilterServerMsg && Msg.FactionName == "SERV") return;
+      if (this.mFilterCMDsMsg && (Msg.Message.startsWith('\\') || Msg.Message.startsWith('/'))) return;
       this.messages.next(this.messages.getValue().concat());
       this.lastMessages.next(this.lastMessages.getValue().concat(Msg));
     });
@@ -70,9 +72,20 @@ export class ChatService {
     this.GetLastMessages();
   }
 
+  get filterCMDsMsg(): boolean {
+    return this.mFilterCMDsMsg;
+  }
+
+  set filterCMDsMsg(aFilter: boolean) {
+    this.mFilterCMDsMsg = aFilter;
+    this.GetLastMessages();
+  }
+
   GetLastMessages(): any {
-    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats?$top=500&$orderby=Timestamp desc" +
-      (this.mFilterServerMsg ? "&$filter=FactionName ne 'SERV'" : ""))
+    let filter = this.mFilterServerMsg ? "FactionName ne 'SERV'" : "";
+    filter = this.mFilterCMDsMsg ? (filter ? filter + " And " : "") + "startswith(Message, '\\') eq false And startswith(Message, '/') eq false" : filter;
+
+    let locationsSubscription = this.http.get<ODataResponse<ChatModel[]>>("odata/Chats?$top=500&$orderby=Timestamp desc" + (filter ? "&$filter=" + filter : ""))
       .pipe(map(S => S.value))
       .subscribe(
         M => this.lastMessages.next(this.mLastMessages = M.reverse()),

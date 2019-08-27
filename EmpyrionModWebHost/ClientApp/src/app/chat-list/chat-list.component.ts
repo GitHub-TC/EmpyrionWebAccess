@@ -93,6 +93,14 @@ export class ChatListComponent implements OnInit {
     this.mChatService.filterServerMsg = aFilter;
   }
 
+  get filterCMDsMsg(): boolean {
+    return this.mChatService.filterCMDsMsg;
+  }
+
+  set filterCMDsMsg(aFilter: boolean) {
+    this.mChatService.filterCMDsMsg = aFilter;
+  }
+
   ExecChatTranslate(chat: any) {
     if (chat.MessageTranslate) return;
 

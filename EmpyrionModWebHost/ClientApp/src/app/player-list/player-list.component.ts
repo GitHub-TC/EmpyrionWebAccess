@@ -56,7 +56,7 @@ export class PlayerListComponent implements OnInit {
 
   ngAfterViewInit() {
     this.players.sort = this.sort;
-    this.players.sortingDataAccessor = (D, H) => typeof (D[H]) === "string" ? ("" + D[H]).toLowerCase() : D[H];
+    this.players.sortingDataAccessor = (D, H) => typeof (D[H]) === "string" ? ("" + D[H]).toLowerCase() + D["PlayerName"].toLowerCase() : (typeof (D[H]) === "boolean" ? !D[H] + D["PlayerName"].toLowerCase() : D[H]);
     this.players.filterPredicate =
       (data: PlayerModel, filter: string) =>
         data.PlayerName                   .trim().toLowerCase().indexOf(filter) != -1 ||

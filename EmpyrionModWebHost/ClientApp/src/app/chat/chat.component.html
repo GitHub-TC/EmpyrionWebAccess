@@ -3,8 +3,9 @@
     <section class="line-section select">
       <mat-checkbox [(ngModel)]="ChatService.ChatToAll" [disabled]="ChatService.ChatToAll" style="float:left;"><div class="lablewrap">Chat to all</div></mat-checkbox>
       <mat-checkbox *ngIf="role.is(UserRole.GameMaster)" [(ngModel)]="chatAsUser" style="float:left;padding-left:1em"><div class="lablewrap">Chat as {{currentUser.username}}</div></mat-checkbox>
-      <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;"><div class="lablewrap">Auto scroll</div></mat-checkbox>
+      <mat-checkbox [(ngModel)]="chatList.autoscroll" style="float:right;"><div class="lablewrap">Autoscroll</div></mat-checkbox>
       <mat-checkbox [(ngModel)]="chatList.filterServerMsg" style="float:right;padding-right:1em"><div class="lablewrap">Filter Server</div></mat-checkbox>
+      <mat-checkbox [(ngModel)]="chatList.filterCMDsMsg" style="float:right;padding-right:1em"><div class="lablewrap">Filter CMDs</div></mat-checkbox>
     </section>
     <section class="line-section">
       <mat-form-field style="width:100%">

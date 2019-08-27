@@ -171,6 +171,45 @@ namespace EmpyrionModWebHost.Controllers
             BackupState(false);
         }
 
+        public void BackupPlayfields(string aCurrentBackupDir, string[] playfields)
+        {
+            BackupState(true);
+
+            playfields.AsParallel()
+                .ForAll(P =>
+                {
+                    CopyAll(
+                        new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P)),
+                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Playfields", P))
+                        );
+
+                    CopyAll(
+                        new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates", P)),
+                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Templates", P))
+                        );
+
+                    StructureManager.Value.LastGlobalStructureList.Current.globalStructures.TryGetValue(P, out var structures);
+                    structures
+                        .Where(S => S.factionId > 0 && (S.factionGroup == (byte)Factions.Private || S.factionGroup == (byte)Factions.Faction))
+                        .AsParallel()
+                        .ForAll(S => {
+                            var structureName = $"{new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }[S.type]}_Player_{S.id}";
+
+                            CopyAll(
+                                new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", structureName)),
+                                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName))
+                                );
+
+                            File.Copy(
+                                Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", structureName + ".txt"),
+                                Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName + ".txt")
+                                );
+                        });
+                });
+
+            BackupState(false);
+        }
+
         public void SavegameBackup(string aCurrentBackupDir)
         {
             BackupState(true);
@@ -490,21 +529,56 @@ namespace EmpyrionModWebHost.Controllers
                 if (FirstLine == null || LastLine == null) return Info;
 
                 var FieldNames  = FirstLine.Split(',');
-                var FieldValues = LastLine .Split(',').ToList();
 
                 var posField = Array.FindIndex(FieldNames, N => N == "pos");
-                FieldValues[posField] =
-                    FieldValues[posField    ] + "." + FieldValues[posField + 1] + "." +
-                    FieldValues[posField + 2] + "." + FieldValues[posField + 3];
-                FieldValues.RemoveRange(posField + 1, 3);
+                var startPos = 0;
+                for (int i = 0; i <= posField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
+
+                var endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
+                if (LastLine[endPos] == ',')
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
+                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                if (LastLine[endPos] == ',')
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
+                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                if (LastLine[endPos] == ',')
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
 
                 var rotField = Array.FindIndex(FieldNames, N => N == "rot");
-                FieldValues[rotField] =
-                    FieldValues[rotField    ] + "." + FieldValues[rotField + 1] + "." +
-                    FieldValues[rotField + 2] + "." + FieldValues[rotField + 3];
-                FieldValues.RemoveRange(rotField + 1, 3);
+                startPos = 0;
+                for (int i = 0; i <= rotField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
 
-                string StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
+                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
+                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
+                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
+                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                {
+                    LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
+                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                }
+
+                var FieldValues = LastLine.Split(',').ToList();
+
+                string   StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
                 int      IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }
                 bool     BoolValue      (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && bool.TryParse(FieldValues[pos], out bool Result) && Result; }
                 PVector3 PVector3Value  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? new PVector3() : GetPVector3(FieldValues[pos]); }
@@ -555,7 +629,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private static float ToFloatOrZero(string aValue)
         {
-            return (float.TryParse(aValue, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out float Result) ? Result : 0);
+            return (float.TryParse(aValue, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out float Result) ? Result : 0);
         }
 
         public class CreateStructureData : BackupData

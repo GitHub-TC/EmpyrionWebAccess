@@ -103,7 +103,7 @@ export class PlayerDetailsComponent implements OnInit {
 
 
   PlayerHint(aPlayer: PlayerModel) {
-    let FoundElevated = this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId);
+    let FoundElevated = this.mPlayerService.ElevatedUser ? this.mPlayerService.ElevatedUser.find(U => U.steamId == aPlayer.SteamId) : null;
     if (FoundElevated) switch (FoundElevated.permission) {
       case 3: return "GameMaster";
       case 6: return "Moderator";

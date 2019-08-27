@@ -56,6 +56,7 @@ namespace EmpyrionModWebHost.Controllers
         backupScenario,
         backupMods,
         backupEGSMainFiles,
+        backupPlayfields,
         deleteOldBackups,
         deleteOldBackpacks,
         deletePlayerOnPlayfield,
@@ -258,6 +259,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory(" - Scenario")); break;
                 case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory(" - Mods")); break;
                 case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory(" - ESG MainFiles")); break;
+                case ActionType.backupPlayfields        : BackupManager.Value.BackupPlayfields  (BackupManager.Value.CurrentBackupDirectory(" - Playfields"), aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
                 case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int BackupDays) ? BackupDays : 14); break;
                 case ActionType.deleteOldBackpacks      : BackpackManager.Value.DeleteOldBackpacks(int.TryParse(aAction.data, out int BackpackDays) ? BackpackDays : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
