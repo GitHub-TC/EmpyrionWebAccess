@@ -9,5 +9,6 @@
         public int StructureDataUpdateCheckInSeconds { get; set; } = 1;
         public int StructureDataUpdateInMinutes { get; set; } = 60;
         public int StructureDataUpdateDelayInSeconds { get; set; } = 10;
+        public int PlayerOfflineWarpDelay { get; set; } = 60;
     }
 }

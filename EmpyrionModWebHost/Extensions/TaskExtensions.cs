@@ -82,7 +82,6 @@ namespace EmpyrionModWebHost.Extensions
             return localExit;
         }
 
-
         public static ManualResetEvent Intervall(int aMillisecondsIntervall, Action aAction)
         {
             var localExit = new ManualResetEvent(false);
