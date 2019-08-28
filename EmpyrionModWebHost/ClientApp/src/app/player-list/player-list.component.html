@@ -42,7 +42,7 @@
                                     rot: { x:player.RotX, y:player.RotY, z:player.RotZ }
                                    }"></app-warp-dialog>
           </div>
-          <div *ngIf="player.Online" style="display:inline-block; margin-top:2px; margin-left:-5px">
+          <div *ngIf="player.Online" style="display:inline-block; margin-top:2px; margin-left:-5px; width:12px">
             <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="ChatToPlayer(player)" title="Chat to {{player.PlayerName}}">chat</mat-icon>
           </div>
         </div>

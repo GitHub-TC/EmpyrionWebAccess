@@ -7,14 +7,26 @@
   font-size: 11px;
 }
 
+.pad {
+  padding-right: 1em
+}
+
 @media (max-width: 1024px) {
   .line-section.select {
     font-size: 8px;
+  }
+
+  .pad {
+    padding-right: 2px;
   }
 
   .lablewrap {
     white-space: normal;
     width: 4em;
   }
+}
+
+/deep/.mat-checkbox-layout .mat-checkbox-label {
+  line-height: 12px !important;
 }
 
