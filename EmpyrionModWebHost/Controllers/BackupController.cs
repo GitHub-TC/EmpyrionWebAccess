@@ -150,7 +150,18 @@ namespace EmpyrionModWebHost.Controllers
             catch { }  // Playfield already loaded
 
             await Request_Entity_Spawn(SpawnInfo);
-            await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
+                    break;
+                }
+                catch
+                {
+                    await Task.Delay(5000);
+                }
+            }
         }
 
         public void BackupState(bool aRunning)
@@ -318,6 +329,7 @@ namespace EmpyrionModWebHost.Controllers
             public string backup;
         }
 
+        private static readonly object CreateStructureLock = new object();
 
         public BackupManager BackupManager { get; }
 
@@ -640,7 +652,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("CreateStructure")]
         public IActionResult CreateStructure([FromBody]CreateStructureData aData)
         {
-            BackupManager.CreateStructure(aData.backup, aData.structure).Wait();
+            lock (CreateStructureLock) BackupManager.CreateStructure(aData.backup, aData.structure).Wait();
             return Ok();
         }
 

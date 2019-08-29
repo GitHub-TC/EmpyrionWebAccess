@@ -18,7 +18,9 @@
       <div class="col col-lg-3">
         <mat-card>
           <mat-dialog-content>
-            <h3>{{CurrentStructure?.name}}</h3>
+            <h3 *ngIf="IsSingleShip">{{CurrentStructure?.name}}</h3>
+            <h3 *ngIf="!IsSingleShip">{{selection.selected.length}} Structures</h3>
+            <h5 *ngIf="!IsSingleShip && CurrentStructure">relative pos from: <mat-icon style="cursor:pointer; padding-top:5px" (click)="CurrentStructure = null" title="Remove relativ position">delete</mat-icon><br />{{CurrentStructure?.name}}</h5>
             <mat-form-field>
               <mat-select placeholder="Playfield" [(value)]="WarpData.playfield">
                 <mat-option *ngFor="let pl of Playfields" [value]="pl.name">
@@ -28,17 +30,17 @@
             </mat-form-field>
             <br />
             <mat-form-field>
-              <mat-label>X: (East/West) </mat-label>
+              <mat-label>X: (East/West)<span *ngIf="!IsSingleShip && !CurrentStructure"> Offset</span></mat-label>
               <input matInput type="number" [(ngModel)]="WarpData.pos.x" />
             </mat-form-field>
             <br />
             <mat-form-field>
-              <mat-label>Y: (Height) </mat-label>
+              <mat-label>Y: (Height)<span *ngIf="!IsSingleShip && !CurrentStructure"> Offset</span></mat-label>
               <input matInput type="number" [(ngModel)]="WarpData.pos.y" />
             </mat-form-field>
             <br />
             <mat-form-field>
-              <mat-label>Z: (North/South) </mat-label>
+              <mat-label>Z: (North/South)<span *ngIf="!IsSingleShip && !CurrentStructure"> Offset</span></mat-label>
               <input matInput type="number" [(ngModel)]="WarpData.pos.z" />
             </mat-form-field>
           </mat-dialog-content>
@@ -67,10 +69,25 @@
 
           <div class="divStructureList">
             <table mat-table [dataSource]="structures" class="mat-elevation-z8" matSort>
+              <ng-container matColumnDef="Select" [sticky]="true">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()">
+                  </mat-checkbox>
+                  <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+
               <ng-container matColumnDef="id" [sticky]="true">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Id
-                  <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
                 </th>
                 <td mat-cell *matCellDef="let s" align="right">
                   {{s.id}}
