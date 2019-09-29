@@ -40,7 +40,7 @@ export class FactionService {
     let locationsSubscription = this.http.get<ODataResponse<FactionModel[]>>("odata/Factions")
       .pipe(map(S => S.value))
       .subscribe(
-        F => this.factions.next(this.mFactions = F.sort((a, b) => a.Abbrev < b.Abbrev ? 1 : a.Abbrev === b.Abbrev ? 0 : -1)),
+        F => this.factions.next(this.mFactions = F.sort((a, b) => a.Abbrev > b.Abbrev ? 1 : a.Abbrev === b.Abbrev ? 0 : -1)),
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
