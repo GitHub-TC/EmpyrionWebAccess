@@ -45,6 +45,9 @@ export class PlayerDetailsComponent implements OnInit {
 
     this.Player = JSON.parse(JSON.stringify(aPlayer));
     this.Player.Food = Math.floor(this.Player.Food);
+
+    let found = this.Factions.filter(option => option.FactionId == this.Player.FactionId);
+    if (found.length == 1) this.SelectedFaction.setValue(found[0].Abbrev);
   }
 
   ngOnInit() {
@@ -60,8 +63,8 @@ export class PlayerDetailsComponent implements OnInit {
     this.SelectedFaction.valueChanges.subscribe(F => {
       let found = this.Factions.filter(option => option.Abbrev.toLowerCase().startsWith(F.toLowerCase()));
       if (found.length == 1) {
+        this.Changed = this.Player.FactionId != found[0].FactionId;
         this.Player.FactionId = found[0].FactionId;
-        this.Changed = true;
       }
       this.filteredFactions.next(found);
     });
