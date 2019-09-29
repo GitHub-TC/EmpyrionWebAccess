@@ -11,6 +11,7 @@ import { EntitiesComponent } from './entities/entities.component';
 import { TimetableComponent } from './timetable/timetable.component';
 import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
 import { RestoreFactoryItemsComponent } from './restore-factoryitems/restore-factoryitems.component';
+import { StructuresListComponent } from './structures-list/structures-list.component';
 
 const appRoutes: Routes = [
   {
@@ -42,7 +43,13 @@ const appRoutes: Routes = [
   },
   {
     path: 'entities',
-    component: EntitiesComponent
+    component: EntitiesComponent,
+    children: [
+      {
+        path: ':structureslist',
+        component: StructuresListComponent
+      }
+    ],
   },
   {
     path: 'timetable',

@@ -1,8 +1,8 @@
 <mat-expansion-panel class="activePlayfield"
-                     *ngFor="let playfield of playfields"
-                     [expanded]="!IsClosed(playfield.name)"
-                     (opened)="Open(playfield.name)"
-                     (closed)="Close(playfield.name)">
+                      *ngFor="let playfield of playfields"
+                      [expanded]="!IsClosed(playfield.name)"
+                      (opened)="Open(playfield.name)"
+                      (closed)="Close(playfield.name)">
   <mat-expansion-panel-header style="margin-top:0px; padding-left:5px; padding-right:10px; background-color:ghostwhite;" [collapsedHeight]="'30px'" [expandedHeight]="'30px'">
     <mat-panel-title style="font-size:small">
       <mat-icon *ngIf="role.is(UserRole.VIP)" style="font-size:medium; cursor: pointer; color:mediumpurple" (click)="GotoPlayfield($event, playfield)" title="To Playfieldmap of {{playfield.name}}">map</mat-icon>

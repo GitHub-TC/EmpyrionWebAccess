@@ -12,6 +12,8 @@ import { PLAYER } from '../model/player-mock';
 import { RoleService } from '../services/role.service';
 import { UserRole } from '../model/user';
 import { OriginService } from '../services/origin.service';
+import { Router } from '@angular/router';
+import { StructureService } from '../services/structure.service';
 
 @Component({
   selector: 'app-player-list',
@@ -34,6 +36,8 @@ export class PlayerListComponent implements OnInit {
   UserRole = UserRole;
 
   constructor(
+    public router: Router,
+    private mStructureService: StructureService,
     private mFactionService: FactionService,
     private mPlayerService: PlayerService,
     private mPositionService: PositionService,
@@ -152,4 +156,9 @@ export class PlayerListComponent implements OnInit {
     return "";
   }
 
+  GotoEntities(aPlayer: PlayerModel) {
+    let foundFaction = this.mFactions.find(F => F.FactionId == aPlayer.FactionId);
+    this.mStructureService.FilterPreset = foundFaction ? foundFaction.Abbrev : aPlayer.PlayerName;
+    this.router.navigate(['entities/structureslist'])
+  }
 }

@@ -74,11 +74,12 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
-      <mat-select placeholder="Faction" (selectionChange)="Changed=true" [(value)]="Player.FactionId" style="float:left; margin-left:1em; width:40%">
-        <mat-option *ngFor="let f of Factions" [value]="f.FactionId">
+      <input type="text" placeholder="Faction" [formControl]="SelectedFaction" aria-label="Number" matInput [matAutocomplete]="auto" style="float:left; margin-left:1em; width:40%">
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let f of filteredFactionsObservable | async" [value]="f.Abbrev">
           ({{f.Abbrev}}) {{f.Name}}
         </mat-option>
-      </mat-select>
+      </mat-autocomplete>
       <mat-select placeholder="Role" (selectionChange)="Changed=true" [(value)]="Player.FactionRole" style="float:left; margin-left:1em; width:40%">
         <mat-option *ngFor="let r of Roles" [value]="r.id">
           {{r.text}}

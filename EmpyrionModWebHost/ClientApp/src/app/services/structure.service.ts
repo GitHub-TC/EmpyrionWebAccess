@@ -15,7 +15,8 @@ export class StructureService {
   public hubConnection: HubConnection;
 
   mPlayers: PlayerModel[] = [];
-  private mStructures: GlobalStructureInfo[] = []; 
+  private mStructures: GlobalStructureInfo[] = [];
+  public FilterPreset: string;
 
   private Structures: BehaviorSubject<GlobalStructureInfo[]> = new BehaviorSubject(this.mStructures);
   public readonly StructuresObservable: Observable<GlobalStructureInfo[]> = this.Structures.asObservable();

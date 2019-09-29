@@ -1,6 +1,6 @@
 <div style="position:relative">
   <mat-icon style="cursor:pointer; position:absolute; top: 5px; right:10px; z-index:100" (click)="router.navigate([''])" title="Home">home</mat-icon>
-  <mat-tab-group>
+  <mat-tab-group #MatTabGroup>
     <mat-tab label="Playfield" *ngIf="role.is(UserRole.VIP)">
       <ng-template matTabContent>
         <app-playfield-view></app-playfield-view>

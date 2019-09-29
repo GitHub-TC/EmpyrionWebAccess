@@ -2,7 +2,7 @@
 <mat-dialog-content>
   <input type="text" placeholder="Faction" [formControl]="SelectedFaction" aria-label="Number" matInput [matAutocomplete]="auto">
   <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-    <mat-option *ngFor="let f of Factions" [value]="f.Abbrev">
+    <mat-option *ngFor="let f of filteredFactionsObservable | async" [value]="f.Abbrev">
       ({{f.Abbrev}}) {{f.Name}}
     </mat-option>
   </mat-autocomplete>

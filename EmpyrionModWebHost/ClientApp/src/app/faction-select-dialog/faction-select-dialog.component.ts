@@ -3,6 +3,8 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-faction-select-dialog',
@@ -35,6 +37,9 @@ export class FactionSelectDialogContentComponent {
   FactionSelectQuestion: string;
   Factions: FactionModel[];
 
+  private filteredFactions: BehaviorSubject<FactionModel[]> = new BehaviorSubject(this.Factions);
+  public readonly filteredFactionsObservable: Observable<FactionModel[]> = this.filteredFactions.asObservable();
+
   constructor(
     private mFactionService: FactionService,
     public dialogRef: MatDialogRef<FactionSelectDialogContentComponent>,
@@ -46,6 +51,12 @@ export class FactionSelectDialogContentComponent {
       this.Factions.push({ Abbrev: "Tal", Name: "Talons"  });
       this.Factions.push({ Abbrev: "Pol", Name: "Polaris" });
       this.Factions.push({ Abbrev: "Neu", Name: "Neutral" });
+    });
+  }
+
+  ngOnInit() {
+    this.SelectedFaction.valueChanges.subscribe(F => {
+      this.filteredFactions.next(this.Factions.filter(option => option.Abbrev.toLowerCase().startsWith(F.toLowerCase())));
     });
   }
 

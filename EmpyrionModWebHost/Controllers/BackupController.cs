@@ -84,7 +84,10 @@ namespace EmpyrionModWebHost.Controllers
                     }
                 }
                 catch (TimeoutException) { }
-                catch (Exception error)  { Logger?.LogError(error, "BackupStructureData: Request_Entity_Export"); }
+                catch (Exception error)  {
+                    Logger?.LogError(error, "BackupStructureData: Request_Entity_Export");
+                    Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds);
+                }
             }
         }
 
@@ -225,16 +228,16 @@ namespace EmpyrionModWebHost.Controllers
         {
             BackupState(true);
 
-            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Games")),
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Games")),
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games")));
 
-            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Cache")),
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Cache")),
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Cache")));
 
-            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", "Blueprints")),
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Blueprints")),
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Blueprints")));
 
-            Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves"))
+            Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", ".."))
                 .AsParallel()
                 .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, "Saves", Path.GetFileName(F))));
 

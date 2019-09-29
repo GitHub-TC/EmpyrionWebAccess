@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { MatTableDataSource, MatSort, MatPaginator, MatInput } from '@angular/material';
 import { HttpClient } from '@angular/common/http';
 import { StructureService } from '../services/structure.service';
 import { GlobalStructureInfo } from '../model/structure-model';
@@ -30,6 +30,7 @@ export class StructuresListComponent implements OnInit {
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatInput) FilterInput: MatInput;
 
   error: any;
   mAllStructures: GlobalStructureInfo[];
@@ -55,6 +56,12 @@ export class StructuresListComponent implements OnInit {
         setTimeout(() => {
           this.mAllStructures = S;
           this.SelectedPlayfield = this.mSelectedPlayfield;
+
+          if (this.mStructureService.FilterPreset) {
+            this.FilterInput.value = this.mStructureService.FilterPreset;
+            this.applyFilter(this.mStructureService.FilterPreset);
+            this.mStructureService.FilterPreset = null;
+          }
         }, 10);
       });
   }
@@ -62,6 +69,12 @@ export class StructuresListComponent implements OnInit {
   @Input()
   set Structures(aStructures: GlobalStructureInfo[]) {
     this.mAllStructures = this.structures.data = aStructures;
+
+    if (this.mStructureService.FilterPreset) {
+      this.FilterInput.value = this.mStructureService.FilterPreset;
+      this.applyFilter(this.mStructureService.FilterPreset);
+      this.mStructureService.FilterPreset = null;
+    }
   }
 
   @Input() 
