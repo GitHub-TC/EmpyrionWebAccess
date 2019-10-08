@@ -13,12 +13,12 @@ ASTIC/TC
 
 # Installation
 * Den Inhalt der ZIP Datei in das Verzeichnis "\\Empyrion-Dedicated Server\\Content\\Mods" entpacken.
-![](EmpyrionModWebHost/Screenshots/Pfad01.png)
+![](EmpyrionModWebHost/Screenshots/ModPfad.png)
 * Wenn Ihr den Empyrion-Dedicated Server startet, wird im Savegameverzeichnis 
 "\\Saves\\Games\"\[Savegame\]\"\Mods\\EWA" die Datei "xstart.txt" erstellt. Wobei "Savegame" euer Spiel-Savegame-Name ist.
-![](EmpyrionModWebHost/Screenshots/start1.png)
+![](EmpyrionModWebHost/Screenshots/xstart.png)
 * Den Server wieder herunterfahren und die "xstart.txt" in "start.txt" umbenennen. Wenn der Server wieder gestartet wird, sollte der EWA-Loader einsatzbereit sein.
-![](EmpyrionModWebHost/Screenshots/start2.png)
+![](EmpyrionModWebHost/Screenshots/start.png)
 
 
 * !!! WICHTIG !!!
