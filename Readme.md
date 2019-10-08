@@ -11,13 +11,20 @@ Empyrion Web Access ist frei zur nicht kommerziellen Benutzung.<br>
 Viel Spaß beim Spielen und dem Serverbetrieb wünscht<br>
 ASTIC/TC
 
-## Installation
-* Den Inhalt der ZIP Datei ind das Verzeichnis \[EGS\]\\Content\Mods entpacken.
-* EGS starten und dann im Savegameverzeichnis \[Savegame\]\\Mods\\EWA die Datei "xstart.txt" in "start.txt" umbenennen
+# Installation
+* Den Inhalt der ZIP Datei in das Verzeichnis "\\Empyrion-Dedicated Server\\Content\\Mods" entpacken.
+![](EmpyrionModWebHost/Screenshots/Pfad01.png)
+* Wenn Ihr den Empyrion-Dedicated Server startet, wird im Savegameverzeichnis 
+"\\Saves\\Games\"\[Savegame\]\"\Mods\\EWA" die Datei "xstart.txt" erstellt. Wobei "Savegame" euer Spiel-Savegame-Name ist.
+![](EmpyrionModWebHost/Screenshots/start1.png)
+* Den Server wieder herunterfahren und die "xstart.txt" in "start.txt" umbenennen. Wenn der Server wieder gestartet wird, sollte der EWA-Loader einsatzbereit sein.
+![](EmpyrionModWebHost/Screenshots/start2.png)
 
-!!! WICHTIG !!!
-EmpyrionWebAccess startet nicht automatisch sondern es muss eine "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen.
-Jetzt muss also eine solche Datei erstellt werden. 
+
+* !!! WICHTIG !!!
+EmpyrionWebAccess startet nicht automatisch. Es muss immer die "start.txt" Datei im Verzeichnis \[Savegame\]\\MODs\\EWA liegen. 
+* Wollt Ihr den EWA wieder abschalten reicht es die "start.txt" wieder in "xstart.txt. umzubennen. 
+ 
 
 # WebServer Konfiguration
 Standardmäßig ist der EWA unter https://\[Rechnername\] zu erreichen.
@@ -34,7 +41,7 @@ Hinweis: Der Webserver läuft ausschließlich über HTTPS und nutzt das HTTP nur
 
 Wenn man nun den EGS-Server startet sollte Empyrion Web Access unter der ausgewählten ServerURL eine Anmeldemaske anzeigen.
 
-Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Alle Benutzer können nachher über die Oberfläche angelegt, geändert oder gelöscht werden.
+Als erster Benutzer wird hier das Kürzel und Kennwort automatisch in der Benutzerdatenbank hinterlegt und akzeptiert. Gebt einen Benutzernamen und ein Kennwort ein und Ihr habt Zugriff. Alle Benutzer können nun über die Oberfläche angelegt, geändert oder gelöscht werden.
 
 Hinweis: Da das HTTPS Zertifikat des EWA selbst signiert ist, zeigt der Browser eine Warnung an das die Verbindung nicht sicher sein. Diese kann hier ignoriert werden.
 
@@ -302,12 +309,17 @@ Have fun playing and server operation wishes
 ASTIC/TC
 
 ## installation
-* Extract the contents of the ZIP file into the directory \[EGS\]\\Content\\Mods.
-* Start EGS and then rename the file "xstart.txt" into "start.txt" in the savegame directory \[Savegame\]\\Mods\\EWA
+* Extract the Content of the ZIP file into the directory "\\Empyrion-Dedicated Server\\Content\\Mods"
+![](EmpyrionModWebHost/Screenshots/Pfad01.png)
+* When start the Empyrion Dedicated Server the file "xstart.txt"will be created in the savegame directory \[Savegame\]\\Mods\\EWA. Where "Savegame" is your game savegame name.
+![](EmpyrionModWebHost/Screenshots/start1.png)
+* Shut down the Server and rename the "xstart.txt" to "start.txt". When the Server is restarted,
+the Ewa-Loader should be ready for use.
+* ![](EmpyrionModWebHost/Screenshots/start2.png)
 
-!!! IMPORTANT !!!
-EmpyrionWebAccess does not start automatically but there must be a "start.txt" file in the directory \[Savegame\]\\MODs\\EWA.
-Now, such a file must be created.
+* !!! IMPORTANT !!! EmpyrionWebAccess does not start automatically. The "start.txt" file must always be located in the directory \[Savegame\]\\MODs\\EWA.
+* If you want to switch off the EWA again it is enough to change the "start.txt" into "xstart.txt" again.
+
 
 # Web server configuration
 By default, the EWA can be reached at https://\[computer name\].
