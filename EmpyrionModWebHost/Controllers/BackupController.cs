@@ -28,6 +28,7 @@ namespace EmpyrionModWebHost.Controllers
         public string BackupDir { get; internal set; }
         public Queue<PlayfieldStructureData> SavesStructuresDat { get; set; }
         public ConcurrentDictionary<string, string> ActivePlayfields { get; set; } = new ConcurrentDictionary<string, string>();
+        public ConcurrentDictionary<string, bool> LoggedError { get; set; } = new ConcurrentDictionary<string, bool>();
 
         public string CurrentBackupDirectory(string aAddOn) {
             var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
@@ -69,7 +70,7 @@ namespace EmpyrionModWebHost.Controllers
                     var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{type}_Player_{test.StructureInfo.id}");
                     var exportDat = Path.Combine(structurePath, "Export.dat");
 
-                    if (IsExportDatOutdated(exportDat))
+                    if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat))
                     {
                         Request_Entity_Export(new EntityExportInfo()
                         {
@@ -79,14 +80,18 @@ namespace EmpyrionModWebHost.Controllers
                             isForceUnload = false,
                         }).Wait(10000);
 
-                        Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds);
+                        Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds * 1000);
                         return;
                     }
                 }
                 catch (TimeoutException) { }
                 catch (Exception error)  {
-                    Logger?.LogError(error, "BackupStructureData: Request_Entity_Export");
-                    Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds);
+                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, "BackupStructureData: Request_Entity_Export");
+
+                    try { ActivePlayfields = new ConcurrentDictionary<string, string>(Request_Playfield_List().Result.playfields.ToDictionary(P => P)); }
+                    catch (Exception playfieldListError) { Logger?.LogError(playfieldListError, "BackupStructureData: Request_Playfield_List"); }
+
+                    Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds * 1000);
                 }
             }
         }
