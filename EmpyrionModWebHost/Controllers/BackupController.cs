@@ -62,6 +62,9 @@ namespace EmpyrionModWebHost.Controllers
                             .Where(S => S.StructureInfo.factionId > 0 && ActivePlayfields.TryGetValue(S.Playfield, out _)));
             }
 
+            int errorCounter = 0;
+            LoggedError.Clear();
+
             while (SavesStructuresDat.TryDequeue(out var test))
             {
                 try
@@ -86,10 +89,10 @@ namespace EmpyrionModWebHost.Controllers
                 }
                 catch (TimeoutException) { }
                 catch (Exception error)  {
-                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, "BackupStructureData: Request_Entity_Export");
+                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Entity_Export[{errorCounter++}] {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'");
 
                     try { ActivePlayfields = new ConcurrentDictionary<string, string>(Request_Playfield_List().Result.playfields.ToDictionary(P => P)); }
-                    catch (Exception playfieldListError) { Logger?.LogError(playfieldListError, "BackupStructureData: Request_Playfield_List"); }
+                    catch (Exception playfieldListError) { Logger?.LogError(playfieldListError, $"BackupStructureData: Request_Playfield_List {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'"); }
 
                     Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds * 1000);
                 }
