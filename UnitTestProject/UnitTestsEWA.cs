@@ -1,4 +1,5 @@
 using EmpyrionModWebHost.Controllers;
+using EmpyrionNetAPITools.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -38,6 +39,17 @@ namespace UnitTestProject
             Assert.AreEqual( 270, Math.Round(s3.Rot.y, 0));
             Assert.AreEqual(   0, Math.Round(s3.Rot.z, 0));
 
+        }
+
+        [TestMethod]
+        public void TestMethodReadSectors()
+        {
+            using (var input = File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Sectors.yaml")))
+            {
+                var SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
+                var flattenSectors = SectorsManager.FlattenSectors(SectorsData);
+                var origins = SectorsManager.ReadOrigins(SectorsData);
+            }
         }
     }
 }

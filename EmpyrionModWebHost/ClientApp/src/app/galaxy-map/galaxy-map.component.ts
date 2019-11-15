@@ -18,7 +18,14 @@ export class WarpRoute {
 }
 
 export class SectorMap {
-  Sectors: Sector[]
+    Sectors: Sector[];
+    SolarSystems: SolarSystem[]
+}
+
+export class SolarSystem{
+    Name: string;
+    Coordinates: number[];
+    Sectors: Sector[]
 }
 
 export class Sector {
@@ -61,7 +68,7 @@ export class GalaxyMapComponent implements OnInit {
 
   public translationY = 0.0;
 
-  public Sectors: SectorMap = { Sectors: [] };
+  public Sectors: SectorMap = { Sectors: [], SolarSystems: [] };
   public WarpRoutes: WarpRoute[] = []
   error: any;
 
@@ -96,6 +103,15 @@ export class GalaxyMapComponent implements OnInit {
       .subscribe(
         F => {
           this.Sectors = jsyaml.load(F);
+          if (this.Sectors.SolarSystems) this.Sectors.SolarSystems.map(U => {
+              this.Sectors.Sectors = this.Sectors.Sectors.concat(
+                  U.Sectors.map(S => {
+                      S.Coordinates[0] += U.Coordinates[0];
+                      S.Coordinates[1] += U.Coordinates[1];
+                      S.Coordinates[2] += U.Coordinates[2];
+                      return S;
+                  }));
+          });
           this.Sectors.Sectors = this.Sectors.Sectors.map(S => { S.Name = S.Playfields[S.Playfields.length - 1][1]; return S; });
           this.Sectors.Sectors = this.Sectors.Sectors.sort((A, B) => A.Name.localeCompare(B.Name));
           this.dataSource.data = this.Sectors.Sectors;

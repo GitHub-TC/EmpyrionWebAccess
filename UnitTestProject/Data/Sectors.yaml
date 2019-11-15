@@ -1,0 +1,273 @@
+---
+# Sectors MP
+# IMPORTANT: YAML files use spaces as indentation. Please don't use TABs: http://yaml.org/faq.html
+# Default starter planets on a Dedicated Server are Akua, Omicron, Ningues and Masperon. 'Origin:Number' behind playfield template sets starter planet [ "0, 0, 0", Akua, Temperate, 'Human:1' ]
+# Allow and Deny lists: If “Allow” is set, sectors that are given in list are accessible in addition to those that are close enough. If “Deny” is set, sectors that are given in list are not accessible.
+
+Build: 2699
+Sectors:
+  - Coordinates: [900, 0, 810]
+    SectorMapType: None
+    Playfields:
+    - ['0, 0, 0', Random Encounter, SpaceOrbit] 
+  - Coordinates: [877, 0, 723]
+    SectorMapType: Planet
+    Playfields:
+    - ['0, 0, 0', Rogue Planet, Barren ]  
+    - ['0, 0, 0', Rogue Orbit, SpaceOrbit ]
+SolarSystems:
+  - Name: Ellyon
+    Coordinates: [-972, 0, 382]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 1, Sun]    
+    - Coordinates: [-14, -4, -57]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Aestus, Lava]    
+      - ['0, 0, 0', Aestus Orbit, SpaceOrbit ]   
+    - Coordinates: [-75, -7, -16]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Omicron, AridStarter, 'Human:1'] 
+      - ['3237, 8000, -8041', Omicron Moon, MoonLava ]    
+      - ['0, 0, 0', Omicron Orbit, SpaceOrbitStarter ]   
+    - Coordinates: [38, 1, 81]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Akua, TemperateStarter, 'Human:1']
+      - ['-8292, 5000, 6233', Akua Moon, MoonStarter ]     
+      - ['0, 0, 0', Akua Orbit, SpaceOrbitStarter ]   
+    - Coordinates: [146, 1, -22]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Ningues, Snow ] 
+      - ['0, 0, 0', Ningues Orbit, SpaceOrbit ]    
+    - Coordinates: [-96, 10, -174]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 1, SpaceOrbit ] 
+      Allow: 
+      - Nyrat Trading Outpost
+      Deny:
+      - Aestus Orbit
+    - Coordinates: [170, 0, -151]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 6, SpaceOrbit ] 
+      Allow: 
+      - Asteroid Field 3
+      Deny:
+      - Ningues Orbit
+    - Coordinates: [196, -6, 199]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field, SpaceAsteroidField ] 
+      Allow: 
+      - Oryzs Tor Trading Hub
+      Deny:
+      - Akua Orbit
+
+  - Name: Thelya
+    Coordinates: [240, 0, 600]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 2, Sun]
+    - Coordinates: [36, 0, 100]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Zeyhines, Desert ]  
+      - ['0, 0, 0', Zeyhines Orbit, SpaceOrbit ]
+    - Coordinates: [-29, -7, -13]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Oscutune, Ocean ]  
+      - ['-6041, 0, 5619', Oscutune Moon, MoonDesert ]     
+      - ['0, 0, 0', Oscutune Orbit, SpaceOrbit ]
+    - Coordinates: [-55, -2, 180]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Sienna, Snow ]  
+      - ['-7523, 5000, -8314', Sienna Moon, MoonIce ]     
+      - ['0, 0, 0', Sienna Orbit, SpaceAsteroidField ]
+    - Coordinates: [-235, 50, 5]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Nyrat Trading Outpost, SpaceTradingStation ]  
+      Allow: 
+      - Lagrange 1
+    - Coordinates: [-126, 0, 349]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 5, SpaceAsteroidField ] 
+      Allow: 
+      - Asteroid Field 4 
+    - Coordinates: [227, 20, 1]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 3, SpaceOrbit ] 
+      Allow: 
+      - Lagrange 4
+    - Coordinates: [-3, -3, -146]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Top Gun Mission, +Top Gun Mission ]  
+
+  - Name: Amben
+    Coordinates: [-54, 0, 282]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 3, Sun] 
+    - Coordinates: [27, 50, 20]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Heka, LavaNascent, 'Human:2' ]  
+      - ['-5931, 3000, 5892', Heka Moon, MoonNascent ]     
+      - ['0, 0, 0', Heka Orbit, SpaceAsteroidField ]
+    - Coordinates: [74, 2, -47]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Tallodar, Arid ]  
+      - ['-3845, -7000, 7872', Tallodar Moon, MoonDesert ]     
+      - ['0, 0, 0', Tallodar Orbit, SpaceOrbit ]
+    - Coordinates: [6, 0, -120]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Pantera, TemperateSwamp ]  
+      - ['-6809, 7000, -3943', Pantera Moon, Moon ]     
+      - ['0, 0, 0', Pantera Orbit, SpaceAsteroidField ]
+    - Coordinates: [267, 0, -67]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Abbalor Trading Station, SpaceTradingStation ] 
+      Allow: 
+      - Asteroid Field 2
+    - Coordinates: [-112, 0, -267]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 3, SpaceAsteroidField ] 
+      Allow: 
+      - Lagrange 6 
+    - Coordinates: [154, 0, -291]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 4, SpaceAsteroidField ] 
+      Allow: 
+      - Asteroid Field 5 
+    - Coordinates: [13, 0, 197]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 6, SpaceAsteroidField ] 
+      Allow: 
+      - Asteroid Field 7  
+
+  - Name: Symos
+    Coordinates: [221, 0, 801]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 4, Sun] 
+    - Coordinates: [-3, 1, 51]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Skillon, Barren ]  
+      - ['5927, 5000, 5209', Skillon Moon, MoonDesert ]     
+      - ['0, 0, 0', Skillon Orbit, SpaceOrbit ]
+    - Coordinates: [91, 1, -47]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Masperon, Alien ]  
+      - ['4005, -4000, 8146', Masperon Moon, MoonLava2 ]     
+      - ['0, 0, 0', Masperon Orbit, SpaceOrbit ]
+    - Coordinates: [-244, 21, -12]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Oryzs Tor Trading Hub, SpaceTradingStation ] 
+      Allow: 
+      - Asteroid Field
+    - Coordinates: [286, 10, -112]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 5, SpaceOrbit ] 
+      Allow: 
+      - Lagrange 2
+    - Coordinates: [59, 0, -234]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 7, SpaceAsteroidField ] 
+      Allow: 
+      - Asteroid Field 6 
+    - Coordinates: [95, 2, 74]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Elemental Space Race Mission, +Elemental Space Race Mission ]
+
+  - Name: Hemmadon
+    Coordinates: [677, 0, -80]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 5, Sun] 
+    - Coordinates: [83, -2, 45]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Roggery, TemperateSwamp ] 
+      - ['0, 0, 0', Roggery Orbit, SpaceOrbit ]
+    - Coordinates: [-42, 1, 118]
+      SectorMapType: Planet
+      Playfields:
+      - ['0, 0, 0', Aitis, TemperateSwamp ]  
+      - ['5927, 5000, 5209', Aitis Moon, MoonLava2 ]     
+      - ['0, 0, 0', Aitis Orbit, SpaceOrbit ]
+    - Coordinates: [277, 0, -60]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Anomality, SpaceOrbit ] 
+      Allow: 
+      - Alien Outpost
+    - Coordinates: [-51, 10, 337]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 2, SpaceOrbit ] 
+      Allow: 
+      - Lagrange 5
+    - Coordinates: [26, 0, -142]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Lagrange 4, SpaceOrbit ] 
+      Allow: 
+      - Lagrange 3
+    - Coordinates: [-205, 0, 21]
+      SectorMapType: AsteroidField
+      Playfields:
+      - ['0, 0, 0', Asteroid Field 2, SpaceAsteroidField ] 
+      Allow: 
+      - Abbalor Trading Station 
+    - Coordinates: [198, -4, 193]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Taipane, +InstanceTaipane ]  
+      Allow: 
+      - Alien Outpost
+
+  - Name: Verna
+    Coordinates: [1168, 0, 179]
+    Sectors:
+    - Coordinates: [0, 0, 0]
+      SectorMapType: None
+      Playfields:
+      - ['0, 0, 0', Sun 6, Sun] 
+    - Coordinates: [71, 1, -72]
+      SectorMapType: Station
+      Playfields:
+      - ['0, 0, 0', Alien Outpost, SpaceAsteroidField ] 
+      Allow: 
+      - Anomality

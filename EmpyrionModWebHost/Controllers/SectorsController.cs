@@ -27,9 +27,17 @@ namespace EmpyrionModWebHost.Controllers
         public List<string> Deny { get; set; }
     }
 
+    public class SolarSystems
+    {
+        public string Name { get; set; }
+        public List<int> Coordinates { get; set; }
+        public List<SectorData> Sectors { get; set; }
+    }
+
     public class SectorsData
     {
         public List<SectorData> Sectors { get; set; }
+        public List<SolarSystems> SolarSystems { get; set; }
     }
 
     public class SectorsManager : EmpyrionModBase, IEWAPlugin
@@ -64,12 +72,37 @@ namespace EmpyrionModWebHost.Controllers
                 SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
             }
 
-            ReadOrigins();
+            Origins = ReadOrigins(SectorsData);
         }
 
-        private void ReadOrigins()
+        public static List<SectorData> FlattenSectors(SectorsData sectorsData)
         {
-            Origins = SectorsData.Sectors
+            if(sectorsData.SolarSystems == null) return sectorsData.Sectors;
+
+            var sectors = sectorsData.Sectors.ToList();
+
+            sectorsData.SolarSystems.ForEach(U => { 
+                U.Sectors.ForEach(S => {
+                   sectors.Add(new SectorData(){
+                        Coordinates         = new[]{ S.Coordinates[0] + U.Coordinates[0], S.Coordinates[1] + U.Coordinates[1], S.Coordinates[2] + U.Coordinates[2]}.ToList(),     
+                        Color               = S.Color,           
+                        Icon                = S.Icon,            
+                        OrbitLine           = S.OrbitLine,       
+                        SectorMapType       = S.SectorMapType,   
+                        ImageTemplateDir    = S.ImageTemplateDir,
+                        Playfields          = S.Playfields,      
+                        Allow               = S.Allow,           
+                        Deny                = S.Deny,            
+                   }); 
+                });
+            });
+
+            return sectors;
+        }
+
+        public static IDictionary<int, string> ReadOrigins(SectorsData sectorsData)
+        {
+            var origins = sectorsData.Sectors
                     .Where(S => S.Playfields != null && S.Playfields.Count > 0)
                     .Select(S => S.Playfields)
                     .Aggregate(new List<string>(), (O, SP) => {
@@ -78,6 +111,23 @@ namespace EmpyrionModWebHost.Controllers
                     })
                     .Distinct(StringComparer.InvariantCultureIgnoreCase)
                     .ToDictionary(O => int.TryParse(O.Split(':')[1], out int Result) ? Result : 0, O => O.Split(':')[0]);
+
+            if(sectorsData.SolarSystems != null){
+                sectorsData.SolarSystems.SelectMany(U => 
+                    U.Sectors
+                    .Where(S => S.Playfields != null && S.Playfields.Count > 0)
+                    .Select(S => S.Playfields)
+                    .Aggregate(new List<string>(), (O, SP) => {
+                        SP.ForEach(P => { if (P.Count == 4 && !string.IsNullOrEmpty(P[3])) { O.Add(P[3]); } });
+                        return O;
+                    })
+                    .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                    .ToDictionary(O => int.TryParse(O.Split(':')[1], out int Result) ? Result : 0, O => O.Split(':')[0])
+                )
+                .ForEach(O => origins.Add(O.Key, O.Value));
+            }
+
+            return origins;
         }
     }
 
@@ -104,7 +154,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("Sectors")]
         public IList<SectorData> Sectors()
         {
-            return SectorsManager.SectorsData.Sectors;
+            return SectorsManager.FlattenSectors(SectorsManager.SectorsData);
         }
 
     }
