@@ -79,7 +79,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if(sectorsData.SolarSystems == null) return sectorsData.Sectors;
 
-            var sectors = sectorsData.Sectors.ToList();
+            var sectors = sectorsData.Sectors.ToList() ?? new List<SectorData>();
 
             sectorsData.SolarSystems.ForEach(U => { 
                 U.Sectors.ForEach(S => {

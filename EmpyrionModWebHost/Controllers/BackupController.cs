@@ -552,54 +552,62 @@ namespace EmpyrionModWebHost.Controllers
                 if (FirstLine == null || LastLine == null) return Info;
 
                 var FieldNames  = FirstLine.Split(',');
+                var FieldValues = LastLine.Split(',').ToList();
 
                 var posField = Array.FindIndex(FieldNames, N => N == "pos");
-                var startPos = 0;
-                for (int i = 0; i <= posField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
 
-                var endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
-                if (LastLine[endPos] == ',')
+                if (FieldValues.Count > 22)
                 {
+                    var startPos = 0;
+                    for (int i = 0; i <= posField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
+
+                    var endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
+                    if (LastLine[endPos] == ',')
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
-                }
-                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
-                if (LastLine[endPos] == ',')
-                {
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
+                    endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                    if (LastLine[endPos] == ',')
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
-                }
-                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
-                if (LastLine[endPos] == ',')
-                {
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
+                    endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                    if (LastLine[endPos] == ',')
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
                 }
 
                 var rotField = Array.FindIndex(FieldNames, N => N == "rot");
-                startPos = 0;
-                for (int i = 0; i <= rotField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
+                if (FieldValues.Count > 22)
+                {
+                    var startPos = 0;
+                    for (int i = 0; i <= rotField; i++) startPos = LastLine.IndexOf(',', startPos + 1);
 
-                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
-                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
-                {
+                    var endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, startPos);
+                    if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
-                }
-                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
-                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
-                {
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
+                    endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                    if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
-                }
-                endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
-                if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
-                {
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
+                    endPos = LastLine.IndexOfAny(new[] { ',', ' ' }, endPos + 1);
+                    if (LastLine[endPos] == ',' && Char.IsDigit(LastLine[endPos + 1]))
+                    {
                     LastLine = LastLine.Substring(0, endPos) + '.' + LastLine.Substring(endPos + 1);
-                    endPos   = LastLine.IndexOf(' ', endPos) + 1;
+                    endPos = LastLine.IndexOf(' ', endPos) + 1;
+                    }
                 }
 
-                var FieldValues = LastLine.Split(',').ToList();
+                FieldValues = LastLine.Split(',').ToList();
 
                 string   StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
                 int      IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }

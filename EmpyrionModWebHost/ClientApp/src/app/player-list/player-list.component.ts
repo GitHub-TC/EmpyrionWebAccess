@@ -125,7 +125,7 @@ export class PlayerListComponent implements OnInit {
   }
 
   Origin(aPlayer: PlayerModel) {
-    return aPlayer ? this.mOrigins[aPlayer.Origin] : "";
+    return aPlayer && aPlayer.Origin && this.mOrigins && this.mOrigins[aPlayer.Origin] ? this.mOrigins[aPlayer.Origin] : "";
   }
 
   PlayerColor(aPlayer: PlayerModel) {
