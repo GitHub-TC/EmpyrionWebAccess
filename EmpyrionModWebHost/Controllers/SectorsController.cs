@@ -102,7 +102,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public static IDictionary<int, string> ReadOrigins(SectorsData sectorsData)
         {
-            var origins = sectorsData.Sectors
+            var origins = sectorsData.Sectors?
                     .Where(S => S.Playfields != null && S.Playfields.Count > 0)
                     .Select(S => S.Playfields)
                     .Aggregate(new List<string>(), (O, SP) => {
@@ -110,7 +110,8 @@ namespace EmpyrionModWebHost.Controllers
                         return O;
                     })
                     .Distinct(StringComparer.InvariantCultureIgnoreCase)
-                    .ToDictionary(O => int.TryParse(O.Split(':')[1], out int Result) ? Result : 0, O => O.Split(':')[0]);
+                    .ToDictionary(O => int.TryParse(O.Split(':')[1], out int Result) ? Result : 0, O => O.Split(':')[0])
+                    ?? new Dictionary<int, string>();
 
             if(sectorsData.SolarSystems != null){
                 sectorsData.SolarSystems.SelectMany(U => 

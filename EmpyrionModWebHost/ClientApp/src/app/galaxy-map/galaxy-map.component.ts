@@ -104,6 +104,7 @@ export class GalaxyMapComponent implements OnInit {
         F => {
           this.Sectors = jsyaml.load(F);
           if (this.Sectors.SolarSystems) this.Sectors.SolarSystems.map(U => {
+              if (!this.Sectors.Sectors) this.Sectors.Sectors = [];
               this.Sectors.Sectors = this.Sectors.Sectors.concat(
                   U.Sectors.map(S => {
                       S.Coordinates[0] += U.Coordinates[0];
