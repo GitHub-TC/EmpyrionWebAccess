@@ -10,6 +10,17 @@ namespace UnitTestProject
     public class UnitTestsEWA
     {
         [TestMethod]
+        public void TestReadItemInfos()
+        {
+            var ItemConfigFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Config_Example.ecf");
+            var LocalizationFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Localization.csv");
+
+            var items = GameplayManager.ReadItemInfos(ItemConfigFile, LocalizationFile);
+
+            Assert.AreEqual(1588, items.Length);
+        }
+
+        [TestMethod]
         public void TestMethodReadGenerateGlobalStructureInfo()
         {
             var s1 = BackupsController.GenerateGlobalStructureInfo(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "CV_Player_5295028.txt"));

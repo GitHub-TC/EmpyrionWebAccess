@@ -93,18 +93,31 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (_mItemInfo != null) return _mItemInfo;
 
-            var ItemDef = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf"))
+            var ItemConfigFile   = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf");
+            var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
+
+            _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
+
+            CreateDummyPNGForUnknownItems(_mItemInfo);
+
+            return _mItemInfo;
+        }
+
+        public static ItemInfo[] ReadItemInfos(string itemConfigFile, string localizationFile)
+        {
+            var ItemDef = File.ReadAllLines(itemConfigFile)
                 .Where(L => L.Contains(IdDef));
-            var Localisation = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv"))
+            var Localisation = File.ReadAllLines(localizationFile)
                 .Where(L => Char.IsLetter(L[0]))
-                .Select(L => new { ID= L.Substring(0, L.IndexOf(",")), Name= L.Substring(L.IndexOf(",") + 1) })
+                .Select(L => new { ID = L.Substring(0, L.IndexOf(",")), Name = L.Substring(L.IndexOf(",") + 1) })
                 .SafeToDictionary(L => L.ID, L => L.Name, StringComparer.CurrentCultureIgnoreCase);
 
-            _mItemInfo = ItemDef.Select(L =>
+            return ItemDef.Select(L =>
             {
                 var IdPos = L.IndexOf(IdDef);
                 var IdDelimiter = L.IndexOf(",", IdPos);
                 var NamePos = L.IndexOf(NameDef);
+                if (NamePos == -1) return null;
                 var NameDelimiter = L.IndexOf(",", NamePos);
                 if (NameDelimiter == -1) NameDelimiter = L.Length;
 
@@ -130,10 +143,6 @@ namespace EmpyrionModWebHost.Controllers
             })
             .Where(I => I != null)
             .ToArray();
-
-            CreateDummyPNGForUnknownItems(_mItemInfo);
-
-            return _mItemInfo;
         }
 
         private static void CreateDummyPNGForUnknownItems(ItemInfo[] aItems)
