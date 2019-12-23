@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>4.16.0</Version>
+    <Version>4.16.2</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -33,7 +33,7 @@ Empyrion &gt;= A10</Description>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />
     <PackageReference Include="Certes" Version="2.3.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.0.3" />
-    <PackageReference Include="EmpyrionNetAPI" Version="4.0.3" />
+    <PackageReference Include="EmpyrionNetAPI" Version="5.0.4" />
     <PackageReference Include="Karambolo.Extensions.Logging.File" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.1.0" />
@@ -47,7 +47,7 @@ Empyrion &gt;= A10</Description>
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.5.0" />
     <PackageReference Include="System.Management" Version="4.5.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
-    <PackageReference Include="YamlDotNet" Version="6.1.1" />
+    <PackageReference Include="YamlDotNet" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

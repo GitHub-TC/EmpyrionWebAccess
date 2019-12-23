@@ -51,8 +51,25 @@ namespace EmpyrionModWebHost.Controllers
         {
             if(ActivePlayfields.Count == 0)
             {
-                try{ ActivePlayfields = new ConcurrentDictionary<string, string>(Request_Playfield_List().Result.playfields.ToDictionary(P => P)); }
-                catch (Exception error){ Logger?.LogError(error, "BackupStructureData: Request_Playfield_List"); }
+                List<string> playfields = null; 
+                try
+                {
+                    playfields = Request_Playfield_List().Result?.playfields;
+                }
+                catch (TimeoutException error)
+                {
+                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Playfield_List");
+                }
+
+                if (playfields == null)
+                {
+                    var msg = $"Request_Playfield_List: no playfields";
+                    if (LoggedError.TryAdd(msg, true)) Logger?.LogError(msg, $"BackupStructureData: Request_Playfield_List");
+
+                    return;
+                }
+
+                ActivePlayfields = new ConcurrentDictionary<string, string>(playfields.ToDictionary(P => P));
             }
 
             if (SavesStructuresDat == null || SavesStructuresDat.Count == 0)

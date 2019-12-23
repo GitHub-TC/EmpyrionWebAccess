@@ -227,7 +227,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (System.IO.File.Exists(ModManager.StopFileName))
             {
-                ModManager.log($"Start: ModLoader", LogLevel.Message);
+                ModManager.Log($"Start: ModLoader", LogLevel.Message);
                 System.IO.File.Delete(ModManager.StopFileName);
             }
             return Ok();
@@ -236,7 +236,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("StopMods")]
         public IActionResult StopMods()
         {
-            ModManager.log($"Stop: ModLoader", LogLevel.Message);
+            ModManager.Log($"Stop: ModLoader", LogLevel.Message);
             System.IO.File.WriteAllText(ModManager.StopFileName, "stopped");
             return Ok();
         }
