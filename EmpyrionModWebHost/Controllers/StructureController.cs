@@ -73,8 +73,11 @@ namespace EmpyrionModWebHost.Controllers
         public Dictionary<int, PlayfieldStructureData> CurrentGlobalStructures
         {
             get {
-                return LastGlobalStructureList.Current.globalStructures
-                        .Aggregate(new Dictionary<int, PlayfieldStructureData>(), (L, K) =>
+                var GS = LastGlobalStructureList.Current?.globalStructures;
+
+                return GS == null
+                    ? new Dictionary<int, PlayfieldStructureData>()
+                    : GS.Aggregate(new Dictionary<int, PlayfieldStructureData>(), (L, K) =>
                         {
                             K.Value.ForEach(S => L.Add(S.id, new PlayfieldStructureData() { Playfield = K.Key, StructureInfo = S }));
                             return L;

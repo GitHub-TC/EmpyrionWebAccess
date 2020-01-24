@@ -56,9 +56,10 @@ namespace EmpyrionModWebHost.Controllers
                 {
                     playfields = Request_Playfield_List().Result?.playfields;
                 }
-                catch (TimeoutException error)
+                catch (Exception error)
                 {
                     if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Playfield_List");
+                    return;
                 }
 
                 if (playfields == null)
@@ -80,14 +81,13 @@ namespace EmpyrionModWebHost.Controllers
             }
 
             int errorCounter = 0;
-            LoggedError.Clear();
 
             while (SavesStructuresDat.TryDequeue(out var test))
             {
                 try
                 {
                     var type = new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }[test.StructureInfo.type]; // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
-                    var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{type}_Player_{test.StructureInfo.id}");
+                    var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{test.StructureInfo.id}");
                     var exportDat = Path.Combine(structurePath, "Export.dat");
 
                     if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat))
@@ -126,9 +126,10 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000, () => BackupStructureData());
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000,           () => BackupStructureData());
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60 * 60, () => LoggedError.Clear());
 
-            Event_Playfield_Loaded   += P => ActivePlayfields.TryAdd   (P.playfield, P.playfield);
+            Event_Playfield_Loaded += P => ActivePlayfields.TryAdd   (P.playfield, P.playfield);
             Event_Playfield_Unloaded += P => ActivePlayfields.TryRemove(P.playfield, out _);
         }
 
@@ -154,7 +155,7 @@ namespace EmpyrionModWebHost.Controllers
                             @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
             var sourceExportDat = Path.Combine(SourceDir, "Export.dat");
-            var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{aStructure.Type}_Player_{NewID.id}");
+            var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{NewID.id}");
 
             var SpawnInfo = new EntitySpawnInfo()
             {
@@ -232,7 +233,7 @@ namespace EmpyrionModWebHost.Controllers
                         .Where(S => S.factionId > 0 && (S.factionGroup == (byte)Factions.Private || S.factionGroup == (byte)Factions.Faction))
                         .AsParallel()
                         .ForAll(S => {
-                            var structureName = $"{new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }[S.type]}_Player_{S.id}";
+                            var structureName = $"{S.id}";
 
                             CopyAll(
                                 new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", structureName)),
@@ -473,8 +474,11 @@ namespace EmpyrionModWebHost.Controllers
 
         private PlayfieldGlobalStructureInfo[] DeletesStructuresFromCurrentSaveGame()
         {
-            var GSL = BackupManager.Request_GlobalStructure_List().Result.globalStructures
-                .Aggregate(new List<int>(), (L, S) => { L.AddRange(S.Value.Select(s => s.id)); return L; });
+            var GS = BackupManager.Request_GlobalStructure_List().Result?.globalStructures;
+
+            var GSL = GS == null 
+                ? new List<int>() 
+                : GS.Aggregate(new List<int>(), (L, S) => { L.AddRange(S.Value.Select(s => s.id)); return L; });
 
             return ReadStructuresFromDirectory(BackupManager.CurrentSaveGame).Where(S => !GSL.Contains(S.Id)).ToArray();
         }

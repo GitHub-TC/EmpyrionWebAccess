@@ -354,7 +354,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("GetTimetable")]
         public ActionResult<TimetableAction[]> GetTimetable()
         {
-            return TimetableManager.TimetableConfig.Current.Actions
+            return TimetableManager.TimetableConfig.Current.Actions?
                 .OrderBy(A => A.repeat)
                 .ToArray();
         }
