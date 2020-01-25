@@ -130,7 +130,8 @@ namespace EmpyrionModWebHost
 
             Program.EWAStandardCertificate = new X509Certificate2(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), CertificatePath), 
-                CertificatePassword
+                CertificatePassword,
+                X509KeyStorageFlags.UserKeySet
                 );
 
             services.AddAuthentication(x =>
