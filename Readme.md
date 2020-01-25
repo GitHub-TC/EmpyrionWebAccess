@@ -262,7 +262,19 @@ Der EWA enthält bereits ein selbst signiertes Zertifikat. Sie können jedoch au
 --> CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4
 1. $pwd = ConvertTo-SecureString -String "Pa$$w0rd" -Force -AsPlainText
 Export-PfxCertificate -cert cert:\localMachine\my\CE0976529B02DE058C9CB2C0E64AD79DAFB18CF4 -FilePath EmpyrionWebAccess.pfx -Password $pwd
-1. Nun muss die EmpyrionWebAccess.pfx Datei auf dem Server abgelegt werden und der Dateipfad und das Kennwort in der appsettings.json Datei im \[Savegame\]\\MODs\\EWA Verzeichnis eigetragen werden
+1. Nun muss die EmpyrionWebAccess.pfx Datei auf dem Server abgelegt werden und der Dateipfad und das Kennwort in der appsettings.json Datei im \[Savegame\]\\MODs\\EWA Verzeichnis eingetragen werden
+4. In dem Abschnitt 
+```
+   "Kestrel": {   
+        "Certificates": { 
+            "Default": { 
+                "Path": "\[vollständiger Name zu der PFX Datei\]",
+                "Password": "\[das vergebene Passwort\]"
+            }
+        }
+...
+    }
+```
 
 ## Freigabe von Ports
 Ggf. müssen die Ports und Adressen noch für den Benutzer, unter dessen Account EGS läuft, freigegeben werden. Dazu muss man in einer Admin-PowerShell Console folgende Befehle absetzen.

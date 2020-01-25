@@ -41,6 +41,8 @@ namespace EmpyrionModWebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var logFileName = Path.Combine(Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA"), $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa.log");
+
             services.AddCors();
 
             services.AddLogging(lb =>
@@ -48,10 +50,9 @@ namespace EmpyrionModWebHost
                 lb.AddConfiguration(Configuration.GetSection("Logging"));
                 lb.AddFile(o => 
                 {
-                    var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
-                    Directory.CreateDirectory(logDir);
-                    o.FallbackFileName = $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa.log";
-                    o.RootPath       = logDir;
+                    Directory.CreateDirectory(Path.GetDirectoryName(logFileName));
+                    o.FallbackFileName = Path.GetFileName(logFileName);
+                    o.RootPath         = Path.GetDirectoryName(logFileName);
                 });
             });
 
@@ -128,16 +129,30 @@ namespace EmpyrionModWebHost
             var CertificatePath     = Configuration.GetValue<string>("Kestrel:Certificates:Default:Path",     "EmpyrionWebAccess.pfx");
             var CertificatePassword = Configuration.GetValue<string>("Kestrel:Certificates:Default:Password", "ae28f963219c38b682b75bd2b281e0c64796e341ae74b8a5bfcdc169e817eefc");
 
-            Program.EWAStandardCertificate = new X509Certificate2(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), CertificatePath), 
-                CertificatePassword,
-                X509KeyStorageFlags.UserKeySet
-                );
+            try
+            {
+                //throw new Exception("test");
+                Program.EWAStandardCertificate = new X509Certificate2(
+                    Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Program)).Location), CertificatePath),
+                    CertificatePassword,
+                    X509KeyStorageFlags.UserKeySet      |
+                    X509KeyStorageFlags.PersistKeySet   |
+                    X509KeyStorageFlags.Exportable
+                    );
+            }
+            catch (Exception error)
+            {
+                if (!Program.LetsEncryptACME.UseLetsEncrypt)
+                {
+                    File.AppendAllText(logFileName, $"ERROR: (switch to unsecure HTTP) Program.EWAStandardCertificate = new X509Certificate2 -> {error}");
+                    Program.AppSettings.UseHttpsRedirection = false;
+                }
+            }
 
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(x =>
             {
@@ -238,7 +253,7 @@ namespace EmpyrionModWebHost
             else
             {
                 app.UseExceptionHandler("/Error");
-                app.UseHsts();
+                if (Program.AppSettings.UseHttpsRedirection) app.UseHsts();
             }
 
             if(Program.AppSettings.UseHttpsRedirection) app.UseHttpsRedirection();
