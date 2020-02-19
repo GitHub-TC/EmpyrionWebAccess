@@ -160,12 +160,12 @@ namespace EWAModClient
                         CreateNoWindow  = true,
                         WindowStyle     = ProcessWindowStyle.Hidden,
                         WorkingDirectory = Path.GetDirectoryName(HostFilename),
-                        Arguments = Environment.GetCommandLineArgs().Aggregate(
-                            $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName} " + 
-                            $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName} " +
+                        Arguments = string.Join(" ",
+                            $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
+                            $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
                             $"-GameDir \"{ProgramPath}\"",
-                            (C, A) => C + " " + A) +
-                            (CurrentConfig.Current.AdditionalArguments == null ? "" : " " + CurrentConfig.Current.AdditionalArguments),
+                            Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitch),
+                            CurrentConfig.Current.AdditionalArguments ?? string.Empty),
                     }
                 };
 
@@ -395,10 +395,13 @@ namespace EWAModClient
                     Id               = Process.GetCurrentProcess().Id,
                     CurrentDirecrory = Directory.GetCurrentDirectory(),
                     FileName         = "EmpyrionDedicated.exe",
-                    Arguments        = Environment.GetCommandLineArgs().Aggregate("", (S, A) => S + " " + A),
+                    Arguments        = Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitch),
                 }
             });
         }
+
+        private string HandleQuoteWhenNotSwitch(string S, string A) => 
+            string.Format("{0} {1}", S, !Equals(A.FirstOrDefault(), '-') ? $"\"{A}\"" : A).Trim();        
 
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)
         {
