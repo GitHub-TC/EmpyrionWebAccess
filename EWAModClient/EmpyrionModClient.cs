@@ -164,7 +164,7 @@ namespace EWAModClient
                             $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
                             $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
                             $"-GameDir \"{ProgramPath}\"",
-                            Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitch),
+                            Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
                             CurrentConfig.Current.AdditionalArguments ?? string.Empty),
                     }
                 };
@@ -395,13 +395,13 @@ namespace EWAModClient
                     Id               = Process.GetCurrentProcess().Id,
                     CurrentDirecrory = Directory.GetCurrentDirectory(),
                     FileName         = "EmpyrionDedicated.exe",
-                    Arguments        = Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitch),
+                    Arguments        = Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
                 }
             });
         }
 
-        private string HandleQuoteWhenNotSwitch(string S, string A) => 
-            string.Format("{0} {1}", S, !Equals(A.FirstOrDefault(), '-') ? $"\"{A}\"" : A).Trim();        
+        private string HandleQuoteWhenNotSwitchOrContainsQuote(string S, string A) => 
+            string.Format("{0} {1}", S, !(Equals(A.FirstOrDefault(), '-') || A.Contains('"')) ? $"\"{A}\"" : A).Trim();        
 
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)
         {
