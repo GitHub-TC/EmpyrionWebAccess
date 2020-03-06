@@ -1,5 +1,5 @@
 
-interface ODataResponse<T> {
+export interface ODataResponse<T> {
   value: T;
 }
 

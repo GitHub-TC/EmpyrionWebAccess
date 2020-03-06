@@ -567,3 +567,6 @@ var LegacyJSONLoader = (function () {
   return LegacyJSONLoader;
 
 })();
+
+window.THREE = window.THREE || {};
+window.THREE.LegacyJSONLoader = LegacyJSONLoader;

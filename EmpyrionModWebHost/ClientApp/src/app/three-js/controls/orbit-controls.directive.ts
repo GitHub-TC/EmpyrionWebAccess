@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import {
   AfterViewInit,
   ContentChildren,
@@ -9,7 +10,6 @@ import {
   SimpleChanges,
   QueryList
 } from '@angular/core';
-import * as THREE from 'three';
 import '../js/EnableThreeJs';
 import 'three/examples/js/controls/OrbitControls';
 import { WebGLRendererComponent } from '../renderer/webgl-renderer.component';

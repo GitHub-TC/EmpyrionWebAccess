@@ -9,6 +9,7 @@ import { CHAT } from '../model/chat-mock';
 import { PlayerModel } from '../model/player-model';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 import { FactionModel } from '../model/faction-model';
+import { ODataResponse } from '../model/ODataResponse';
 
 @Injectable({
   providedIn: 'root'

@@ -3,7 +3,7 @@ import { Directive, forwardRef } from '@angular/core';
 
 import * as THREE from 'three';
 import '../../js/EnableThreeJs';
-import 'three/examples/js/loaders/ColladaLoader';
+//import 'three/examples/js/loaders/ColladaLoader';
 import { AbstractModelLoader } from './abstract-model-loader';
 import { AbstractObject3D } from '../abstract-object-3d';
 import { PlainObject3D } from '../plain-object-3d';

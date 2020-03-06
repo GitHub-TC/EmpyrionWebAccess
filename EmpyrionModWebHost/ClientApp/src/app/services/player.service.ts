@@ -7,6 +7,7 @@ import { map } from 'rxjs/operators'
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 
 import { PlayerModel, PlayerInfoSet, ElevatedUserStruct, BannedUserStruct } from '../model/player-model';
+import { ODataResponse } from '../model/ODataResponse';
 import { PLAYER } from '../model/player-mock';
 
 @Injectable({

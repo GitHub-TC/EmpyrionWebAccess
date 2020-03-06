@@ -60,5 +60,3 @@ import { OrthographicCameraDirective } from './cameras/orthographic-camera.direc
   ]
 })
 export class ThreeJsModule { }
-
-(<any>window).THREE.LegacyJSONLoader = (<any>window).LegacyJSONLoader;

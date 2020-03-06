@@ -7,6 +7,7 @@ import { map } from 'rxjs/operators'
 import { FactionModel } from '../model/faction-model';
 import { FACTION } from '../model/faction-mock';
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
+import { ODataResponse } from '../model/ODataResponse';
 
 @Injectable({
   providedIn: 'root'
