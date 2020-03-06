@@ -24,8 +24,8 @@ export class PlayerBackpackComponent implements OnInit {
   @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   @Input() backpack: BackpackModel = EmptyBackpack;
   @Input() WithEdit: boolean = true;
-  @ViewChild(MatMenu, { static: false }) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger, { static: false }) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(MatMenu) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent, { static: true }) selectItem: SelectItemDialogComponent;
   error: any;
   Player: PlayerModel;

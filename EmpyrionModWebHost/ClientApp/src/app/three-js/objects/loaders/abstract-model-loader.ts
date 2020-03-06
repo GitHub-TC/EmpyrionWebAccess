@@ -1,9 +1,4 @@
-import {
-  AfterViewInit,
-  forwardRef,
-  Input,
-  OnDestroy
-} from '@angular/core';
+import { AfterViewInit, forwardRef, Input, OnDestroy, Directive } from '@angular/core';
 
 import { AbstractObject3D } from '../abstract-object-3d';
 import { WebGLRendererComponent } from '../../renderer/webgl-renderer.component';
@@ -17,6 +12,7 @@ import * as THREE from 'three';
  * @see ObjLoaderDirective
  * @see ColladaLoaderDirective
  */
+@Directive()
 export abstract class AbstractModelLoader extends AbstractObject3D<THREE.Object3D> implements OnDestroy {
 
   private _model: string;

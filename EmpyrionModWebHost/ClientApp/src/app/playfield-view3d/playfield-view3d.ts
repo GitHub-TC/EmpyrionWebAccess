@@ -1,4 +1,4 @@
-import { ViewChild, Input } from '@angular/core';
+import { ViewChild, Input, Directive } from '@angular/core';
 import { WebGLRendererComponent } from '../three-js/renderer/webgl-renderer.component';
 import { SceneDirective } from '../three-js/objects/scene.directive';
 import * as THREE from 'three';
@@ -9,6 +9,7 @@ import { StructureService } from '../services/structure.service';
 import { PlayerService } from '../services/player.service';
 import { PlayerModel } from '../model/player-model';
 
+@Directive()
 export class PlayfieldView3D {
   @ViewChild(WebGLRendererComponent, { static: true }) renderer: WebGLRendererComponent;
   @ViewChild(SceneDirective, { static: true }) scene: SceneDirective;

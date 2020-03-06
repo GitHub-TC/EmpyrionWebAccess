@@ -21,7 +21,7 @@ export class RestoreBackpackComponent implements OnInit {
   SelectedBackpack: BackpackODataModel;
   CurrentPlayer: PlayerModel;
   error: any;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   Backpacks: MatTableDataSource<BackpackODataModel> = new MatTableDataSource([]);
 

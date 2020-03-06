@@ -22,8 +22,8 @@ export interface BlueprintResources {
   styleUrls: ['./factory.component.less']
 })
 export class FactoryComponent implements OnInit {
-  @ViewChild(MatMenu, { static: false }) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger, { static: false }) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(MatMenu) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
   @ViewChild(SelectItemDialogComponent, { static: true }) selectNewItem: SelectItemDialogComponent;
   @Input() WithEdit: boolean = true;
   Player: PlayerModel;

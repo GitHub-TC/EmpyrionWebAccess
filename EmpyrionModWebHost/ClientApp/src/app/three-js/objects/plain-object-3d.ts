@@ -1,13 +1,7 @@
-import {
-  AfterViewInit,
-  ContentChildren,
-  Input,
-  OnChanges,
-  QueryList,
-  SimpleChanges
-} from '@angular/core';
+import { AfterViewInit, ContentChildren, Input, OnChanges, QueryList, SimpleChanges, Directive } from '@angular/core';
 import * as THREE from 'three';
 
+@Directive()
 export abstract class PlainObject3D<T extends THREE.Object3D> implements AfterViewInit, OnChanges {
 
   @ContentChildren(PlainObject3D, { descendants: false }) childNodes: QueryList<PlainObject3D<THREE.Object3D>>;

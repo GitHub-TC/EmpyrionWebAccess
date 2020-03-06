@@ -29,7 +29,7 @@ export class RestoreFactoryItemsComponent implements OnInit {
   SelectedFactoryItems: FactoryItems;
   CurrentPlayer: PlayerModel;
   error: any;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   FactoryItems: MatTableDataSource<FactoryItems> = new MatTableDataSource([]);
 

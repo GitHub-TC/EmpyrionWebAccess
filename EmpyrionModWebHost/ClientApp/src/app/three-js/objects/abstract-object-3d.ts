@@ -1,7 +1,8 @@
-import { AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Input, OnChanges, SimpleChanges, Directive } from '@angular/core';
 import * as THREE from 'three';
 import { PlainObject3D } from './plain-object-3d';
 
+@Directive()
 export abstract class AbstractObject3D<T extends THREE.Object3D> extends PlainObject3D<T> implements AfterViewInit, OnChanges {
   /**
    * Rotation in Euler angles (radians) with order X, Y, Z.

@@ -18,7 +18,7 @@ import { RoleService } from '../services/role.service';
 })
 export class PlayfieldViewComponent implements OnInit {
   @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
-  @ViewChild("MapImage", { read: ElementRef, static: false }) MapImage: ElementRef;
+  @ViewChild("MapImage", { read: ElementRef }) MapImage: ElementRef;
 
   Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;
