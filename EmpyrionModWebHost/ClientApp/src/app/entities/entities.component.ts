@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RoleService } from '../services/role.service';
 import { UserRole } from '../model/user';
 import { StructuresListComponent } from '../structures-list/structures-list.component';
-import { MatTabGroup } from '@angular/material';
+import { MatTabGroup } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-entities',

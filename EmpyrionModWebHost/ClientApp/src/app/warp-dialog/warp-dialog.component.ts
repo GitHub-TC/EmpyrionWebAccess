@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Input } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PositionService } from '../services/position.service';
 import { PositionModel } from '../model/player-model';
 import { PlayfieldService } from '../services/playfield.service';

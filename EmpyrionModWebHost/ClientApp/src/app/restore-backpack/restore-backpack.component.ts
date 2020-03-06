@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { PlayerService } from '../services/player.service';
 import { BackpackODataModel, BackpackModel } from '../model/backpack-model';
 import { PlayerModel } from '../model/player-model';
-import { MatPaginator, MatTableDataSource } from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({

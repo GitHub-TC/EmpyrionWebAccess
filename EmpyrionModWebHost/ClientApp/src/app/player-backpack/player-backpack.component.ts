@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { BackpackModel, EmptyBackpack, BackpackODataModel } from '../model/backpack-model';
 
 import { BackpackService } from '../services/backpack.service';
-import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { PlayerService } from '../services/player.service';
 import { Router } from '@angular/router';
 import { ItemService } from '../services/item.service';

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PlayerService } from '../services/player.service';
 import { PlayerModel } from '../model/player-model';
-import { MatMenuTrigger, MatMenu } from '@angular/material';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { UserRole } from '../model/user';
 import { RoleService } from '../services/role.service';
 

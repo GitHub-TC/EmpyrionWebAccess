@@ -3,7 +3,7 @@ import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { User, UserRole } from '../model/user';
-import { MatTabChangeEvent, MatTab } from '@angular/material';
+import { MatTabChangeEvent, MatTab } from '@angular/material/tabs';
 import { PlayerDetailsComponent } from '../player-details/player-details.component';
 import { PlayerBackpackComponent } from '../player-backpack/player-backpack.component';
 import { FactoryComponent } from '../factory/factory.component';

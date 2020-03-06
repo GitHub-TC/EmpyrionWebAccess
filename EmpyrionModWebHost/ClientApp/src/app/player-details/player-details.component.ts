@@ -4,7 +4,7 @@ import { PlayerModel } from '../model/player-model';
 import { PlayfieldService } from '../services/playfield.service';
 import { FactionService } from '../services/faction.service';
 import { FactionModel } from '../model/faction-model';
-import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { PlayfieldModel } from '../model/playfield-model';
 import { RoleService } from '../services/role.service';

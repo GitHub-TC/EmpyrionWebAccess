@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatTabGroup } from '@angular/material';
+import { MatTabGroup } from '@angular/material/tabs';
 import { RestoreFactoryItemsComponent } from '../restore-factoryitems/restore-factoryitems.component';
 
 @Component({

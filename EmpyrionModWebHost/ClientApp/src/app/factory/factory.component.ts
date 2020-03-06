@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Output, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { MatMenu, MatMenuTrigger } from '@angular/material';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { PlayerModel } from '../model/player-model';
 import { PlayerService } from '../services/player.service';
 import { ItemStackModel } from '../model/itemstack-model';

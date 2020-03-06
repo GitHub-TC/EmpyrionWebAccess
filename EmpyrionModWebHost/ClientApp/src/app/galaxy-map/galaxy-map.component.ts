@@ -5,7 +5,7 @@ import * as jsyaml from 'js-yaml';
 import { WebGLRendererComponent } from '../three-js/renderer/webgl-renderer.component';
 import { SceneDirective } from '../three-js/objects/scene.directive';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material';
+import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
 import * as THREE from 'three';
 
 export class WarpRoute {
