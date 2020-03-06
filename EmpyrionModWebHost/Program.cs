@@ -80,8 +80,8 @@ namespace EmpyrionModWebHost
             .CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.AddJsonFile("appsettings.json", optional: true)
-                      .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true);
+                config.AddNewtonsoftJsonFile("appsettings.json", optional: true)
+                      .AddNewtonsoftJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true);
                 config.AddEnvironmentVariables();
             })
             .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(

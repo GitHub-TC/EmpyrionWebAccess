@@ -141,7 +141,7 @@ export class GalaxyMapComponent implements OnInit {
 
   CalcWarpRoutes(): any {
     for (var from = this.Sectors.Sectors.length - 1; from >= 0; from--) {
-      if (this.Sectors.Sectors[from].SectorMapType.toLowerCase() != "none") {
+      if (!this.Sectors.Sectors[from].SectorMapType || this.Sectors.Sectors[from].SectorMapType.toLowerCase() != "none") {
         for (var to = this.Sectors.Sectors.length - 1; to >= 0; to--) {
           if (from != to) {
             let start = this.ToVectorX(this.Sectors.Sectors[from].Coordinates);
@@ -149,9 +149,9 @@ export class GalaxyMapComponent implements OnInit {
 
             let dist = start.distanceTo(end);
             let warp = dist <= 250;
-            if (this.Sectors.Sectors[to].SectorMapType.toLowerCase() == "none") warp = false;
-            if (this.Sectors.Sectors[from].Deny && this.Sectors.Sectors[from].Deny.find(N => N == this.Sectors.Sectors[to].Name)) warp = false;
-            if (this.Sectors.Sectors[from].Allow && this.Sectors.Sectors[from].Allow.find(N => N == this.Sectors.Sectors[to].Name)) warp = true;
+            if (this.Sectors.Sectors[to].SectorMapType    && this.Sectors.Sectors[to].SectorMapType.toLowerCase() == "none") warp = false;
+            if (this.Sectors.Sectors[from].Deny           && this.Sectors.Sectors[from].Deny.find(N => N == this.Sectors.Sectors[to].Name)) warp = false;
+            if (this.Sectors.Sectors[from].Allow          && this.Sectors.Sectors[from].Allow.find(N => N == this.Sectors.Sectors[to].Name)) warp = true;
 
             if (warp) this.InsertWarp(this.Sectors.Sectors[from], this.Sectors.Sectors[to], dist);
           }
