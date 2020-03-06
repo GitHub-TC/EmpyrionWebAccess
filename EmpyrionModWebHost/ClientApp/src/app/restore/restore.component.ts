@@ -9,7 +9,7 @@ import { RestoreFactoryItemsComponent } from '../restore-factoryitems/restore-fa
   styleUrls: ['./restore.component.less']
 })
 export class RestoreComponent implements OnInit {
-  @ViewChild(MatTabGroup, { static: true }) matTabGroup;
+  @ViewChild(MatTabGroup) matTabGroup;
   focusComponent: ActivatedRoute;
 
   constructor(

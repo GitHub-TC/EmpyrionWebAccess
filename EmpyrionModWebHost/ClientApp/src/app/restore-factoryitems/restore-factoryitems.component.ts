@@ -23,12 +23,12 @@ interface FactoryItems extends BlueprintResources {
   }
 })
 export class RestoreFactoryItemsComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   CurrentFactoryItems: FactoryItems;
   SelectedFactoryItems: FactoryItems;
   CurrentPlayer: PlayerModel;
   error: any;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   FactoryItems: MatTableDataSource<FactoryItems> = new MatTableDataSource([]);
 

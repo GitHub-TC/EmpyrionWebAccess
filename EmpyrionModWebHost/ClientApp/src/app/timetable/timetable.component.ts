@@ -75,7 +75,7 @@ class TimetableAction extends SubTimetableAction{
   styleUrls: ['./timetable.component.less']
 })
 export class TimetableComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   error: any;
   Timetable: TimetableAction[] = [];
   Repeats: Enum<RepeatEnum>[];

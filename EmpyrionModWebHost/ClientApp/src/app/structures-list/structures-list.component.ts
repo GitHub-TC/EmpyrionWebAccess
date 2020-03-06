@@ -19,8 +19,8 @@ import { FactionModel } from '../model/faction-model';
   styleUrls: ['./structures-list.component.less']
 })
 export class StructuresListComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
-  @ViewChild(FactionSelectDialogComponent, { static: true }) FactionSelect: FactionSelectDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  @ViewChild(FactionSelectDialogComponent) FactionSelect: FactionSelectDialogComponent;
   @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
   displayedColumns = ['Select', 'id', 'playfield', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
@@ -28,9 +28,9 @@ export class StructuresListComponent implements OnInit {
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);
 
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatInput, { static: true }) FilterInput: MatInput;
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatInput) FilterInput: MatInput;
 
   error: any;
   mAllStructures: GlobalStructureInfo[];

@@ -10,7 +10,7 @@ import { StructureService } from '../services/structure.service';
   styleUrls: ['./restore-playfield.component.less']
 })
 export class RestorePlayfieldComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Backups: string[];
   error: any;
   mSelectedBackup: string;

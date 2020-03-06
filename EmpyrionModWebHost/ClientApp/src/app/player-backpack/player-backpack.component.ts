@@ -21,12 +21,12 @@ import { RoleService } from '../services/role.service';
   styleUrls: ['./player-backpack.component.less']
 })
 export class PlayerBackpackComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   @Input() backpack: BackpackModel = EmptyBackpack;
   @Input() WithEdit: boolean = true;
-  @ViewChild(MatMenu, { static: false }) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger, { static: false }) contextMenuTrigger: MatMenuTrigger;
-  @ViewChild(SelectItemDialogComponent, { static: true }) selectItem: SelectItemDialogComponent;
+  @ViewChild(MatMenu) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(SelectItemDialogComponent) selectItem: SelectItemDialogComponent;
   error: any;
   Player: PlayerModel;
   UserRole = UserRole;

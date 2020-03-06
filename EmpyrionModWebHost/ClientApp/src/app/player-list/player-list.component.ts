@@ -25,7 +25,7 @@ export class PlayerListComponent implements OnInit {
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
 
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatSort) sort: MatSort;
 
   message: string;
   autoscroll: boolean = true;

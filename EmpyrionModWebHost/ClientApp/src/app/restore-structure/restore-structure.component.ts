@@ -52,8 +52,8 @@ export class RestoreStructureComponent implements OnInit {
 
   displayFilter: boolean = true;
 
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private http: HttpClient,

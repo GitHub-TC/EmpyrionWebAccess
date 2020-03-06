@@ -21,7 +21,7 @@ export enum RoleEnum {
   styleUrls: ['./user-manager.component.less']
 })
 export class UserManagerComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Roles: Enum<RoleEnum>[];
   users: User[] = [];
   newUser: User = { id: 0, username: "", password: "", role: UserRole.None };

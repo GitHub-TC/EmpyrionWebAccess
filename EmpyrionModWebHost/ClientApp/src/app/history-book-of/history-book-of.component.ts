@@ -55,7 +55,7 @@ export class HistoryBookOfComponent implements OnInit {
     'Credits', 'Kills', 'Died', 'Exp', 'Upgrade', 'Permission', 'LastVisited'
   ];
   History: MatTableDataSource<TimeFrameData> = new MatTableDataSource([]);
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   mPlayers: PlayerModel[] = [];
 
   constructor(

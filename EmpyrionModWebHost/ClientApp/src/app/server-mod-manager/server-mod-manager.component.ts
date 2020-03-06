@@ -17,7 +17,7 @@ export class ModData {
   styleUrls: ['./server-mod-manager.component.less']
 })
 export class ServerModManagerComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
   Mods: ModData[] = [];
   _SelectedModConfig: ModData;
   get SelectedModConfig() : ModData { return this._SelectedModConfig; }

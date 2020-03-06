@@ -17,10 +17,10 @@ export class HomeComponent implements AfterViewInit {
   currentUser: User = { id: 0, username: null, password: null, role: UserRole.None };
   CurrentDetailsTab: MatTab;
   CurrentComponent: any;
-  @ViewChild(PlayerBackpackComponent, { static: false }) playerBackpackComponent;
-  @ViewChild(PlayerDetailsComponent, { static: false }) playerDetailsComponent;
-  @ViewChild(FactoryComponent, { static: false }) playerFactoryComponent;
-  @ViewChild(PlayerNoteComponent, { static: false }) playerNoteComponent;
+  @ViewChild(PlayerBackpackComponent) playerBackpackComponent;
+  @ViewChild(PlayerDetailsComponent) playerDetailsComponent;
+  @ViewChild(FactoryComponent) playerFactoryComponent;
+  @ViewChild(PlayerNoteComponent) playerNoteComponent;
 
   constructor(private authenticationService: AuthenticationService) {
   }
