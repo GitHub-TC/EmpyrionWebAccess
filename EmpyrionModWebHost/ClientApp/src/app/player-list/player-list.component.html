@@ -59,6 +59,7 @@
       <td mat-cell *matCellDef="let player">
         <mat-icon *ngIf="Faction(player)?.Abbrev" style="font-size:medium; height:10px; cursor: pointer; color: lightblue;" (click)="ChatToFaction(player)" title="Chat to {{Faction(player)?.Abbrev}}">chat</mat-icon>
         {{Faction(player)?.Abbrev}}
+        <mat-icon *ngIf="role.is(UserRole.GameMaster)" style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon>
       </td>
     </ng-container>
 
@@ -74,7 +75,7 @@
 
     <ng-container matColumnDef="PosX">
       <th mat-header-cell *matHeaderCellDef>E/W</th>
-      <td mat-cell *matCellDef="let player" align="right">{{player.PosX | number : "1.1-1"}}<mat-icon *ngIf="role.is(UserRole.GameMaster)" style="font-size:medium; cursor: pointer; color: darkmagenta;" title="Save position of {{player.PlayerName}}" (click)="SavePosition(player)">flag</mat-icon></td>
+      <td mat-cell *matCellDef="let player" align="right">{{player.PosX | number : "1.1-1"}}</td>
     </ng-container>
 
     <ng-container matColumnDef="PosY">

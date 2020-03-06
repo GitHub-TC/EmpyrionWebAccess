@@ -19,7 +19,7 @@ export class ChatListComponent implements OnInit {
   @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
   @ViewChild(MatAutocomplete) MatAutocompleteChild: MatAutocomplete;
   
-  displayedColumns = ['type', 'timestamp', 'faction', 'playerName', 'message'];
+  displayedColumns = ['type', 'timestamp', 'name', 'message', 'faction'];
 
   ChatTranslate: string = "";
   displayFilter: boolean;
@@ -51,6 +51,10 @@ export class ChatListComponent implements OnInit {
     this.MatAutocompleteChild.classList = "right-align-translate-select";
   }
 
+  dateChanged(index: number) {
+    return index > 0 && new Date(this.messages.filteredData[index].Timestamp).getDate() != new Date(this.messages.filteredData[index - 1].Timestamp).getDate();
+  }
+
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
@@ -75,14 +79,15 @@ export class ChatListComponent implements OnInit {
     return { Abbrev: aMsg.FactionName }
   }
 
-  getLineClass(aMsg: ChatModel) {
-    if (aMsg.PlayerName == "Server") return "G";
-    if (aMsg.PlayerName == "-ADM-") return "A";
-    if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return "Y";
-    if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return "CB";
-    if (aMsg.Type == ChatType.Faction) return "F";
-    if (aMsg.Type == ChatType.Private) return "P";
-    return "";
+  getLineClass(index, aMsg: ChatModel) {
+    let newday = this.dateChanged(index) ? "N " : "";
+    if (aMsg.PlayerName == "Server") return newday + "G";
+    if (aMsg.PlayerName == "-ADM-") return newday + "A";
+    if (this.ChatKeywords.some(T => aMsg.Message.toLowerCase().includes(T))) return newday + "Y";
+    if (this.ModKeywords.some(T => aMsg.Message.startsWith(T))) return newday + "CB";
+    if (aMsg.Type == ChatType.Faction) return newday + "F";
+    if (aMsg.Type == ChatType.Private) return newday + "P";
+    return newday;
   }
 
   get filterServerMsg(): boolean {

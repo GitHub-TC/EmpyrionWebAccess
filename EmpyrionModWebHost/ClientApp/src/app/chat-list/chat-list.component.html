@@ -16,31 +16,38 @@
   <table mat-table [dataSource]="messages" class="mat-elevation-z8">
     <ng-container matColumnDef="type" [sticky]="true">
       <th mat-header-cell *matHeaderCellDef style="width:1%">
-        <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
+        <mat-icon style="cursor:pointer; vertical-align:sub; margin-right:-5px" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
       </th>
       <td mat-cell *matCellDef="let chat" (click)="ExecChatTranslate(chat)">
+        <div *ngIf="!chat.TranslatedMessage && ChatTranslate" style="display:inline-block"><mat-icon style="font-size:smaller; margin-right:-10px; height:2px; color: blue;">g_translate</mat-icon></div>
         {{ ['0', 'P', '2', 'G', '4', 'F'][chat.Type]}}
-        <div *ngIf="!chat.TranslatedMessage && ChatTranslate" style="display:inline-block"><mat-icon style="font-size:smaller; margin-right:-10px; color: blue;">g_translate</mat-icon></div>
       </td>
     </ng-container>
     <ng-container matColumnDef="timestamp">
       <th mat-header-cell *matHeaderCellDef> Date </th>
-      <td mat-cell *matCellDef="let chat"> {{chat.Timestamp | date : "dd-HH:mm"}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="faction">
-      <th mat-header-cell *matHeaderCellDef> Fac. </th>
-      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" (click)="ChatToFaction(chat)" title="Chat to {{Faction(chat)?.Abbrev}}">
-        <mat-icon *ngIf="Faction(chat)?.Abbrev" style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
-        {{Faction(chat)?.Abbrev}}
+      <td mat-cell *matCellDef="let chat; let idx = index">
+        <div *ngIf="dateChanged(idx)">{{chat.Timestamp | date : "dd.MM"}}<br />{{chat.Timestamp | date : "HH:mm"}}</div>
+        <div *ngIf="!dateChanged(idx)">{{chat.Timestamp | date : "HH:mm"}}</div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="playerName">
+    <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" class="PlayerName" (click)="ChatToPlayer(chat)" title="Chat to {{chat.PlayerName}}">
-        <mat-icon style="font-size:small; margin-right:-10px; color: lightblue;">chat</mat-icon>
-        {{chat.PlayerName}}
+      <td mat-cell *matCellDef="let chat" style="cursor: pointer;">
+        <div (click)="ChatToPlayer(chat)" title="Chat to {{chat.PlayerName}}" class="PlayerName">
+          <mat-icon class="chatIcon">chat</mat-icon>
+          {{chat.PlayerName}}
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="faction">
+      <th mat-header-cell *matHeaderCellDef> Faction </th>
+      <td mat-cell *matCellDef="let chat" style="cursor: pointer;" class="PlayerName">
+        <div (click)="ChatToFaction(chat)" title="Chat to {{Faction(chat)?.Abbrev}}" class="smallLine" style="font-size:small">
+          <mat-icon *ngIf="Faction(chat)?.Abbrev" class="chatIcon">chat</mat-icon>
+          {{Faction(chat)?.Abbrev}}
+        </div>
       </td>
     </ng-container>
 
@@ -53,6 +60,6 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="getLineClass(row)"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;let idx = index" [ngClass]="getLineClass(idx, row)"></tr>
   </table>
 </div>
