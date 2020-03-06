@@ -51,8 +51,8 @@ interface ExampleFlatNode {
   styleUrls: ['./galaxy-map.component.less']
 })
 export class GalaxyMapComponent implements OnInit {
-  @ViewChild(WebGLRendererComponent) renderer;
-  @ViewChild(SceneDirective) scene;
+  @ViewChild(WebGLRendererComponent, { static: true }) renderer;
+  @ViewChild(SceneDirective, { static: true }) scene;
 
   public rotationX = 0.0;
   public rotationY = 0.0;

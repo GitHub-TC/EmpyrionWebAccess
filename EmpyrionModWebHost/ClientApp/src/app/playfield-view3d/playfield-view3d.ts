@@ -10,8 +10,8 @@ import { PlayerService } from '../services/player.service';
 import { PlayerModel } from '../model/player-model';
 
 export class PlayfieldView3D {
-  @ViewChild(WebGLRendererComponent) renderer: WebGLRendererComponent;
-  @ViewChild(SceneDirective) scene: SceneDirective;
+  @ViewChild(WebGLRendererComponent, { static: true }) renderer: WebGLRendererComponent;
+  @ViewChild(SceneDirective, { static: true }) scene: SceneDirective;
 
   public ToolTipText: string;
   public ToolTipX: string;

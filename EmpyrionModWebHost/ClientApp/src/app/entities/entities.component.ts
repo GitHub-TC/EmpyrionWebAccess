@@ -11,7 +11,7 @@ import { MatTabGroup } from '@angular/material';
   styleUrls: ['./entities.component.less']
 })
 export class EntitiesComponent implements OnInit {
-  @ViewChild(MatTabGroup) matTabGroup;
+  @ViewChild(MatTabGroup, { static: true }) matTabGroup;
   focusComponent: ActivatedRoute;
   UserRole = UserRole;
 

@@ -22,9 +22,9 @@ export interface BlueprintResources {
   styleUrls: ['./factory.component.less']
 })
 export class FactoryComponent implements OnInit {
-  @ViewChild(MatMenu) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
-  @ViewChild(SelectItemDialogComponent) selectNewItem: SelectItemDialogComponent;
+  @ViewChild(MatMenu, { static: false }) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger, { static: false }) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(SelectItemDialogComponent, { static: true }) selectNewItem: SelectItemDialogComponent;
   @Input() WithEdit: boolean = true;
   Player: PlayerModel;
   @Input() Resources: BlueprintResources;

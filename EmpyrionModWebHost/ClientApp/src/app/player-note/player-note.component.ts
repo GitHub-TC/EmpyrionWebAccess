@@ -11,8 +11,8 @@ import { RoleService } from '../services/role.service';
   styleUrls: ['./player-note.component.less']
 })
 export class PlayerNoteComponent implements OnInit {
-  @ViewChild(MatMenu) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(MatMenu, { static: false }) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger, { static: false }) contextMenuTrigger: MatMenuTrigger;
 
   public Changed: boolean;
   Player: PlayerModel = {};
