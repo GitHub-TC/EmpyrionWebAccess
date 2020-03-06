@@ -18,14 +18,14 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./player-details.component.less']
 })
 export class PlayerDetailsComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   SelectedFaction = new FormControl();
   Player: PlayerModel = {};
   Playfields: PlayfieldModel[] = [];
   Factions: FactionModel[] = [];
   public Changed: boolean;
-  @ViewChild(MatMenu) contextMenu: MatMenu;
-  @ViewChild(MatMenuTrigger) contextMenuTrigger: MatMenuTrigger;
+  @ViewChild(MatMenu, { static: true }) contextMenu: MatMenu;
+  @ViewChild(MatMenuTrigger, { static: true }) contextMenuTrigger: MatMenuTrigger;
   Roles = [{ id: 0, text: 'Owner' }, { id: 1, text: 'Admin' }, { id: 2, text: 'Member' }];
   UserRole = UserRole;
 

@@ -15,12 +15,12 @@ import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.
   }
 })
 export class RestoreBackpackComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   CurrentBackpack: BackpackModel;
   SelectedBackpack: BackpackODataModel;
   CurrentPlayer: PlayerModel;
   error: any;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
 
   Backpacks: MatTableDataSource<BackpackODataModel> = new MatTableDataSource([]);
 

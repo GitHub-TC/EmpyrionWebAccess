@@ -17,7 +17,7 @@ export class ModConfigurationComponent implements OnInit {
   ChangedData: boolean;
   public editorOptions: JsonEditorOptions;
   public data: any;
-  @ViewChild(JsonEditorComponent) editor: JsonEditorComponent;
+  @ViewChild(JsonEditorComponent, { static: false }) editor: JsonEditorComponent;
 
   constructor(
     private http: HttpClient,

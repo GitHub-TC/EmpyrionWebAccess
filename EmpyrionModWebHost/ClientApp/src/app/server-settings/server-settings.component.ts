@@ -22,7 +22,7 @@ class SystemConfig {
   styleUrls: ['./server-settings.component.less']
 })
 export class ServerSettingsComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   StartCMDList: string[] = [];
   WaitMinutes: number = 0;
   error: any;

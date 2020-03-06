@@ -17,8 +17,8 @@ import { RoleService } from '../services/role.service';
   styleUrls: ['./playfield-view.component.less']
 })
 export class PlayfieldViewComponent implements OnInit {
-  @ViewChild(YesNoDialogComponent) YesNo: YesNoDialogComponent;
-  @ViewChild("MapImage", { read: ElementRef }) MapImage: ElementRef;
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
+  @ViewChild("MapImage", { read: ElementRef, static: false }) MapImage: ElementRef;
 
   Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;

@@ -16,8 +16,8 @@ import { CHAT } from '../model/chat-mock';
   styleUrls: ['./chat-list.component.less'],
 })
 export class ChatListComponent implements OnInit {
-  @ViewChild(MatTable, { read: ElementRef }) table: ElementRef;
-  @ViewChild(MatAutocomplete) MatAutocompleteChild: MatAutocomplete;
+  @ViewChild(MatTable, { read: ElementRef, static: true }) table: ElementRef;
+  @ViewChild(MatAutocomplete, { static: true }) MatAutocompleteChild: MatAutocomplete;
   
   displayedColumns = ['type', 'timestamp', 'name', 'message', 'faction'];
 
