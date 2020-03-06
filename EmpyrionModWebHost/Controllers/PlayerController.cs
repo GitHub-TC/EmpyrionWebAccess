@@ -319,7 +319,7 @@ namespace EmpyrionModWebHost.Controllers
         private void PlayerConnected(Id ID)
         {
             UpdatePlayer(DB => DB.Players.Where(P => P.EntityId == ID.id), PlayerConnect);
-            TaskWait.Delay(20, () => PlayerManager_Event_Player_Info(Request_Player_Info(ID).Result));
+            TaskTools.Delay(20, () => PlayerManager_Event_Player_Info(Request_Player_Info(ID).Result));
         }
 
         private static void PlayerConnect(Player aPlayer)

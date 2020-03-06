@@ -34,7 +34,7 @@ namespace EmpyrionModWebHost.Services
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return null;
 
-            var user = _context.Users.SingleOrDefault(x => string.Compare(x.Username, username, StringComparison.InvariantCultureIgnoreCase) == 0);
+            var user = _context.Users.ToList().SingleOrDefault(x => string.Compare(x.Username, username, StringComparison.InvariantCultureIgnoreCase) == 0);
 
             if (user == null && _context.Users.Count() == 0)
             {
@@ -75,7 +75,7 @@ namespace EmpyrionModWebHost.Services
             if (string.IsNullOrWhiteSpace(password))
                 throw new AppException("Password is required");
 
-            if (_context.Users.Any(x => string.Compare(x.Username, user.Username, StringComparison.InvariantCultureIgnoreCase) == 0))
+            if (_context.Users.ToList().Any(x => string.Compare(x.Username, user.Username, StringComparison.InvariantCultureIgnoreCase) == 0))
                 throw new AppException("Username \"" + user.Username + "\" is already taken");
 
             byte[] passwordHash, passwordSalt;
@@ -100,7 +100,7 @@ namespace EmpyrionModWebHost.Services
             if (userParam.Username != user.Username)
             {
                 // username has changed so check if the new username is already taken
-                if (_context.Users.Any(x => string.Compare(x.Username, userParam.Username, StringComparison.InvariantCultureIgnoreCase) == 0))
+                if (_context.Users.ToList().Any(x => string.Compare(x.Username, userParam.Username, StringComparison.InvariantCultureIgnoreCase) == 0))
                     throw new AppException("Username " + userParam.Username + " is already taken");
             }
 

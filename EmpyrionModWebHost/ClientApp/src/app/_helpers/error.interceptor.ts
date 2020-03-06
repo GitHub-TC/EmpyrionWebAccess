@@ -17,7 +17,8 @@ export class ErrorInterceptor implements HttpInterceptor {
                 location.reload(true);
             }
 
-          const error = err.error.message || err.error;
+          let error = err.error.message || err.error;
+          if (typeof error !== "string") error = JSON.stringify(error.errors || error);
           console.log(request.urlWithParams + ":" + JSON.stringify(err));
           return throwError(error);
         }))

@@ -164,7 +164,7 @@ namespace EmpyrionModWebHost.Controllers
         public void WipePlayer(string aSteamId)
         {
             Request_ConsoleCommand(new PString($"kick {aSteamId} PlayerWipe"));
-            TaskWait.Delay(10, () => File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
+            TaskTools.Delay(10, () => File.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aSteamId + ".ply")));
         }
 
         internal void WarpTo(int aEntityId, WarpToData aWarpToData)

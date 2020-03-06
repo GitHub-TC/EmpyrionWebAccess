@@ -8,6 +8,7 @@ using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPITools;
 using FluffySpoon.AspNet.LetsEncrypt;
+using Karambolo.Extensions.Logging.File;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +30,7 @@ using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost
 {
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -51,8 +53,8 @@ namespace EmpyrionModWebHost
                 lb.AddFile(o => 
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(logFileName));
-                    o.FallbackFileName = Path.GetFileName(logFileName);
-                    o.RootPath         = Path.GetDirectoryName(logFileName);
+                    o.Files     = new[] { new LogFileOptions() { Path = logFileName } };
+                    o.RootPath  = Path.GetDirectoryName(logFileName);
                 });
             });
 
@@ -63,7 +65,7 @@ namespace EmpyrionModWebHost
                     })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(Startup));
             services.AddSignalR();
 
             services.AddExceptionHandlingPolicies(options =>
@@ -71,7 +73,6 @@ namespace EmpyrionModWebHost
                  options.For<Exception>()
                 .Log(lo =>
                 {
-                    lo.EventIdFactory = (c, e) => new EventId(123, "UnhandlerException");
                     lo.Category = (context, exception) => "EWA";
                 })
                 .Response(null, ResponseAlreadyStartedBehaviour.GoToNextHandler)
@@ -238,7 +239,6 @@ namespace EmpyrionModWebHost
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .AllowCredentials()
                 );
             
             app.UseExceptionHandlingPolicies();

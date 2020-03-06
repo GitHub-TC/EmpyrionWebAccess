@@ -52,7 +52,8 @@ namespace EmpyrionModWebHost
             {
                 Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB"));
 
-                Application = CreateWebHostBuilder(args).Build();
+                var hostBuilder = CreateWebHostBuilder(args);
+                Application = hostBuilder.Build();
 
                 AppLifetime = Application.Services.GetService(typeof(LifetimeEventsHostedService)) as LifetimeEventsHostedService;
 
