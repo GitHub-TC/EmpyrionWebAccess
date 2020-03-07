@@ -24,8 +24,6 @@ namespace EmpyrionModWebHost.Controllers
     [Authorize]
     public class FactionHub : Hub
     {
-        private FactionManager FactionManager { get; set; }
-
     }
 
     public class FactionManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
@@ -40,12 +38,11 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new FactionContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new FactionContext();
+
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public void AddFactionToDB(Faction aFaction)
@@ -61,10 +58,9 @@ namespace EmpyrionModWebHost.Controllers
 
         public Faction GetFaction(int aFactionId)
         {
-            using (var DB = new FactionContext())
-            {
-                return DB.Factions.FirstOrDefault(F => F.FactionId == aFactionId);
-            }
+            using var DB = new FactionContext();
+
+            return DB.Factions.FirstOrDefault(F => F.FactionId == aFactionId);
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -81,26 +77,24 @@ namespace EmpyrionModWebHost.Controllers
         {
             var factions = await Request_Get_Factions(new Id(1));
 
-            using (var DB = new FactionContext())
+            using var DB = new FactionContext();
+            CleanupFactionDB(factions, DB);
+
+            foreach (var faction in factions.factions)
             {
-                CleanupFactionDB(factions, DB);
 
-                foreach (var faction in factions.factions)
-                {
+                var Faction = DB.Factions.FirstOrDefault(F => faction.factionId == 0 ? F.Abbrev == faction.abbrev : F.FactionId == faction.factionId) ?? new Faction();
+                var IsNewFaction = string.IsNullOrEmpty(Faction.Abbrev);
 
-                    var Faction = DB.Factions.FirstOrDefault(F => faction.factionId == 0 ? F.Abbrev == faction.abbrev : F.FactionId == faction.factionId) ?? new Faction();
-                    var IsNewFaction = string.IsNullOrEmpty(Faction.Abbrev);
+                Faction.FactionId = faction.factionId;
+                Faction.Name = faction.name;
+                Faction.Origin = faction.origin;
+                Faction.Abbrev = faction.abbrev;
 
-                    Faction.FactionId = faction.factionId;
-                    Faction.Name = faction.name;
-                    Faction.Origin = faction.origin;
-                    Faction.Abbrev = faction.abbrev;
-
-                    if (IsNewFaction) DB.Factions.Add(Faction);
-                }
-
-                if (DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(DB.Factions)).Wait();
+                if (IsNewFaction) DB.Factions.Add(Faction);
             }
+
+            if (DB.SaveChanges() > 0) FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(DB.Factions)).Wait();
         }
 
         private static void CleanupFactionDB(FactionInfoList factions, FactionContext DB)

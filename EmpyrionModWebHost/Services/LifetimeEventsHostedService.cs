@@ -9,13 +9,13 @@ namespace EmpyrionModWebHost.Services
     public class LifetimeEventsHostedService : IHostedService
     {
         private readonly ILogger _logger;
-        public IApplicationLifetime AppLifetime { get; private set; }
+        public IHostApplicationLifetime AppLifetime { get; private set; }
         public event EventHandler StopApplicationEvent;
 
         public bool Exit { get; private set; }
 
         public LifetimeEventsHostedService(
-            ILogger<LifetimeEventsHostedService> logger, IApplicationLifetime appLifetime)
+            ILogger<LifetimeEventsHostedService> logger, IHostApplicationLifetime appLifetime)
         {
             _logger = logger;
             AppLifetime = appLifetime;

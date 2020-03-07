@@ -46,8 +46,8 @@ namespace EmpyrionModWebHost
 
         public void InitComunicationChannels()
         {
-            ToEmpyrion   = new ClientMessagePipe(CommandLineOptions.GetOption("-ModToEmpyrionPipe", "EWAToEmpyrionPipe")) { log = LogOut };
-            FromEmpyrion = new ServerMessagePipe(CommandLineOptions.GetOption("-EmpyrionToModPipe", "EmpyrionToEWAPipe")) { log = LogOut };
+            ToEmpyrion   = new ClientMessagePipe(CommandLineOptions.GetOption("-ModToEmpyrionPipe", "EWAToEmpyrionPipe")) { Log = LogOut };
+            FromEmpyrion = new ServerMessagePipe(CommandLineOptions.GetOption("-EmpyrionToModPipe", "EmpyrionToEWAPipe")) { Log = LogOut };
 
             FromEmpyrion.Callback = Msg => { if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg); };
 

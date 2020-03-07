@@ -238,10 +238,8 @@ namespace EmpyrionModWebHost.Controllers
 
                 try { Directory.CreateDirectory(Path.GetDirectoryName(StructureManager.CurrentEBPFile)); } catch { }
 
-                using (var ToFile = System.IO.File.Create(StructureManager.CurrentEBPFile))
-                {
-                    file.OpenReadStream().CopyTo(ToFile);
-                }
+                using var ToFile = System.IO.File.Create(StructureManager.CurrentEBPFile);
+                file.OpenReadStream().CopyTo(ToFile);
             }
             return Ok();
         }

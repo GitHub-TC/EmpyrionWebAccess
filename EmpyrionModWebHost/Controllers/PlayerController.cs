@@ -70,20 +70,16 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new PlayerContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new PlayerContext();
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public void QueryPlayer(Func<PlayerContext, IEnumerable<Player>> aSelect, Action<Player> aAction)
         {
-            using (var DB = new PlayerContext())
-            {
-                aSelect(DB).ForEach(P => aAction(P));
-            }
+            using var DB = new PlayerContext();
+            aSelect(DB).ForEach(P => aAction(P));
 
         }
 
@@ -106,70 +102,68 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                using (var DB = new PlayerContext())
+                using var DB = new PlayerContext();
+                var Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
+                var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
+
+                Player.Id = aPlayerInfo.steamId;
+                Player.EntityId = aPlayerInfo.entityId;
+                Player.SteamId = aPlayerInfo.steamId;
+                Player.ClientId = aPlayerInfo.clientId;
+                Player.Radiation = aPlayerInfo.radiation;
+                Player.RadiationMax = aPlayerInfo.radiationMax;
+                Player.BodyTemp = aPlayerInfo.bodyTemp;
+                Player.BodyTempMax = aPlayerInfo.bodyTempMax;
+                Player.Kills = aPlayerInfo.kills;
+                Player.Died = aPlayerInfo.died;
+                Player.Credits = aPlayerInfo.credits;
+                Player.FoodMax = aPlayerInfo.foodMax;
+                Player.Exp = aPlayerInfo.exp;
+                Player.Upgrade = aPlayerInfo.upgrade;
+                Player.Ping = aPlayerInfo.ping;
+                Player.Permission = aPlayerInfo.permission;
+                Player.Food = aPlayerInfo.food;
+                Player.Stamina = aPlayerInfo.stamina;
+                Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
+                Player.PlayerName = aPlayerInfo.playerName;
+                Player.Playfield = aPlayerInfo.playfield;
+                Player.BpInFactory = aPlayerInfo.bpInFactory;
+                Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
+                Player.StartPlayfield = aPlayerInfo.startPlayfield;
+                Player.StaminaMax = aPlayerInfo.staminaMax;
+                Player.FactionGroup = aPlayerInfo.factionGroup;
+                Player.FactionId = aPlayerInfo.factionId;
+                Player.FactionRole = aPlayerInfo.factionRole;
+                Player.Health = aPlayerInfo.health;
+                Player.HealthMax = aPlayerInfo.healthMax;
+                Player.Oxygen = aPlayerInfo.oxygen;
+                Player.OxygenMax = aPlayerInfo.oxygenMax;
+                Player.Origin = aPlayerInfo.origin;
+                Player.PosX = aPlayerInfo.pos.x;
+                Player.PosY = aPlayerInfo.pos.y;
+                Player.PosZ = aPlayerInfo.pos.z;
+                Player.RotX = aPlayerInfo.rot.x;
+                Player.RotY = aPlayerInfo.rot.y;
+                Player.RotZ = aPlayerInfo.rot.z;
+
+                if (IsNewPlayer)
                 {
-                    var Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
-                    var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
-
-                    Player.Id = aPlayerInfo.steamId;
-                    Player.EntityId = aPlayerInfo.entityId;
-                    Player.SteamId = aPlayerInfo.steamId;
-                    Player.ClientId = aPlayerInfo.clientId;
-                    Player.Radiation = aPlayerInfo.radiation;
-                    Player.RadiationMax = aPlayerInfo.radiationMax;
-                    Player.BodyTemp = aPlayerInfo.bodyTemp;
-                    Player.BodyTempMax = aPlayerInfo.bodyTempMax;
-                    Player.Kills = aPlayerInfo.kills;
-                    Player.Died = aPlayerInfo.died;
-                    Player.Credits = aPlayerInfo.credits;
-                    Player.FoodMax = aPlayerInfo.foodMax;
-                    Player.Exp = aPlayerInfo.exp;
-                    Player.Upgrade = aPlayerInfo.upgrade;
-                    Player.Ping = aPlayerInfo.ping;
-                    Player.Permission = aPlayerInfo.permission;
-                    Player.Food = aPlayerInfo.food;
-                    Player.Stamina = aPlayerInfo.stamina;
-                    Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
-                    Player.PlayerName = aPlayerInfo.playerName;
-                    Player.Playfield = aPlayerInfo.playfield;
-                    Player.BpInFactory = aPlayerInfo.bpInFactory;
-                    Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
-                    Player.StartPlayfield = aPlayerInfo.startPlayfield;
-                    Player.StaminaMax = aPlayerInfo.staminaMax;
-                    Player.FactionGroup = aPlayerInfo.factionGroup;
-                    Player.FactionId = aPlayerInfo.factionId;
-                    Player.FactionRole = aPlayerInfo.factionRole;
-                    Player.Health = aPlayerInfo.health;
-                    Player.HealthMax = aPlayerInfo.healthMax;
-                    Player.Oxygen = aPlayerInfo.oxygen;
-                    Player.OxygenMax = aPlayerInfo.oxygenMax;
-                    Player.Origin = aPlayerInfo.origin;
-                    Player.PosX = aPlayerInfo.pos.x;
-                    Player.PosY = aPlayerInfo.pos.y;
-                    Player.PosZ = aPlayerInfo.pos.z;
-                    Player.RotX = aPlayerInfo.rot.x;
-                    Player.RotY = aPlayerInfo.rot.y;
-                    Player.RotZ = aPlayerInfo.rot.z;
-
-                    if (IsNewPlayer)
-                    {
-                        Player.Note = string.Empty;
-                        Player.OnlineTime = new TimeSpan();
-                        Player.LastOnline = DateTime.Now;
-                        Player.OnlineHours = 0;
-                        Player.Online = true;
-                        DB.Players.Add(Player);
-                    }
-                    var count = await DB.SaveChangesAsync();
-
-                    if (count > 0)
-                    {
-                        UpdatePlayersQueue.AddOrUpdate(Player.Id, Player, (S, O) => Player);
-                        //PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
-                    }
-
-                    if (IsNewPlayer) SendWelcomeMessage(Player);
+                    Player.Note = string.Empty;
+                    Player.OnlineTime = new TimeSpan();
+                    Player.LastOnline = DateTime.Now;
+                    Player.OnlineHours = 0;
+                    Player.Online = true;
+                    DB.Players.Add(Player);
                 }
+                var count = await DB.SaveChangesAsync();
+
+                if (count > 0)
+                {
+                    UpdatePlayersQueue.AddOrUpdate(Player.Id, Player, (S, O) => Player);
+                    //PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
+                }
+
+                if (IsNewPlayer) SendWelcomeMessage(Player);
             }
             catch (Exception error)
             {
@@ -188,10 +182,8 @@ namespace EmpyrionModWebHost.Controllers
         {
             return TaskTools.Retry(() =>
             {
-                using (var DB = new PlayerContext())
-                {
-                    return DB.Players.FirstOrDefault(P => P.EntityId == aPlayerId);
-                }
+                using var DB = new PlayerContext();
+                return DB.Players.FirstOrDefault(P => P.EntityId == aPlayerId);
             });
         }
 
@@ -199,10 +191,8 @@ namespace EmpyrionModWebHost.Controllers
         {
             return TaskTools.Retry(() =>
             {
-                using (var DB = new PlayerContext())
-                {
-                    return DB.Players.FirstOrDefault(P => P.SteamId == aSteamId);
-                }
+                using var DB = new PlayerContext();
+                return DB.Players.FirstOrDefault(P => P.SteamId == aSteamId);
             });
         }
 
@@ -211,10 +201,8 @@ namespace EmpyrionModWebHost.Controllers
             get {
                 return TaskTools.Retry(() =>
                 {
-                    using (var DB = new PlayerContext())
-                    {
-                        return DB.Players.Count(P => P.Online);
-                    }
+                    using var DB = new PlayerContext();
+                    return DB.Players.Count(P => P.Online);
                 });
             }
         }
@@ -233,10 +221,8 @@ namespace EmpyrionModWebHost.Controllers
             get {
                 return TaskTools.Retry(() =>
                 {
-                    using (var DB = new PlayerContext())
-                    {
-                        return DB.Players.Where(P => P.SteamId == UserService.Get().CurrentUser.InGameSteamId).FirstOrDefault();
-                    }
+                    using var DB = new PlayerContext();
+                    return DB.Players.Where(P => P.SteamId == UserService.Get().CurrentUser.InGameSteamId).FirstOrDefault();
                 });
             }
         }
@@ -291,14 +277,12 @@ namespace EmpyrionModWebHost.Controllers
                     .GetFiles(PlayersDirectory)
                     .Select(F => Path.GetFileNameWithoutExtension(F));
 
-                using (var DB = new PlayerContext())
-                {
-                    DB.Players
-                        .Where(P => !KnownPlayers.Contains(P.SteamId))
-                        .ForEach(P => DB.Players.Remove(P));
+                using var DB = new PlayerContext();
+                DB.Players
+.Where(P => !KnownPlayers.Contains(P.SteamId))
+.ForEach(P => DB.Players.Remove(P));
 
-                    DB.SaveChangesAsync();
-                }
+                DB.SaveChangesAsync();
 
             });
         }

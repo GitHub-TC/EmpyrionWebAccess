@@ -16,7 +16,7 @@ namespace EWAModClient
         }
         string _mConfigFilename;
 
-        FileSystemWatcher mConfigFileChangedWatcher { get; set; }
+        FileSystemWatcher ConfigFileChangedWatcher { get; set; }
 
         public T Current { get; set; }
 
@@ -24,15 +24,15 @@ namespace EWAModClient
 
         private void ActivateFileChangeWatcher()
         {
-            if (mConfigFileChangedWatcher != null) mConfigFileChangedWatcher.EnableRaisingEvents = false;
-            mConfigFileChangedWatcher = new FileSystemWatcher
+            if (ConfigFileChangedWatcher != null) ConfigFileChangedWatcher.EnableRaisingEvents = false;
+            ConfigFileChangedWatcher = new FileSystemWatcher
             {
                 Path = Path.GetDirectoryName(ConfigFilename),
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = Path.GetFileName(ConfigFilename)
             };
-            mConfigFileChangedWatcher.Changed += (s, e) => Load();
-            mConfigFileChangedWatcher.EnableRaisingEvents = true;
+            ConfigFileChangedWatcher.Changed += (s, e) => Load();
+            ConfigFileChangedWatcher.EnableRaisingEvents = true;
         }
 
         public void Load()
@@ -41,10 +41,7 @@ namespace EWAModClient
             {
                 Log?.Invoke($"ConfigurationManager load '{ConfigFilename}'");
                 var serializer = new XmlSerializer(typeof(T));
-                using (var reader = XmlReader.Create(ConfigFilename))
-                {
-                    Current = (T)serializer.Deserialize(reader);
-                }
+                using (var reader = XmlReader.Create(ConfigFilename)) Current = (T)serializer.Deserialize(reader);
             }
             catch (Exception Error)
             {
@@ -58,7 +55,7 @@ namespace EWAModClient
             try
             {
                 Log?.Invoke($"ConfigurationManager save '{ConfigFilename}'");
-                mConfigFileChangedWatcher.EnableRaisingEvents = false;
+                ConfigFileChangedWatcher.EnableRaisingEvents = false;
                 var serializer = new XmlSerializer(typeof(T));
                 Directory.CreateDirectory(Path.GetDirectoryName(ConfigFilename));
                 using (var writer = XmlWriter.Create(ConfigFilename, new XmlWriterSettings() { Indent = true, IndentChars = "  " }))
@@ -73,7 +70,7 @@ namespace EWAModClient
             }
             finally
             {
-                mConfigFileChangedWatcher.EnableRaisingEvents = true;
+                ConfigFileChangedWatcher.EnableRaisingEvents = true;
             }
         }
 

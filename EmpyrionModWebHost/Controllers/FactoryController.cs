@@ -21,76 +21,70 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new FactoryItemsContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new FactoryItemsContext();
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public void DeleteOldFactoryItems(int aDays)
         {
-            using (var DB = new FactoryItemsContext())
-            {
-                DB.FactoryItems
-                    .Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
-                    .ToList()
-                    .ForEach(B => DB.FactoryItems.Remove(B));
-                DB.SaveChanges();
-                DB.Database.ExecuteSqlCommand("VACUUM;");
-            }
+            using var DB = new FactoryItemsContext();
+            DB.FactoryItems
+.Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
+.ToList()
+.ForEach(B => DB.FactoryItems.Remove(B));
+            DB.SaveChanges();
+            DB.Database.ExecuteSqlRaw("VACUUM;");
         }
 
         public void UpdateFactoryItems(PlayerInfo aPlayerInfo)
         {
-            using (var DB = new FactoryItemsContext())
+            using var DB = new FactoryItemsContext();
+            var FactoryItems = DB.FactoryItems
+.OrderByDescending(B => B.Timestamp)
+.FirstOrDefault(B => B.Id == aPlayerInfo.steamId);
+            var IsNewBackpack = FactoryItems == null || (DateTime.Now - FactoryItems.Timestamp).TotalMinutes >= 1;
+            var Content = JsonConvert.SerializeObject(aPlayerInfo.bpResourcesInFactory?.Select(I => new ItemStack(I.Key, (int)I.Value)));
+
+            if (FactoryItems != null)
             {
-                var FactoryItems = DB.FactoryItems
-                    .OrderByDescending(B => B.Timestamp)
-                    .FirstOrDefault(B => B.Id == aPlayerInfo.steamId);
-                var IsNewBackpack = FactoryItems == null || (DateTime.Now - FactoryItems.Timestamp).TotalMinutes >= 1;
-                var Content = JsonConvert.SerializeObject(aPlayerInfo.bpResourcesInFactory?.Select(I => new ItemStack(I.Key, (int)I.Value)));
+                if (IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(FactoryItems.Content),
+                    aPlayerInfo.bpResourcesInFactory?.Select(I => new ItemStack(I.Key, (int)I.Value)).ToArray())) return;
+            }
 
-                if (FactoryItems != null)
-                {
-                    if (IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(FactoryItems.Content), 
-                        aPlayerInfo.bpResourcesInFactory?.Select(I => new ItemStack(I.Key, (int)I.Value)).ToArray())) return;
-                }
-
-                if (IsNewBackpack)
-                {
-                    FactoryItems = new FactoryItems()
-                    {
-                        Id              = aPlayerInfo.steamId,
-                        Timestamp       = DateTime.Now,
-                        Content         = Content,
-                        InProduction    = aPlayerInfo.bpInFactory,
-                        Produced        = aPlayerInfo.producedPrefabs?.Aggregate("", (S, B) => string.IsNullOrEmpty(S) ? B :  S + "\t" + B),
-                    };
-                    DB.FactoryItems.Add(FactoryItems);
-                }
-                else
-                {
-                    FactoryItems.InProduction = aPlayerInfo.bpInFactory;
-                    FactoryItems.Produced = aPlayerInfo.producedPrefabs?.Aggregate("", (S, B) => string.IsNullOrEmpty(S) ? B : S + "\t" + B);
-                }
-
-                DB.SaveChanges();
-
-                FactoryItems = DB.FactoryItems.FirstOrDefault(B => B.Id == aPlayerInfo.steamId && B.Timestamp == DateTime.MinValue);
-                IsNewBackpack = FactoryItems == null;
-                if (IsNewBackpack) FactoryItems = new FactoryItems()
+            if (IsNewBackpack)
+            {
+                FactoryItems = new FactoryItems()
                 {
                     Id = aPlayerInfo.steamId,
-                    Timestamp = DateTime.MinValue,
+                    Timestamp = DateTime.Now,
+                    Content = Content,
+                    InProduction = aPlayerInfo.bpInFactory,
+                    Produced = aPlayerInfo.producedPrefabs?.Aggregate("", (S, B) => string.IsNullOrEmpty(S) ? B : S + "\t" + B),
                 };
-
-                FactoryItems.Content = Content;
-                if (IsNewBackpack) DB.FactoryItems.Add(FactoryItems);
-
-                var count = DB.SaveChanges();
+                DB.FactoryItems.Add(FactoryItems);
             }
+            else
+            {
+                FactoryItems.InProduction = aPlayerInfo.bpInFactory;
+                FactoryItems.Produced = aPlayerInfo.producedPrefabs?.Aggregate("", (S, B) => string.IsNullOrEmpty(S) ? B : S + "\t" + B);
+            }
+
+            DB.SaveChanges();
+
+            FactoryItems = DB.FactoryItems.FirstOrDefault(B => B.Id == aPlayerInfo.steamId && B.Timestamp == DateTime.MinValue);
+            IsNewBackpack = FactoryItems == null;
+            if (IsNewBackpack) FactoryItems = new FactoryItems()
+            {
+                Id = aPlayerInfo.steamId,
+                Timestamp = DateTime.MinValue,
+            };
+
+            FactoryItems.Content = Content;
+            if (IsNewBackpack) DB.FactoryItems.Add(FactoryItems);
+
+            var count = DB.SaveChanges();
         }
 
         private bool IsEqual(ItemStack[] aLeft, ItemStack[] aRight)
@@ -124,12 +118,12 @@ namespace EmpyrionModWebHost.Controllers
     [Route("[controller]")]
     public class FactoryController : ControllerBase
     {
-        public FactoryItemsContext _db { get; }
+        public FactoryItemsContext DB { get; }
         public FactoryManager FactoryManager { get; }
 
         public FactoryController(FactoryItemsContext context)
         {
-            _db = context;
+            DB = context;
             FactoryManager = Program.GetManager<FactoryManager>();
         }
 
@@ -162,7 +156,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("FactoryItems/{key}")]
         public IActionResult FactoryItems(string key)
         {
-            return Ok(_db.FactoryItems.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
+            return Ok(DB.FactoryItems.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
         }
 
         [HttpPost("SetBlueprintResources")]

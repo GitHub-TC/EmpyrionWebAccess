@@ -16,12 +16,10 @@ namespace EmpyrionModWebHost.Services
 
         private static string GenerateETag(byte[] data)
         {
-            using (var md5 = MD5.Create())
-            {
-                var hash = md5.ComputeHash(data);
-                string hex = BitConverter.ToString(hash);
-                return hex.Replace("-", "");
-            }
+            using var md5 = MD5.Create();
+            var hash = md5.ComputeHash(data);
+            string hex = BitConverter.ToString(hash);
+            return hex.Replace("-", "");
         }
 
         private static byte[] Combine(byte[] a, byte[] b)

@@ -222,20 +222,14 @@ namespace EmpyrionModWebHost.Controllers
 
         private void ReadFromHubbleImages(string aPlayfieldMap)
         {
-            using (System.Net.WebClient client = new System.Net.WebClient())
-            {
-                client.Headers.Add("content-type", "application/json");
-                Stream data = client.OpenRead("http://hubblesite.org/api/v3/news_release/last");
-                using (StreamReader messageReader = new StreamReader(data))
-                {
-                    dynamic Content = JsonConvert.DeserializeObject(messageReader.ReadToEnd());
-                    using (var clientImg = new System.Net.WebClient())
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(aPlayfieldMap));
-                        clientImg.DownloadFile(new Uri("http:" + Content.keystone_image_2x.ToString()), aPlayfieldMap);
-                    }
-                }
-            }
+            using System.Net.WebClient client = new System.Net.WebClient();
+            client.Headers.Add("content-type", "application/json");
+            Stream data = client.OpenRead("http://hubblesite.org/api/v3/news_release/last");
+            using StreamReader messageReader = new StreamReader(data);
+            dynamic Content = JsonConvert.DeserializeObject(messageReader.ReadToEnd());
+            using var clientImg = new System.Net.WebClient();
+            Directory.CreateDirectory(Path.GetDirectoryName(aPlayfieldMap));
+            clientImg.DownloadFile(new Uri("http:" + Content.keystone_image_2x.ToString()), aPlayfieldMap);
         }
 
         [Authorize(Roles = nameof(Role.GameMaster))]

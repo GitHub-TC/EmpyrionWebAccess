@@ -24,12 +24,10 @@ namespace EmpyrionModWebHost.Controllers
     {
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new UserContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new UserContext();
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -37,26 +35,20 @@ namespace EmpyrionModWebHost.Controllers
         }
         public IEnumerable<User> GetAll()
         {
-            using (var DB = new UserContext())
-            {
-                return DB.Users;
-            }
+            using var DB = new UserContext();
+            return DB.Users;
         }
 
         public User GetById(int id)
         {
-            using (var DB = new UserContext())
-            {
-                return DB.Users.Find(id);
-            }
+            using var DB = new UserContext();
+            return DB.Users.Find(id);
         }
 
         public User GetBySteamId(string aSteamId)
         {
-            using (var DB = new UserContext())
-            {
-                return DB.Users.FirstOrDefault(U => U.InGameSteamId == aSteamId);
-            }
+            using var DB = new UserContext();
+            return DB.Users.FirstOrDefault(U => U.InGameSteamId == aSteamId);
         }
 
     }

@@ -72,15 +72,14 @@ namespace EWAModClient
 
                     var ServerConfigNode = Root.GetChild("ServerConfig") as YamlMappingNode;
 
-                    ServerName          = ServerConfigNode.GetChild("Srv_Name")?.ToString();
-                    SaveDirectory       = ServerConfigNode.GetChild("SaveDirectory")?.ToString();
+                    ServerName = ServerConfigNode.GetChild("Srv_Name")?.ToString();
+                    SaveDirectory = ServerConfigNode.GetChild("SaveDirectory")?.ToString();
 
-                    var GameConfigNode  = Root.GetChild("GameConfig") as YamlMappingNode;
+                    var GameConfigNode = Root.GetChild("GameConfig") as YamlMappingNode;
 
-                    SaveGameName        = GameConfigNode.GetChild("GameName")?.ToString();
-                    CustomScenarioName  = GameConfigNode.GetChild("CustomScenario")?.ToString();
+                    SaveGameName = GameConfigNode.GetChild("GameName")?.ToString();
+                    CustomScenarioName = GameConfigNode.GetChild("CustomScenario")?.ToString();
                 }
-
             }
 
         }

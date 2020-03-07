@@ -57,6 +57,7 @@
     <Compile Include="ConfigurationManager.cs" />
     <Compile Include="EmpyrionConfiguration.cs" />
     <Compile Include="EmpyrionModClient.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="YamlExtensions.cs" />
   </ItemGroup>

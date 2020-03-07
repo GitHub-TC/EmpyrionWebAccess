@@ -27,12 +27,10 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new HistoryBookContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new HistoryBookContext();
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public HistoryBookManager()
@@ -60,15 +58,13 @@ namespace EmpyrionModWebHost.Controllers
                         Thread.Sleep(100);
                     });
 
-            using (var DB = new HistoryBookContext())
-            {
-                var Structures = StructureManager.Value.CurrentGlobalStructures;
+            using var DB = new HistoryBookContext();
+            var Structures = StructureManager.Value.CurrentGlobalStructures;
 
-                HistoryLogStructures(DB, LastStructuresData, Structures);
-                PlayerManager.Value.QueryPlayer(PDB => PDB.Players, P => HistoryLog(DB, LastPlayerData, P));
+            HistoryLogStructures(DB, LastStructuresData, Structures);
+            PlayerManager.Value.QueryPlayer(PDB => PDB.Players, P => HistoryLog(DB, LastPlayerData, P));
 
-                DB.SaveChanges();
-            }
+            DB.SaveChanges();
         }
 
         private void HistoryLog(HistoryBookContext DB, Dictionary<string, Player> aLastPlayerData, Player aPlayer)
@@ -213,14 +209,12 @@ namespace EmpyrionModWebHost.Controllers
         {
             var DelTime = DateTime.Now - new TimeSpan(aDays, 0, 0, 0);
 
-            using (var DB = new HistoryBookContext())
-            {
-                DB.Players   .RemoveRange(DB.Players   .Where(P => P.Timestamp < DelTime));
-                DB.Structures.RemoveRange(DB.Structures.Where(S => S.Timestamp < DelTime));
+            using var DB = new HistoryBookContext();
+            DB.Players.RemoveRange(DB.Players.Where(P => P.Timestamp < DelTime));
+            DB.Structures.RemoveRange(DB.Structures.Where(S => S.Timestamp < DelTime));
 
-                DB.SaveChanges();
-                DB.Database.ExecuteSqlCommand("VACUUM;");
-            }
+            DB.SaveChanges();
+            DB.Database.ExecuteSqlRaw("VACUUM;");
         }
 
         private HistoryBookOfStructures CreateStructureHistoryEntry(GlobalStructureInfo? aLastData, PlayfieldStructureData aData, Action<dynamic> aAddInfo)
@@ -275,14 +269,15 @@ namespace EmpyrionModWebHost.Controllers
             HistoryBookManager = Program.GetManager<HistoryBookManager>();
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         public class TimeFrameData
         {
             public DateTime t { get; set; }
             public int distance { get; set; }
             public HistoryBookOfStructures s { get; set; }
             public HistoryBookOfPlayers p { get; set; }
-
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         public class HistoryQuery
         {

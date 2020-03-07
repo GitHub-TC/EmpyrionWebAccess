@@ -384,12 +384,12 @@ var LegacyJSONLoader = (function () {
 
         if (json.skinWeights) {
 
-          for (var i = 0, l = json.skinWeights.length; i < l; i += influencesPerVertex) {
+          for (var i1 = 0, l1 = json.skinWeights.length; i1 < l1; i1 += influencesPerVertex) {
 
-            var x = json.skinWeights[i];
-            var y = (influencesPerVertex > 1) ? json.skinWeights[i + 1] : 0;
-            var z = (influencesPerVertex > 2) ? json.skinWeights[i + 2] : 0;
-            var w = (influencesPerVertex > 3) ? json.skinWeights[i + 3] : 0;
+            var x = json.skinWeights[i1];
+            var y = (influencesPerVertex > 1) ? json.skinWeights[i1 + 1] : 0;
+            var z = (influencesPerVertex > 2) ? json.skinWeights[i1 + 2] : 0;
+            var w = (influencesPerVertex > 3) ? json.skinWeights[i1 + 3] : 0;
 
             geometry.skinWeights.push(new THREE.Vector4(x, y, z, w));
 
@@ -399,12 +399,12 @@ var LegacyJSONLoader = (function () {
 
         if (json.skinIndices) {
 
-          for (var i = 0, l = json.skinIndices.length; i < l; i += influencesPerVertex) {
+          for (var i2 = 0, l2 = json.skinIndices.length; i2 < l2; i2 += influencesPerVertex) {
 
-            var a = json.skinIndices[i];
-            var b = (influencesPerVertex > 1) ? json.skinIndices[i + 1] : 0;
-            var c = (influencesPerVertex > 2) ? json.skinIndices[i + 2] : 0;
-            var d = (influencesPerVertex > 3) ? json.skinIndices[i + 3] : 0;
+            var a = json.skinIndices[i2];
+            var b = (influencesPerVertex > 1) ? json.skinIndices[i2 + 1] : 0;
+            var c = (influencesPerVertex > 2) ? json.skinIndices[i2 + 2] : 0;
+            var d = (influencesPerVertex > 3) ? json.skinIndices[i2 + 3] : 0;
 
             geometry.skinIndices.push(new THREE.Vector4(a, b, c, d));
 
@@ -460,9 +460,9 @@ var LegacyJSONLoader = (function () {
           var faces = geometry.faces;
           var morphColors = json.morphColors[0].colors;
 
-          for (var i = 0, l = faces.length; i < l; i++) {
+          for (var i3 = 0, l3 = faces.length; i3 < l3; i3++) {
 
-            faces[i].color.fromArray(morphColors, i * 3);
+            faces[i3].color.fromArray(morphColors, i3 * 3);
 
           }
 

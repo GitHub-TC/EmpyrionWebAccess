@@ -492,10 +492,8 @@ namespace EmpyrionModWebHost.Controllers
 
             if (System.IO.File.Exists(PlayersDBFilename))
             {
-                using(var DB = new PlayerContext(PlayersDBFilename))
-                {
-                    return DB.Players.ToArray();
-                }
+                using var DB = new PlayerContext(PlayersDBFilename);
+                return DB.Players.ToArray();
             }
 
             return null;
@@ -538,11 +536,12 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("ReadStructuresDB")]
         public ActionResult<GlobalStructureList> ReadStructuresDB([FromBody]BackupData aSelectBackupDir)
         {
-            var BackupGlobalStructureList = new ConfigurationManager<GlobalStructureList>();
-
-            BackupGlobalStructureList.ConfigFilename = Path.Combine(
+            var BackupGlobalStructureList = new ConfigurationManager<GlobalStructureList>
+            {
+                ConfigFilename = Path.Combine(
                 BackupManager.BackupDir, aSelectBackupDir.backup,
-                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), @"Mods\EWA\DB\GlobalStructureList.json");
+                @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), @"Mods\EWA\DB\GlobalStructureList.json")
+            };
             BackupGlobalStructureList.Load();
 
             return BackupGlobalStructureList.Current;
@@ -562,8 +561,10 @@ namespace EmpyrionModWebHost.Controllers
 
         public static PlayfieldGlobalStructureInfo GenerateGlobalStructureInfo(string aInfoTxtFile)
         {
-            var Info = new PlayfieldGlobalStructureInfo();
-            Info.structureName = Path.GetFileNameWithoutExtension(aInfoTxtFile);
+            var Info = new PlayfieldGlobalStructureInfo
+            {
+                structureName = Path.GetFileNameWithoutExtension(aInfoTxtFile)
+            };
 
             try
             {

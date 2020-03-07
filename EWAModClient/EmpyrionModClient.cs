@@ -28,8 +28,8 @@ namespace EWAModClient
         public ModGameAPI GameAPI { get; private set; }
         public ClientMessagePipe OutServer { get; private set; }
         public ServerMessagePipe InServer { get; private set; }
-        public Process mHostProcess { get; private set; }
-        public DateTime? mHostProcessAlive { get; private set; }
+        public Process HostProcess { get; private set; }
+        public DateTime? HostProcessAlive { get; private set; }
         public static string ProgramPath { get; private set; } = GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt");
         public bool Exit { get; private set; }
         public bool ExposeShutdownHost { get; private set; }
@@ -61,11 +61,11 @@ namespace EWAModClient
             GameAPI.Console_Write($"ModClientDll: Game_Exit {CurrentConfig.Current.ModToEmpyrionPipeName}");
             OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.Game_Exit });
 
-            if (!ExposeShutdownHost && CurrentConfig.Current.AutoshutdownModHost && mHostProcess != null)
+            if (!ExposeShutdownHost && CurrentConfig.Current.AutoshutdownModHost && HostProcess != null)
             {
                 try
                 {
-                    try { mHostProcess.CloseMainWindow(); } catch { }
+                    try { HostProcess.CloseMainWindow(); } catch { }
                     CurrentConfig.Current.HostProcessId = 0;
                     CurrentConfig.Save();
 
@@ -105,8 +105,8 @@ namespace EWAModClient
                 { typeof(ClientHostComData    ), M => HandleClientHostCommunication ((ClientHostComData)M) }
             };
 
-            OutServer = new ClientMessagePipe(CurrentConfig.Current.EmpyrionToModPipeName) { log = GameAPI.Console_Write };
-            InServer = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName) { log = GameAPI.Console_Write };
+            OutServer = new ClientMessagePipe(CurrentConfig.Current.EmpyrionToModPipeName) { Log = GameAPI.Console_Write };
+            InServer = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName) { Log = GameAPI.Console_Write };
             InServer.Callback = Msg => {
                 if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg);
             };
@@ -120,25 +120,25 @@ namespace EWAModClient
         {
             var HostFilename = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), CurrentConfig.Current.PathToModHost);
             GameAPI.Console_Write($"ModClientDll: start host '{HostFilename}'");
-            mHostProcessAlive = null;
+            HostProcessAlive = null;
 
             if (CurrentConfig.Current.HostProcessId != 0)
             {
                 try
                 {
-                    mHostProcess = Process.GetProcessById(CurrentConfig.Current.HostProcessId);
-                    if (mHostProcess.MainWindowTitle != HostFilename) mHostProcess = null;
+                    HostProcess = Process.GetProcessById(CurrentConfig.Current.HostProcessId);
+                    if (HostProcess.MainWindowTitle != HostFilename) HostProcess = null;
                 }
                 catch (Exception)
                 {
-                    mHostProcess = null;
+                    HostProcess = null;
                 }
             }
 
             if (CurrentConfig.Current.AutostartModHost && !string.IsNullOrEmpty(CurrentConfig.Current.PathToModHost) && ExistsStartFile())
             {
-                UpdateEWA(new ProcessInformation() { Id = mHostProcess == null ? 0 : mHostProcess.Id });
-                if(mHostProcess == null) CreateHostProcess(HostFilename);
+                UpdateEWA(new ProcessInformation() { Id = HostProcess == null ? 0 : HostProcess.Id });
+                if(HostProcess == null) CreateHostProcess(HostFilename);
             }
         }
 
@@ -151,7 +151,7 @@ namespace EWAModClient
         {
             try
             {
-                mHostProcess = new Process
+                HostProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo(HostFilename)
                     {
@@ -169,15 +169,15 @@ namespace EWAModClient
                     }
                 };
 
-                mHostProcess.Start();
-                CurrentConfig.Current.HostProcessId = mHostProcess.Id;
+                HostProcess.Start();
+                CurrentConfig.Current.HostProcessId = HostProcess.Id;
                 CurrentConfig.Save();
-                GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{mHostProcess.Id}'");
+                GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{HostProcess.Id}'");
             }
             catch (Exception Error)
             {
                 GameAPI.Console_Write($"ModClientDll: host start error '{HostFilename} -> {Error}'");
-                mHostProcess = null;
+                HostProcess = null;
             }
         }
 
@@ -237,7 +237,7 @@ namespace EWAModClient
             {
                 try
                 {
-                    if (mHostProcess != null && !mHostProcess.HasExited)
+                    if (HostProcess != null && !HostProcess.HasExited)
                     {
                         GameAPI.Console_Write($"ModClientDll: start.txt not found");
 
@@ -255,12 +255,12 @@ namespace EWAModClient
             try{ OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.ProcessInformation }); } catch{}
 
             if (CurrentConfig.Current.AutostartModHostAfterNSeconds == 0 || !CurrentConfig.Current.AutostartModHost) return;
-            try { if (mHostProcess != null && !mHostProcess.HasExited) return; } catch { }
+            try { if (HostProcess != null && !HostProcess.HasExited) return; } catch { }
 
-            if (!mHostProcessAlive.HasValue) mHostProcessAlive = DateTime.Now;
-            if ((DateTime.Now - mHostProcessAlive.Value).TotalSeconds <= CurrentConfig.Current.AutostartModHostAfterNSeconds) return;
+            if (!HostProcessAlive.HasValue) HostProcessAlive = DateTime.Now;
+            if ((DateTime.Now - HostProcessAlive.Value).TotalSeconds <= CurrentConfig.Current.AutostartModHostAfterNSeconds) return;
 
-            mHostProcessAlive = null;
+            HostProcessAlive = null;
 
             CheckForBinCopyFile();
             StartHostProcess();
@@ -315,21 +315,21 @@ namespace EWAModClient
                 GameAPI.Console_Write($"ModClientDll: EWA_Update");
                 OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.UpdateEWA });
 
-                if(mHostProcess != null)
+                if(HostProcess != null)
                 {
                     try
                     {
-                        mHostProcessAlive = null;
+                        HostProcessAlive = null;
 
                         for (int i = 0; i < 5 * 60; i++)
                         {
                             Thread.Sleep(1000);
-                            if (mHostProcess.HasExited) break;
+                            if (HostProcess.HasExited) break;
                         }
 
-                        try { mHostProcess.CloseMainWindow(); } catch { }
+                        try { HostProcess.CloseMainWindow(); } catch { }
 
-                        mHostProcess = null;
+                        HostProcess = null;
                         CurrentConfig.Current.HostProcessId = 0;
                         CurrentConfig.Save();
                     }
@@ -382,7 +382,7 @@ namespace EWAModClient
 
             if(CurrentConfig.Current.HostProcessId != aData.Id) GameAPI.Console_Write($"HostProcessId: " + aData.Id);
             CurrentConfig.Current.HostProcessId = aData.Id;
-            try{ mHostProcess = Process.GetProcessById(CurrentConfig.Current.HostProcessId); } catch (Exception) {}
+            try{ HostProcess = Process.GetProcessById(CurrentConfig.Current.HostProcessId); } catch (Exception) {}
         }
 
         private void ReturnProcessInformation()

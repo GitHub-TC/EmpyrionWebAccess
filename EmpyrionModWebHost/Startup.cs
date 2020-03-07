@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -63,7 +64,7 @@ namespace EmpyrionModWebHost
                     {
                         options.EnableEndpointRouting = false;
                     })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddAutoMapper(typeof(Startup));
             services.AddSignalR();
@@ -232,7 +233,7 @@ namespace EmpyrionModWebHost
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // global cors policy
             app.UseCors(x => x
@@ -261,7 +262,7 @@ namespace EmpyrionModWebHost
             app.UseSpaStaticFiles();
             app.UseErrorHandlingMiddleware();
 
-            app.UseSignalR(routes => {
+            app.UseEndpoints(routes => {
                 routes.MapHub<ChatHub>("/hubs/chat");
                 routes.MapHub<PlayerHub>("/hubs/player");
                 routes.MapHub<BackpackHub>("/hubs/backpack");

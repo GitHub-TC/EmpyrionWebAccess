@@ -10,11 +10,11 @@ namespace EWAExtenderCommunication
 {
     public class ClientMessagePipe : IDisposable
     {
-        Thread mCommThread;
-        Queue<object> mSendCommands = new Queue<object>();
+        readonly Thread mCommThread;
+        readonly Queue<object> mSendCommands = new Queue<object>();
         CircularBuffer mClient;
 
-        public Action<string> log { get; set; }
+        public Action<string> Log { get; set; }
 
         public string PipeName { get; }
         public bool Exit { get; private set; }
@@ -33,7 +33,7 @@ namespace EWAExtenderCommunication
             {
                 try
                 {
-                    log?.Invoke($"Try CommunicationLoop Connect {PipeName}");
+                    Log?.Invoke($"Try CommunicationLoop Connect {PipeName}");
                     using (mClient = new CircularBuffer(PipeName, 4, 10 * 1024 * 1024))
                     {
                         if (!Exit)
@@ -61,7 +61,7 @@ namespace EWAExtenderCommunication
                     if (!ShownErrors.Contains(Error.Message))
                     {
                         ShownErrors.Add(Error.Message);
-                        log?.Invoke($"MainError {PipeName} Reason: {Error}");
+                        Log?.Invoke($"MainError {PipeName} Reason: {Error}");
                     }
 
                     if (!Exit) Thread.Sleep(1000);
@@ -87,19 +87,18 @@ namespace EWAExtenderCommunication
 
             try
             {
-                using (var memStream = new MemoryStream())
-                {
+                using (var memStream = new MemoryStream()){
                     new BinaryFormatter().Serialize(memStream, SendMessage);
                     mClient.Write(memStream.ToArray());
                 }
             }
             catch (SerializationException Error)
             {
-                log?.Invoke("Failed to serialize. Reason: " + Error.Message);
+                Log?.Invoke("Failed to serialize. Reason: " + Error.Message);
             }
             catch (Exception Error)
             {
-                log?.Invoke($"CommError {PipeName} Reason: {Error.Message}");
+                Log?.Invoke($"CommError {PipeName} Reason: {Error.Message}");
                 return true;
             }
 
@@ -125,7 +124,7 @@ namespace EWAExtenderCommunication
             }
             catch (Exception Error)
             {
-                log?.Invoke($"CloseError: {Error}");
+                Log?.Invoke($"CloseError: {Error}");
             }
         }
 

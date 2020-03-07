@@ -73,12 +73,10 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new ChatContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new ChatContext();
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         private void ChatManager_Event_ChatMessage(ChatInfo aChatInfo)
@@ -192,15 +190,11 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("Translate")]
         public ActionResult<string> Translate([FromBody]TanslateData aData)
         {
-            using (System.Net.WebClient client = new System.Net.WebClient())
-            {
-                client.Headers.Add("content-type", "application/json");
-                Stream data = client.OpenRead(aData.CallUrl);
-                using (StreamReader messageReader = new StreamReader(data))
-                {
-                    return Ok(messageReader.ReadToEnd());
-                }
-            }
+            using System.Net.WebClient client = new System.Net.WebClient();
+            client.Headers.Add("content-type", "application/json");
+            Stream data = client.OpenRead(aData.CallUrl);
+            using StreamReader messageReader = new StreamReader(data);
+            return Ok(messageReader.ReadToEnd());
         }
 
     }

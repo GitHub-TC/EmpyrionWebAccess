@@ -17,7 +17,6 @@ namespace EmpyrionModWebHost.Controllers
     [Authorize]
     public class BackpackHub : Hub
     {
-        private BackpackManager BackpackManager { get; set; }
     }
 
     public class BackpackManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
@@ -32,25 +31,23 @@ namespace EmpyrionModWebHost.Controllers
 
         public void CreateAndUpdateDatabase()
         {
-            using (var DB = new BackpackContext())
-            {
-                DB.Database.Migrate();
-                DB.Database.EnsureCreated();
-                DB.Database.ExecuteSqlCommand("PRAGMA journal_mode=WAL;");
-            }
+            using var DB = new BackpackContext();
+
+            DB.Database.Migrate();
+            DB.Database.EnsureCreated();
+            DB.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         }
 
         public void DeleteOldBackpacks(int aDays)
         {
-            using (var DB = new BackpackContext())
-            {
-                DB.Backpacks
-                    .Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
-                    .ToList()
-                    .ForEach(B => DB.Backpacks.Remove(B));
-                DB.SaveChanges();
-                DB.Database.ExecuteSqlCommand("VACUUM;");
-            }
+            using var DB = new BackpackContext();
+
+            DB.Backpacks
+                .Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
+                .ToList()
+                .ForEach(B => DB.Backpacks.Remove(B));
+            DB.SaveChanges();
+            DB.Database.ExecuteSqlRaw("VACUUM;");
         }
 
         public void UpdateBackpack(string aPlayerSteamId, ItemStack[] aToolbar, ItemStack[] aBag)
@@ -77,51 +74,50 @@ namespace EmpyrionModWebHost.Controllers
 
         private Backpack ExecUpdate(string aPlayerSteamId, ItemStack[] aToolbar, ItemStack[] aBag)
         {
-            using (var DB = new BackpackContext())
-            {
-                var Backpack = DB.Backpacks
+            using var DB = new BackpackContext();
+
+            var Backpack = DB.Backpacks
                     .OrderByDescending(B => B.Timestamp)
                     .FirstOrDefault(B => B.Id == aPlayerSteamId);
-                var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
-                var ToolbarContent = JsonConvert.SerializeObject(aToolbar);
-                var BagContent = JsonConvert.SerializeObject(aBag);
+            var IsNewBackpack = Backpack == null || (DateTime.Now - Backpack.Timestamp).TotalMinutes >= 1;
+            var ToolbarContent = JsonConvert.SerializeObject(aToolbar);
+            var BagContent = JsonConvert.SerializeObject(aBag);
 
-                if (Backpack != null)
-                {
-                    if (IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.ToolbarContent), aToolbar) &&
-                        IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.BagContent), aBag)) return null;
-                }
-
-                if (IsNewBackpack)
-                {
-                    Backpack = new Backpack()
-                    {
-                        Id              = aPlayerSteamId,
-                        Timestamp       = DateTime.Now,
-                        ToolbarContent  = ToolbarContent,
-                        BagContent      = BagContent
-                    };
-                    DB.Backpacks.Add(Backpack);
-                }
-
-                DB.SaveChanges();
-
-                Backpack = DB.Backpacks.FirstOrDefault(B => B.Id == aPlayerSteamId && B.Timestamp == DateTime.MinValue);
-                IsNewBackpack = Backpack == null;
-                if (IsNewBackpack) Backpack = new Backpack()
-                {
-                    Id          = aPlayerSteamId,
-                    Timestamp   = DateTime.MinValue,
-                };
-
-                Backpack.ToolbarContent = ToolbarContent;
-                Backpack.BagContent = BagContent;
-                if (IsNewBackpack) DB.Backpacks.Add(Backpack);
-
-                var count = DB.SaveChanges();
-
-                return Backpack;
+            if (Backpack != null)
+            {
+                if (IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.ToolbarContent), aToolbar) &&
+                    IsEqual(JsonConvert.DeserializeObject<ItemStack[]>(Backpack.BagContent), aBag)) return null;
             }
+
+            if (IsNewBackpack)
+            {
+                Backpack = new Backpack()
+                {
+                    Id = aPlayerSteamId,
+                    Timestamp = DateTime.Now,
+                    ToolbarContent = ToolbarContent,
+                    BagContent = BagContent
+                };
+                DB.Backpacks.Add(Backpack);
+            }
+
+            DB.SaveChanges();
+
+            Backpack = DB.Backpacks.FirstOrDefault(B => B.Id == aPlayerSteamId && B.Timestamp == DateTime.MinValue);
+            IsNewBackpack = Backpack == null;
+            if (IsNewBackpack) Backpack = new Backpack()
+            {
+                Id = aPlayerSteamId,
+                Timestamp = DateTime.MinValue,
+            };
+
+            Backpack.ToolbarContent = ToolbarContent;
+            Backpack.BagContent = BagContent;
+            if (IsNewBackpack) DB.Backpacks.Add(Backpack);
+
+            var count = DB.SaveChanges();
+
+            return Backpack;
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -150,15 +146,14 @@ namespace EmpyrionModWebHost.Controllers
 
         public void SetPlayerInventory(BackpackModel aSet)
         {
-            using (var DB = new PlayerContext())
-            {
-                var player = DB.Players.FirstOrDefault(P => P.SteamId == aSet.SteamId);
-                if (player == null) return;
+            using var DB = new PlayerContext();
 
-                var Items = new Inventory(player.EntityId, aSet.Toolbar, aSet.Bag);
+            var player = DB.Players.FirstOrDefault(P => P.SteamId == aSet.SteamId);
+            if (player == null) return;
 
-                Request_Player_SetInventory(Items);
-            }
+            var Items = new Inventory(player.EntityId, aSet.Toolbar, aSet.Bag);
+
+            Request_Player_SetInventory(Items);
         }
 
 
@@ -169,7 +164,7 @@ namespace EmpyrionModWebHost.Controllers
     [Route("[controller]")]
     public class BackpacksController : ControllerBase
     {
-        private BackpackContext _db;
+        private readonly BackpackContext _db;
 
         public BackpackManager BackpackManager { get; }
 

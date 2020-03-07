@@ -55,12 +55,10 @@ namespace UnitTestProject
         [TestMethod]
         public void TestMethodReadSectors()
         {
-            using (var input = File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Sectors.yaml")))
-            {
-                var SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
-                var flattenSectors = SectorsManager.FlattenSectors(SectorsData);
-                var origins = SectorsManager.ReadOrigins(SectorsData);
-            }
+            using var input = File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Sectors.yaml"));
+            var SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
+            var flattenSectors = SectorsManager.FlattenSectors(SectorsData);
+            var origins = SectorsManager.ReadOrigins(SectorsData);
         }
     }
 }

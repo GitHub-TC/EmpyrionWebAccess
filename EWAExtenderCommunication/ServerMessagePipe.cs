@@ -10,11 +10,11 @@ namespace EWAExtenderCommunication
     public class ServerMessagePipe : IDisposable
     {
         CircularBuffer mServer;
-        Thread mServerCommThread;
+        readonly Thread mServerCommThread;
         private byte[] mDataBuffer;
         DateTime? mLastPing;
 
-        public Action<string> log { get; set; }
+        public Action<string> Log { get; set; }
         public string PipeName { get; }
         public Action<object> Callback { get; set; }
         public bool Exit { get; private set; }
@@ -41,7 +41,7 @@ namespace EWAExtenderCommunication
                     if (!ShownErrors.Contains(Error.Message))
                     {
                         ShownErrors.Add(Error.Message);
-                        log?.Invoke($"Failed ExecServerCommunication. {PipeName} Reason: " + Error);
+                        Log?.Invoke($"Failed ExecServerCommunication. {PipeName} Reason: " + Error);
                     }
 
                     if (!Exit) Thread.Sleep(1000);
@@ -56,7 +56,7 @@ namespace EWAExtenderCommunication
             {
                 long bufferSize = mServer.NodeBufferSize;
 
-                log?.Invoke($"ServerPipe: {PipeName} connected {bufferSize}");
+                Log?.Invoke($"ServerPipe: {PipeName} connected {bufferSize}");
                 if (Exit) return;
                 if (bufferSize == 0)
                 {
@@ -93,7 +93,7 @@ namespace EWAExtenderCommunication
             }
             catch (Exception Error)
             {
-                log?.Invoke("Failed ReadNextMessage. Reason: " + Error.Message);
+                Log?.Invoke("Failed ReadNextMessage. Reason: " + Error.Message);
                 return null;
             }
         }
@@ -106,7 +106,7 @@ namespace EWAExtenderCommunication
             }
             catch (Exception Error)
             {
-                log?.Invoke($"CloseError {Error}");
+                Log?.Invoke($"CloseError {Error}");
             }
         }
 

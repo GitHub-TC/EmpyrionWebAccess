@@ -20,8 +20,8 @@
     <PackageProjectUrl>https://github.com/GitHub-TC/EmpyrionWebAccess</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GitHub-TC/EmpyrionWebAccess</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
-    <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.
-Empyrion &gt;= A10</Description>
+    <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.</Description>
+    <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -123,9 +123,6 @@ Empyrion &gt;= A10</Description>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <HintPath>C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.dll</HintPath>
     </Reference>
   </ItemGroup>
 
