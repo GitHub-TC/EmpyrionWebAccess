@@ -1,4 +1,5 @@
-﻿using Eleon.Modding;
+﻿using AutoMapper;
+using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
@@ -22,12 +23,15 @@ namespace EmpyrionModWebHost.Controllers
         private const string NameDef = "Name:";
 
         public ModGameAPI GameAPI { get; private set; }
+        public IMapper Mapper { get; }
         public Lazy<StructureManager> StructureManager { get; }
 
         public ConfigurationManager<ConcurrentDictionary<int, OfflineWarpPlayerData>> OfflineWarpPlayer { get; set; }
 
-        public GameplayManager()
+        public GameplayManager(IMapper mapper)
         {
+            Mapper = mapper;
+
             StructureManager = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
         }
 
@@ -79,12 +83,12 @@ namespace EmpyrionModWebHost.Controllers
             public GlobalStructureInfo Data { get; set; }
         }
 
-        public static PlayfieldStructureInfo SearchEntity(GlobalStructureList aGlobalStructureList, int aSourceId)
+        public PlayfieldStructureInfo SearchEntity(GlobalStructureListData aGlobalStructureList, int aSourceId)
         {
             foreach (var TestPlayfieldEntites in aGlobalStructureList.globalStructures)
             {
                 var FoundEntity = TestPlayfieldEntites.Value.FirstOrDefault(E => E.id == aSourceId);
-                if (FoundEntity.id != 0) return new PlayfieldStructureInfo() { Playfield = TestPlayfieldEntites.Key, Data = FoundEntity };
+                if (FoundEntity.id != 0) return new PlayfieldStructureInfo() { Playfield = TestPlayfieldEntites.Key, Data = Mapper.Map<GlobalStructureInfo>(FoundEntity) };
             }
             return null;
         }

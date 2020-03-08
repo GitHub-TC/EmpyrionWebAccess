@@ -1,4 +1,5 @@
-﻿using Eleon.Modding;
+﻿using AutoMapper;
+using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
@@ -31,12 +32,15 @@ namespace EmpyrionModWebHost.Controllers
     {
 
         public ModGameAPI GameAPI { get; private set; }
-        public ConfigurationManager<GlobalStructureList> LastGlobalStructureList { get; private set; }
+        public IMapper Mapper { get; }
+        public ConfigurationManager<GlobalStructureListData> LastGlobalStructureList { get; private set; }
         public string CurrentEBPFile { get; set; }
 
-        public StructureManager()
+        public StructureManager(IMapper mapper)
         {
-            LastGlobalStructureList = new ConfigurationManager<GlobalStructureList>()
+            Mapper = mapper;
+
+            LastGlobalStructureList = new ConfigurationManager<GlobalStructureListData>()
             {
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "GlobalStructureList.json")
             };
@@ -58,11 +62,11 @@ namespace EmpyrionModWebHost.Controllers
         }
 
 
-        public GlobalStructureList GlobalStructureList()
+        public GlobalStructureListData GlobalStructureList()
         {
             try
             {
-                LastGlobalStructureList.Current = Request_GlobalStructure_List().Result;
+                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List().Result);
                 TaskTools.Delay(0, () => LastGlobalStructureList.Save());
             }
             catch { }
@@ -79,7 +83,7 @@ namespace EmpyrionModWebHost.Controllers
                     ? new Dictionary<int, PlayfieldStructureData>()
                     : GS.Aggregate(new Dictionary<int, PlayfieldStructureData>(), (L, K) =>
                         {
-                            K.Value.ForEach(S => L.Add(S.id, new PlayfieldStructureData() { Playfield = K.Key, StructureInfo = S }));
+                            K.Value.ForEach(S => L.Add(S.id, new PlayfieldStructureData() { Playfield = K.Key, StructureInfo = Mapper.Map<GlobalStructureInfo>(S) }));
                             return L;
                         });
             }
@@ -122,13 +126,14 @@ namespace EmpyrionModWebHost.Controllers
 
         private string GetStructureInfo(string aEBPFile)
         {
-            switch(File.ReadAllBytes(aEBPFile)[8]){
-                default: return "BA";
-                case  2: return "BA";
-                case  4: return "SV";
-                case  8: return "CV";
-                case 16: return "HV";
-            }
+            return (File.ReadAllBytes(aEBPFile)[8]) switch
+            {
+                2   => "BA",
+                4   => "SV",
+                8   => "CV",
+                16  => "HV",
+                _   => "BA",
+            };
         }
     }
 
@@ -153,7 +158,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (UserService.CurrentUser.Role == Role.VIP)
             {
-                var Result = new GlobalStructureList() { globalStructures = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GlobalStructureInfo>>() };
+                var Result = new GlobalStructureListData() { globalStructures = new Dictionary<string, List<GlobalStructureInfoData>>() };
                 var CurrentPlayer = PlayerManager.CurrentPlayer;
                 if (CurrentPlayer == null) return Ok();
 
@@ -168,14 +173,17 @@ namespace EmpyrionModWebHost.Controllers
                 return Ok(Result);
             }
 
+
             return Ok(StructureManager.GlobalStructureList());
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         public class DeleteStructuresData
         {
             public int id { get; set; }
             public string playfield { get; set; }
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         [HttpPost("DeleteStructures")]
         public IActionResult DeleteStructures([FromBody]DeleteStructuresData[] aEntities)
