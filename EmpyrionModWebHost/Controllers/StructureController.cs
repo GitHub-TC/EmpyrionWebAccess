@@ -95,8 +95,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 forceEntityId = NewID.id,
                 playfield = aStructure.Playfield,
-                pos = aStructure.Pos,
-                rot = aStructure.Rot,
+                pos = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
+                rot = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
                 name = $"EBP:{Path.GetFileNameWithoutExtension(aStructure.Name)}",
                 type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc

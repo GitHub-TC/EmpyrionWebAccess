@@ -20,6 +20,7 @@ export class SystemInfoService {
   private SystemInfos: BehaviorSubject<SystemInfoModel> = new BehaviorSubject(this.mCurrentSystemInfo);
   public readonly SystemInfosObservable: Observable<SystemInfoModel> = this.SystemInfos.asObservable();
   error: any;
+  firstRead: boolean = true;
 
   constructor(
     public router: Router,
@@ -62,18 +63,6 @@ export class SystemInfoService {
       }
     });
 
-    let locationsSubscription = this.http.get<SystemInfoModel>("systeminfo/CurrentSysteminfo")
-      .pipe()
-      .subscribe(
-      I => {
-        this.LastSystemUpdateTime = new Date();
-        this.CurrentSystemInfo = I;
-      },
-        error => this.error = error // error path
-      );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
-
     this.LastSystemUpdateTime = new Date();
   }
 
@@ -89,11 +78,28 @@ export class SystemInfoService {
   }
 
   GetSystemInfos(): Observable<SystemInfoModel> {
+    this.CheckAndReadFirstData();
     return this.SystemInfosObservable;
   }
 
   get CurrentSystemInfo() {
+    this.CheckAndReadFirstData();
     return this.mCurrentSystemInfo;
+  }
+
+  private CheckAndReadFirstData() {
+    if (!this.firstRead) return;
+    this.firstRead = false;
+
+    let locationsSubscription = this.http.get<SystemInfoModel>("systeminfo/CurrentSysteminfo")
+        .pipe()
+        .subscribe(I => {
+            this.LastSystemUpdateTime = new Date();
+            this.CurrentSystemInfo = I;
+        }, error => this.error = error // error path
+        );
+    // Stop listening for location after 10 seconds
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
   set CurrentSystemInfo(nextInfo: SystemInfoModel) {

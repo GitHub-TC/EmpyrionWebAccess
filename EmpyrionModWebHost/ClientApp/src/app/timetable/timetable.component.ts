@@ -104,10 +104,7 @@ export class TimetableComponent implements OnInit {
         let hh = date.getHours();
         let mm = date.getMinutes();
         t.timestamp = (hh < 10 ? "0" : "") + hh + ":" + (mm < 10 ? "0" : "") + mm;
-        t.actionType = Object.getOwnPropertyNames(ActionType)[t.actionType];
-        t.repeat     = Object.getOwnPropertyNames(RepeatEnum)[t.repeat];
         if (t.subAction) t.subAction.map(st => {
-          st.actionType = Object.getOwnPropertyNames(ActionType)[st.actionType];
           return st;
         });
         return t;

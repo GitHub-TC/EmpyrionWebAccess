@@ -22,7 +22,8 @@ using System.Threading;
 namespace EmpyrionModWebHost.Controllers
 {
 
-    public class SysteminfoDataModel
+#pragma warning disable IDE1006 // Naming Styles
+    public class SystemInfoDataModel
     {
         /// <summary>
         /// Onlinestates:
@@ -34,22 +35,23 @@ namespace EmpyrionModWebHost.Controllers
         /// S: EGS Stop/Start
         /// D: Client disconnect (used by Client)
         /// </summary>
-        public string online;
-        public string copyright;
-        public string version;
-        public string versionESG;
-        public string versionESGBuild;
-        public int activePlayers;
-        public int activePlayfields;
-        public int totalPlayfieldserver;
-        public long totalPlayfieldserverRamMB;
-        public long diskFreeSpace;
-        public long diskUsedSpace;
-        public float cpuTotalLoad;
-        public float ramAvailableMB;
-        public ulong ramTotalMB;
-        public string serverName;
+        public string online { get; set; }
+        public string copyright { get; set; }
+        public string version { get; set; }
+        public string versionESG { get; set; }
+        public string versionESGBuild { get; set; }
+        public int activePlayers { get; set; }
+        public int activePlayfields { get; set; }
+        public int totalPlayfieldserver { get; set; }
+        public long totalPlayfieldserverRamMB { get; set; }
+        public long diskFreeSpace { get; set; }
+        public long diskUsedSpace { get; set; }
+        public int cpuTotalLoad { get; set; }
+        public int ramAvailableMB { get; set; }
+        public ulong ramTotalMB { get; set; }
+        public string serverName { get; set; }
     }
+#pragma warning restore IDE1006 // Naming Styles
 
     public class SystemConfig
     {
@@ -62,12 +64,11 @@ namespace EmpyrionModWebHost.Controllers
     [Authorize]
     public class SysteminfoHub : Hub
     {
-        private SysteminfoManager SysteminfoManager { get; set; }
     }
 
     public class SysteminfoManager : EmpyrionModBase, IEWAPlugin, IClientHostCommunication
     {
-        public SysteminfoDataModel CurrentSysteminfo = new SysteminfoDataModel();
+        public SystemInfoDataModel CurrentSysteminfo = new SystemInfoDataModel();
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private class MEMORYSTATUSEX
@@ -125,7 +126,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private void UpdateSystemInfo()
         {
-            SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait();
+            SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000);
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -144,10 +145,10 @@ namespace EmpyrionModWebHost.Controllers
                 tpf     = CurrentSysteminfo.totalPlayfieldserver,
                 tpfm    = CurrentSysteminfo.totalPlayfieldserverRamMB,
             })).Wait(1000));
-            TaskTools.Intervall(30000, () => SysteminfoHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(CurrentSysteminfo)).Wait(1000));
-            TaskTools.Intervall(5000, UpdateEmpyrionInfos);
-            TaskTools.Intervall(5000, UpdateComputerInfos);
-            TaskTools.Intervall(2000, UpdatePerformanceInfos);
+            TaskTools.Intervall(30000, UpdateSystemInfo);
+            TaskTools.Intervall(5000,  UpdateEmpyrionInfos);
+            TaskTools.Intervall(5000,  UpdateComputerInfos);
+            TaskTools.Intervall(2000,  UpdatePerformanceInfos);
 
             CpuTotalLoad = new PerformanceCounter
             {
@@ -167,8 +168,8 @@ namespace EmpyrionModWebHost.Controllers
 
             ulong memBytes = InstalledTotalMemory();
 
-            CurrentSysteminfo.cpuTotalLoad      = CpuTotalLoad.NextValue();
-            CurrentSysteminfo.ramAvailableMB    = RamAvailable.NextValue();
+            CurrentSysteminfo.cpuTotalLoad      = (int)CpuTotalLoad.NextValue();
+            CurrentSysteminfo.ramAvailableMB    = (int)RamAvailable.NextValue();
             CurrentSysteminfo.ramTotalMB        = memBytes / (1024 * 1024);
             CurrentSysteminfo.diskUsedSpace     = GameDrive.TotalSize - GameDrive.TotalFreeSpace;
             CurrentSysteminfo.diskFreeSpace     = GameDrive.TotalFreeSpace;
@@ -419,7 +420,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("CurrentSysteminfo")]
-        public IActionResult GetCurrentSysteminfo()
+        public ActionResult<SystemInfoDataModel> GetCurrentSysteminfo()
         {
             return Ok(SysteminfoManager.CurrentSysteminfo);
         }

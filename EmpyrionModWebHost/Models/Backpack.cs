@@ -39,9 +39,9 @@ namespace EmpyrionModWebHost.Models
 
     public class BackpackModel
     {
-        public string SteamId;
-        public ItemStack[] Toolbar;
-        public ItemStack[] Bag;
+        public string SteamId{ get; set; }
+        public ItemStack[] Toolbar{ get; set; }
+        public ItemStack[] Bag{ get; set; }
     }
 
 }

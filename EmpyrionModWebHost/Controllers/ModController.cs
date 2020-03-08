@@ -150,7 +150,7 @@ namespace EmpyrionModWebHost.Controllers
             public bool active { get; set; }
             public string infos { get; set; }
             public bool withConfiguration { get; set; }
-            public string configurationType { get; internal set; }
+            public string configurationType { get; set; }
         }
 
         [HttpGet("ModInfos")]

@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost
@@ -64,6 +65,7 @@ namespace EmpyrionModWebHost
                     {
                         options.EnableEndpointRouting = false;
                     })
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddAutoMapper(typeof(Startup));
@@ -85,6 +87,11 @@ namespace EmpyrionModWebHost
             services.AddSingleton<AsyncSynchronizationContext>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddControllers().AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             services.AddSingleton<ModHostDLL>();
             services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
@@ -262,14 +269,14 @@ namespace EmpyrionModWebHost
             app.UseSpaStaticFiles();
             app.UseErrorHandlingMiddleware();
 
-            app.UseEndpoints(routes => {
-                routes.MapHub<ChatHub>("/hubs/chat");
-                routes.MapHub<PlayerHub>("/hubs/player");
-                routes.MapHub<BackpackHub>("/hubs/backpack");
-                routes.MapHub<FactionHub>("/hubs/faction");
+            app.UseSignalR(routes => {
+                routes.MapHub<ChatHub>      ("/hubs/chat");
+                routes.MapHub<PlayerHub>    ("/hubs/player");
+                routes.MapHub<BackpackHub>  ("/hubs/backpack");
+                routes.MapHub<FactionHub>   ("/hubs/faction");
                 routes.MapHub<SysteminfoHub>("/hubs/systeminfo");
-                routes.MapHub<PlayfieldHub>("/hubs/playfield");
-                routes.MapHub<ModinfoHub>("/hubs/modinfo");
+                routes.MapHub<PlayfieldHub> ("/hubs/playfield");
+                routes.MapHub<ModinfoHub>   ("/hubs/modinfo");
             });
 
             app.UseMvc(routes =>

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using System.Numerics;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -161,8 +162,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 forceEntityId = NewID.id,
                 playfield = aStructure.Playfield,
-                pos = aStructure.Pos,
-                rot = aStructure.Rot,
+                pos = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
+                rot = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
                 name = aStructure.Name,
                 type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
@@ -355,7 +356,7 @@ namespace EmpyrionModWebHost.Controllers
     {
         public class BackupData
         {
-            public string backup;
+            public string backup { get; set; }
         }
 
         private static readonly object CreateStructureLock = new object();
@@ -501,7 +502,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public class RestorePlayerData : BackupData
         {
-            public string steamId;
+            public string steamId { get; set; }
         }
 
         [HttpPost("RestorePlayer")]
@@ -549,7 +550,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public class RestorePlayfieldData : BackupData
         {
-            public string playfield;
+            public string playfield { get; set; }
         }
 
         [HttpPost("RestorePlayfield")]
@@ -631,11 +632,11 @@ namespace EmpyrionModWebHost.Controllers
 
                 FieldValues = LastLine.Split(',').ToList();
 
-                string   StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
-                int      IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }
-                bool     BoolValue      (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && bool.TryParse(FieldValues[pos], out bool Result) && Result; }
-                PVector3 PVector3Value  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? new PVector3() : GetPVector3(FieldValues[pos]); }
-                DateTime DateTimeValue  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && DateTime.TryParseExact(FieldValues[pos], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MinValue; }
+                string      StringValue    (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? null : FieldValues[pos]; }
+                int         IntValue       (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? 0 : ToIntOrZero(FieldValues[pos]); }
+                bool        BoolValue      (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && bool.TryParse(FieldValues[pos], out bool Result) && Result; }
+                Vector3Data Vector3Value   (string N) { var pos = Array.IndexOf(FieldNames, N); return pos == -1 ? new Vector3Data() : GetVector3(FieldValues[pos]); }
+                DateTime    DateTimeValue  (string N) { var pos = Array.IndexOf(FieldNames, N); return pos != -1 && DateTime.TryParseExact(FieldValues[pos], "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MinValue; }
 
                 Info.Playfield  = StringValue("playfield");
                 Info.Id         = IntValue("id");
@@ -654,8 +655,8 @@ namespace EmpyrionModWebHost.Controllers
                 Info.Powered    = BoolValue("powered");
                 Info.Core       = BoolValue("core");
 
-                Info.Pos = PVector3Value("pos");
-                Info.Rot = PVector3Value("rot");
+                Info.Pos = Vector3Value("pos");
+                Info.Rot = Vector3Value("rot");
 
                 Info.Saved_time   = DateTimeValue("saved_time");
                 Info.Touched_time = DateTimeValue("touched_time");
@@ -669,10 +670,10 @@ namespace EmpyrionModWebHost.Controllers
             return Info;
         }
 
-        private static PVector3 GetPVector3(string aValue)
+        private static Vector3Data GetVector3(string aValue)
         {
             var d = aValue.Split(' ');
-            return new PVector3() { x = ToFloatOrZero(d[0]), y = ToFloatOrZero(d[1]), z = ToFloatOrZero(d[2]) };
+            return new Vector3Data() { x = ToFloatOrZero(d[0]), y = ToFloatOrZero(d[1]), z = ToFloatOrZero(d[2])};
         }
 
         private static int ToIntOrZero(string aValue)
@@ -687,7 +688,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public class CreateStructureData : BackupData
         {
-            public PlayfieldGlobalStructureInfo structure;
+            public PlayfieldGlobalStructureInfo structure { get; set; }
         }
 
         [HttpPost("CreateStructure")]
@@ -699,7 +700,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public class MarkBackupData : BackupData
         {
-            public string mark;
+            public string mark { get; set; }
         }
 
         [HttpPost("MarkBackup")]
