@@ -262,7 +262,10 @@ namespace EmpyrionModWebHost.Controllers
                     try { EGSProcess = ProcessInformation == null ? null : Process.GetProcessById(ProcessInformation.Id); } catch { }
 
                     Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: saveandexit:" + aWaitMinutes);
-                    Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes)).Wait(10000);
+
+                    try{ Request_ConsoleCommand(Timeouts.Wait10s, new PString("saveandexit " + aWaitMinutes)); }
+                    catch (Exception Error) { Logger.LogError(Error, "EGSStop: StopCMD:saveandexit " + aWaitMinutes); }
+
                     Thread.Sleep(10000);
                     if (EGSProcess != null && !EGSProcess.HasExited)
                     {
