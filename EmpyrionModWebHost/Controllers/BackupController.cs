@@ -90,8 +90,9 @@ namespace EmpyrionModWebHost.Controllers
                     var type = new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }[test.StructureInfo.type]; // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                     var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{test.StructureInfo.id}");
                     var exportDat = Path.Combine(structurePath, "Export.dat");
+                    var entsDat   = Path.Combine(structurePath, "ents.dat");   // A12 autosave
 
-                    if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat))
+                    if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat) && !File.Exists(entsDat))
                     {
                         Request_Entity_Export(new EntityExportInfo()
                         {
@@ -155,7 +156,10 @@ namespace EmpyrionModWebHost.Controllers
                             aSelectBackupDir == CurrentSaveGame ? EmpyrionConfiguration.ProgramPath : aSelectBackupDir,
                             @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
+
             var sourceExportDat = Path.Combine(SourceDir, "Export.dat");
+            if(!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // A12 autosave
+
             var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{NewID.id}");
 
             var SpawnInfo = new EntitySpawnInfo()
@@ -461,7 +465,7 @@ namespace EmpyrionModWebHost.Controllers
         public PlayfieldGlobalStructureInfo[] ReadStructures([FromBody]BackupData aSelectBackupDir)
         {
             return aSelectBackupDir.backup == BackupManager.CurrentSaveGame
-                ? DeletesStructuresFromCurrentSaveGame()
+                ? DeletedStructuresFromCurrentSaveGame()
                 : ReadStructuresFromDirectory(aSelectBackupDir.backup);
         }
 
@@ -473,7 +477,7 @@ namespace EmpyrionModWebHost.Controllers
             return Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)).ToArray();
         }
 
-        private PlayfieldGlobalStructureInfo[] DeletesStructuresFromCurrentSaveGame()
+        private PlayfieldGlobalStructureInfo[] DeletedStructuresFromCurrentSaveGame()
         {
             var GS = BackupManager.Request_GlobalStructure_List().Result?.globalStructures;
 

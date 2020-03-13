@@ -19,9 +19,11 @@ namespace EmpyrionModWebHost
                 .ForMember(d => d.Role, opt => opt.ConvertUsing(new RoleFormatter()));
 
             CreateMap<PVector3, Vector3Data>();
+            CreateMap<Vector3Data, PVector3>();
             CreateMap<GlobalStructureInfo, GlobalStructureInfoData>();
+            CreateMap<GlobalStructureInfoData, GlobalStructureInfo>();
             CreateMap<GlobalStructureList, GlobalStructureListData>();
-
+            CreateMap<GlobalStructureListData, GlobalStructureList>();
         }
     }
 }

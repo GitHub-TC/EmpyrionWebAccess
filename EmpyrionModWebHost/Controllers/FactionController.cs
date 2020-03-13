@@ -104,8 +104,8 @@ namespace EmpyrionModWebHost.Controllers
                 var dictFactions = factions.factions.ToDictionary(K => K.abbrev, K => K);
 
                 DB.Factions
-                    .Where(F => !dictFactions.ContainsKey(F.Abbrev))
                     .ToList()
+                    .Where(F => !dictFactions.ContainsKey(F.Abbrev))
                     .ForEach(F => DB.Factions.Remove(F));
 
                 DB.SaveChanges();

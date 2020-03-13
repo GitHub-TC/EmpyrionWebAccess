@@ -52,6 +52,7 @@ namespace EmpyrionModWebHost.Controllers
             PlayerManager.Value.QueryPlayer(PDB => 
                 PDB.Players
                     .Where(P => P.Online)
+                    .ToList()
                     .GroupBy(P => P.Playfield, (k, p) => p.FirstOrDefault()), 
                     P => {
                         Request_GlobalStructure_Update(new PString(P.Playfield)).Wait();

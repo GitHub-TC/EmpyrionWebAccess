@@ -146,9 +146,9 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("Origins")]
-        public IDictionary<int, string> Origins()
+        public IDictionary<string, string> Origins()
         {
-            return SectorsManager.Origins;
+            return SectorsManager.Origins?.ToDictionary(E => E.Key.ToString(), E => E.Value);
         }
 
         [Authorize(Roles = nameof(Role.GameMaster))]

@@ -57,7 +57,7 @@ export class PlayerService {
     let locationsSubscription2 = this.http.get<ElevatedUserStruct[]>("Player/GetElevatedUsers")
       .pipe()
       .subscribe(
-        P => this.ElevatedUser = P,
+        P => this.ElevatedUser = P ? P : [],
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
@@ -66,10 +66,13 @@ export class PlayerService {
     let locationsSubscription3 = this.http.get<BannedUserStruct[]>("Player/GetBannedUsers")
       .pipe()
       .subscribe(
-        P => this.BannedUser = P.map(p => {
-          try { p.until = new Date(p.until); } catch { }
-          return p;
-        }),
+        P => this.BannedUser = P
+          ? P.map(p => {
+                    try { p.until = new Date(p.until); } catch { }
+                    return p;
+          })
+          : []
+          ,
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
