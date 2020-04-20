@@ -4,7 +4,6 @@ using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
-using EmpyrionNetAPIDefinitions;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;

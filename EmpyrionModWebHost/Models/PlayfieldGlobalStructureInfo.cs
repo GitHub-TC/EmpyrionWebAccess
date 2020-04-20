@@ -1,6 +1,6 @@
-﻿using System;
-using System.Numerics;
+﻿using AutoMapper;
 using Eleon.Modding;
+using System;
 
 namespace EmpyrionModWebHost.Models
 {
@@ -36,4 +36,19 @@ namespace EmpyrionModWebHost.Models
         public string Add_info{ get; set; }
     }
 #pragma warning restore IDE1006 // Naming Styles
+
+    public class PlayfieldGlobalStructureInfoAutoMapping : Profile
+    {
+        public PlayfieldGlobalStructureInfoAutoMapping()
+        {
+            CreateMap<GlobalStructureInfoData, PlayfieldGlobalStructureInfo>()
+                .ForMember(D => D.Faction,      opt => opt.MapFrom(src => src.factionId))
+                .ForMember(D => D.Blocks,       opt => opt.MapFrom(src => src.cntBlocks))
+                .ForMember(D => D.Devices,      opt => opt.MapFrom(src => src.cntDevices))
+                .ForMember(D => D.Core,         opt => opt.MapFrom(src => src.coreType > 0))
+                .ForMember(D => D.Touched_time, opt => opt.MapFrom(src => DateTime.FromBinary(src.lastVisitedUTC)))
+            ;
+        }
+    }
+
 }

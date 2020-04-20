@@ -32,14 +32,16 @@ namespace EmpyrionModWebHost.Controllers
 
     public class PlayfieldManager : EmpyrionModBase, IEWAPlugin
     {
-        public IHubContext<PlayfieldHub> PlayfieldHub { get; internal set; }
+        public IHubContext<PlayfieldHub> PlayfieldHub { get; }
         public Lazy<StructureManager> StructureManager { get; }
+        public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public ModGameAPI GameAPI { get; private set; }
 
         public PlayfieldManager(IHubContext<PlayfieldHub> aPlayfieldHub)
         {
             PlayfieldHub        = aPlayfieldHub;
             StructureManager    = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
         }
 
         public PlayfieldInfo[] Playfields { get; set; }
@@ -97,7 +99,16 @@ namespace EmpyrionModWebHost.Controllers
 
         public void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
         {
-            aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
+            if (SysteminfoManager.Value.EGSIsRunning) aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
+            else
+            {
+                var wipeinfo = aWipeType.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                aPlayfields.ForEach(P =>
+                {
+                    try { File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipeinfo); }
+                    catch { }
+                });
+            }
         }
 
         public void ResetPlayfield(params string[] aPlayfields)

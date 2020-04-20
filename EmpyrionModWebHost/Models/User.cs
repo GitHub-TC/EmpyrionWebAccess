@@ -1,4 +1,5 @@
-﻿using EmpyrionNetAPITools;
+﻿using AutoMapper;
+using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -53,4 +54,21 @@ namespace EmpyrionModWebHost.Models
 
         public DbSet<User> Users { get; set; }
     }
+
+    public class UserAutoMapperProfile : Profile
+    {
+        public class RoleFormatter : IValueConverter<Role, string>
+        {
+            public string Convert(Role source, ResolutionContext context)
+                => source.ToString();
+        }
+
+        public UserAutoMapperProfile()
+        {
+            CreateMap<UserDto, User>();
+            CreateMap<User, UserDto>()
+                .ForMember(d => d.Role, opt => opt.ConvertUsing(new RoleFormatter()));
+        }
+    }
+
 }

@@ -14,15 +14,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using System.Numerics;
+using AutoMapper;
 
 namespace EmpyrionModWebHost.Controllers
 {
+    public class BackupStructureData
+    {
+        public List<PlayfieldGlobalStructureInfo> AlivePlayerStructures { get; set; }
+        public List<PlayfieldGlobalStructureInfo> DeletedPlayerStructures { get; set; }
+    }
+
     public class BackupManager : EmpyrionModBase, IEWAPlugin
     {
         public const string CurrentSaveGame = "### Current Savegame ###";
+        public readonly static string[] EntityTypes = new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" };
 
-        public ILogger<BackupManager> Logger { get; set; }
+    public ILogger<BackupManager> Logger { get; set; }
+        public IMapper Mapper { get; }
         public ModGameAPI GameAPI { get; private set; }
         public Lazy<StructureManager> StructureManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
@@ -31,6 +39,8 @@ namespace EmpyrionModWebHost.Controllers
         public ConcurrentDictionary<string, string> ActivePlayfields { get; set; } = new ConcurrentDictionary<string, string>();
         public ConcurrentDictionary<string, bool> LoggedError { get; set; } = new ConcurrentDictionary<string, bool>();
 
+        public ConfigurationManager<BackupStructureData> BackupStructureDB { get; set; }
+
         public string CurrentBackupDirectory(string aAddOn) {
             var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
             Directory.CreateDirectory(Result);
@@ -38,14 +48,21 @@ namespace EmpyrionModWebHost.Controllers
             return Result;
         }
 
-        public BackupManager(ILogger<BackupManager> logger)
+        public BackupManager(ILogger<BackupManager> logger, IMapper mapper)
         {
             Logger = logger;
+            Mapper = mapper;
 
             StructureManager  = new Lazy<StructureManager> (() => Program.GetManager<StructureManager>());
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
 
             BackupDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", Program.AppSettings.BackupDirectory ?? "Backup");
+
+            BackupStructureDB = new ConfigurationManager<BackupStructureData>()
+            {
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "BackupStructureDB.json")
+            };
+            BackupStructureDB.Load();
         }
 
         private void BackupStructureData()
@@ -87,7 +104,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 try
                 {
-                    var type = new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }[test.StructureInfo.type]; // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
+                    var type = GetEntityTypeName(test.StructureInfo.type); // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                     var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{test.StructureInfo.id}");
                     var exportDat = Path.Combine(structurePath, "Export.dat");
                     var entsDat   = Path.Combine(structurePath, "ents.dat");   // A12 autosave
@@ -128,11 +145,51 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000,           () => BackupStructureData());
-            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60 * 60, () => LoggedError.Clear());
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000,           BackupStructureData);
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60 * 60, LoggedError.Clear);
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60,      UpdateGlobalStuctureInfoData);
 
-            Event_Playfield_Loaded += P => ActivePlayfields.TryAdd   (P.playfield, P.playfield);
+            Event_Playfield_Loaded   += P => ActivePlayfields.TryAdd   (P.playfield, P.playfield);
             Event_Playfield_Unloaded += P => ActivePlayfields.TryRemove(P.playfield, out _);
+        }
+
+        private void UpdateGlobalStuctureInfoData()
+        {
+            var currentAlivePlayerStructures = StructureManager.Value.LastGlobalStructureList.Current?.globalStructures?
+                .SelectMany(PS => PS.Value
+                    .Where(S => S.factionId > 0 && (S.factionGroup == (byte)Factions.Private || S.factionGroup == (byte)Factions.Faction))
+                    .Select(S =>
+                    {
+                        var result = Mapper.Map<PlayfieldGlobalStructureInfo>(S);
+                        result.Playfield     = PS.Key;
+                        result.structureName = $"{S.id}";
+                        result.Type          = GetEntityTypeName(S.type); // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
+                        return result;
+                    }))
+                .ToList();
+
+            if (currentAlivePlayerStructures == null) return;
+
+            if(BackupStructureDB.Current.AlivePlayerStructures == null || BackupStructureDB.Current.AlivePlayerStructures.Count == 0)
+            {
+                BackupStructureDB.Current.AlivePlayerStructures   = currentAlivePlayerStructures;
+                BackupStructureDB.Current.DeletedPlayerStructures = new List<PlayfieldGlobalStructureInfo>();
+            }
+            else
+            {
+                var dictList = BackupStructureDB.Current.AlivePlayerStructures.ToDictionary(S => S.Id, S => S);
+                currentAlivePlayerStructures.ForEach(S => dictList.Remove(S.Id));
+
+                BackupStructureDB.Current.AlivePlayerStructures = currentAlivePlayerStructures;
+                BackupStructureDB.Current.DeletedPlayerStructures.AddRange(dictList.Values);
+            }
+
+            BackupStructureDB.Save();
+        }
+
+        private static string GetEntityTypeName(byte entityTypeId)
+        {
+            return EntityTypes.Length > entityTypeId && entityTypeId > 0 ? EntityTypes[entityTypeId] : "???";
         }
 
         public static void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
@@ -157,23 +214,23 @@ namespace EmpyrionModWebHost.Controllers
                             @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
 
-            var sourceExportDat = Path.Combine(SourceDir, "Export.dat");
-            if(!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // A12 autosave
+            var sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // A12 autosave
+            if (!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "Export.dat"); 
 
             var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{NewID.id}");
 
             var SpawnInfo = new EntitySpawnInfo()
             {
-                forceEntityId = NewID.id,
-                playfield = aStructure.Playfield,
-                pos = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
-                rot = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
-                name = aStructure.Name,
-                type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
-                entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
-                prefabName = $"{aStructure.Type}_Player",
-                factionGroup = 0,
-                factionId = 0, // erstmal auf "public" aStructure.Faction,
+                forceEntityId   = NewID.id,
+                playfield       = aStructure.Playfield,
+                pos             = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
+                rot             = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
+                name            = aStructure.Name,
+                type            = (byte)Array.IndexOf(EntityTypes, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
+                entityTypeName  = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
+                prefabName      = $"{aStructure.Type}_Player",
+                factionGroup    = 0,
+                factionId       = 0, // erstmal auf "public" aStructure.Faction,
                 exportedEntityDat = File.Exists(sourceExportDat) ? sourceExportDat : null
             };
 
@@ -283,6 +340,16 @@ namespace EmpyrionModWebHost.Controllers
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir,
                 "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared")));
 
+            try
+            {
+                File.Copy(BackupStructureDB.ConfigFilename,
+                    Path.Combine(aCurrentBackupDir, "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared", Path.GetFileName(BackupStructureDB.ConfigFilename)), true);
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "StructureBackup:{0}", BackupStructureDB.ConfigFilename);
+            }
+
             BackupState(false);
         }
 
@@ -320,6 +387,21 @@ namespace EmpyrionModWebHost.Controllers
             BackupState(false);
         }
 
+        public void SetNormalAttributes(string path)
+        {
+            try
+            {
+                Directory.EnumerateFiles(path)
+                    .AsParallel()
+                    .ForEach(F => File.SetAttributes(F, FileAttributes.Normal));
+
+                Directory.EnumerateDirectories(path)
+                    .AsParallel()
+                    .ForEach(F => SetNormalAttributes(F));
+            }
+            catch { }
+        }
+
         public void DeleteOldBackups(int aDays)
         {
             Directory.EnumerateDirectories(BackupDir)
@@ -328,7 +410,7 @@ namespace EmpyrionModWebHost.Controllers
                 .Select(D => new { D.FullPath, BackupDate = DateTime.TryParseExact(D.BackupName.Substring(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime Result) ? Result : DateTime.MaxValue })
                 .Where(T => T.BackupDate < (DateTime.Today - new TimeSpan(aDays, 0, 0, 0)))
                 .AsParallel()
-                .ForAll(T => Directory.Delete(T.FullPath, true));
+                .ForAll(T => { SetNormalAttributes(T.FullPath); Directory.Delete(T.FullPath, true); });
         }
 
         public void RestorePlayfield(string aBackup, string aPlayfield)
@@ -474,15 +556,35 @@ namespace EmpyrionModWebHost.Controllers
             var StructDir = Path.Combine(BackupManager.BackupDir,
                 aSelectBackupDir == BackupManager.CurrentSaveGame ? EmpyrionConfiguration.ProgramPath : aSelectBackupDir,
                 @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
+
+
+            // A12
+            //var backupStructureDB = new ConfigurationManager<BackupStructureData>()
+            //{
+            //    ConfigFilename = Path.Combine(StructDir, "BackupStructureDB.json")
+            //};
+            //backupStructureDB.Load();
+
+            //var result = new List<PlayfieldGlobalStructureInfo>();
+            //result.AddRange(backupStructureDB.Current?.AlivePlayerStructures    ?? new List<PlayfieldGlobalStructureInfo>());
+            //result.AddRange(backupStructureDB.Current?.DeletedPlayerStructures  ?? new List<PlayfieldGlobalStructureInfo>());
+            //if (result.Count > 0) return result.ToArray();
+
+            // A11
             return Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)).ToArray();
         }
 
         private PlayfieldGlobalStructureInfo[] DeletedStructuresFromCurrentSaveGame()
         {
+            // A12
+            //var result = BackupManager.BackupStructureDB.Current?.DeletedPlayerStructures?.ToArray();
+            //if (result != null) return result;
+
+            // A11
             var GS = BackupManager.Request_GlobalStructure_List().Result?.globalStructures;
 
-            var GSL = GS == null 
-                ? new List<int>() 
+            var GSL = GS == null
+                ? new List<int>()
                 : GS.Aggregate(new List<int>(), (L, S) => { L.AddRange(S.Value.Select(s => s.id)); return L; });
 
             return ReadStructuresFromDirectory(BackupManager.CurrentSaveGame).Where(S => !GSL.Contains(S.Id)).ToArray();

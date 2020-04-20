@@ -160,6 +160,8 @@ namespace EmpyrionModWebHost.Controllers
             RamAvailable = new PerformanceCounter("Memory", "Available MBytes");
         }
 
+        public bool EGSIsRunning => CurrentSysteminfo.online == "o";
+
         private void UpdatePerformanceInfos()
         {
             CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "oc", (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10);
