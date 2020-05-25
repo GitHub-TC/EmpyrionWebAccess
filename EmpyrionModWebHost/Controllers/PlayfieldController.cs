@@ -14,6 +14,7 @@ using EmpyrionModWebHost.Models;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using EmpyrionNetAPITools;
+using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -65,6 +66,7 @@ namespace EmpyrionModWebHost.Controllers
             Playfields = Directory
                 .EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"))
                 .Select(D => ReadPlayfield(D))
+                .AsParallel()
                 .Where(D => D != null)
                 .ToArray();
 
@@ -77,7 +79,20 @@ namespace EmpyrionModWebHost.Controllers
             if (!File.Exists(PlayfieldYaml)) return null;
 
             var Result = new PlayfieldInfo() { name = Path.GetFileName(aFilename) };
-            var YamlLines = File.ReadAllLines(PlayfieldYaml).Select(L => L.Trim());
+            IEnumerable<string> YamlLines = new List<string>();
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    YamlLines = File.ReadAllLines(PlayfieldYaml).Select(L => L.Trim());
+                    break;
+                }
+                catch
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+                
 
             Result.isPlanet = new[] { "Planet", "Moon" }.Any(P => string.Compare(GetYamlValue(YamlLines, "PlayfieldType"), P, StringComparison.CurrentCultureIgnoreCase) == 0);
             Result.size = int.TryParse(GetYamlValue(YamlLines, "PlanetSize"), out int S) ? S : (Result.isPlanet ? 3 : 0);
@@ -147,6 +162,7 @@ namespace EmpyrionModWebHost.Controllers
     {
         public PlayfieldManager PlayfieldManager { get; }
         public PlayerManager PlayerManager { get; }
+        public SectorsManager SectorsManager { get; }
         public string MapsPath { get; set; } = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "Maps");
         public ILogger<PlayfieldController> Logger { get; set; }
         public IUserService UserService { get; }
@@ -157,13 +173,14 @@ namespace EmpyrionModWebHost.Controllers
             UserService      = aUserService;
             PlayfieldManager = Program.GetManager<PlayfieldManager>();
             PlayerManager    = Program.GetManager<PlayerManager>();
+            SectorsManager   = Program.GetManager<SectorsManager>();
         }
 
         [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpGet("Sectors")]
         public ActionResult<string> Sectors()
         {
-            return System.IO.File.ReadAllText(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Sectors", "sectors.yaml"));
+            return YamlExtensions.ObjectToYaml(SectorsManager.SectorsData);
         }
 
         [HttpGet("Playfields")]

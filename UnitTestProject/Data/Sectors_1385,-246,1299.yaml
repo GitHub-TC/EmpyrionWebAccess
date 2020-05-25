@@ -1,0 +1,117 @@
+GalaxyMode: true
+Sectors: []
+SolarSystems:
+  - Name: Asarish
+    Coordinates: [1385, -246, 1299]
+    StarClass: K
+    Sectors:
+      - Coordinates: [0, 0, 0]
+        SectorMapType: None
+        Playfields:
+          - ['0,0,0', Asarish, SunRandom, '']
+      - Coordinates: [2, 0, 0]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_1,0,0', SpaceWarpTarget, '']
+      - Coordinates: [-2, 0, 0]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_-1,0,0', SpaceWarpTarget, '']
+      - Coordinates: [0, 2, 0]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_0,1,0', SpaceWarpTarget, '']
+      - Coordinates: [0, -2, 0]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_0,-1,0', SpaceWarpTarget, '']
+      - Coordinates: [0, 0, 2]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_0,0,1', SpaceWarpTarget, '']
+      - Coordinates: [0, 0, -2]
+        SectorMapType: WarpTarget
+        Playfields:
+          - ['0,0,0', 'Asarish_0,0,-1', SpaceWarpTarget, '']
+      - Coordinates: [-58, 1, 4]
+        Color: '0.45,0.2,0.09'
+        SectorMapType: GasGiant
+        Playfields:
+          - ['0, 0, 0', UJG I, GasGiant,'', '', 'JupiterBrown2', '11']
+      - Coordinates: [-58, 5, 5]
+        Color: '0.16,0.18,0.51'
+        Playfields:
+          - ['0, 0, 0', UJG I Moon, MoonIce,'', '', '', '']
+          - ['0,0,0', UJG I Moon Sector, SpaceOrbit, '']
+      - Coordinates: [-61, 2, 1]
+        Color: '0.3,0.06,0.04'
+        Playfields:
+          - ['0, 0, 0', UJG I Moon 1, MoonNascent,'', '', '', '']
+          - ['0,0,0', UJG I Moon 1 Sector, SpaceOrbit, '']
+      - Coordinates: [-61, 3, 2]
+        Color: '0.04,0.5,0.1'
+        Playfields:
+          - ['0, 0, 0', UJG I Moon 2, MoonForest,'', '', '', '']
+          - ['0,0,0', UJG I Moon 2 Sector, SpaceOrbit, '']
+      - Coordinates: [-37, 2, 96]
+        Color: '0.36,0.3,0.56'
+        SectorMapType: GasGiant
+        Playfields:
+          - ['0, 0, 0', Rhoro, GasGiant,'', '', 'NeptunePurple', '8']
+      - Coordinates: [-37, 1, 96]
+        Color: '0.16,0.18,0.51'
+        Playfields:
+          - ['0, 0, 0', Rhoro Moon, MoonIce,'', '', '', '']
+          - ['0,0,0', Rhoro Moon Sector, SpaceOrbit, '']
+      - Coordinates: [-36, 3, 96]
+        Color: '0.3,0.06,0.04'
+        Playfields:
+          - ['0, 0, 0', Rhoro Moon 1, MoonNascent,'', '', '', '']
+          - ['0,0,0', Rhoro Moon 1 Sector, SpaceOrbit, '']
+      - Coordinates: [25, 0, 27]
+        Color: '0.57,0.09,0.05 : 0.3,0.06,0.04'
+        Playfields:
+          - ['0, 0, 0', UJG II, LavaNascent,'', '', '', '']
+          - ['-9696, -7976, -8210', UJG II Moon, MoonNascent]
+          - ['0,0,0', UJG II Sector, SpaceOrbit, '']
+      - Coordinates: [-26, 0, 42]
+        Color: '0.5,0.47,0.04 : 0,0,0'
+        Playfields:
+          - ['0, 0, 0', Myrunmah, Arid,'', '', '', '']
+          - ['1457, -13605, 6147', Myrunmah Moon, Moon]
+          - ['0,0,0', Myrunmah Sector, SpaceOrbit, '']
+      - Coordinates: [-34, 0, -53]
+        Color: '0.49,0.49,0.49'
+        Playfields:
+          - ['0, 0, 0', UJG III, Barren,'', '', '', '']
+          - ['0,0,0', UJG III Sector, SpaceOrbit, '']
+      - Coordinates: [-91, 3, -54]
+        Color: '0.49,0.49,0.49'
+        Playfields:
+          - ['0, 0, 0', UJG IV, BarrenMetal,'', '', '', '']
+          - ['0,0,0', UJG IV Sector, SpaceOrbit, '']
+      - Coordinates: [47, 1, -32]
+        Color: '0.49,0.49,0.49'
+        SectorMapType: AsteroidField
+        Playfields:
+          - ['0, 0, 0', Zaoeres Theta, SpaceAsteroidField,'', '', '', '']
+      - Coordinates: [3, 0, 57]
+        Color: '0.49,0.49,0.49'
+        SectorMapType: AsteroidField
+        Playfields:
+          - ['0, 0, 0', Carnow Epsilon, SpaceEmpty,'', '', '', '']
+      - Coordinates: [59, 0, 7]
+        Color: '0.49,0.49,0.49'
+        SectorMapType: AsteroidFieldFew
+        Playfields:
+          - ['0, 0, 0', Alaelgor Upsilon, SpaceAsteroidFieldFew,'', '', '', '']
+      - Coordinates: [28, 0, -55]
+        Color: '0.49,0.49,0.49'
+        SectorMapType: AsteroidField
+        Playfields:
+          - ['0, 0, 0', Quarym Phi, SpaceEmpty,'', '', '', '']
+      - Coordinates: [51, 0, 34]
+        Color: '0.49,0.49,0.49'
+        SectorMapType: AsteroidFieldFew
+        Playfields:
+          - ['0, 0, 0', Sedna Iota, SpaceAsteroidFieldFew,'', '', '', '']

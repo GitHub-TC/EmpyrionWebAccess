@@ -1,4 +1,5 @@
-﻿using Eleon.Modding;
+﻿using AutoMapper;
+using Eleon.Modding;
 using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -42,6 +43,21 @@ namespace EmpyrionModWebHost.Models
         public string SteamId{ get; set; }
         public ItemStack[] Toolbar{ get; set; }
         public ItemStack[] Bag{ get; set; }
+    }
+
+    public class BackpackModelDTO
+    {
+        public string SteamId { get; set; }
+        public ItemStackDTO[] Toolbar { get; set; }
+        public ItemStackDTO[] Bag { get; set; }
+    }
+
+    public class AutoMappingBackpack : Profile
+    {
+        public AutoMappingBackpack()
+        {
+            CreateMap<BackpackModelDTO, BackpackModel>();
+        }
     }
 
 }

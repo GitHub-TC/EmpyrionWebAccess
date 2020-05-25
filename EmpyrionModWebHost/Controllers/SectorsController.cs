@@ -30,11 +30,13 @@ namespace EmpyrionModWebHost.Controllers
     {
         public string Name { get; set; }
         public List<int> Coordinates { get; set; }
+        public string StarClass { get; set; }
         public List<SectorData> Sectors { get; set; }
     }
 
     public class SectorsData
     {
+        public bool GalaxyMode { get; set; }
         public List<SectorData> Sectors { get; set; }
         public List<SolarSystems> SolarSystems { get; set; }
     }
@@ -49,7 +51,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public SectorsManager()
         {
-            PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Sectors"), "Sectors.yaml");
+            PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Sectors"));
             PlayfieldsWatcher.Created += (S, A) => TaskTools.Delay(10, ReadSectors);
             PlayfieldsWatcher.Deleted += (S, A) => TaskTools.Delay(10, ReadSectors);
             PlayfieldsWatcher.Changed += (S, A) => TaskTools.Delay(10, ReadSectors);
@@ -66,19 +68,39 @@ namespace EmpyrionModWebHost.Controllers
 
         private void ReadSectors()
         {
-            using (var input = File.OpenText(Path.Combine(PlayfieldsWatcher.Path, "Sectors.yaml")))
+            SectorsData = ReadSectorFiles(PlayfieldsWatcher.Path);
+            Origins     = ReadOrigins(SectorsData);
+        }
+
+        public static SectorsData ReadSectorFiles(string path)
+        {
+            SectorsData result;
+            using (var input = File.OpenText(Path.Combine(path, "Sectors.yaml")))
             {
-                SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
+                result = YamlExtensions.YamlToObject<SectorsData>(input);
             }
 
-            Origins = ReadOrigins(SectorsData);
+            if (result.GalaxyMode)
+            {
+                Directory.GetFiles(path, "Sectors*.yaml")
+                    .Where(F => !Path.GetFileName(F).Equals("Sectors.yaml", StringComparison.InvariantCultureIgnoreCase))
+                    .ForEach(F =>
+                    {
+                        using var input = File.OpenText(F);
+
+                        var AddSectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
+                        if (AddSectorsData.GalaxyMode) result.SolarSystems.AddRange(AddSectorsData.SolarSystems);
+                    });
+            }
+
+            return result;
         }
 
         public static List<SectorData> FlattenSectors(SectorsData sectorsData)
         {
             if(sectorsData.SolarSystems == null) return sectorsData.Sectors;
 
-            var sectors = sectorsData.Sectors.ToList() ?? new List<SectorData>();
+            var sectors = sectorsData.Sectors?.ToList() ?? new List<SectorData>();
 
             sectorsData.SolarSystems.ForEach(U => { 
                 U.Sectors.ForEach(S => {

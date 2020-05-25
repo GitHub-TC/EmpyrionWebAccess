@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Linq;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
@@ -167,6 +168,7 @@ namespace EmpyrionModWebHost.Controllers
         private readonly BackpackContext _db;
 
         public BackpackManager BackpackManager { get; }
+        public IMapper Mapper { get; }
 
         public static IEdmModel GetEdmModel()
         {
@@ -175,20 +177,22 @@ namespace EmpyrionModWebHost.Controllers
             return builder.GetEdmModel();
         }
 
-        public BackpacksController(BackpackContext context)
+        public BackpacksController(IMapper mapper, BackpackContext context)
         {
+            Mapper = mapper;
             _db = context;
             BackpackManager = Program.GetManager<BackpackManager>();
         }
 
         [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("AddItem")]
-        public IActionResult AddItem([FromBody]IdItemStack aItem)
+        public IActionResult AddItem([FromBody]IdItemStackDTO idItemStackDTO)
         {
             try
             {
-                BackpackManager.Request_Player_AddItem(aItem);
-                TaskTools.Delay(5, () => BackpackManager.Request_Player_Info(new Id(aItem.id)).Wait());
+                var idItemStack = Mapper.Map<IdItemStack>(idItemStackDTO);
+                BackpackManager.Request_Player_AddItem(idItemStack);
+                TaskTools.Delay(5, () => BackpackManager.Request_Player_Info(new Id(idItemStack.id)).Wait());
                 return Ok();
             }
             catch (Exception Error)
@@ -212,9 +216,9 @@ namespace EmpyrionModWebHost.Controllers
 
         [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("SetBackpack")]
-        public IActionResult SetBackpack([FromBody]BackpackModel aInventory)
+        public IActionResult SetBackpack([FromBody]BackpackModelDTO aInventory)
         {
-            BackpackManager.SetPlayerInventory(aInventory);
+            BackpackManager.SetPlayerInventory(Mapper.Map<BackpackModel>(aInventory));
             return Ok();
         }
 

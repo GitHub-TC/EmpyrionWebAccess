@@ -53,12 +53,21 @@ namespace UnitTestProject
         }
 
         [TestMethod]
-        public void TestMethodReadSectors()
+        public void TestMethodReadFixSectors()
         {
-            using var input = File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Sectors.yaml"));
+            using var input = File.OpenText(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "FixSectors.yaml"));
             var SectorsData = YamlExtensions.YamlToObject<SectorsData>(input);
             var flattenSectors = SectorsManager.FlattenSectors(SectorsData);
             var origins = SectorsManager.ReadOrigins(SectorsData);
         }
+
+        [TestMethod]
+        public void TestMethodReadDynSectors()
+        {
+            var SectorsData = SectorsManager.ReadSectorFiles(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data"));
+            var flattenSectors = SectorsManager.FlattenSectors(SectorsData);
+            var origins = SectorsManager.ReadOrigins(SectorsData);
+        }
+
     }
 }

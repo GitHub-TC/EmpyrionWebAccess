@@ -7,6 +7,7 @@ using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,13 +34,14 @@ namespace EmpyrionModWebHost.Controllers
 
         public ModGameAPI GameAPI { get; private set; }
         public IMapper Mapper { get; }
+        public ILogger<StructureManager> Logger { get; }
         public ConfigurationManager<GlobalStructureListData> LastGlobalStructureList { get; private set; }
         public string CurrentEBPFile { get; set; }
 
-        public StructureManager(IMapper mapper)
+        public StructureManager(IMapper mapper, ILogger<StructureManager> logger)
         {
             Mapper = mapper;
-
+            Logger = logger;
             LastGlobalStructureList = new ConfigurationManager<GlobalStructureListData>()
             {
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "GlobalStructureList.json")
@@ -66,10 +68,12 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List().Result);
+                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List(Timeouts.Wait20s).Result);
                 TaskTools.Delay(0, () => LastGlobalStructureList.Save());
             }
-            catch { }
+            catch(Exception error) {
+                Logger.LogDebug(error, "GlobalStructureList");
+            }
 
             return LastGlobalStructureList.Current;
         }

@@ -18,14 +18,15 @@ export class WarpRoute {
 }
 
 export class SectorMap {
-    Sectors: Sector[];
-    SolarSystems: SolarSystem[]
+  GalaxyMode: boolean;
+  Sectors: Sector[];
+  SolarSystems: SolarSystem[]
 }
 
 export class SolarSystem{
-    Name: string;
-    Coordinates: number[];
-    Sectors: Sector[]
+  Name: string;
+  Coordinates: number[];
+  Sectors: Sector[]
 }
 
 export class Sector {
@@ -68,7 +69,7 @@ export class GalaxyMapComponent implements OnInit {
 
   public translationY = 0.0;
 
-  public Sectors: SectorMap = { Sectors: [], SolarSystems: [] };
+  public Sectors: SectorMap = { GalaxyMode: false, Sectors: [], SolarSystems: [] };
   public WarpRoutes: WarpRoute[] = []
   error: any;
 
@@ -115,8 +116,11 @@ export class GalaxyMapComponent implements OnInit {
           });
           this.Sectors.Sectors = this.Sectors.Sectors.map(S => { S.Name = S.Playfields[S.Playfields.length - 1][1]; return S; });
           this.Sectors.Sectors = this.Sectors.Sectors.sort((A, B) => A.Name.localeCompare(B.Name));
+
+          if (this.Sectors.GalaxyMode) this.CleanUpSectors();
+          else                         this.CalcWarpRoutes();
+
           this.dataSource.data = this.Sectors.Sectors;
-          this.CalcWarpRoutes();
           setTimeout(() => this.scene.InitChilds(),        1);
           setTimeout(() => this.renderer.startRendering(), 2);
         },
@@ -139,19 +143,26 @@ export class GalaxyMapComponent implements OnInit {
     this.cameraZ = node.data.Coordinates[2] + 5;
   }
 
-  CalcWarpRoutes(): any {
-    for (var from = this.Sectors.Sectors.length - 1; from >= 0; from--) {
-      if (!this.Sectors.Sectors[from].SectorMapType || this.Sectors.Sectors[from].SectorMapType.toLowerCase() != "none") {
-        for (var to = this.Sectors.Sectors.length - 1; to >= 0; to--) {
-          if (from != to) {
-            let start = this.ToVectorX(this.Sectors.Sectors[from].Coordinates);
-            let end = this.ToVectorX(this.Sectors.Sectors[to].Coordinates);
+  CleanUpSectors(): void {
+    this.Sectors.Sectors = this.Sectors.Sectors.filter(s => !s.SectorMapType || s.SectorMapType.toLowerCase() !== "warptarget");
+  }
 
-            let dist = start.distanceTo(end);
+  CalcWarpRoutes(): void {
+    for (let from = this.Sectors.Sectors.length - 1; from >= 0; from--) {
+      if (!this.Sectors.Sectors[from].SectorMapType ||
+         (this.Sectors.Sectors[from].SectorMapType.toLowerCase() !== "none" &&
+          this.Sectors.Sectors[from].SectorMapType.toLowerCase() !== "warptarget")) {
+        for (let to = this.Sectors.Sectors.length - 1; to >= 0; to--) {
+          if (from !== to) {
+            const start = this.ToVectorX(this.Sectors.Sectors[from].Coordinates);
+            const end   = this.ToVectorX(this.Sectors.Sectors[to  ].Coordinates);
+
+            const dist = start.distanceTo(end);
             let warp = dist <= 250;
-            if (this.Sectors.Sectors[to].SectorMapType    && this.Sectors.Sectors[to].SectorMapType.toLowerCase() == "none") warp = false;
-            if (this.Sectors.Sectors[from].Deny           && this.Sectors.Sectors[from].Deny.find(N => N == this.Sectors.Sectors[to].Name)) warp = false;
-            if (this.Sectors.Sectors[from].Allow          && this.Sectors.Sectors[from].Allow.find(N => N == this.Sectors.Sectors[to].Name)) warp = true;
+            if (this.Sectors.Sectors[to].SectorMapType   && (this.Sectors.Sectors[to].SectorMapType.toLowerCase() === "none" ||
+                                                             this.Sectors.Sectors[to].SectorMapType.toLowerCase() === "warptarget")) warp = false;
+            if (this.Sectors.Sectors[from].Deny           && this.Sectors.Sectors[from].Deny .find(N => N === this.Sectors.Sectors[to].Name)) warp = false;
+            if (this.Sectors.Sectors[from].Allow          && this.Sectors.Sectors[from].Allow.find(N => N === this.Sectors.Sectors[to].Name)) warp = true;
 
             if (warp) this.InsertWarp(this.Sectors.Sectors[from], this.Sectors.Sectors[to], dist);
           }
@@ -161,7 +172,7 @@ export class GalaxyMapComponent implements OnInit {
   }
 
   InsertWarp(aStart: Sector, aEnd: Sector, aDistance: number): any {
-    let Found = this.WarpRoutes.find(W => (W.startOrbit == aStart.Name && W.endOrbit == aEnd.Name) || (W.startOrbit == aEnd.Name && W.endOrbit == aStart.Name));
+    const Found = this.WarpRoutes.find(W => (W.startOrbit == aStart.Name && W.endOrbit == aEnd.Name) || (W.startOrbit == aEnd.Name && W.endOrbit == aStart.Name));
     if (Found) {
       Found.isBidirectional = true;
     }

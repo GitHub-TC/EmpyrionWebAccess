@@ -12,6 +12,13 @@ namespace EmpyrionModWebHost.Extensions
         {
             return aNode?.Children.FirstOrDefault(C => C.Key.ToString() == aChildName).Value;
         }
+        public static string ObjectToYaml(object aObjectData)
+        {
+            return new SerializerBuilder()
+                .Build()
+                .Serialize(aObjectData);
+        }
+
         public static T YamlToObject<T>(TextReader aYamlData)
         {
             var deserializer = new DeserializerBuilder().Build();
