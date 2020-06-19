@@ -406,7 +406,12 @@ namespace EWAModClient
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)
         {
             var msg = TypedMsg.GetEmpyrionObject();
-            GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, msg);
+            if(TypedMsg.eventId == CmdId.Request_GlobalStructure_List)
+            {
+                var gsl = new EgsDbTools.GlobalStructureListAccess() { GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db") };
+                Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList);
+            }
+            else GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, msg);
         }
 
         public void Game_Update()
