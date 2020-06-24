@@ -9,13 +9,21 @@ namespace EgsDbTools
     {
         private GlobalStructureList currentList;
 
-        public string GlobalDbPath { get; set; }
+        public DateTime LastDbRead { get; set; }
 
-        public GlobalStructureList CurrentList { 
+        public string GlobalDbPath { get => _GlobalDbPath; set { if (_GlobalDbPath != value) LastDbRead = DateTime.MinValue; _GlobalDbPath = value; } }
+        string _GlobalDbPath;
+
+        public GlobalStructureList CurrentList
+        {
             get {
-                currentList = ReadGlobalStructurList();
-                return currentList; 
-            } 
+                if ((DateTime.Now - LastDbRead).TotalSeconds > 30)
+                {
+                    currentList = ReadGlobalStructurList();
+                    LastDbRead = DateTime.Now;
+                }
+                return currentList;
+            }
         }
 
         private GlobalStructureList ReadGlobalStructurList()

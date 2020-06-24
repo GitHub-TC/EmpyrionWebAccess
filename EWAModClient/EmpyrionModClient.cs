@@ -123,13 +123,14 @@ namespace EWAModClient
 
         private void ReadGlobalStructureInfoForEvent()
         {
+            var gsl = new EgsDbTools.GlobalStructureListAccess();
             while (!Exit)
             {
                 if (GetGlobalStructureList.WaitOne(1000))
                 {
                     if (GetGlobalStructureListEvents.TryDequeue(out var TypedMsg))
                     {
-                        var gsl = new EgsDbTools.GlobalStructureListAccess() { GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db") };
+                        gsl.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
                         Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList);
                     }
                     GetGlobalStructureList.Reset();
