@@ -1,4 +1,5 @@
 ﻿using Eleon.Modding;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -11,13 +12,16 @@ namespace EgsDbTools
 
         public DateTime LastDbRead { get; set; }
 
-        public string GlobalDbPath { get => _GlobalDbPath; set { if (_GlobalDbPath != value) LastDbRead = DateTime.MinValue; _GlobalDbPath = value; } }
+        public int UpdateIntervallInSeconds { get; set; } = 30;
+
+        public string GlobalDbPath { get => _GlobalDbPath; set { if (_GlobalDbPath != value) UpdateNow = true; _GlobalDbPath = value; } }
         string _GlobalDbPath;
+        public bool UpdateNow { get; set; }
 
         public GlobalStructureList CurrentList
         {
             get {
-                if ((DateTime.Now - LastDbRead).TotalSeconds > 30)
+                if (UpdateNow || (DateTime.Now - LastDbRead).TotalSeconds > UpdateIntervallInSeconds)
                 {
                     currentList = ReadGlobalStructurList();
                     LastDbRead = DateTime.Now;
@@ -33,7 +37,14 @@ namespace EgsDbTools
             var globalStructuresList = new Dictionary<int, GlobalStructureInfo>();
             var dockedToList         = new Dictionary<int, List<int>>();
 
-            using (var DbConnection = new SQLiteConnection($"Data Source='{GlobalDbPath}'"))
+            var connectionString = new SqliteConnectionStringBuilder()
+            {
+                Mode        = SqliteOpenMode.ReadOnly,
+                Cache       = SqliteCacheMode.Shared,
+                DataSource  = GlobalDbPath
+            };
+
+            using (var DbConnection = new SQLiteConnection(connectionString.ToString()))
             {
                 DbConnection.Open();
 

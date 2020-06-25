@@ -119,7 +119,7 @@ namespace EmpyrionModWebHost.Controllers
                             isForceUnload = false,
                         }).Wait(10000);
 
-                        Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds * 1000);
+                        Thread.Sleep(Program.AppSettings.SleepBetweenEntityExportInSeconds * 1000);
                         return;
                     }
                 }
@@ -130,14 +130,14 @@ namespace EmpyrionModWebHost.Controllers
                     try { ActivePlayfields = new ConcurrentDictionary<string, string>(Request_Playfield_List().Result.playfields.ToDictionary(P => P)); }
                     catch (Exception playfieldListError) { Logger?.LogError(playfieldListError, $"BackupStructureData: Request_Playfield_List {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'"); }
 
-                    Thread.Sleep(Program.AppSettings.StructureDataUpdateDelayInSeconds * 1000);
+                    Thread.Sleep(Program.AppSettings.SleepBetweenEntityExportInSeconds * 1000);
                 }
             }
         }
 
         private bool IsExportDatOutdated(string exportDat)
         {
-            return !File.Exists(exportDat) || (DateTime.Now - File.GetLastWriteTime(exportDat)).TotalMinutes > Program.AppSettings.StructureDataUpdateInMinutes;
+            return !File.Exists(exportDat) || (DateTime.Now - File.GetLastWriteTime(exportDat)).TotalMinutes > Program.AppSettings.ExportDatOutdatedInMinutes;
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -145,9 +145,9 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000,           BackupStructureData);
-            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60 * 60, LoggedError.Clear);
-            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.StructureDataUpdateCheckInSeconds) * 1000 * 60,      UpdateGlobalStuctureInfoData);
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.BackupStructureDataUpdateCheckInSeconds) * 1000,           BackupStructureData);
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.BackupStructureDataUpdateCheckInSeconds) * 1000 * 60 * 60, LoggedError.Clear);
+            _ = TaskTools.Intervall(Math.Max(1, Program.AppSettings.BackupStructureDataUpdateCheckInSeconds) * 1000 * 60,      UpdateGlobalStuctureInfoData);
 
             Event_Playfield_Loaded   += P => ActivePlayfields.TryAdd   (P.playfield, P.playfield);
             Event_Playfield_Unloaded += P => ActivePlayfields.TryRemove(P.playfield, out _);

@@ -22,6 +22,7 @@ namespace EWAModClient
         public string ModToEmpyrionPipeName { get; set; } = "EWAToEmpyrionPipe{0}";
         public int HostProcessId { get; set; }
         public bool WithShellWindow { get; set; } = true;
+        public int GlobalStructureListUpdateIntervallInSeconds { get; set; } = 30;
     }
 
     public class EmpyrionModClient : ModInterface
@@ -130,8 +131,14 @@ namespace EWAModClient
                 {
                     if (GetGlobalStructureListEvents.TryDequeue(out var TypedMsg))
                     {
+                        gsl.UpdateIntervallInSeconds = CurrentConfig.Current.GlobalStructureListUpdateIntervallInSeconds;
                         gsl.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
-                        Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList);
+
+                        switch (TypedMsg.eventId)
+                        {
+                            case CmdId.Request_GlobalStructure_List  :                       Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList); break;
+                            case CmdId.Request_GlobalStructure_Update: gsl.UpdateNow = true; Game_Event(TypedMsg.eventId, TypedMsg.seqNr, true);            break;
+                        }
                     }
                     GetGlobalStructureList.Reset();
                 }
@@ -427,7 +434,7 @@ namespace EWAModClient
 
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)
         {
-            if(TypedMsg.eventId == CmdId.Request_GlobalStructure_List)
+            if(TypedMsg.eventId == CmdId.Request_GlobalStructure_List || TypedMsg.eventId == CmdId.Request_GlobalStructure_Update)
             {
                 GetGlobalStructureListEvents.Enqueue(TypedMsg);
                 GetGlobalStructureList.Set();

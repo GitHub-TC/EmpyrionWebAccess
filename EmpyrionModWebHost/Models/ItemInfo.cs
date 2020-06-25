@@ -9,6 +9,7 @@ namespace EmpyrionModWebHost.Models
         public string Name { get; set; }
     }
 
+    [AutoMap(typeof(ItemStack), ReverseMap = true)]
     public class ItemStackDTO
     {
         public int id { get; set; }
@@ -19,18 +20,10 @@ namespace EmpyrionModWebHost.Models
 
     }
 
+    [AutoMap(typeof(IdItemStack), ReverseMap = true)]
     public class IdItemStackDTO
     {
         public int id { get; set; }
         public ItemStackDTO itemStack { get; set; }
-    }
-
-    public class AutoMapping : Profile
-    {
-        public AutoMapping()
-        {
-            CreateMap<ItemStackDTO, ItemStack>();
-            CreateMap<IdItemStackDTO, IdItemStack>();
-        }
     }
 }

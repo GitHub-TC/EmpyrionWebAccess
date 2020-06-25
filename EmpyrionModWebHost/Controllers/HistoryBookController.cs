@@ -43,18 +43,19 @@ namespace EmpyrionModWebHost.Controllers
         {
             GameAPI = dediAPI;
 
-            TaskTools.Intervall(30000, HistoryLog);
+            TaskTools.Intervall(Program.AppSettings.HistoryLogUpdateInSeconds * 1000, HistoryLog);
         }
 
         private void HistoryLog()
         {
-            // Update GlobalSTructureInfo on Playfields
-            PlayerManager.Value.QueryPlayer(PDB => 
+            //Update GlobalSTructureInfo on Playfields
+            PlayerManager.Value.QueryPlayer(PDB =>
                 PDB.Players
                     .Where(P => P.Online)
                     .ToList()
-                    .GroupBy(P => P.Playfield, (k, p) => p.FirstOrDefault()), 
-                    P => {
+                    .GroupBy(P => P.Playfield, (k, p) => p.FirstOrDefault()),
+                    P =>
+                    {
                         Request_GlobalStructure_Update(new PString(P.Playfield)).Wait();
                         Thread.Sleep(100);
                     });

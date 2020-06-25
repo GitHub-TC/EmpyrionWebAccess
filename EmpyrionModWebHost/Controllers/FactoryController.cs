@@ -1,4 +1,5 @@
-﻿using Eleon.Modding;
+﻿using AutoMapper;
+using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
@@ -119,21 +120,23 @@ namespace EmpyrionModWebHost.Controllers
     public class FactoryController : ControllerBase
     {
         public FactoryItemsContext DB { get; }
+        public IMapper Mapper { get; }
         public FactoryManager FactoryManager { get; }
 
-        public FactoryController(FactoryItemsContext context)
+        public FactoryController(FactoryItemsContext context, IMapper mapper)
         {
             DB = context;
+            Mapper = mapper;
             FactoryManager = Program.GetManager<FactoryManager>();
         }
 
         [HttpGet("GetBlueprintResources/{aPlayerId}")]
-        public async Task<ActionResult<BlueprintResources>> GetBlueprintResources(int aPlayerId)
+        public async Task<ActionResult<BlueprintResourcesDTO>> GetBlueprintResources(int aPlayerId)
         {
             try
             {
                 var onlinePlayers = await FactoryManager.Request_Player_List();
-                if(!onlinePlayers.list.Contains(aPlayerId)) return NotFound($"Player {aPlayerId} not online");
+                if (!onlinePlayers.list.Contains(aPlayerId)) return NotFound($"Player {aPlayerId} not online");
 
                 var PlayerInfo = await FactoryManager.Request_Player_Info(aPlayerId.ToId());
 
@@ -144,7 +147,7 @@ namespace EmpyrionModWebHost.Controllers
                     ReplaceExisting = true,
                 };
                 PlayerInfo.bpResourcesInFactory?.ForEach(I => Result.ItemStacks.Add(new ItemStack() { id = I.Key, count = (int)I.Value }));
-                return Ok(Result);
+                return Ok(Mapper.Map<BlueprintResourcesDTO>(Result));
             }
             catch (Exception Error)
             {
@@ -159,28 +162,36 @@ namespace EmpyrionModWebHost.Controllers
             return Ok(DB.FactoryItems.Where(B => B.Id == key).OrderByDescending(B => B.Timestamp));
         }
 
+        [AutoMap(typeof(BlueprintResources), ReverseMap = true)]
+        public class BlueprintResourcesDTO
+        {
+            public int playerId { get; set; }
+            public List<ItemStackDTO> itemStacks { get; set; }
+            public bool replaceExisting { get; set; }
+        }
+
         [HttpPost("SetBlueprintResources")]
         [Authorize(Roles = nameof(Role.Moderator))]
-        public async Task<IActionResult> SetBlueprintResources([FromBody]BlueprintResources aRessources)
+        public async Task<IActionResult> SetBlueprintResources([FromBody]BlueprintResourcesDTO aRessources)
         {
             try
             {
-                if (aRessources.ReplaceExisting)
-                {
-                    var p = await FactoryManager.Request_Player_Info(aRessources.PlayerId.ToId());
-                    var setRes = new List<ItemStack>();
-                    aRessources.ItemStacks.ForEach(I => {
-                        if (p.bpResourcesInFactory.TryGetValue(I.id, out var count))
-                        {
-                            if(count < I.count) setRes.Add(new ItemStack(I.id, I.count - (int)count));
-                        }
-                        else setRes.Add(I);
-                    });
-                    aRessources.ItemStacks      = setRes;
-                    aRessources.ReplaceExisting = false;
-                }
+                //if (aRessources.replaceExisting)
+                //{
+                //    var p = await FactoryManager.Request_Player_Info(aRessources.playerId.ToId());
+                //    var setRes = new List<ItemStackDTO>();
+                //    aRessources.itemStacks.ForEach(I => {
+                //        if (p.bpResourcesInFactory.TryGetValue(I.id, out var count))
+                //        {
+                //            if(count < I.count) setRes.Add(new ItemStackDTO() { id = I.id, count = I.count - (int)count });
+                //        }
+                //        else setRes.Add(I);
+                //    });
+                //    aRessources.itemStacks      = setRes;
+                //    aRessources.replaceExisting = false;
+                //}
 
-                await FactoryManager.Request_Blueprint_Resources(aRessources);
+                await FactoryManager.Request_Blueprint_Resources(Mapper.Map<BlueprintResourcesDTO, BlueprintResources>(aRessources));
                 return Ok();
             }
             catch (Exception Error)

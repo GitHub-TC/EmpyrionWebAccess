@@ -6,9 +6,10 @@
         public string BackupDirectory { get; set; }
         public bool UseHttpsRedirection { get; set; } = true;
         public int GlobalStructureUpdateInSeconds { get; set; } = 60;
-        public int StructureDataUpdateCheckInSeconds { get; set; } = 1;
-        public int StructureDataUpdateInMinutes { get; set; } = 60;
-        public int StructureDataUpdateDelayInSeconds { get; set; } = 10;
+        public int HistoryLogUpdateInSeconds { get; set; } = 30;
+        public int BackupStructureDataUpdateCheckInSeconds { get; set; } = 1;
+        public int ExportDatOutdatedInMinutes { get; set; } = 60;
+        public int SleepBetweenEntityExportInSeconds { get; set; } = 10;
         public int PlayerOfflineWarpDelay { get; set; } = 60;
     }
 }
