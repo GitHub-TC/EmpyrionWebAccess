@@ -68,10 +68,7 @@ namespace EmpyrionModWebHost
             {
                 var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
                 Directory.CreateDirectory(logDir);
-                File.AppendAllText(
-                    Path.Combine(logDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa_crash.log"), 
-                    $"{DateTime.Now.ToString("yyyyMMdd HHmm")}: {Error}"
-                    );
+                File.AppendAllText(Path.Combine(logDir, $"{DateTime.Now:yyyyMMdd HHmm}_ewa_crash.log"), $"{DateTime.Now:yyyyMMdd HHmm}: {Error}");
             }
         }
 
@@ -80,8 +77,8 @@ namespace EmpyrionModWebHost
             .CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.AddNewtonsoftJsonFile("appsettings.json", optional: true)
-                      .AddNewtonsoftJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true);
+                config.AddNewtonsoftJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                      .AddNewtonsoftJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true, reloadOnChange: true);
                 config.AddEnvironmentVariables();
             })
             .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(

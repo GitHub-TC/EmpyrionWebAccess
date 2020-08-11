@@ -8,7 +8,6 @@ using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPITools;
 using FluffySpoon.AspNet.LetsEncrypt;
-using Karambolo.Extensions.Logging.File;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -41,24 +40,21 @@ namespace EmpyrionModWebHost
         }
 
         public IConfiguration Configuration { get; }
+        public string LogFileName { 
+            get {
+                if (_LogFileName != null) return _LogFileName;
+
+                _LogFileName = Path.Combine(Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA"), $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(_LogFileName));
+                return _LogFileName;
+            }
+        }
+        string _LogFileName;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var logFileName = Path.Combine(Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA"), $"{DateTime.Now.ToString("yyyyMMdd HHmm")}_ewa.log");
-
             services.AddCors();
-
-            services.AddLogging(lb =>
-            {
-                lb.AddConfiguration(Configuration.GetSection("Logging"));
-                lb.AddFile(o => 
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(logFileName));
-                    o.Files     = new[] { new LogFileOptions() { Path = logFileName } };
-                    o.RootPath  = Path.GetDirectoryName(logFileName);
-                });
-            });
 
             services.AddOData();
             services.AddMvc(options =>
@@ -153,7 +149,7 @@ namespace EmpyrionModWebHost
             {
                 if (!Program.LetsEncryptACME.UseLetsEncrypt)
                 {
-                    File.AppendAllText(logFileName, $"ERROR: (switch to unsecure HTTP) Program.EWAStandardCertificate = new X509Certificate2 -> {error}");
+                    File.AppendAllText(LogFileName, $"ERROR: (switch to unsecure HTTP) Program.EWAStandardCertificate = new X509Certificate2 -> {error}");
                     Program.AppSettings.UseHttpsRedirection = false;
                 }
             }
@@ -240,8 +236,10 @@ namespace EmpyrionModWebHost
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddFile(LogFileName);
+
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()

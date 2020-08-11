@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC</Copyright>
-    <Version>5.3.7</Version>
+    <Version>5.4.2</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -33,8 +33,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Certes" Version="2.3.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.2.0" />
-    <PackageReference Include="EmpyrionNetAPI" Version="5.1.1" />
-    <PackageReference Include="Karambolo.Extensions.Logging.File" Version="3.1.1" />
+    <PackageReference Include="EmpyrionNetAPI" Version="5.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.2" />
@@ -44,6 +43,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.NewtonsoftJson" Version="3.1.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.0" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.7.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
