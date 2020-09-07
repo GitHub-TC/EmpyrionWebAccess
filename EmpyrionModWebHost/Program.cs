@@ -66,9 +66,16 @@ namespace EmpyrionModWebHost
             }
             catch (Exception Error)
             {
-                var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
-                Directory.CreateDirectory(logDir);
-                File.AppendAllText(Path.Combine(logDir, $"{DateTime.Now:yyyyMMdd HHmm}_ewa_crash.log"), $"{DateTime.Now:yyyyMMdd HHmm}: {Error}");
+                try
+                {
+                    var logDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Logs", "EWA");
+                    Directory.CreateDirectory(logDir);
+                    File.AppendAllText(Path.Combine(logDir, $"{DateTime.Now:yyyyMMdd HHmm}_ewa_crash.log"), $"{DateTime.Now:yyyyMMdd HHmm}: {Error}");
+                }
+                catch (Exception logError)
+                {
+                    File.AppendAllText(Path.Combine(Path.GetTempPath(), $"{DateTime.Now:yyyyMMdd HHmm}_ewa_crash.log"), $"{DateTime.Now:yyyyMMdd HHmm}: {Error} -> LogError:{logError}");
+                }
             }
         }
 

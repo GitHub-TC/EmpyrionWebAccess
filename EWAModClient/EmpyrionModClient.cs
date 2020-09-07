@@ -178,34 +178,43 @@ namespace EWAModClient
 
         private void CreateHostProcess(string HostFilename)
         {
+            ProcessStartInfo StartInfo = null;
             try
             {
-                HostProcess = new Process
+                StartInfo = new ProcessStartInfo(HostFilename)
                 {
-                    StartInfo = new ProcessStartInfo(HostFilename)
-                    {
-                        UseShellExecute = CurrentConfig.Current.WithShellWindow,
-                        LoadUserProfile = true,
-                        CreateNoWindow  = true,
-                        WindowStyle     = ProcessWindowStyle.Hidden,
-                        WorkingDirectory = Path.GetDirectoryName(HostFilename),
-                        Arguments = string.Join(" ",
-                            $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
-                            $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
-                            $"-GameDir \"{ProgramPath}\"",
-                            Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
-                            CurrentConfig.Current.AdditionalArguments ?? string.Empty),
-                    }
+                    UseShellExecute = CurrentConfig.Current.WithShellWindow,
+                    LoadUserProfile = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    WorkingDirectory = Path.GetDirectoryName(HostFilename),
+                    Arguments = string.Join(" ",
+                        $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
+                        $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
+                        $"-GameDir \"{ProgramPath}\"",
+                        Environment.GetCommandLineArgs()?.Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
+                        CurrentConfig.Current.AdditionalArguments ?? string.Empty),
                 };
+            }
+            catch (Exception error)
+            {
+                GameAPI.Console_Write($"ModClientDll: ProcessStartInfo:\nProgramPath: {ProgramPath}\nArgs: {Environment.GetCommandLineArgs().Aggregate(string.Empty, (S, A) => S + " " + A )}\nError: '{error}'");
+                HostProcess = null;
 
+                return;
+            }
+
+            try
+            {
+                HostProcess = new Process{ StartInfo = StartInfo };
                 HostProcess.Start();
                 CurrentConfig.Current.HostProcessId = HostProcess.Id;
                 CurrentConfig.Save();
-                GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{HostProcess.Id}'");
+                GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{HostProcess.Id}' -> StartInfo:'{StartInfo.FileName}' in '{StartInfo.WorkingDirectory}' with '{StartInfo.Arguments}'");
             }
             catch (Exception Error)
             {
-                GameAPI.Console_Write($"ModClientDll: host start error '{HostFilename} -> {Error}'");
+                GameAPI.Console_Write($"ModClientDll: host start error '{HostFilename} -> {Error}' -> StartInfo:'{StartInfo.FileName}' in '{StartInfo.WorkingDirectory}' with '{StartInfo.Arguments}'");
                 HostProcess = null;
             }
         }
