@@ -128,7 +128,7 @@ namespace EmpyrionModWebHost.Controllers
                 return IdPos >= 0 && NamePos >= 0 && IdDelimiter >= 0
                     ? new ItemInfo()
                     {
-                        Id = int.TryParse(L.Substring(IdPos + IdDef.Length, IdDelimiter - IdPos - IdDef.Length), out int Result) ? (Result > 2048 ? Result + 2048 : Result) : 0,
+                        Id = int.TryParse(L.Substring(IdPos + IdDef.Length, IdDelimiter - IdPos - IdDef.Length), out int Result) ? Result : 0,
                         Name = L.Substring(NamePos + NameDef.Length, NameDelimiter - NamePos - NameDef.Length).Trim()
                     }
                     : null;
