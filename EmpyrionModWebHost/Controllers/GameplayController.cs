@@ -112,7 +112,7 @@ namespace EmpyrionModWebHost.Controllers
             var ItemDef = File.ReadAllLines(itemConfigFile)
                 .Where(L => L.Contains(IdDef));
             var Localisation = File.ReadAllLines(localizationFile)
-                .Where(L => Char.IsLetter(L[0]))
+                .Where(L => !string.IsNullOrEmpty(L) && Char.IsLetter(L[0]) && L.Contains(','))
                 .Select(L => new { ID = L.Substring(0, L.IndexOf(",")), Name = L.Substring(L.IndexOf(",") + 1) })
                 .SafeToDictionary(L => L.ID, L => L.Name, StringComparer.CurrentCultureIgnoreCase);
 
@@ -128,7 +128,7 @@ namespace EmpyrionModWebHost.Controllers
                 return IdPos >= 0 && NamePos >= 0 && IdDelimiter >= 0
                     ? new ItemInfo()
                     {
-                        Id = int.TryParse(L.Substring(IdPos + IdDef.Length, IdDelimiter - IdPos - IdDef.Length), out int Result) ? Result : 0,
+                        Id = int.TryParse(L.Substring(IdPos + IdDef.Length, IdDelimiter - IdPos - IdDef.Length), out int Result) ? (Result > 2048 ? Result + 2048 : Result) : 0,
                         Name = L.Substring(NamePos + NameDef.Length, NameDelimiter - NamePos - NameDef.Length).Trim()
                     }
                     : null;
