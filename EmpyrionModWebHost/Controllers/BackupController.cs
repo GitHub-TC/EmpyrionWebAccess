@@ -224,11 +224,11 @@ namespace EmpyrionModWebHost.Controllers
                 forceEntityId   = NewID.id,
                 playfield       = aStructure.Playfield,
                 pos             = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
-                rot             = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
+                rot             = aStructure.Rot == null ? new PVector3(0, 0, 0) : new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
                 name            = aStructure.Name,
                 type            = (byte)Array.IndexOf(EntityTypes, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName  = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
-                prefabName      = $"{aStructure.Type}_Player",
+                prefabName      = NewID.id.ToString(),
                 factionGroup    = 0,
                 factionId       = 0, // erstmal auf "public" aStructure.Faction,
                 exportedEntityDat = File.Exists(sourceExportDat) ? sourceExportDat : null
@@ -557,37 +557,23 @@ namespace EmpyrionModWebHost.Controllers
                 aSelectBackupDir == BackupManager.CurrentSaveGame ? EmpyrionConfiguration.ProgramPath : aSelectBackupDir,
                 @"Saves\Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared");
 
+            var backupStructureDB = new ConfigurationManager<BackupStructureData>()
+            {
+                ConfigFilename = Path.Combine(StructDir, "BackupStructureDB.json")
+            };
+            backupStructureDB.Load();
 
-            // A12
-            //var backupStructureDB = new ConfigurationManager<BackupStructureData>()
-            //{
-            //    ConfigFilename = Path.Combine(StructDir, "BackupStructureDB.json")
-            //};
-            //backupStructureDB.Load();
-
-            //var result = new List<PlayfieldGlobalStructureInfo>();
-            //result.AddRange(backupStructureDB.Current?.AlivePlayerStructures    ?? new List<PlayfieldGlobalStructureInfo>());
-            //result.AddRange(backupStructureDB.Current?.DeletedPlayerStructures  ?? new List<PlayfieldGlobalStructureInfo>());
-            //if (result.Count > 0) return result.ToArray();
-
-            // A11
-            return Directory.EnumerateFiles(StructDir, "*.txt").AsParallel().Select(I => GenerateGlobalStructureInfo(I)).ToArray();
+            var result = new List<PlayfieldGlobalStructureInfo>();
+            result.AddRange(backupStructureDB.Current?.AlivePlayerStructures ?? new List<PlayfieldGlobalStructureInfo>());
+            result.AddRange(backupStructureDB.Current?.DeletedPlayerStructures ?? new List<PlayfieldGlobalStructureInfo>());
+            return result.ToArray();
         }
 
         private PlayfieldGlobalStructureInfo[] DeletedStructuresFromCurrentSaveGame()
         {
-            // A12
-            //var result = BackupManager.BackupStructureDB.Current?.DeletedPlayerStructures?.ToArray();
-            //if (result != null) return result;
-
-            // A11
-            var GS = BackupManager.Request_GlobalStructure_List().Result?.globalStructures;
-
-            var GSL = GS == null
-                ? new List<int>()
-                : GS.Aggregate(new List<int>(), (L, S) => { L.AddRange(S.Value.Select(s => s.id)); return L; });
-
-            return ReadStructuresFromDirectory(BackupManager.CurrentSaveGame).Where(S => !GSL.Contains(S.Id)).ToArray();
+            var result = new List<PlayfieldGlobalStructureInfo>();
+            result.AddRange(BackupManager.BackupStructureDB.Current?.DeletedPlayerStructures ?? new List<PlayfieldGlobalStructureInfo>());
+            return result.ToArray();
         }
 
         [HttpPost("ReadPlayers")]

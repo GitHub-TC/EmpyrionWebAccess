@@ -236,6 +236,22 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        public class PlayfieldConsoleCommand
+        {
+            public string Playfield { get; set; }
+            public int EntityId { get; set; }
+            public string Command { get; set; }
+        }
+
+        [Authorize(Roles = nameof(Role.Moderator))]
+        [HttpPost("CallEntity")]
+        public async Task<bool> CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
+        {
+            var pf = await StructureManager.Request_Playfield_Stats(new PString(aData.Playfield));
+            return await StructureManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} entity {aData.EntityId} {aData.Command}"));
+        }
+
+
         [Authorize(Roles = nameof(Role.Moderator))]
         [HttpPost("UploadEBPFile")]
         [DisableRequestSizeLimit]

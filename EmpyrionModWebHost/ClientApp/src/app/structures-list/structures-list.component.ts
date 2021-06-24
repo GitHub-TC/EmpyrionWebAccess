@@ -168,4 +168,15 @@ export class StructuresListComponent implements OnInit {
           );
       });
   }
+
+  EntityRepair() {
+    this.selection.selected.map(S => {
+      this.http.post("Structure/CallEntity", { Playfield: S.playfield, EntityId: S.id, Command: "-repair"})
+        .pipe()
+        .subscribe(
+          SR => { },
+          error => this.error = error // error path
+        );
+    });
+  }
 }

@@ -3,8 +3,9 @@
     <div class="col">
       <mat-card style="margin-bottom:1em">
         <mat-menu #appMenu="matMenu">
-          <button mat-menu-item *ngIf="role.is(UserRole.VIP)"       (click)="Destroy()">Destroy</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.VIP)" (click)="Destroy()">Destroy</button>
           <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="ChangeFaction()">Change Faction</button>
+          <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="EntityRepair()">Repair</button>
         </mat-menu>
 
         <div style="position:relative; width:100%; height:3em">

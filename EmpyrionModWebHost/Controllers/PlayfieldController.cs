@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using EmpyrionNetAPITools;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -311,6 +312,23 @@ namespace EmpyrionModWebHost.Controllers
             PlayfieldManager.ResetPlayfield(Playfield);
             return Ok();
         }
+
+        public class PlayfieldConsoleCommand
+        {
+            public string Playfield { get; set; }
+            public string Command { get; set; }
+        }
+
+        [Authorize(Roles = nameof(Role.InGameAdmin))]
+        [HttpPost("CallPlayfieldConsoleCommand")]
+        public async Task<bool> CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
+        {
+            var pf = await PlayfieldManager.Request_Playfield_Stats(new PString(aData.Playfield));
+            return await PlayfieldManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} {aData.Command}"));
+        }
+
+
+
 
     }
 
