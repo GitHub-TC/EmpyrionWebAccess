@@ -1,5 +1,7 @@
 using EmpyrionModWebHost.Controllers;
 using EmpyrionNetAPITools.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -15,7 +17,7 @@ namespace UnitTestProject
             var ItemConfigFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Config_Example.ecf");
             var LocalizationFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Localization.csv");
 
-            var items = GameplayManager.ReadItemInfos(ItemConfigFile, LocalizationFile);
+            var items = new GameplayManager(null, null, NullLogger<GameplayManager>.Instance).ReadItemInfos(ItemConfigFile, LocalizationFile);
 
             Assert.AreEqual(1588, items.Length);
         }

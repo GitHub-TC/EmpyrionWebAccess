@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration;
+using CsvHelper;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
@@ -7,11 +9,17 @@ using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Serilog.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
@@ -24,14 +32,18 @@ namespace EmpyrionModWebHost.Controllers
 
         public ModGameAPI GameAPI { get; private set; }
         public IMapper Mapper { get; }
+        public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; }
+        public ILogger<GameplayManager> Logger { get; }
         public Lazy<StructureManager> StructureManager { get; }
 
         public ConfigurationManager<ConcurrentDictionary<int, OfflineWarpPlayerData>> OfflineWarpPlayer { get; set; }
+        public static Regex RemoveNameFormatting { get; } = new Regex(@"\[\S+?\]");
 
-        public GameplayManager(IMapper mapper)
+        public GameplayManager(IMapper mapper, Microsoft.Extensions.Configuration.IConfiguration configuration, ILogger<GameplayManager> logger)
         {
             Mapper = mapper;
-
+            Configuration = configuration;
+            Logger = logger;
             StructureManager = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
         }
 
@@ -98,23 +110,41 @@ namespace EmpyrionModWebHost.Controllers
             if (_mItemInfo != null) return _mItemInfo;
 
             var ItemConfigFile   = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf");
-            var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
+            var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
+            if(!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
 
-            _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
+            try
+            {
+                _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "Config_Example.ecf: {0} Localization.csv:{1}", ItemConfigFile, LocalizationFile);
+            }
 
             CreateDummyPNGForUnknownItems(_mItemInfo);
 
             return _mItemInfo;
         }
 
-        public static ItemInfo[] ReadItemInfos(string itemConfigFile, string localizationFile)
+        public ItemInfo[] ReadItemInfos(string itemConfigFile, string localizationFile)
         {
+            Logger.LogInformation("Config_Example.ecf: {0} Localization.csv:{1}", itemConfigFile, localizationFile);
+
+            var Localisation = ReadTranslationFromCsv(localizationFile).Aggregate(new Dictionary<string, List<string>>(), (r, d) => {
+                if (d?.Count >= 2 && !r.ContainsKey(d[0])) r.Add(d[0], d.Select(name => RemoveNameFormatting.Replace(name, "")).ToList());
+                return r; 
+            });
+
+            var idNameMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
+            if(!string.IsNullOrEmpty(idNameMappingFile) && File.Exists(idNameMappingFile)) 
+                return JsonConvert
+                    .DeserializeObject<Dictionary<string, int>>(File.ReadAllText(idNameMappingFile))
+                    .Select(m => new ItemInfo() { Id = m.Value, Name = Localisation.TryGetValue(m.Key, out var Value) ? Value?.Count >= 2 ? Value[1] : m.Key : m.Key })
+                    .ToArray();
+
             var ItemDef = File.ReadAllLines(itemConfigFile)
                 .Where(L => L.Contains(IdDef));
-            var Localisation = File.ReadAllLines(localizationFile)
-                .Where(L => !string.IsNullOrEmpty(L) && Char.IsLetter(L[0]) && L.Contains(','))
-                .Select(L => new { ID = L.Substring(0, L.IndexOf(",")), Name = L.Substring(L.IndexOf(",") + 1) })
-                .SafeToDictionary(L => L.ID, L => L.Name, StringComparer.CurrentCultureIgnoreCase);
 
             return ItemDef.Select(L =>
             {
@@ -135,18 +165,34 @@ namespace EmpyrionModWebHost.Controllers
             })
             .Select(I =>
             {
-                if (I != null)
-                {
-                    if (Localisation.TryGetValue(I.Name + ",", out string Value))
-                    {
-                        var End = Value.IndexOf(",");
-                        I.Name = Value.Substring(0, End);
-                    }
-                }
+                if (I != null && Localisation.TryGetValue(I.Name, out var Value)) I.Name = Value?.Count >= 2 ? Value[1] : I.Name;
                 return I;
             })
             .Where(I => I != null)
             .ToArray();
+        }
+
+        public static List<List<string>> ReadTranslationFromCsv(string csvFile)
+        {
+            if (!File.Exists(csvFile)) throw new FileNotFoundException("File not found", csvFile);
+
+            var translations = new List<List<string>>();
+            using var reader = new StreamReader(csvFile);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            csv.Read();
+            csv.ReadHeader();
+            var languages = csv.HeaderRecord.Length;
+
+            do
+            {
+                var newLine = new List<string>();
+                for (int i = 0; i < languages; i++) newLine.Add(csv.TryGetField(typeof(string), i, out var field) ? field?.ToString() : string.Empty);
+                translations.Add(newLine);
+            }
+            while (csv.Read());
+
+            return translations;
         }
 
         private static void CreateDummyPNGForUnknownItems(ItemInfo[] aItems)
