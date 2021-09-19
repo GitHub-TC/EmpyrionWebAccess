@@ -10,6 +10,9 @@ import { GlobalStructureInfo } from '../model/structure-model';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { UserRole } from '../model/user';
 import { RoleService } from '../services/role.service';
+import { Observable } from 'rxjs';
+import { FormControl } from '@angular/forms';
+import { map, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-playfield-view',
@@ -22,7 +25,8 @@ export class PlayfieldViewComponent implements OnInit {
 
   Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;
-  mSelectedPlayfieldName: string = "";
+  SelectedPlayfieldNameControl = new FormControl();
+  filteredOptions: Observable<PlayfieldModel[]>;
   ZoomValue: number = 1;
   MapUrl: string;
   mAllPlayers: PlayerModel[];
@@ -71,30 +75,49 @@ export class PlayfieldViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.mSelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
-
     this.mPlayfields.PlayfieldNames.subscribe(PL => {
       this.Playfields = PL;
-      this.SelectedPlayfield = this.Playfields.find(P => P.name == this.SelectedPlayfieldName);
+      this.SelectedPlayfield = this.Playfields.find(P => P.name === this.SelectedPlayfieldName);
     });
     this.mPlayerService.GetPlayers().subscribe(P => {
       this.mAllPlayers = P;
-      this.PlayfieldPlayers = P.filter(p => p.Playfield == this.SelectedPlayfieldName);
+      this.PlayfieldPlayers = P.filter(p => p.Playfield === this.SelectedPlayfieldName);
       this.UpdateSelectedPlayfieldPlayers();
     });
     this.mStructureService.GetGlobalStructureList().subscribe(S => {
       this.mAllStructures = S;
-      this.SelectedPlayfieldName = this.mSelectedPlayfieldName;
       this.UpdateSelectedPlayfieldStructures();
     });
+
+    this.filteredOptions = this.SelectedPlayfieldNameControl.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => typeof value === 'string' ? value : value.name),
+        map(name => {
+          const found = this.Playfields.filter(option => option.name === name);
+          if (found.length === 1) this.SelectedPlayfieldName = found[0].name;
+
+          return name ? this._filter(name) : this.Playfields;
+        })
+      );
+  }
+
+  private _filter(name: string): PlayfieldModel[] {
+    const filterValue = name.toLowerCase();
+
+    return this.Playfields.filter(option => option.name.toLowerCase().includes(filterValue));
+  }
+
+  displayFn(playfield: PlayfieldModel): string {
+    return playfield && playfield.name ? playfield.name : '';
   }
 
   ngAfterViewInit() {
-    this.SelectedPlayfieldName = this.mPlayfields.CurrentPlayfield ? this.mPlayfields.CurrentPlayfield.name : "";
+    this.SelectedPlayfieldNameControl.setValue(this.mPlayfields.CurrentPlayfield);
   }
 
   onSelectStructure(aStructure: GlobalStructureInfo) {
-    if (this.mStructureService.CurrentStructure = aStructure) return;
+    if (this.mStructureService.CurrentStructure === aStructure) return;
 
     this.mStructureService.CurrentStructure = aStructure;
   }
@@ -110,18 +133,20 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   get SelectedPlayfieldName() {
-    return this.mSelectedPlayfieldName;
+    return this.SelectedPlayfieldNameControl.value;
   }
 
   set SelectedPlayfieldName(aPlayfieldName: string) {
-    this.mSelectedPlayfieldName = aPlayfieldName;
-    if (!aPlayfieldName) return;
+    if (!aPlayfieldName || !this.Playfields) return;
 
-    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName)
-    this.SelectedPlayfield = this.Playfields.find(P => P.name == aPlayfieldName);
+    const playfieldFound = this.Playfields.find(P => P.name === aPlayfieldName);
+    if (!playfieldFound) return;
 
-    this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield == aPlayfieldName);
-    this.PlayfieldPlayers = this.mAllPlayers.filter(P => P.Playfield == this.SelectedPlayfieldName);
+    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(aPlayfieldName)
+    this.SelectedPlayfield = playfieldFound;
+
+    this.PlayfieldStructures = this.mAllStructures.filter(S => S.playfield === aPlayfieldName);
+    this.PlayfieldPlayers = this.mAllPlayers.filter(P => P.Playfield === aPlayfieldName);
 
     this.UpdateSelectedPlayfieldPlayers();
     this.UpdateSelectedPlayfieldStructures();
@@ -207,7 +232,7 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   onUploaded() {
-    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.mSelectedPlayfieldName) + '?random=' + Math.random();
+    this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(this.SelectedPlayfieldName) + '?random=' + Math.random();
   }
 
   UploadURL(aPlayfieldname) {

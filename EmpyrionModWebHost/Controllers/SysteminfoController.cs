@@ -150,14 +150,21 @@ namespace EmpyrionModWebHost.Controllers
             TaskTools.Intervall(5000,  UpdateComputerInfos);
             TaskTools.Intervall(2000,  UpdatePerformanceInfos);
 
-            CpuTotalLoad = new PerformanceCounter
+            try
             {
-                CategoryName = "Processor",
-                CounterName = "% Processor Time",
-                InstanceName = "_Total"
-            };
+                CpuTotalLoad = new PerformanceCounter
+                {
+                    CategoryName = "Processor",
+                    CounterName = "% Processor Time",
+                    InstanceName = "_Total"
+                };
 
-            RamAvailable = new PerformanceCounter("Memory", "Available MBytes");
+                RamAvailable = new PerformanceCounter("Memory", "Available MBytes");
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, $"User not in the 'Performance Monitor Users' group, no performance counter available");
+            }
         }
 
         public bool EGSIsRunning => CurrentSysteminfo.online == "o";
@@ -170,8 +177,8 @@ namespace EmpyrionModWebHost.Controllers
 
             ulong memBytes = InstalledTotalMemory();
 
-            CurrentSysteminfo.cpuTotalLoad      = (int)CpuTotalLoad.NextValue();
-            CurrentSysteminfo.ramAvailableMB    = (int)RamAvailable.NextValue();
+            CurrentSysteminfo.cpuTotalLoad      = (int)(CpuTotalLoad?.NextValue() ?? 0);
+            CurrentSysteminfo.ramAvailableMB    = (int)(RamAvailable?.NextValue() ?? 0);
             CurrentSysteminfo.ramTotalMB        = memBytes / (1024 * 1024);
             CurrentSysteminfo.diskUsedSpace     = GameDrive.TotalSize - GameDrive.TotalFreeSpace;
             CurrentSysteminfo.diskFreeSpace     = GameDrive.TotalFreeSpace;

@@ -4,11 +4,13 @@
       <mat-card style="margin-bottom:1em">
         <div style="display:inline-block; width:100%">
           <mat-form-field style="width:80%">
-            <mat-select placeholder="Playfield" [(value)]="SelectedPlayfieldName">
-              <mat-option *ngFor="let i of Playfields" [value]="i.name">
-                {{i.name}}
+            <mat-label>Playfieldname</mat-label>
+            <input type="text" matInput [formControl]="SelectedPlayfieldNameControl" [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                {{option.name}}
               </mat-option>
-            </mat-select>
+            </mat-autocomplete>
           </mat-form-field>
           <mat-radio-group [(ngModel)]="View2D" style="position:relative; margin-left:1em">
             <mat-radio-button [value]="(true)" style="position:absolute;">2D</mat-radio-button>
