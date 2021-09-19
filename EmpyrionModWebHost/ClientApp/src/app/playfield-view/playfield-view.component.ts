@@ -133,7 +133,7 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   get SelectedPlayfieldName() {
-    return this.SelectedPlayfieldNameControl.value;
+    return this.SelectedPlayfieldNameControl.value ? this.SelectedPlayfieldNameControl.value.name : "";
   }
 
   set SelectedPlayfieldName(aPlayfieldName: string) {
