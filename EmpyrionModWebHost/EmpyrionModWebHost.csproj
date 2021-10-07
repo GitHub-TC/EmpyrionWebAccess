@@ -13,7 +13,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC Copyright ©2021</Copyright>
-    <Version>5.7.6</Version>
+    <Version>5.7.7</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -35,7 +35,7 @@
     <PackageReference Include="Certes" Version="2.3.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.2.0" />
     <PackageReference Include="CsvHelper" Version="27.1.1" />
-    <PackageReference Include="EmpyrionNetAPI" Version="5.5.0" />
+    <PackageReference Include="EmpyrionNetAPI" Version="5.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.2" />
