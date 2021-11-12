@@ -4,21 +4,14 @@ using EmpyrionModWebHost.Models;
 using EmpyrionModWebHost.Services;
 using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
-using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -383,11 +376,16 @@ namespace EmpyrionModWebHost.Controllers
 
         public static IEdmModel GetEdmModel()
         {
-            ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
+            var builder = new ODataConventionModelBuilder();
             builder.EntitySet<Player>("Players");
             return builder.GetEdmModel();
         }
 
+        public static ODataConventionModelBuilder GetEdmModel(ODataConventionModelBuilder builder)
+        {
+            builder.EntitySet<Player>("Players");
+            return builder;
+        }
 
         public PlayersController(IUserService aUserService, PlayerContext aPlayerContext)
         {

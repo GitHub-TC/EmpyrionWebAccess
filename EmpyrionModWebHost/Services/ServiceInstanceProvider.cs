@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace EmpyrionModWebHost.Services
+﻿namespace EmpyrionModWebHost.Services
 {
     public interface IProvider<T>
     {

@@ -1,7 +1,5 @@
 ﻿using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
 
 namespace EmpyrionModWebHost.Models
 {

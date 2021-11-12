@@ -1,12 +1,6 @@
 ﻿using Eleon.Modding;
 using EWAExtenderCommunication;
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Threading;
-using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost
 {

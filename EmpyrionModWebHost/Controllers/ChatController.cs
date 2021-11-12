@@ -1,19 +1,4 @@
-﻿using Eleon.Modding;
-using EmpyrionModWebHost.Models;
-using EmpyrionModWebHost.Services;
-using EmpyrionNetAPIAccess;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.Edm;
-using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Linq;
-
+﻿
 namespace EmpyrionModWebHost.Controllers
 {
 
@@ -190,9 +175,9 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("Translate")]
         public ActionResult<string> Translate([FromBody]TanslateData aData)
         {
-            using System.Net.WebClient client = new System.Net.WebClient();
-            client.Headers.Add("content-type", "application/json");
-            Stream data = client.OpenRead(aData.CallUrl);
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("content-type", "application/json");
+            Stream data = client.GetStreamAsync(aData.CallUrl).Result;
             using StreamReader messageReader = new StreamReader(data);
             return Ok(messageReader.ReadToEnd());
         }
@@ -237,6 +222,12 @@ namespace EmpyrionModWebHost.Controllers
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
             builder.EntitySet<Chat>("Chats");
             return builder.GetEdmModel();
+        }
+
+        public static ODataConventionModelBuilder GetEdmModel(ODataConventionModelBuilder builder)
+        {
+            builder.EntitySet<Chat>("Chats");
+            return builder;
         }
 
     }

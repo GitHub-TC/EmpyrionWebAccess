@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-namespace EmpyrionModWebHost.Services
+﻿namespace EmpyrionModWebHost.Services
 {
     public class LifetimeEventsHostedService : IHostedService
     {

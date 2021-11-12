@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-
-namespace EmpyrionModWebHost.Services
+﻿namespace EmpyrionModWebHost.Services
 {
     public class AsyncSynchronizationContext : SynchronizationContext
     {

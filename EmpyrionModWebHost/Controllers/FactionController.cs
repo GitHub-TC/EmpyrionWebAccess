@@ -2,16 +2,12 @@
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -143,5 +139,10 @@ namespace EmpyrionModWebHost.Controllers
             return builder.GetEdmModel();
         }
 
+        public static ODataConventionModelBuilder GetEdmModel(ODataConventionModelBuilder builder)
+        {
+            builder.EntitySet<Faction>("Factions");
+            return builder;
+        }
     }
 }

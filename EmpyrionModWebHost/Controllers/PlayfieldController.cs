@@ -1,21 +1,14 @@
-﻿using System;
-using System.Linq;
-using Eleon.Modding;
+﻿using Eleon.Modding;
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.IO;
 using EmpyrionModWebHost.Services;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Generic;
 using System.IO.Compression;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Logging;
 using EmpyrionNetAPITools;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -251,14 +244,14 @@ namespace EmpyrionModWebHost.Controllers
 
         private void ReadFromHubbleImages(string aPlayfieldMap)
         {
-            using System.Net.WebClient client = new System.Net.WebClient();
-            client.Headers.Add("content-type", "application/json");
-            Stream data = client.OpenRead("http://hubblesite.org/api/v3/news_release/last");
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("content-type", "application/json");
+            Stream data = client.GetStreamAsync("http://hubblesite.org/api/v3/news_release/last").Result;
             using StreamReader messageReader = new StreamReader(data);
             dynamic Content = JsonConvert.DeserializeObject(messageReader.ReadToEnd());
-            using var clientImg = new System.Net.WebClient();
+            using var clientImg = new HttpClient();
             Directory.CreateDirectory(Path.GetDirectoryName(aPlayfieldMap));
-            clientImg.DownloadFile(new Uri("http:" + Content.keystone_image_2x.ToString()), aPlayfieldMap);
+            System.IO.File.WriteAllBytes(aPlayfieldMap, clientImg.GetByteArrayAsync(new Uri("http:" + Content.keystone_image_2x.ToString())).Result);
         }
 
         [Authorize(Roles = nameof(Role.GameMaster))]

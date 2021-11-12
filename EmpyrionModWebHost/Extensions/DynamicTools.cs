@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EmpyrionModWebHost.Extensions
+﻿namespace EmpyrionModWebHost.Extensions
 {
     public static class DynamicTools
     {

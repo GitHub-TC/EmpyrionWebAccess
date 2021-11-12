@@ -8,16 +8,11 @@ using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -322,7 +317,9 @@ namespace EmpyrionModWebHost.Controllers
                     {
                         UseShellExecute  = !string.IsNullOrEmpty(SystemConfig.Current.StartCMD),
                         WindowStyle      = ProcessWindowStyle.Normal,
+#pragma warning disable CA1416 // Validate platform compatibility
                         LoadUserProfile  = true,
+#pragma warning restore CA1416 // Validate platform compatibility
                         CreateNoWindow   = false,
                         WorkingDirectory = EmpyrionConfiguration.ProgramPath,
                         Arguments        = SystemConfig.Current.ProcessInformation?.Arguments,

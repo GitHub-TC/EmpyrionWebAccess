@@ -3,7 +3,6 @@ using EmpyrionNetAPITools;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.IO;
 
 namespace EmpyrionModWebHost.Models
 {

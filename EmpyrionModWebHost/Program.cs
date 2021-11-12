@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using Eleon.Modding;
 using EmpyrionModWebHost.Configuration;
 using EmpyrionModWebHost.Services;
@@ -10,8 +6,6 @@ using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 
 namespace EmpyrionModWebHost
 {

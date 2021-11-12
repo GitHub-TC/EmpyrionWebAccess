@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using System;
-using System.Linq;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using EmpyrionNetAPIAccess;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

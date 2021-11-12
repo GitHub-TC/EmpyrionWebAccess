@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Configuration;
 using CsvHelper;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
@@ -9,18 +8,10 @@ using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Serilog.Core;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace EmpyrionModWebHost.Controllers
 {

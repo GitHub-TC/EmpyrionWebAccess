@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace EmpyrionModWebHost.Models
+﻿namespace EmpyrionModWebHost.Models
 {
 #pragma warning disable IDE1006 // Naming Styles
     public struct GlobalStructureInfoData

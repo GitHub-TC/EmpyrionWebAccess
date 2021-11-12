@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace EmpyrionModWebHost.Extensions
+﻿namespace EmpyrionModWebHost.Extensions
 {
     public static class TaskTools
     {

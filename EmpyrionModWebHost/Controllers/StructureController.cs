@@ -7,13 +7,6 @@ using EmpyrionNetAPIAccess;
 using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {

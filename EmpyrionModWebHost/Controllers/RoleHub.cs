@@ -1,10 +1,6 @@
-﻿using System;
-using EmpyrionModWebHost.Models;
+﻿using EmpyrionModWebHost.Models;
 using Microsoft.AspNetCore.SignalR;
 using EmpyrionModWebHost.Services;
-using System.Threading.Tasks;
-using System.Threading;
-using Microsoft.Extensions.Logging;
 
 namespace EmpyrionModWebHost.Controllers
 {

@@ -2,12 +2,8 @@
 using EmpyrionNetAPIAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.IO;
 using System.IO.Compression;
 using System.Reflection;
-using System.Linq;
-using System;
-using System.Threading;
 using System.Diagnostics;
 using EmpyrionModWebHost.Extensions;
 using Microsoft.AspNetCore.SignalR;
@@ -227,7 +223,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (System.IO.File.Exists(ModManager.StopFileName))
             {
-                ModManager.Log($"Start: ModLoader", LogLevel.Message);
+                ModManager.Log($"Start: ModLoader", EmpyrionNetAPIDefinitions.LogLevel.Message);
                 System.IO.File.Delete(ModManager.StopFileName);
             }
             return Ok();
@@ -236,7 +232,7 @@ namespace EmpyrionModWebHost.Controllers
         [HttpGet("StopMods")]
         public IActionResult StopMods()
         {
-            ModManager.Log($"Stop: ModLoader", LogLevel.Message);
+            ModManager.Log($"Stop: ModLoader", EmpyrionNetAPIDefinitions.LogLevel.Message);
             System.IO.File.WriteAllText(ModManager.StopFileName, "stopped");
             return Ok();
         }

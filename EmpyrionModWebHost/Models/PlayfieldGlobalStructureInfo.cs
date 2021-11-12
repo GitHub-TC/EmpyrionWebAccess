@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Eleon.Modding;
-using System;
 
 namespace EmpyrionModWebHost.Models
 {
