@@ -38,7 +38,7 @@
     <PackageReference Include="Certes" Version="3.0.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.2.0" />
     <PackageReference Include="CsvHelper" Version="27.1.1" />
-    <PackageReference Include="EmpyrionNetAPI" Version="6.0.1" />
+    <PackageReference Include="EmpyrionNetAPI" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.0" />

@@ -26,7 +26,8 @@ export class PlayfieldViewComponent implements OnInit {
   Playfields: PlayfieldModel[] = [];
   SelectedPlayfield: PlayfieldModel;
   SelectedPlayfieldNameControl = new FormControl();
-  filteredOptions: Observable<PlayfieldModel[]>;
+  SelectedPlayfieldPlainName: string = "";
+  FilteredPlayfields: PlayfieldModel[] = [];
   ZoomValue: number = 1;
   MapUrl: string;
   mAllPlayers: PlayerModel[];
@@ -89,20 +90,18 @@ export class PlayfieldViewComponent implements OnInit {
       this.UpdateSelectedPlayfieldStructures();
     });
 
-    this.filteredOptions = this.SelectedPlayfieldNameControl.valueChanges
-      .pipe(
-        startWith(''),
-        map(value => typeof value === 'string' ? value : value.name),
-        map(name => {
-          const found = this.Playfields.filter(option => option.name === name);
-          if (found.length === 1) this.SelectedPlayfieldName = found[0].name;
+    this.SelectedPlayfieldNameControl.valueChanges
+      .subscribe(name => {
+        const found = this.Playfields.filter(option => option.name === name);
+        if (found.length === 1) this.SelectedPlayfieldName = found[0].name;
 
-          return name ? this._filter(name) : this.Playfields;
-        })
-      );
+        this.FilteredPlayfields = this._filter(name);
+      });
   }
 
   private _filter(name: string): PlayfieldModel[] {
+    if (!name || !name.toLowerCase) return [];
+
     const filterValue = name.toLowerCase();
 
     return this.Playfields.filter(option => option.name.toLowerCase().includes(filterValue));
@@ -133,7 +132,7 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   get SelectedPlayfieldName() {
-    return this.SelectedPlayfieldNameControl.value ? this.SelectedPlayfieldNameControl.value.name : "";
+    return this.SelectedPlayfieldPlainName;
   }
 
   set SelectedPlayfieldName(aPlayfieldName: string) {
@@ -142,6 +141,7 @@ export class PlayfieldViewComponent implements OnInit {
     const playfieldFound = this.Playfields.find(P => P.name === aPlayfieldName);
     if (!playfieldFound) return;
 
+    this.SelectedPlayfieldPlainName = aPlayfieldName;
     this.MapUrl = "Playfield/GetPlayfieldMap/" + encodeURIComponent(aPlayfieldName)
     this.SelectedPlayfield = playfieldFound;
 

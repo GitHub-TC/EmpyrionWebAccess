@@ -314,10 +314,10 @@ namespace EmpyrionModWebHost.Controllers
 
         [Authorize(Roles = nameof(Role.InGameAdmin))]
         [HttpPost("CallPlayfieldConsoleCommand")]
-        public async Task<bool> CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
+        public async Task CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
         {
             var pf = await PlayfieldManager.Request_Playfield_Stats(new PString(aData.Playfield));
-            return await PlayfieldManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} {aData.Command}"));
+            await PlayfieldManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} {aData.Command}"));
         }
 
 

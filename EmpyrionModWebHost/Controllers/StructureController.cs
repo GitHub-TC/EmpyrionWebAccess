@@ -238,10 +238,10 @@ namespace EmpyrionModWebHost.Controllers
 
         [Authorize(Roles = nameof(Role.Moderator))]
         [HttpPost("CallEntity")]
-        public async Task<bool> CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
+        public async Task CallPlayfieldConsoleCommand([FromBody] PlayfieldConsoleCommand aData)
         {
             var pf = await StructureManager.Request_Playfield_Stats(new PString(aData.Playfield));
-            return await StructureManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} entity {aData.EntityId} {aData.Command}"));
+            await StructureManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} entity {aData.EntityId} {aData.Command}"));
         }
 
 

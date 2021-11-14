@@ -141,7 +141,7 @@ ORDER BY pfid
                             rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
                             pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
                             lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
-                            name                = reader.GetString(nameCol),
+                            name                = reader.GetValue(nameCol)?.ToString(),
                             factionId           = reader.GetInt32(facIdCol),
                             factionGroup        = reader.GetByte(facgroupCol),
                             type                = reader.GetByte(etypeCol),

@@ -7,7 +7,7 @@
             <mat-label>Playfieldname</mat-label>
             <input type="text" matInput [formControl]="SelectedPlayfieldNameControl" [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-              <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              <mat-option *ngFor="let option of FilteredPlayfields" [value]="option">
                 {{option.name}}
               </mat-option>
             </mat-autocomplete>
@@ -135,7 +135,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <mat-card *ngIf="SelectedPlayfieldName">
+      <mat-card *ngIf="SelectedPlayfield">
         <mat-tab-group>
           <mat-tab label="Structures">
             <ng-template matTabContent>

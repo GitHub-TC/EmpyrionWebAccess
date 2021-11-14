@@ -27,7 +27,7 @@ export class EntitiesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    if (typeof (this.focusComponent.component) == typeof (StructuresListComponent)) {
+    if (this.focusComponent && typeof (this.focusComponent.component) == typeof (StructuresListComponent)) {
       this.matTabGroup.selectedIndex = 1;
     }
   }

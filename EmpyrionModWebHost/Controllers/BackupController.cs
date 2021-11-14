@@ -207,8 +207,8 @@ namespace EmpyrionModWebHost.Controllers
                             @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
 
-            var sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // A12 autosave
-            if (!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "Export.dat"); 
+            var sourceExportDat = Path.Combine(SourceDir, "Export.dat"); 
+            if (!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // Empyrion autosave
 
             var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{NewID.id}");
 
@@ -221,7 +221,7 @@ namespace EmpyrionModWebHost.Controllers
                 name            = aStructure.Name,
                 type            = (byte)Array.IndexOf(EntityTypes, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName  = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
-                prefabName      = NewID.id.ToString(),
+                //prefabName      = NewID.id.ToString(),
                 factionGroup    = 0,
                 factionId       = 0, // erstmal auf "public" aStructure.Faction,
                 exportedEntityDat = File.Exists(sourceExportDat) ? sourceExportDat : null

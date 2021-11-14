@@ -257,7 +257,7 @@ namespace EmpyrionModWebHost.Controllers
 
                 var stoptime = DateTime.Now.AddMinutes(aWaitMinutes);
                 var exit = aWaitMinutes == 0 ? null : TaskTools.Intervall(10000, () => {
-                    Request_InGameMessage_AllPlayers(Timeouts.NoResponse, $"Server shutdown in {(stoptime - DateTime.Now).ToString(@"mm\:ss")}".ToIdMsgPrio(0, MessagePriorityType.Alarm));
+                    Request_InGameMessage_AllPlayers($"Server shutdown in {(stoptime - DateTime.Now).ToString(@"mm\:ss")}".ToIdMsgPrio(0, MessagePriorityType.Alarm));
                 });
 
                 try
@@ -267,7 +267,7 @@ namespace EmpyrionModWebHost.Controllers
 
                     Logger.Log(Microsoft.Extensions.Logging.LogLevel.Information, "EGSStop: saveandexit:" + aWaitMinutes);
 
-                    try{ Request_ConsoleCommand(Timeouts.Wait10s, new PString("saveandexit " + aWaitMinutes)); }
+                    try{ Request_ConsoleCommand(new PString("saveandexit " + aWaitMinutes)); }
                     catch (Exception Error) { Logger.LogError(Error, "EGSStop: StopCMD:saveandexit " + aWaitMinutes); }
 
                     Thread.Sleep(10000);
