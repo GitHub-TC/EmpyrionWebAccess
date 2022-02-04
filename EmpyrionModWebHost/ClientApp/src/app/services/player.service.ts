@@ -110,7 +110,7 @@ export class PlayerService {
   }
 
   saveUser(aPlayer: PlayerModel): any {
-    this.http.post<PlayerInfoSet>('odata/Players', {
+    this.http.post<PlayerInfoSet>('Player/ChangePlayerInfo', {
       entityId: aPlayer.EntityId,
       factionRole: aPlayer.FactionRole,
       factionId: aPlayer.FactionId,

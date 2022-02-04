@@ -1,17 +1,4 @@
-﻿using Eleon.Modding;
-using EmpyrionModWebHost.Extensions;
-using EmpyrionModWebHost.Models;
-using EmpyrionModWebHost.Services;
-using EmpyrionNetAPIAccess;
-using EmpyrionNetAPITools;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.Edm;
-using Newtonsoft.Json;
-using System.Collections.Concurrent;
-using System.Security.Claims;
+﻿using System.Collections.Concurrent;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -410,15 +397,6 @@ namespace EmpyrionModWebHost.Controllers
                 default:        return Ok();
             }
         }
-
-        [Authorize(Roles = nameof(Role.Moderator))]
-        [EnableQuery]
-        public IActionResult Post([FromBody]PlayerInfoSet player)
-        {
-            PlayerManager.ChangePlayerInfo(player);
-            return Ok();
-        }
-
     }
 
     [Authorize(Roles = nameof(Role.Moderator))]
@@ -456,6 +434,67 @@ namespace EmpyrionModWebHost.Controllers
             PlayerManager.ChangePlayerNote(Note.SteamId, Note.Note);
             return Ok();
         }
+
+        public class PlayerInfoSetDTO
+        {
+            public int      entityId        { get; set; }
+            public byte?    sendLastNLogs   { get; set; }
+            public byte?    factionRole     { get; set; }
+            public int?     factionId       { get; set; }
+            public byte?    factionGroup    { get; set; }
+            public int?     origin          { get; set; }
+            public int?     upgradePoints   { get; set; }
+            public int?     experiencePoints{ get; set; }
+            public int?     bodyTempMax     { get; set; }
+            public int?     bodyTemp        { get; set; }
+            public float?   bpRemainingTime { get; set; }
+            public int?     radiationMax    { get; set; }
+            public int?     radiation       { get; set; }
+            public int?     oxygenMax       { get; set; }
+            public int?     oxygen          { get; set; }
+            public int?     foodMax         { get; set; }
+            public int?     food            { get; set; }
+            public int?     staminaMax      { get; set; }
+            public int?     stamina         { get; set; }
+            public int?     healthMax       { get; set; }
+            public int?     health          { get; set; }
+            public string   startPlayfield  { get; set; }
+        }
+
+        [HttpPost("ChangePlayerInfo")]
+        public IActionResult ChangePlayerInfo([FromBody] PlayerInfoSetDTO player)
+        {
+            var playerSet = new PlayerInfoSet
+            {
+                entityId         = player.entityId,
+                sendLastNLogs    = player.sendLastNLogs,
+                factionRole      = player.factionRole,
+                factionId        = player.factionId,
+                factionGroup     = player.factionGroup,
+                origin           = player.origin,
+                upgradePoints    = player.upgradePoints,
+                experiencePoints = player.experiencePoints,
+                bodyTempMax      = player.bodyTempMax,
+                bodyTemp         = player.bodyTemp,
+                bpRemainingTime  = player.bpRemainingTime,
+                radiationMax     = player.radiationMax,
+                radiation        = player.radiation,
+                oxygenMax        = player.oxygenMax,
+                oxygen           = player.oxygen,
+                foodMax          = player.foodMax,
+                food             = player.food,
+                staminaMax       = player.staminaMax,
+                stamina          = player.stamina,
+                healthMax        = player.healthMax,
+                health           = player.health,
+                startPlayfield   = player.startPlayfield,
+            };
+
+            PlayerManager.ChangePlayerInfo(playerSet);
+            return Ok();
+        }
+
+
 
     }
 }

@@ -10,7 +10,7 @@
   "profiles": {
     "Kestrel": {
       "commandName": "Project",
-      "commandLineArgs": "-EmpyrionToModPipe EmpyrionToEWAPipecb37591eca984e7c82bee696e4421725x -ModToEmpyrionPipe EWAToEmpyrionPipedb36a638ddec49f1ac807a9e39d999d2x EmpyrionDedicated.exe -batchmode -nographics -dedicated dedicated_WEB.yaml -logFile Logs/1905/Dedicated_181101-111823-53.log -GameDir C:\\steamcmd\\empyrion.server",
+      "commandLineArgs": "-EmpyrionToModPipe EmpyrionToEWAPipedc9b9c90f78343d2b8d8eeeae58cf4d3 -ModToEmpyrionPipe EWAToEmpyrionPipe8707244717564f8b995e1eef65fc0ff7 EmpyrionDedicated.exe -batchmode -nographics -dedicated dedicated_WEB.yaml -logFile Logs/1905/Dedicated_181101-111823-53.log -GameDir C:\\steamcmd\\empyrion.server",
       "launchUrl": "https://localhost:5001/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
