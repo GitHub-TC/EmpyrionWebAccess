@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { AuthHubConnectionBuilder } from '../_helpers';
 import { GlobalStructureInfo } from '../model/structure-model';
 import { FactionService } from './faction.service';
 import { PlayerService } from './player.service';
 import { PlayerModel } from '../model/player-model';
+import { catchError, timeout } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class StructureService {
 
   public ReloadStructures() {
     let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList")
-      .pipe()
+      .pipe(timeout(5 * 60000))
       .subscribe(
         S => {
           this.mStructures = [];
