@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { AuthHubConnectionBuilder } from '../_helpers';
@@ -72,8 +72,7 @@ export class StructureService {
   }
 
   public ReloadStructures() {
-    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList")
-      .pipe(timeout(5 * 60000))
+    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList", { headers: new HttpHeaders({ timeout: `${300000}` }) })
       .subscribe(
         S => {
           this.mStructures = [];
@@ -99,7 +98,7 @@ export class StructureService {
         error => this.error = error // error path
       );
     // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 20000);
+    setTimeout(() => { locationsSubscription.unsubscribe(); }, 300000);
   }
 
 }

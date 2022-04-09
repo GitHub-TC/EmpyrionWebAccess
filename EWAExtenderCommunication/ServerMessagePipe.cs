@@ -123,6 +123,7 @@ namespace EWAExtenderCommunication
 
         public void Dispose()
         {
+            Log?.Invoke($"Dispose: {PipeName}");
             Close();
         }
     }

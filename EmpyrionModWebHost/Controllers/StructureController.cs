@@ -53,18 +53,27 @@ namespace EmpyrionModWebHost.Controllers
 
             API_Exit += () => { try { System.IO.File.Delete(CurrentEBPFile); } catch { } };
 
-            TaskTools.Intervall(Math.Max(1, Program.AppSettings.GlobalStructureUpdateInSeconds) * 1000, () => GlobalStructureList());
+            TaskTools.Intervall(Math.Max(1, Program.AppSettings.GlobalStructureUpdateInSeconds) * 1000, () => UpdateGlobalStructureList());
         }
 
 
         public GlobalStructureListData GlobalStructureList()
         {
+            // falls es noch nicht initialisiert ist, dies jetzt machen
+            if(LastGlobalStructureList?.Current?.globalStructures?.Count == 0) UpdateGlobalStructureList();
+
+            return LastGlobalStructureList.Current;
+        }
+
+        public GlobalStructureListData UpdateGlobalStructureList()
+        {
             try
             {
-                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List(Timeouts.Wait20s).Result);
+                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List(Timeouts.Wait1m).Result);
                 TaskTools.Delay(0, () => LastGlobalStructureList.Save());
             }
-            catch(Exception error) {
+            catch (Exception error)
+            {
                 Logger.LogDebug(error, "GlobalStructureList");
             }
 

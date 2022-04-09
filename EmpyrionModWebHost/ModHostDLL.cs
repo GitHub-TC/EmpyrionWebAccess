@@ -1,6 +1,7 @@
 ﻿using Eleon.Modding;
 using EWAExtenderCommunication;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace EmpyrionModWebHost
 {
@@ -34,6 +35,8 @@ namespace EmpyrionModWebHost
 
         private void OnStopping()
         {
+            LogOut($"Application: OnStopping");
+
             ToEmpyrion?.Close();
             FromEmpyrion?.Close();
         }

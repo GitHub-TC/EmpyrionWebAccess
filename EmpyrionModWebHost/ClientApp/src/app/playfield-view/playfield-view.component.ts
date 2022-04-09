@@ -91,7 +91,10 @@ export class PlayfieldViewComponent implements OnInit {
     });
 
     this.SelectedPlayfieldNameControl.valueChanges
-      .subscribe(name => {
+      .subscribe(playfieldOrName => {
+        if (!playfieldOrName) return;
+
+        const name = playfieldOrName.name || playfieldOrName;
         const found = this.Playfields.filter(option => option.name === name);
         if (found.length === 1) this.SelectedPlayfieldName = found[0].name;
 
