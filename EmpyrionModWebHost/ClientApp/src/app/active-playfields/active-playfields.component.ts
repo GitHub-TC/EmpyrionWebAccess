@@ -44,13 +44,15 @@ export class ActivePlayfieldsComponent implements OnInit {
 
   ngOnInit() {
     this.mPlayerService.GetPlayers().subscribe(players => {
-      let PF: ActivePlayfieldModel[] = [];
-      players.filter(P => P.Online).map(P => {
-        let FoundPF = PF.find(F => F.name == P.Playfield);
-        if (!FoundPF) PF.push(FoundPF = { name: P.Playfield, players: [] });
-        FoundPF.players.push(P);
-      });
-      this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
+      setTimeout(() => {
+        let PF: ActivePlayfieldModel[] = [];
+        players.filter(P => P.Online).map(P => {
+          let FoundPF = PF.find(F => F.name == P.Playfield);
+          if (!FoundPF) PF.push(FoundPF = { name: P.Playfield, players: [] });
+          FoundPF.players.push(P);
+        });
+        this.playfields = PF.sort((A, B) => A.name.localeCompare(B.name));
+      }, 10);
     });
     this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
     this.systeminfo.GetSystemInfos().subscribe(S => this.CurrentSystemInfo = S);

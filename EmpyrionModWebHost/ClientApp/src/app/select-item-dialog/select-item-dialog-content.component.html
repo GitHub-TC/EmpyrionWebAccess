@@ -19,6 +19,16 @@
     <mat-label>Count</mat-label>
     <input matInput type="number" [(ngModel)]="ItemStack.count" />
   </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>Ammo/Token Id</mat-label>
+    <input matInput type="number" [(ngModel)]="ItemStack.ammo" />
+  </mat-form-field>
+  <br />
+  <mat-form-field>
+    <mat-label>Decay</mat-label>
+    <input matInput type="number" [(ngModel)]="ItemStack.decay" />
+  </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions style="position:relative">
   <button class="mat-raised-button" (click)="Cancel()"  style="position:absolute; left:1em">Cancel</button>
