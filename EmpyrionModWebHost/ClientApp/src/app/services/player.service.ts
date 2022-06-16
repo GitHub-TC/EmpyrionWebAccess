@@ -9,6 +9,7 @@ import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 import { PlayerModel, PlayerInfoSet, ElevatedUserStruct, BannedUserStruct } from '../model/player-model';
 import { ODataResponse } from '../model/ODataResponse';
 import { PLAYER } from '../model/player-mock';
+import { PlayfieldService } from './playfield.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,11 @@ export class PlayerService {
   public ElevatedUser: ElevatedUserStruct[] = [];
   public BannedUser: BannedUserStruct[] = [];
 
-  constructor(private http: HttpClient, private builder: AuthHubConnectionBuilder) {
+  constructor(
+    private http: HttpClient,
+    private builder: AuthHubConnectionBuilder,
+    private mPlayfields: PlayfieldService,
+  ) {
     this.hubConnection = builder.withAuthUrl('/hubs/player').build();
 
     // message coming from the server
@@ -90,6 +95,7 @@ export class PlayerService {
   private UpdatePlayersData(players: PlayerModel[]) {
     players.map(P => {
       P = this.CorrectPlayer(P);
+      this.mPlayfields.UpdatePlayfield(P.Playfield);
       let playerfound = this.mPlayers.findIndex(T => P.SteamId == T.SteamId);
       if (playerfound == -1)
         this.mPlayers.push(P);

@@ -23,7 +23,7 @@ import { SystemInfoModel } from '../model/systeminfo-model';
   styleUrls: ['./active-playfields.component.less']
 })
 export class ActivePlayfieldsComponent implements OnInit {
-  playfields: ActivePlayfieldModel[] = ACTIVEPLAYFIELDS;
+  playfields: ActivePlayfieldModel[] = []; // ACTIVEPLAYFIELDS;
   mCurrentPlayer: PlayerModel;
   mFactions: FactionModel[];
   UserRole = UserRole;

@@ -48,6 +48,12 @@ export class PlayfieldService{
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
+  UpdatePlayfield(playfieldName: string) {
+    if (!this.mPlayfieldsData || this.mPlayfieldsData.find(p => p.name == playfieldName)) return;
+    this.mPlayfieldsData.push(new PlayfieldModel(playfieldName));
+    this.mPlayfields.next(this.mPlayfieldsData);
+  }
+
   get PlayfieldNames() {
     return this.mPlayfieldsObservable;
   }
