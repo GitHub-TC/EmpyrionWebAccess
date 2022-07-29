@@ -91,10 +91,12 @@ namespace EmpyrionModWebHost.Controllers
         public static string DllNamesFile = Path.Combine(ModLoaderHostPath, "DllNames.txt");
 
         public ModManager ModManager { get; }
+        public ILogger<ModController> Logger { get; }
 
-        public ModController(IHubContext<ModinfoHub> aModinfoHub)
+        public ModController(IHubContext<ModinfoHub> aModinfoHub, ILogger<ModController> logger)
         {
             ModManager        = Program.GetManager<ModManager>();
+            Logger = logger;
         }
 
         [HttpGet("ModLoaderInstalled")]
@@ -111,15 +113,21 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (System.IO.File.Exists(DllNamesFile)) System.IO.File.Copy(DllNamesFile, DllNamesFile + ".bak", true);
 
-            try { Directory.Delete(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"), true); } catch { }
+            var rootDir = Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location);
+
+            try { Directory.Delete(Path.Combine(rootDir, "PublishAddOns", "Temp"), true); } catch { }
+
+            Logger.LogInformation("UnZIP ModLoader: {rootDir}", rootDir);
 
             ZipFile.ExtractToDirectory(
-                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "ModLoader.zip"),
-                Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"),
+                Path.Combine(rootDir, "PublishAddOns", "ModLoader.zip"),
+                Path.Combine(rootDir, "PublishAddOns", "Temp"),
                 true);
 
+            Logger.LogInformation("CopyAll: {rootDir}", rootDir);
+
             BackupManager.CopyAll(
-                new DirectoryInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp")),
+                new DirectoryInfo(Path.Combine(rootDir, "PublishAddOns", "Temp")),
                 new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"))
                 );
 

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CsvHelper;
+using CsvHelper.Configuration;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
@@ -100,27 +101,32 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (_mItemInfo != null) return _mItemInfo;
 
-            var ItemConfigFile   = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf");
-            var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
-            if(!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
-
-            try
+            lock (RemoveNameFormatting)
             {
-                _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
-            }
-            catch (Exception error)
-            {
-                Logger.LogError(error, "Config_Example.ecf: {0} Localization.csv:{1}", ItemConfigFile, LocalizationFile);
-            }
+                if (_mItemInfo != null) return _mItemInfo;
 
-            CreateDummyPNGForUnknownItems(_mItemInfo);
+                var ItemConfigFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf");
+                var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
+                if (!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
+
+                try
+                {
+                    _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
+                }
+                catch (Exception error)
+                {
+                    Logger.LogError(error, "Config_Example.ecf: {ItemConfigFile} Localization.csv:{LocalizationFile}", ItemConfigFile, LocalizationFile);
+                }
+
+                CreateDummyPNGForUnknownItems(_mItemInfo);
+            }
 
             return _mItemInfo;
         }
 
         public ItemInfo[] ReadItemInfos(string itemConfigFile, string localizationFile)
         {
-            Logger.LogInformation("Config_Example.ecf: {0} Localization.csv:{1}", itemConfigFile, localizationFile);
+            Logger.LogInformation("Config_Example.ecf: {itemConfigFile} Localization.csv:{localizationFile}", itemConfigFile, localizationFile);
 
             var Localisation = ReadTranslationFromCsv(localizationFile).Aggregate(new Dictionary<string, List<string>>(), (r, d) => {
                 if (d?.Count >= 2 && !r.ContainsKey(d[0])) r.Add(d[0], d.Select(name => RemoveNameFormatting.Replace(name, "")).ToList());
@@ -163,13 +169,14 @@ namespace EmpyrionModWebHost.Controllers
             .ToArray();
         }
 
-        public static List<List<string>> ReadTranslationFromCsv(string csvFile)
+        public List<List<string>> ReadTranslationFromCsv(string csvFile)
         {
             if (!File.Exists(csvFile)) throw new FileNotFoundException("File not found", csvFile);
 
+            var isBadData = false;
             var translations = new List<List<string>>();
-            using var reader = new StreamReader(csvFile);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            using var reader = new StringReader(File.ReadAllText(csvFile));
+            using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { AllowComments = true, CacheFields = true, IgnoreBlankLines = true, BadDataFound = args => { isBadData = true; LogBadCsvData(args); } });
 
             csv.Read();
             csv.ReadHeader();
@@ -177,13 +184,24 @@ namespace EmpyrionModWebHost.Controllers
 
             do
             {
-                var newLine = new List<string>();
-                for (int i = 0; i < languages; i++) newLine.Add(csv.TryGetField(typeof(string), i, out var field) ? field?.ToString() : string.Empty);
-                translations.Add(newLine);
+                if (!isBadData)
+                {
+                    var newLine = new List<string>();
+                    for (int i = 0; i < languages && csv.TryGetField(typeof(string), i, out var field); i++) newLine.Add(field?.ToString() ?? string.Empty);
+                    for (int i = languages - newLine.Count - 1; i >= 0; i--) newLine.Add(string.Empty);
+
+                    translations.Add(newLine);
+                }
+                isBadData = false;
             }
             while (csv.Read());
 
             return translations;
+        }
+
+        private void LogBadCsvData(BadDataFoundArgs args)
+        {
+            Logger.LogWarning("Bad CSV Data:\n{RawRecord}\n{Field}", args.RawRecord, args.Field);
         }
 
         private static void CreateDummyPNGForUnknownItems(ItemInfo[] aItems)

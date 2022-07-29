@@ -20,6 +20,7 @@
           <mat-icon style="vertical-align:bottom" title="CPU">computer</mat-icon><div style="display:inline-block; width:2em; text-align:right; margin-left:5px"> {{CurrentSystemInfo.cpuTotalLoad | number : "1.0-0"}}%</div>
           <mat-icon style="vertical-align:bottom" title="RAM">memory</mat-icon> {{(CurrentSystemInfo.ramTotalMB - CurrentSystemInfo.ramAvailableMB) / 1024 | number : "1.1-1"}}/{{CurrentSystemInfo.ramTotalMB / 1024 | number : "1.0-0"}} GB
           <mat-icon style="vertical-align:bottom" title="HDD">storage</mat-icon> {{CurrentSystemInfo.diskUsedSpace / (1024 * 1024 * 1024) | number : "1.1-1"}}/{{(CurrentSystemInfo.diskUsedSpace + CurrentSystemInfo.diskFreeSpace) / (1024 * 1024 * 1024) | number : "1.0-0"}} GB
+          <mat-icon style="vertical-align:bottom" *ngIf="CurrentSystemInfo.eahAvailable" title="EAH available">star_half</mat-icon>
         </div>
       </div>
       <div class="systeminfo">

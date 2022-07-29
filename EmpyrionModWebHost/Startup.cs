@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace EmpyrionModWebHost;
 
 public class Startup
@@ -5,6 +7,15 @@ public class Startup
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
+
+        var saveDir = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = EmpyrionConfiguration.ProgramPath;
+
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
+        Environment.CurrentDirectory = saveDir;
     }
 
     public IConfiguration Configuration { get; }

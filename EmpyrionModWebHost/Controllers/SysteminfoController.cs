@@ -45,6 +45,7 @@ namespace EmpyrionModWebHost.Controllers
         public int ramAvailableMB { get; set; }
         public ulong ramTotalMB { get; set; }
         public string serverName { get; set; }
+        public bool eahAvailable { get; internal set; }
     }
 #pragma warning restore IDE1006 // Naming Styles
 
@@ -210,6 +211,9 @@ namespace EmpyrionModWebHost.Controllers
                 CurrentSysteminfo.totalPlayfieldserver      = ESGChildProcesses.Count();
                 CurrentSysteminfo.totalPlayfieldserverRamMB = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
+
+            var eahProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault();
+            CurrentSysteminfo.eahAvailable = eahProcess != null;
 
             SystemConfig.Current.ProcessInformation = ProcessInformation;
             SystemConfig.Save();

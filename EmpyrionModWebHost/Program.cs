@@ -6,6 +6,7 @@ using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNetCore;
+using Serilog;
 
 namespace EmpyrionModWebHost
 {
@@ -76,6 +77,7 @@ namespace EmpyrionModWebHost
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost
             .CreateDefaultBuilder(args)
+            .UseSerilog()
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
                 config.AddNewtonsoftJsonFile("appsettings.json", optional: true, reloadOnChange: true)

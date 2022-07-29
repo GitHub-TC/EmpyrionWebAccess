@@ -46,8 +46,16 @@
           </mat-dialog-content>
           <br />
           <mat-dialog-actions>
-            <div *ngIf="mPositionService.CurrentPosition?.description" style="display:block">
-              <button mat-raised-button class="mat-raised-button" (click)="copyPosition()">Load {{mPositionService.CurrentPosition.description}}</button>
+            <button mat-raised-button (click)="copyPosition()" *ngIf="mPositionService.CurrentPosition" style="width:250px">
+              Load
+              <mat-select placeholder="Saved positions" [(value)]="mPositionService.CurrentPosition" style="width: 200px; background-color:aliceblue">
+                <mat-option *ngFor="let pos of mPositionService.CurrentPositionStack" [value]="pos">
+                  {{pos.description}}
+                </mat-option>
+              </mat-select>
+            </button>
+            <div *ngIf="mPositionService.CurrentPosition">
+              <br />
             </div>
             <button mat-raised-button class="mat-raised-button" (click)="setToZeroPosition()">Zero</button>
             <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
