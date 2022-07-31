@@ -1,4 +1,6 @@
-﻿namespace EmpyrionModWebHost.Models
+﻿using ProtoBuf;
+
+namespace EmpyrionModWebHost.Models
 {
 #pragma warning disable IDE1006 // Naming Styles
     public struct GlobalStructureInfoData
@@ -21,6 +23,10 @@
         public byte type { get; set; }
         public sbyte coreType { get; set; }
         public int pilotId { get; set; }
+        public string PlayfieldName { get; set; }
+        public PVector3 Sector { get; set; }
+        public string SolarSystemName { get; set; }
+        public PVector3 SolarSystemCoord { get; set; }
     }
 
     public class GlobalStructureListData

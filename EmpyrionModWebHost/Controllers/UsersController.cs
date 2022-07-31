@@ -51,7 +51,7 @@ namespace EmpyrionModWebHost.Controllers
     }
 
     [ApiController]
-    [Authorize(Roles = nameof(Role.InGameAdmin))]
+    [Authorize(Roles = nameof(Role.Player))]
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
@@ -126,6 +126,10 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult GetAll()
         {
             var users = UserService.GetAll();
+
+            if (UserService.CurrentUser.Role <= Role.GameMaster) users = users.Where(u => u.Role >= UserService.CurrentUser.Role);
+            else                                                 users = users.Where(u => u.Id == UserService.CurrentUser.Id);
+
             var userDtos = _mapper.Map<IList<UserDto>>(users);
             return Ok(userDtos);
         }
@@ -134,6 +138,10 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult GetById(int id)
         {
             var user = UserService.GetById(id);
+
+            if (UserService.CurrentUser.Role <= Role.GameMaster) user = user.Role >= UserService.CurrentUser.Role ? user : new Models.User();
+            else                                                 user = user.Id   == UserService.CurrentUser.Id   ? user : new Models.User();
+
             var userDto = _mapper.Map<UserDto>(user);
             return Ok(userDto);
         }
@@ -147,6 +155,9 @@ namespace EmpyrionModWebHost.Controllers
             try
             {
                 if (user.Role < UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+
+                if (UserService.CurrentUser.Role > Role.GameMaster && user.Id != UserService.CurrentUser.Id) throw new AccessViolationException("Only current User access");
+
                 UserService.Update(user, userDto.Password);
                 return Ok();
             }
@@ -161,7 +172,8 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult Delete(int id)
         {
             var user = UserService.GetById(id);
-            if (UserService.CurrentUser.Role != Role.ServerAdmin && user.Role <= UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+            if (UserService.CurrentUser.Role != Role.ServerAdmin && user.Role < UserService.CurrentUser.Role) throw new AccessViolationException("User permission to high");
+            if (UserService.CurrentUser.Role > Role.GameMaster && user.Id != UserService.CurrentUser.Id) throw new AccessViolationException("Only current User access");
             UserService.Delete(id);
             return Ok();
         }

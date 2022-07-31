@@ -26,7 +26,7 @@
       <div class="systeminfo">
         <div [ngClass]="GetStateClass()" class="state-pos">{{GetStateDescription()}}</div>
         <mat-menu #appMenu="matMenu">
-          <button mat-menu-item *ngIf="role.is(UserRole.InGameAdmin)" (click)="router.navigate(['user'])">User</button>
+          <button mat-menu-item (click)="router.navigate(['user'])">User</button>
           <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['restore'])">Restore</button>
           <button mat-menu-item *ngIf="role.is(UserRole.Moderator)" (click)="router.navigate(['server'])">Server</button>
           <button mat-menu-item *ngIf="role.is(UserRole.VIP)" (click)="router.navigate(['entities'])">Entities</button>

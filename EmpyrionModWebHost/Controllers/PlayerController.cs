@@ -335,9 +335,16 @@ namespace EmpyrionModWebHost.Controllers
             if (CurrentUser.Role <= Role.GameMaster) await aGroups.AddToGroupAsync(aConnectionId, RoleHubBase.AdminsGroupName);
             else
             {
-                await aGroups.AddToGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
-                var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
-                await aGroups.AddToGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+                try
+                {
+                    await aGroups.AddToGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
+                    var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
+                    await aGroups.AddToGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+                }
+                catch (Exception error)
+                {
+                    Logger.LogError(error, "AddConnectionAsync:{@aConnectionId} {@aUser} {@aGroups}", aConnectionId, aUser, aGroups);
+                }
             }
         }
 
@@ -347,9 +354,16 @@ namespace EmpyrionModWebHost.Controllers
             if (CurrentUser.Role <= Role.GameMaster) await aGroups.RemoveFromGroupAsync(aConnectionId, RoleHubBase.AdminsGroupName);
             else
             {
-                await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
-                var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
-                await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+                try
+                {
+                    await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentUser.InGameSteamId);
+                    var CurrentPlayer = GetPlayer(CurrentUser.InGameSteamId);
+                    await aGroups.RemoveFromGroupAsync(aConnectionId, CurrentPlayer.FactionId.ToString());
+                }
+                catch (Exception error)
+                {
+                    Logger.LogError(error, "AddConnectionAsync:{@aConnectionId} {@aUser} {@aGroups}", aConnectionId, aUser, aGroups);
+                }
             }
         }
     }

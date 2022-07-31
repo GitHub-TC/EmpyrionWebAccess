@@ -18,15 +18,31 @@ namespace EmpyrionModWebHost.Controllers
         public override Task OnConnectedAsync()
         {
             var PlayerManager = Program.GetManager<PlayerManager>();
-            PlayerManager.AddConnectionAsync(Context.ConnectionId, Context.User, Groups);
-            return base.OnConnectedAsync();
+            try
+            {
+                PlayerManager.AddConnectionAsync(Context.ConnectionId, Context.User, Groups);
+                return base.OnConnectedAsync();
+            }
+            catch (Exception error)
+            {
+                PlayerManager.Logger.LogError(error, "RoleHubBase:{@Context}", Context);
+                return Task.CompletedTask;
+            }
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
             var PlayerManager = Program.GetManager<PlayerManager>();
-            PlayerManager.RemoveConnectionAsync(Context.ConnectionId, Context.User, Groups);
-            return base.OnDisconnectedAsync(exception);
+            try
+            {
+                PlayerManager.RemoveConnectionAsync(Context.ConnectionId, Context.User, Groups);
+                return base.OnDisconnectedAsync(exception);
+            }
+            catch (Exception error)
+            {
+                PlayerManager.Logger.LogError(error, "RoleHubBase:{@Context}", Context);
+                return Task.CompletedTask;
+            }
         }
 
     }
