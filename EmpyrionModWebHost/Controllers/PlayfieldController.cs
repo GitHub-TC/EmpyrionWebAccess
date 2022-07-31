@@ -108,13 +108,23 @@ namespace EmpyrionModWebHost.Controllers
 
         public void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
         {
+            if (aPlayfields.First() == "*") aPlayfields = Playfields.Select(p => p.name);
+
             if (SysteminfoManager.Value.EGSIsRunning) aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
             else
             {
                 var wipeinfo = aWipeType.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 aPlayfields.ForEach(P =>
                 {
-                    try { File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipeinfo); }
+                    string[] wipePresets = null;
+                    try {
+                        wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"))?.FirstOrDefault()?.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); 
+                    }
+                    catch { }
+
+                    try { 
+                        File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct());
+                    }
                     catch { }
                 });
             }
@@ -303,6 +313,14 @@ namespace EmpyrionModWebHost.Controllers
         public IActionResult ResetPlayfield([FromQuery]string Playfield)
         {
             PlayfieldManager.ResetPlayfield(Playfield);
+            return Ok();
+        }
+
+        [HttpGet("RecreatePlayfield")]
+        [Authorize(Roles = nameof(Role.ServerAdmin))]
+        public IActionResult RecreatePlayfield([FromQuery] string Playfield)
+        {
+            PlayfieldManager.RecreatePlayfield(Playfield);
             return Ok();
         }
 

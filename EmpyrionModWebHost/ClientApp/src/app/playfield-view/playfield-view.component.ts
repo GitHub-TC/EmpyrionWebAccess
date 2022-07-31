@@ -290,11 +290,24 @@ export class PlayfieldViewComponent implements OnInit {
   }
 
   WipeComplete() {
-    this.YesNo.openDialog({ title: "Reset complete Playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Reset complete playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
 
         this.http.get("Playfield/ResetPlayfield" +
+          "?Playfield=" + encodeURIComponent(this.SelectedPlayfieldName))
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
+  }
+
+  RecreateComplete() {
+    this.YesNo.openDialog({ title: "Recreate complete playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.get("Playfield/RecreatePlayfield" +
           "?Playfield=" + encodeURIComponent(this.SelectedPlayfieldName))
           .subscribe(
             error => this.error = error // error path
