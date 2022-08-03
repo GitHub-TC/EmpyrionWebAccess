@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EmpyrionModWebHost\EmpyrionModWebHost.csproj" />
-    <ProjectReference Include="..\GlobalStructureList\GlobalStructureList.csproj" />
   </ItemGroup>
 
   <ItemGroup>

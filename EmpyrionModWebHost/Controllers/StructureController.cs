@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EgsDbTools;
 using Eleon.Modding;
 using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
@@ -26,6 +27,7 @@ namespace EmpyrionModWebHost.Controllers
     {
 
         public ModGameAPI GameAPI { get; private set; }
+        public GlobalStructureListAccess GSLA { get; }
         public IMapper Mapper { get; }
         public ILogger<StructureManager> Logger { get; }
         public ConfigurationManager<GlobalStructureListData> LastGlobalStructureList { get; private set; }
@@ -33,6 +35,8 @@ namespace EmpyrionModWebHost.Controllers
 
         public StructureManager(IMapper mapper, ILogger<StructureManager> logger)
         {
+            GSLA = new GlobalStructureListAccess();
+
             Mapper = mapper;
             Logger = logger;
             LastGlobalStructureList = new ConfigurationManager<GlobalStructureListData>()
@@ -69,8 +73,9 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                var gsl = Request_GlobalStructure_List(Timeouts.Wait1m).GetAwaiter().GetResult();
-                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(gsl);
+                GSLA.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+                //var gsl = Request_GlobalStructure_List(Timeouts.Wait1m).GetAwaiter().GetResult();
+                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(GSLA.CurrentList);
                 TaskTools.Delay(0, () => LastGlobalStructureList.Save());
             }
             catch (Exception error)

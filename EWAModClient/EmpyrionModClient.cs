@@ -40,9 +40,6 @@ namespace EWAModClient
         Dictionary<Type, Action<object>> InServerMessageHandler;
 
         ConfigurationManager<Configuration> CurrentConfig;
-        public AutoResetEvent GetGlobalStructureList { get; set; } = new AutoResetEvent(false);
-        public ConcurrentQueue<EmpyrionGameEventData> GetGlobalStructureListEvents { get; set; } = new ConcurrentQueue<EmpyrionGameEventData>();
-
         public void Game_Event(CmdId eventId, ushort seqNr, object data)
         {
             if (OutServer == null) return;
@@ -120,42 +117,8 @@ namespace EWAModClient
             };
 
             new Thread(() => { while (!Exit) { Thread.Sleep(1000); CheckHostProcess(); } }) { IsBackground = true }.Start();
-            new Thread(() => ReadGlobalStructureInfoForEvent())                             { IsBackground = true }.Start();
 
             GameAPI.Console_Write($"ModClientDll: started");
-        }
-
-        private void ReadGlobalStructureInfoForEvent()
-        {
-            var gsl = new EgsDbTools.GlobalStructureListAccess();
-            while (!Exit)
-            {
-                try
-                {
-                    if (GetGlobalStructureList.WaitOne(1000))
-                    {
-                        if (GetGlobalStructureListEvents.TryDequeue(out var TypedMsg))
-                        {
-                            gsl.UpdateIntervallInSeconds = CurrentConfig.Current.GlobalStructureListUpdateIntervallInSeconds;
-                            gsl.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
-
-                            switch (TypedMsg.eventId)
-                            {
-                                case CmdId.Request_GlobalStructure_List:                         Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList); break;
-                                case CmdId.Request_GlobalStructure_Update: gsl.UpdateNow = true; Game_Event(TypedMsg.eventId, TypedMsg.seqNr, true);            break;
-                            }
-                        }
-                    }
-                }
-                catch (Exception error)
-                {
-                    GameAPI.Console_Write($"ReadGlobalStructureInfoForEvent:{gsl.GlobalDbPath}->{error}");
-                }
-                finally
-                {
-                    GetGlobalStructureList.Reset();
-                }
-            }
         }
 
         private void StartHostProcess()
@@ -456,12 +419,7 @@ namespace EWAModClient
 
         private void HandleGameEvent(EmpyrionGameEventData TypedMsg)
         {
-            if(TypedMsg.eventId == CmdId.Request_GlobalStructure_List || TypedMsg.eventId == CmdId.Request_GlobalStructure_Update)
-            {
-                GetGlobalStructureListEvents.Enqueue(TypedMsg);
-                GetGlobalStructureList.Set();
-            }
-            else GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, TypedMsg.GetEmpyrionObject());
+            GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, TypedMsg.GetEmpyrionObject());
         }
 
         public void Game_Update()

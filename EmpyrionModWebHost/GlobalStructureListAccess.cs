@@ -1,8 +1,4 @@
-﻿using Eleon.Modding;
-using Microsoft.Data.Sqlite;
-using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using Microsoft.Data.Sqlite;
 
 namespace EgsDbTools
 {
@@ -45,21 +41,20 @@ namespace EgsDbTools
                 DataSource  = GlobalDbPath
             };
 
-            using (var DbConnection = new SQLiteConnection(connectionString.ToString()))
+            using (var DbConnection = new SqliteConnection(connectionString.ToString()))
             {
                 DbConnection.Open();
 
                 var playfields = ReadPlayfields(DbConnection);
 
-                using (var cmd = new SQLiteCommand(DbConnection))
-                {
-                    cmd.CommandText =
+                using (var cmd = new SqliteCommand(
 @"
 SELECT * FROM Structures 
 LEFT JOIN Entities ON Structures.entityid = Entities.entityid
 ORDER BY pfid
-";
-
+",
+                DbConnection))
+                {
                     List<GlobalStructureInfo> currentPlayfieldStructures = null;
                     int currentPlayfieldId = 0;
 
@@ -147,8 +142,8 @@ ORDER BY pfid
                                 name                = reader.GetValue(nameCol)?.ToString(),
                                 factionId           = reader.GetInt32(facIdCol),
                                 factionGroup        = reader.GetByte(facgroupCol),
-                                type                = reader.GetByte(etypeCol),
-                                coreType            = (sbyte)reader.GetByte(coretypeCol),
+                                type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
+                                coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
                                 pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
                                 PlayfieldName       = currentPlayfield?.Name        ?? "?",
                                 SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
@@ -182,20 +177,19 @@ ORDER BY pfid
                 DataSource  = GlobalDbPath
             };
 
-            using (var DbConnection = new SQLiteConnection(connectionString.ToString()))
+            using (var DbConnection = new SqliteConnection(connectionString.ToString()))
             {
                 DbConnection.Open();
 
                 var playfields = ReadPlayfields(DbConnection);
 
-                using (var cmd = new SQLiteCommand(DbConnection))
-                {
-                    cmd.CommandText =
+                using (var cmd = new SqliteCommand(
 @"
 SELECT * FROM Structures 
 LEFT JOIN Entities ON Structures.entityid = Entities.entityid
-WHERE Structures.entityid = " + id.id.ToString();
-
+WHERE Structures.entityid = " + id.id.ToString(),
+                DbConnection))
+                {
                     bool initCols           = true;
                     int pfIdCol             = 0;
                     int entityIdCol         = 0; 
@@ -295,18 +289,17 @@ WHERE Structures.entityid = " + id.id.ToString();
             public string SolarSystem { get; set; }
         }
 
-        private Dictionary<int, SolarSystemData> ReadPlayfields(SQLiteConnection dbConnection)
+        private Dictionary<int, SolarSystemData> ReadPlayfields(SqliteConnection dbConnection)
         {
             var result = new Dictionary<int, SolarSystemData>();
 
-            using (var cmd = new SQLiteCommand(dbConnection))
-            {
-                cmd.CommandText =
+            using (var cmd = new SqliteCommand(
 @"
 SELECT Playfields.pfid, Playfields.name, SolarSystems.ssid, SolarSystems.name FROM Playfields
 JOIN SolarSystems ON Playfields.ssid = SolarSystems.ssid
-";
-
+",
+            dbConnection))
+            {
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read()) result.Add(reader.GetInt32(0), new SolarSystemData { Name = reader.GetString(1), SsId = reader.GetInt32(2), SolarSystem = reader.GetString(3) });
