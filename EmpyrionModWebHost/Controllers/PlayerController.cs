@@ -79,51 +79,52 @@ namespace EmpyrionModWebHost.Controllers
 
         private async void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
         {
+            Player Player = null;
             try
             {
                 using var DB = new PlayerContext();
-                var Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
+                Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
                 var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
 
-                Player.Id = aPlayerInfo.steamId;
-                Player.EntityId = aPlayerInfo.entityId;
-                Player.SteamId = aPlayerInfo.steamId;
-                Player.ClientId = aPlayerInfo.clientId;
-                Player.Radiation = aPlayerInfo.radiation;
-                Player.RadiationMax = aPlayerInfo.radiationMax;
-                Player.BodyTemp = aPlayerInfo.bodyTemp;
-                Player.BodyTempMax = aPlayerInfo.bodyTempMax;
-                Player.Kills = aPlayerInfo.kills;
-                Player.Died = aPlayerInfo.died;
-                Player.Credits = aPlayerInfo.credits;
-                Player.FoodMax = aPlayerInfo.foodMax;
-                Player.Exp = aPlayerInfo.exp;
-                Player.Upgrade = aPlayerInfo.upgrade;
-                Player.Ping = aPlayerInfo.ping;
-                Player.Permission = aPlayerInfo.permission;
-                Player.Food = aPlayerInfo.food;
-                Player.Stamina = aPlayerInfo.stamina;
-                Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
-                Player.PlayerName = aPlayerInfo.playerName;
-                Player.Playfield = aPlayerInfo.playfield;
-                Player.BpInFactory = aPlayerInfo.bpInFactory;
+                Player.Id              = aPlayerInfo.steamId;
+                Player.EntityId        = aPlayerInfo.entityId;
+                Player.SteamId         = aPlayerInfo.steamId;
+                Player.ClientId        = aPlayerInfo.clientId;
+                Player.Radiation       = aPlayerInfo.radiation;
+                Player.RadiationMax    = aPlayerInfo.radiationMax;
+                Player.BodyTemp        = aPlayerInfo.bodyTemp;
+                Player.BodyTempMax     = aPlayerInfo.bodyTempMax;
+                Player.Kills           = aPlayerInfo.kills;
+                Player.Died            = aPlayerInfo.died;
+                Player.Credits         = aPlayerInfo.credits;
+                Player.FoodMax         = aPlayerInfo.foodMax;
+                Player.Exp             = aPlayerInfo.exp;
+                Player.Upgrade         = aPlayerInfo.upgrade;
+                Player.Ping            = aPlayerInfo.ping;
+                Player.Permission      = aPlayerInfo.permission;
+                Player.Food            = aPlayerInfo.food;
+                Player.Stamina         = aPlayerInfo.stamina;
+                Player.SteamOwnerId    = aPlayerInfo.steamOwnerId;
+                Player.PlayerName      = aPlayerInfo.playerName;
+                Player.Playfield       = aPlayerInfo.playfield;
+                Player.BpInFactory     = aPlayerInfo.bpInFactory;
                 Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
-                Player.StartPlayfield = aPlayerInfo.startPlayfield;
-                Player.StaminaMax = aPlayerInfo.staminaMax;
-                Player.FactionGroup = aPlayerInfo.factionGroup;
-                Player.FactionId = aPlayerInfo.factionId;
-                Player.FactionRole = aPlayerInfo.factionRole;
-                Player.Health = aPlayerInfo.health;
-                Player.HealthMax = aPlayerInfo.healthMax;
-                Player.Oxygen = aPlayerInfo.oxygen;
-                Player.OxygenMax = aPlayerInfo.oxygenMax;
-                Player.Origin = aPlayerInfo.origin;
-                Player.PosX = aPlayerInfo.pos.x;
-                Player.PosY = aPlayerInfo.pos.y;
-                Player.PosZ = aPlayerInfo.pos.z;
-                Player.RotX = aPlayerInfo.rot.x;
-                Player.RotY = aPlayerInfo.rot.y;
-                Player.RotZ = aPlayerInfo.rot.z;
+                Player.StartPlayfield  = aPlayerInfo.startPlayfield;
+                Player.StaminaMax      = aPlayerInfo.staminaMax;
+                Player.FactionGroup    = aPlayerInfo.factionGroup;
+                Player.FactionId       = aPlayerInfo.factionId;
+                Player.FactionRole     = aPlayerInfo.factionRole;
+                Player.Health          = aPlayerInfo.health;
+                Player.HealthMax       = aPlayerInfo.healthMax;
+                Player.Oxygen          = aPlayerInfo.oxygen;
+                Player.OxygenMax       = aPlayerInfo.oxygenMax;
+                Player.Origin          = aPlayerInfo.origin;
+                Player.PosX            = aPlayerInfo.pos.x;
+                Player.PosY            = aPlayerInfo.pos.y;
+                Player.PosZ            = aPlayerInfo.pos.z;
+                Player.RotX            = aPlayerInfo.rot.x;
+                Player.RotY            = aPlayerInfo.rot.y;
+                Player.RotZ            = aPlayerInfo.rot.z;
 
                 if (IsNewPlayer)
                 {
@@ -146,7 +147,7 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch (Exception error)
             {
-                Logger?.LogError(error, "PlayerManager_Event_Player_Info");
+                Logger?.LogError(error, "PlayerManager_Event_Player_Info:{@aPlayerInfo}->{@Player}", aPlayerInfo, Player);
             }
         }
 

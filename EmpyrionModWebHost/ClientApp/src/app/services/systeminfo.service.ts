@@ -1,12 +1,11 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection } from '@aspnet/signalr';
 import { SystemInfoModel } from '../model/systeminfo-model';
-import { SYSTEMINFO } from '../model/systeminfo-mock';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
-import { map } from 'rxjs/operators'
 import { AuthHubConnectionBuilder } from '../_helpers/AuthHubConnectionBuilder';
 import { Router } from '@angular/router';
+import { SystemConfig } from '../model/systemconfig-model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +20,7 @@ export class SystemInfoService {
   public readonly SystemInfosObservable: Observable<SystemInfoModel> = this.SystemInfos.asObservable();
   error: any;
   firstRead: boolean = true;
+  SystemConfig: SystemConfig = { playerSteamInfoUrl: "https://steamcommunity.com/profiles" };
 
   constructor(
     public router: Router,
@@ -62,6 +62,13 @@ export class SystemInfoService {
         if((new Date().getTime() - this.LastSystemUpdateTime.getTime()) > 120000) this.TestIfOnlineAgain();
       }
     });
+
+    this.http.get<SystemConfig>("systeminfo/SystemConfig")
+      .pipe()
+      .subscribe(
+        S => this.SystemConfig = S,
+        error => this.error = error // error path
+      );
 
     this.LastSystemUpdateTime = new Date();
   }

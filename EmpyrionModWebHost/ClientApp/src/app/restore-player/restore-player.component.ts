@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PlayerModel } from '../model/player-model';
 import { MatTableDataSource } from '@angular/material/table';
+import { SystemInfoService } from '../services/systeminfo.service';
 
 @Component({
   selector: 'app-restore-player',
@@ -18,6 +19,7 @@ export class RestorePlayerComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
+    public mSystemInfoService: SystemInfoService,
   ) {}
 
   ngOnInit() {

@@ -110,10 +110,13 @@ namespace EWAModClient
             };
 
             OutServer = new ClientMessagePipe(CurrentConfig.Current.EmpyrionToModPipeName) { Log = GameAPI.Console_Write };
-            InServer = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName) { Log = GameAPI.Console_Write };
-            InServer.Callback = Msg =>
+            InServer = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName)
             {
-                if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg);
+                Log      = GameAPI.Console_Write,
+                Callback = Msg =>
+                            {
+                                if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg);
+                            }
             };
 
             new Thread(() => { while (!Exit) { Thread.Sleep(1000); CheckHostProcess(); } }) { IsBackground = true }.Start();
@@ -127,19 +130,29 @@ namespace EWAModClient
             var gsl = new EgsDbTools.GlobalStructureListAccess();
             while (!Exit)
             {
-                if (GetGlobalStructureList.WaitOne(1000))
+                try
                 {
-                    if (GetGlobalStructureListEvents.TryDequeue(out var TypedMsg))
+                    if (GetGlobalStructureList.WaitOne(1000))
                     {
-                        gsl.UpdateIntervallInSeconds = CurrentConfig.Current.GlobalStructureListUpdateIntervallInSeconds;
-                        gsl.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
-
-                        switch (TypedMsg.eventId)
+                        if (GetGlobalStructureListEvents.TryDequeue(out var TypedMsg))
                         {
-                            case CmdId.Request_GlobalStructure_List  :                       Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList); break;
-                            case CmdId.Request_GlobalStructure_Update: gsl.UpdateNow = true; Game_Event(TypedMsg.eventId, TypedMsg.seqNr, true);            break;
+                            gsl.UpdateIntervallInSeconds = CurrentConfig.Current.GlobalStructureListUpdateIntervallInSeconds;
+                            gsl.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+
+                            switch (TypedMsg.eventId)
+                            {
+                                case CmdId.Request_GlobalStructure_List:                         Game_Event(TypedMsg.eventId, TypedMsg.seqNr, gsl.CurrentList); break;
+                                case CmdId.Request_GlobalStructure_Update: gsl.UpdateNow = true; Game_Event(TypedMsg.eventId, TypedMsg.seqNr, true);            break;
+                            }
                         }
                     }
+                }
+                catch (Exception error)
+                {
+                    GameAPI.Console_Write($"ReadGlobalStructureInfoForEvent:{gsl.GlobalDbPath}->{error}");
+                }
+                finally
+                {
                     GetGlobalStructureList.Reset();
                 }
             }

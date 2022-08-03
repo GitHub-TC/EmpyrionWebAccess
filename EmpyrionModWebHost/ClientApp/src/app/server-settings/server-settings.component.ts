@@ -2,19 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 import { Router } from '@angular/router';
-
-class ProcessInformation {
-  id?: number
-  currentDirecrory?: string;
-  arguments?: string;
-  fileName?: string;
-}
-
-class SystemConfig {
-  processInformation?: ProcessInformation;
-  startCMD?: string;
-  welcomeMessage?: string;
-}
+import { SystemConfig } from '../model/systemconfig-model';
 
 @Component({
   selector: 'app-server-settings',

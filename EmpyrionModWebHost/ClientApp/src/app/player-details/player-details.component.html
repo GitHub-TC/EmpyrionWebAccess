@@ -5,7 +5,7 @@
         Personal data: {{Player.PlayerName}}
       </mat-panel-title>
       <mat-panel-description>
-        <a href="https://steamcommunity.com/profiles/{{Player.SteamId}}" target="_blank">
+        <a href="{{mSystemInfoService.SystemConfig.playerSteamInfoUrl}}/{{Player.SteamId}}" target="_blank">
           <mat-icon style="cursor:pointer; font-size:medium;" title="Steamprofile">info</mat-icon>
         </a>
         <mat-icon class="onlineState" *ngIf="Player?.Online" style="cursor:pointer; color: green; font-size:medium" title="Online">account_circle</mat-icon>

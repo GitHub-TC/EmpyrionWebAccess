@@ -15,6 +15,7 @@ import { UserRole } from '../model/user';
 import { OriginService } from '../services/origin.service';
 import { Router } from '@angular/router';
 import { StructureService } from '../services/structure.service';
+import { SystemInfoService } from '../services/systeminfo.service';
 
 @Component({
   selector: 'app-player-list',
@@ -44,6 +45,7 @@ export class PlayerListComponent implements OnInit {
     private mPositionService: PositionService,
     private mChatService: ChatService,
     private mOriginService: OriginService,
+    public mSystemInfoService: SystemInfoService,
     public role: RoleService,
   ) {
   }

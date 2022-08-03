@@ -11,6 +11,7 @@ import { RoleService } from '../services/role.service';
 import { UserRole } from '../model/user';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { SystemInfoService } from '../services/systeminfo.service';
 
 @Component({
   selector: 'app-player-details',
@@ -36,6 +37,7 @@ export class PlayerDetailsComponent implements OnInit {
     private mPlayfields: PlayfieldService,
     private mPlayerService: PlayerService,
     private mFactionService: FactionService,
+    public mSystemInfoService: SystemInfoService,
     public role: RoleService,
   ) {
   }

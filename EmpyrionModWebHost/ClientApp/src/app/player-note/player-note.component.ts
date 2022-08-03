@@ -4,6 +4,7 @@ import { PlayerModel } from '../model/player-model';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { UserRole } from '../model/user';
 import { RoleService } from '../services/role.service';
+import { SystemInfoService } from '../services/systeminfo.service';
 
 @Component({
   selector: 'app-player-note',
@@ -20,6 +21,7 @@ export class PlayerNoteComponent implements OnInit {
 
   constructor(
     private mPlayerService: PlayerService,
+    public mSystemInfoService: SystemInfoService,
     public role: RoleService,
   ) {
     this.SyncPlayer(this.mPlayerService.CurrentPlayer);

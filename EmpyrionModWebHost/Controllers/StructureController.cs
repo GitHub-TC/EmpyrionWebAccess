@@ -69,12 +69,13 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(Request_GlobalStructure_List(Timeouts.Wait1m).Result);
+                var gsl = Request_GlobalStructure_List(Timeouts.Wait1m).GetAwaiter().GetResult();
+                LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(gsl);
                 TaskTools.Delay(0, () => LastGlobalStructureList.Save());
             }
             catch (Exception error)
             {
-                Logger.LogDebug(error, "GlobalStructureList");
+                Logger.LogInformation(error, "UpdateGlobalStructureList");
             }
 
             return LastGlobalStructureList.Current;

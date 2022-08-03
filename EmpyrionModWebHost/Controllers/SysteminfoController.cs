@@ -54,6 +54,7 @@ namespace EmpyrionModWebHost.Controllers
         public ProcessInformation ProcessInformation { get; set; }
         public string StartCMD { get; set; }
         public string WelcomeMessage { get; set; }
+        public string PlayerSteamInfoUrl { get; set; }
 
     }
 
@@ -117,7 +118,10 @@ namespace EmpyrionModWebHost.Controllers
             {
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "SystemConfig.xml")
             };
+
             SystemConfig.Load();
+
+            if (string.IsNullOrEmpty(SystemConfig.Current.PlayerSteamInfoUrl)) SystemConfig.Current.PlayerSteamInfoUrl = "https://steamcommunity.com/profiles";
         }
 
         private void UpdateSystemInfo()
