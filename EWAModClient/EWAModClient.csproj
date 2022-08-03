@@ -66,6 +66,10 @@
       <Project>{c356799b-60cf-4505-a492-d6f70891bca4}</Project>
       <Name>EWAExtenderCommunication</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GlobalStructureList\GlobalStructureList.csproj">
+      <Project>{d27a6c05-1331-4d5d-8238-be3a6120e9cd}</Project>
+      <Name>GlobalStructureList</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
