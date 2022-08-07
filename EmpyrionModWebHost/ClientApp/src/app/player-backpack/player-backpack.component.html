@@ -1,14 +1,20 @@
 <div class="BackpackArea">
   <div class="Item" *ngFor="let i of backpack.Toolbar" (click)="EditItem(i)">
-    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}} ({{i.id}})" />
-    <div class="counts">
+    <img class="image" src="../../assets/Items/{{i.id == 5401 ? i.ammo * 100000 : i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}} ({{i.id}})" />
+    <div class="counts" *ngIf="i.id == 5401">
+      T:{{i.ammo}}
+    </div>
+    <div class="counts" *ngIf="i.id != 5401">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
     </div>
   </div>
   <div class="Item" *ngFor="let i of backpack.Bag" (click)="EditItem(i)">
-    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}} ({{i.id}})" />
-    <div class="counts">
+    <img class="image" src="../../assets/Items/{{i.id == 5401 ? i.ammo * 100000 : i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}} ({{i.id}})" />
+    <div class="counts" *ngIf="i.id == 5401">
+      T:{{i.ammo}}
+    </div>
+    <div class="counts" *ngIf="i.id != 5401">
       <span *ngIf="i.ammo > 0">{{i.ammo}}/</span>
       {{i.count}}
     </div>
