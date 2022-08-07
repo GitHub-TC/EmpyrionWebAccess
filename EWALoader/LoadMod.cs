@@ -14,20 +14,25 @@ namespace EWALoader
     /// - Leerzeilen sind erlaubt
     /// - Kommentarzeilen beginnnen mit einen #
     /// </summary>
-    public class LoadMod : ModInterface
+    public class LoadMod : ModInterface, IMod
     {
         string mDllNamesFileName { get; set; }
         ModGameAPI mGameAPI { get; set; }
         string[] mAssemblyFileNames { get; set; }
-        List<ModInterface> mModInstance { get; set; } = new List<ModInterface>();
-        ModInterface mSingleModInstance;
+        List<ModInterface> ModInterfaces { get; set; } = new List<ModInterface>();
+        List<IMod> IMods { get; set; } = new List<IMod>();
+        public IModApi ModAPI { get; set; }
+
+        ModInterface mSingleModInterfaceInstance;
+        IMod mSingleIModInstance;
+        private int inst;
 
         public void Game_Event(CmdId eventId, ushort seqNr, object data)
         {
             try
             {
-                if (mSingleModInstance != null) mSingleModInstance.Game_Event(eventId, seqNr, data);
-                else mModInstance.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Event(eventId, seqNr, data); }));
+                if (mSingleModInterfaceInstance != null) mSingleModInterfaceInstance.Game_Event(eventId, seqNr, data);
+                else ModInterfaces.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Event(eventId, seqNr, data); }));
             }
             catch (Exception Error)
             {
@@ -39,8 +44,8 @@ namespace EWALoader
         {
             try
             {
-                if (mSingleModInstance != null) mSingleModInstance.Game_Exit();
-                else mModInstance.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Exit(); }));
+                if (mSingleModInterfaceInstance != null) mSingleModInterfaceInstance.Game_Exit();
+                else ModInterfaces.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Exit(); }));
             }
             catch (Exception Error)
             {
@@ -54,7 +59,10 @@ namespace EWALoader
             mGameAPI = dediAPI;
             try
             {
-                mGameAPI.Console_Write($"LoadMod(start): {mDllNamesFileName}");
+                Interlocked.Increment(ref inst);
+                mGameAPI.Console_Write($"LoadMod(start)[{inst}]: {mDllNamesFileName}");
+
+                if (!File.Exists(mDllNamesFileName)) File.WriteAllText(mDllNamesFileName, @"#..\[PathToDLLFile]");
 
                 mAssemblyFileNames = File.ReadAllLines(mDllNamesFileName)
                     .Select(L => L.Trim())
@@ -63,9 +71,10 @@ namespace EWALoader
 
                 Array.ForEach(mAssemblyFileNames, LoadAssembly);
 
-                if (mModInstance.Count == 1) mSingleModInstance = mModInstance.First();
+                if (ModInterfaces.Count == 1) mSingleModInterfaceInstance = ModInterfaces.First();
+                if (IMods.Count == 1) mSingleIModInstance = IMods.First();
 
-                mGameAPI.Console_Write($"LoadMod(finish:{mModInstance.Count}): {mDllNamesFileName}");
+                mGameAPI.Console_Write($"LoadMod(finish:{ModInterfaces.Count}): {mDllNamesFileName}");
             }
             catch (Exception Error)
             {
@@ -73,23 +82,48 @@ namespace EWALoader
             }
         }
 
-        private void LoadAssembly(string aFileName)
+        private void LoadAssembly(string dllFileName)
         {
+            var currentDir = Directory.GetCurrentDirectory();
             try
             {
-                var Mod = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), aFileName));
+                var dllName = dllFileName;
+                if (dllName.StartsWith("-"))
+                {
+                    dllName = dllName.Substring(1);
+                    Directory.SetCurrentDirectory(Path.GetDirectoryName(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), dllName)));
+                }
+
+                var Mod = Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), dllName));
                 var ModType = Mod.GetTypes().Where(T => T.GetInterfaces().Contains(typeof(ModInterface))).FirstOrDefault();
+                if (ModType == null)
+                {
+                    ModType = Mod.GetTypes().Where(T => T.GetInterfaces().Contains(typeof(IMod))).FirstOrDefault();
+                }
+
                 if (ModType != null)
                 {
-                    var ModInstance = Activator.CreateInstance(ModType) as ModInterface;
-                    ModInstance?.Game_Start(mGameAPI);
+                    var instance = Activator.CreateInstance(ModType);
 
-                    mModInstance.Add(ModInstance);
+                    if (instance is ModInterface ModInterfaceInstance)
+                    {
+                        ModInterfaceInstance.Game_Start(mGameAPI);
+                        ModInterfaces.Add(ModInterfaceInstance);
+                    }
+
+                    if (instance is IMod ModInstance)
+                    {
+                        IMods.Add(ModInstance);
+                    }
                 }
             }
             catch (Exception Error)
             {
-                mGameAPI.Console_Write($"LoadMod: {aFileName} CurrentDit:{Directory.GetCurrentDirectory()} -> {Error}");
+                mGameAPI.Console_Write($"LoadMod: {dllFileName} CurrentDir:{Directory.GetCurrentDirectory()} -> {Error}");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(currentDir);
             }
         }
 
@@ -97,12 +131,44 @@ namespace EWALoader
         {
             try
             {
-                if (mSingleModInstance != null) mSingleModInstance.Game_Update();
-                else mModInstance.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Update(); }));
+                if (mSingleModInterfaceInstance != null) mSingleModInterfaceInstance.Game_Update();
+                else ModInterfaces.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((ModInterface)SubM).Game_Update(); }));
             }
             catch (Exception Error)
             {
                 mGameAPI.Console_Write($"Game_Update(Error): {Error}");
+            }
+        }
+
+        public void Init(IModApi modAPI)
+        {
+            ModAPI = modAPI;
+
+            Interlocked.Increment(ref inst);
+
+            ModAPI.Log($"LoadMod(Init)[{inst}]");
+
+            try
+            {
+                if (mSingleIModInstance != null) mSingleIModInstance.Init(ModAPI);
+                else IMods.ForEach(M => M.Init(ModAPI));
+            }
+            catch (Exception error)
+            {
+                ModAPI.LogError($"LoadMod(Init): error : {error}");
+            }
+        }
+
+        public void Shutdown()
+        {
+            try
+            {
+                if (mSingleIModInstance != null) mSingleIModInstance.Shutdown();
+                else IMods.ForEach(M => ThreadPool.QueueUserWorkItem(SubM => { ((IMod)SubM).Shutdown(); }));
+            }
+            catch (Exception error)
+            {
+                ModAPI.LogError($"LoadMod(Shutdown): error : {error}");
             }
         }
     }

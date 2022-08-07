@@ -41,6 +41,8 @@ namespace EmpyrionModWebHost.Controllers
     {
         chat,
         chatUntil,
+        chatGlobal,
+        chatGlobalUntil,
         restart,
         startEGS,
         stopEGS,
@@ -242,8 +244,10 @@ namespace EmpyrionModWebHost.Controllers
         {
             switch (aAction.actionType)
             {
-                case ActionType.chat                    : ChatManager.Value.ChatMessageSERV(aAction.data); break;
-                case ActionType.chatUntil               : ChatManager.Value.ChatMessageSERV(aAction.data); break;
+                case ActionType.chat                    : _ = ChatManager.Value.ChatMessageSERV(aAction.data); break;
+                case ActionType.chatUntil               : _ = ChatManager.Value.ChatMessageSERV(aAction.data); break;
+                case ActionType.chatGlobal              : _ = ChatManager.Value.ChatMessageGlobal(aAction.data); break;
+                case ActionType.chatGlobalUntil         : _ = ChatManager.Value.ChatMessageGlobal(aAction.data); break;
                 case ActionType.restart                 : EGSRestart(aAction); break;
                 case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
                 case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;

@@ -63,6 +63,14 @@ Um mit einem Spieler direkt zu Chatten kann dieser mit dem Chatsymbol ausgewähl
 
 Eine Übersetzung des Chats kann mit dem Feld Translate eingestellt werden. Danach können die gewünschten Meldungen über die Übersetzungsicons zur Übersetzung angefordert werden
 
+Wenn ein Chattext (direkt oder per Timetable) mit | beginnt wird er als übersetungsfähiger Text aus der Localization.csv gewertet. Dieser Kann noch mit bis zu zwei Parametern welche ebenfalls mit | getrennt werden modifiziert werden.
+z.B. |ChatTest|abc|42
+und einem Eintrag in der Localization.csv
+ChatTest,"English text {0} {1}","Deutscher Text {0} {1}"
+
+ergibt für die Sprache Englisch: Engish text abc 42
+und für Deutsch: Deutscher Text abc 42
+
 ### Aktive Playfields und die Spieler welche sich darin aufhalten
 Hier werden die aktiven Playfields mit ihrem Namen und der Anzahl Spieler aufgelistet.
 Die Spieler werden mit Fraktion und Namen angezeigt.
@@ -364,6 +372,14 @@ Here the active playfields are listed with their name and number of players.
 Players are shown with faction and name.
 
 The chat symbol is used to make direct contact with the player and to save the flag symbol, its current position (see Warp).
+
+If a chat text (directly or via timetable) starts with | it is evaluated as a translatable text from the Localization.csv. This can be modified with up to two parameters which are also separated with |.
+e.g. |ChatTest|abc|42
+and an entry in Localization.csv
+ChatTest,"English text {0} {1}","Deutscher Text {0} {1}"
+
+results for the language English: Engish text abc 42
+and for German: Deutscher Text abc 42
 
 ### The list of known players
 Here are all players displayed that were in the runtime of EWA times online and their PLY file is still in the savegame.

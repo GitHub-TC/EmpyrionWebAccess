@@ -1,0 +1,7 @@
+Name: EWAModClient_Info
+Description: Connection between EGS and EWA
+Author: ASTIC/TC
+Version: 2.0.0
+Website: https://github.com/GitHub-TC/EmpyrionWebAccess
+
+ModTargets: Dedi

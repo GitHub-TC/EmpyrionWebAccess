@@ -43,6 +43,9 @@
       <HintPath>..\dependencies\Mif.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ModApi">
+      <HintPath>..\dependencies\ModApi.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>
       <Private>False</Private>
@@ -75,6 +78,9 @@
     <None Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="EWAModClient_Info.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

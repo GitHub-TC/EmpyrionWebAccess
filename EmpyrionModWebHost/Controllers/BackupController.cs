@@ -8,6 +8,7 @@ using EmpyrionNetAPITools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using EgsDbTools;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -33,6 +34,7 @@ namespace EmpyrionModWebHost.Controllers
         public ConcurrentDictionary<string, bool> LoggedError { get; set; } = new ConcurrentDictionary<string, bool>();
 
         public ConfigurationManager<BackupStructureData> BackupStructureDB { get; set; }
+        public GlobalStructureListAccess GSLA { get; }
 
         public string CurrentBackupDirectory(string aAddOn) {
             var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
@@ -56,27 +58,31 @@ namespace EmpyrionModWebHost.Controllers
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "BackupStructureDB.json")
             };
             BackupStructureDB.Load();
+
+            GSLA = new GlobalStructureListAccess();
         }
 
         private void BackupStructureData()
         {
-            if(ActivePlayfields.Count == 0)
+            GSLA.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+
+            if (ActivePlayfields.Count == 0)
             {
                 List<string> playfields = null; 
                 try
                 {
-                    playfields = Request_Playfield_List(Timeouts.Wait1m).GetAwaiter().GetResult()?.playfields;
+                    playfields = GSLA.CurrentPlayfields.Values.Select(p => p.Name).ToList();
                 }
                 catch (Exception error)
                 {
-                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Playfield_List");
+                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Playfield_List");
                     return;
                 }
 
                 if (playfields == null)
                 {
-                    var msg = $"Request_Playfield_List: no playfields";
-                    if (LoggedError.TryAdd(msg, true)) Logger?.LogError(msg, $"BackupStructureData: Request_Playfield_List");
+                    var msg = $"Playfield_List: no playfields";
+                    if (LoggedError.TryAdd(msg, true)) Logger?.LogError(msg, $"BackupStructureData: Playfield_List");
 
                     return;
                 }
@@ -119,9 +125,6 @@ namespace EmpyrionModWebHost.Controllers
                 catch (TimeoutException) { }
                 catch (Exception error)  {
                     if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Entity_Export[{errorCounter++}] {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'");
-
-                    try { ActivePlayfields = new ConcurrentDictionary<string, string>(Request_Playfield_List(Timeouts.Wait1m).GetAwaiter().GetResult()?.playfields.ToDictionary(P => P)); }
-                    catch (Exception playfieldListError) { Logger?.LogError(playfieldListError, $"BackupStructureData: Request_Playfield_List {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'"); }
 
                     Thread.Sleep(Program.AppSettings.SleepBetweenEntityExportInSeconds * 1000);
                 }
@@ -302,6 +305,8 @@ namespace EmpyrionModWebHost.Controllers
                         });
                 });
 
+            CopyStructureDBToBackup(aCurrentBackupDir);
+
             BackupState(false);
         }
 
@@ -322,6 +327,8 @@ namespace EmpyrionModWebHost.Controllers
                 .AsParallel()
                 .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, "Saves", Path.GetFileName(F))));
 
+            CopyStructureDBToBackup(aCurrentBackupDir);
+
             BackupState(false);
         }
 
@@ -333,6 +340,13 @@ namespace EmpyrionModWebHost.Controllers
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir,
                 "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared")));
 
+            CopyStructureDBToBackup(aCurrentBackupDir);
+
+            BackupState(false);
+        }
+
+        private void CopyStructureDBToBackup(string aCurrentBackupDir)
+        {
             try
             {
                 File.Copy(BackupStructureDB.ConfigFilename,
@@ -340,10 +354,8 @@ namespace EmpyrionModWebHost.Controllers
             }
             catch (Exception error)
             {
-                Logger.LogError(error, "StructureBackup:{0}", BackupStructureDB.ConfigFilename);
+                Logger.LogError(error, "CopyStructureDBToBackup:{0}", BackupStructureDB.ConfigFilename);
             }
-
-            BackupState(false);
         }
 
         public void ScenarioBackup(string aCurrentBackupDir)
@@ -557,7 +569,7 @@ namespace EmpyrionModWebHost.Controllers
             backupStructureDB.Load();
 
             var result = new List<PlayfieldGlobalStructureInfo>();
-            result.AddRange(backupStructureDB.Current?.AlivePlayerStructures ?? new List<PlayfieldGlobalStructureInfo>());
+            result.AddRange(backupStructureDB.Current?.AlivePlayerStructures   ?? new List<PlayfieldGlobalStructureInfo>());
             result.AddRange(backupStructureDB.Current?.DeletedPlayerStructures ?? new List<PlayfieldGlobalStructureInfo>());
             return result.ToArray();
         }

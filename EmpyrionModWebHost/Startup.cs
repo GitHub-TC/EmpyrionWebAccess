@@ -59,7 +59,7 @@ public class Startup
         services.AddSingleton<LifetimeEventsHostedService>();
         services.AddSingleton<AsyncSynchronizationContext>();
 
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddHttpContextAccessor();
 
         services.AddControllers()
             .AddOData(opt =>

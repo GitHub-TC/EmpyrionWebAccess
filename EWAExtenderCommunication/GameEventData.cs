@@ -92,5 +92,28 @@ namespace EWAExtenderCommunication
                 return null;
             }
         }
+
+        public object GetEmpyrionObject<EleonType>()
+        {
+            if (serializedData == null) return null;
+
+            try
+            {
+                using (var MemBuffer = new MemoryStream(serializedData))
+                {
+                    Type TypedProtoBufCall = typeof(ProtoBufCall<>);
+                    TypedProtoBufCall = TypedProtoBufCall.MakeGenericType(new[] { typeof(EleonType) });
+
+                    object ProtoBufCallInstance = Activator.CreateInstance(TypedProtoBufCall);
+                    MethodInfo MI = TypedProtoBufCall.GetMethod("Deserialize");
+                    return MI.Invoke(ProtoBufCallInstance, new[] { MemBuffer });
+                }
+            }
+            catch (Exception Error)
+            {
+                Console.WriteLine($"OnDeserializedMethod:{Error}");
+                return null;
+            }
+        }
     }
 }

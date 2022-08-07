@@ -1,4 +1,8 @@
 ﻿
+using NuGet.Protocol.Plugins;
+using System.Threading.Channels;
+using static System.Net.Mime.MediaTypeNames;
+
 namespace EmpyrionModWebHost.Controllers
 {
 
@@ -13,10 +17,10 @@ namespace EmpyrionModWebHost.Controllers
     [Authorize(Roles = nameof(Role.VIP))]
     public class ChatHub : RoleHubBase
     {
-        public IUserService UserService { get; }
+        public IUserService UserService { get; set; }
         private ChatManager ChatManager { get; set; }
-        public PlayerManager PlayerManager { get; }
-        public FactionManager FactionManager { get; }
+        public PlayerManager PlayerManager { get; set; }
+        public FactionManager FactionManager { get; set; }
 
         public ChatHub(IUserService aUserService) 
         {
@@ -40,16 +44,16 @@ namespace EmpyrionModWebHost.Controllers
                         P => P.SteamId == user.InGameSteamId),
                         P => FactionName = $"*{FactionManager.GetFaction(P.FactionId)?.Abbrev}");
             }
-            ChatManager.ChatMessage(aChatTarget, aChatTargetHint, aChatAsUser, FactionName, aMessage);
+            _ = ChatManager.ChatMessage(Context.User, aChatTarget, aChatTargetHint, aChatAsUser, FactionName, aMessage);
         }
     }
 
     public class ChatManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
     {
-        public ModGameAPI GameAPI { get; private set; }
-        public IRoleHubContext<ChatHub> ChatHub { get; private set; }
-        public PlayerManager PlayerManager { get; private set; }
-        public FactionManager FactionManager { get; private set; }
+        public ModGameAPI GameAPI { get; set; }
+        public IRoleHubContext<ChatHub> ChatHub { get; set; }
+        public PlayerManager PlayerManager { get; set; }
+        public FactionManager FactionManager { get; set; }
 
         public ChatManager(IRoleHubContext<ChatHub> aChatHub)
         {
@@ -92,43 +96,105 @@ namespace EmpyrionModWebHost.Controllers
             else                                    ChatHub?.RoleSendAsync        (aPlayer, "Send", JsonConvert.SerializeObject(aChat));
         }
 
-        public void ChatMessage(string aChatTarget, string aChatTargetHint, string aChatAsUser, string aFactionName, string aMessage)
+        public async Task ChatMessage(ClaimsPrincipal user, string aChatTarget, string aChatTargetHint, string aChatAsUser, string aFactionName, string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
             AddChatToDB(null, new Chat()
             {
-                Timestamp = DateTime.Now,
+                Timestamp     = DateTime.Now,
                 PlayerSteamId = "",
-                PlayerName = string.IsNullOrEmpty(aChatAsUser) ? "Server" : aChatAsUser,
-                FactionId = 0,
-                FactionName = aFactionName,
-                Type = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
-                Message = $"{aChatTargetHint}{RemoveBBCode(aMessage)}",
+                PlayerName    = string.IsNullOrEmpty(aChatAsUser) ? "Server" : aChatAsUser,
+                FactionId     = 0,
+                FactionName   = aFactionName,
+                Type          = (byte)(aChatTarget == null ? ChatType.Global : (aChatTarget.StartsWith("f:") ? ChatType.Faction : (aChatTarget.StartsWith("p:") ? ChatType.Private : ChatType.Global))),
+                Message       = $"{aChatTargetHint}{RemoveBBCode(aMessage)}",
             });
 
-            Request_ConsoleCommand(new PString($"SAY {aChatTarget} '{(string.IsNullOrEmpty(aChatAsUser) ? "" : $"[c][ff8000]{aChatAsUser}: [/c]")}{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
+            var msg = new Eleon.MessageData { 
+                SenderNameOverride = string.IsNullOrEmpty(aChatAsUser) ? "EWA" : aChatAsUser,
+                SenderType         = Eleon.SenderType.ServerPrio,
+                IsTextLocaKey      = IsLocalizationText(ref aMessage, out var arg1, out var arg2),
+                Text               = aMessage,
+                Arg1               = arg1,
+                Arg2               = arg2
+            };
+
+            if (aChatTarget?.StartsWith("p:") == true)
+            {
+                msg.Channel           = Eleon.MsgChannel.SinglePlayer;
+                msg.RecipientEntityId = int.TryParse(aChatTarget.AsSpan(2), out var entityId) ? entityId : -1;
+            }
+            else if (aChatTarget?.StartsWith("f:") == true)
+            {
+                FactionManager.QueryFaction(DB =>
+                DB.Factions.Where(
+                    P => P.Abbrev == aChatTarget.Substring(2)),
+                    P =>
+                    {
+                        msg.Channel          = Eleon.MsgChannel.Faction;
+                        msg.RecipientFaction = new FactionData { Id = P.FactionId, Group = FactionGroup.Faction };
+                    });
+            }
+
+            await Request_SendChatMessage(msg);
         }
 
-        public void ChatMessageSERV(string aMessage)
+        public async Task ChatMessageSERV(string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
             AddChatToDB(null, new Chat()
             {
-                Timestamp = DateTime.Now,
+                Timestamp     = DateTime.Now,
                 PlayerSteamId = "",
-                PlayerName = "Server",
-                FactionId = 0,
-                FactionName = "SERV",
-                Type = (byte)ChatType.Global,
-                Message = $"{RemoveBBCode(aMessage)}",
+                PlayerName    = "Server",
+                FactionId     = 0,
+                FactionName   = "SERV",
+                Type          = (byte)ChatType.Global,
+                Message       = $"{RemoveBBCode(aMessage)}",
             });
 
-            Request_ConsoleCommand(new PString($"SAY '{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
+            // Eleon.MsgChannel.Server funktioniert leider nicht Stand 1.8.7 - 3863
+            //await Request_SendChatMessage(new Eleon.MessageData
+            //{
+            //    Channel            = Eleon.MsgChannel.Server,
+            //    SenderNameOverride = "SERVER",
+            //    SenderType         = Eleon.SenderType.ServerPrio,
+            //    Text               = aMessage
+            //});
+
+            await Request_ConsoleCommand(new PString($"SAY '{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
         }
 
-        public void ChatMessageADM(string aMessage)
+        public async Task ChatMessageGlobal(string aMessage)
+        {
+            if (string.IsNullOrEmpty(aMessage)) return;
+
+            AddChatToDB(null, new Chat()
+            {
+                Timestamp     = DateTime.Now,
+                PlayerSteamId = "",
+                PlayerName    = "Server",
+                FactionId     = 0,
+                FactionName   = "SERV",
+                Type          = (byte)ChatType.Global,
+                Message       = $"{RemoveBBCode(aMessage)}",
+            });
+
+            await Request_SendChatMessage(new Eleon.MessageData
+            {
+                Channel             = Eleon.MsgChannel.Global,
+                SenderNameOverride  = "SERVER",
+                SenderType          = Eleon.SenderType.ServerPrio,
+                IsTextLocaKey       = IsLocalizationText(ref aMessage, out var arg1, out var arg2),
+                Text                = aMessage,
+                Arg1                = arg1,
+                Arg2                = arg2
+            });
+        }
+
+        public async Task ChatMessageADM(string aMessage)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
@@ -143,7 +209,29 @@ namespace EmpyrionModWebHost.Controllers
                 Message       = $"{RemoveBBCode(aMessage)}",
             });
 
-            Request_ConsoleCommand(new PString($"SAY '{aMessage.Replace("'", "\\'")}'"));
+            await Request_SendChatMessage(new Eleon.MessageData
+            {
+                Channel            = Eleon.MsgChannel.Global,
+                SenderNameOverride = "-ADM-",
+                SenderType         = Eleon.SenderType.ServerPrio,
+                IsTextLocaKey      = IsLocalizationText(ref aMessage, out var arg1, out var arg2),
+                Text               = aMessage,
+                Arg1               = arg1,
+                Arg2               = arg2
+            });
+        }
+
+        private bool IsLocalizationText(ref string response, out string arg1, out string arg2)
+        {
+            arg1 = arg2 = null;
+            if (string.IsNullOrEmpty(response) || !response.StartsWith("|")) return false;
+
+            var parts = response.Split('|');
+            response = parts[1];
+            if (parts.Length > 2) arg1 = parts[2];
+            if (parts.Length > 3) arg2 = parts[3];
+
+            return true;
         }
 
         string RemoveBBCode(string aMessage)
@@ -154,8 +242,8 @@ namespace EmpyrionModWebHost.Controllers
         public override void Initialize(ModGameAPI dediAPI)
         {
             GameAPI = dediAPI;
-            LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
-            PlayerManager = Program.GetManager<PlayerManager>();
+            LogLevel       = EmpyrionNetAPIDefinitions.LogLevel.Debug;
+            PlayerManager  = Program.GetManager<PlayerManager>();
             FactionManager = Program.GetManager<FactionManager>();
 
             Event_ChatMessage += ChatManager_Event_ChatMessage;

@@ -38,6 +38,10 @@
       <HintPath>..\dependencies\Mif.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ModApi">
+      <HintPath>..\dependencies\ModApi.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +51,11 @@
   <ItemGroup>
     <Content Include="DllNames.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EWALoader_Info.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

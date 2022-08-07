@@ -15,7 +15,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC ©2022</Copyright>
-    <Version>6.1.14</Version>
+    <Version>6.1.16</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -25,7 +25,7 @@
     <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.</Description>
     <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
     <PackageReleaseNotes>GNU General Public License v3.0</PackageReleaseNotes>
-    <FileVersion>6.1.14.0</FileVersion>
+    <FileVersion>6.1.16.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,7 +38,7 @@
     <PackageReference Include="Certes" Version="3.0.3" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.2.0" />
     <PackageReference Include="CsvHelper" Version="27.1.1" />
-    <PackageReference Include="EmpyrionNetAPI" Version="6.1.0" />
+    <PackageReference Include="EmpyrionNetAPI" Version="6.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.0" />
@@ -132,6 +132,9 @@
   <ItemGroup>
     <Reference Include="Mif">
       <HintPath>..\dependencies\Mif.dll</HintPath>
+    </Reference>
+    <Reference Include="ModApi">
+      <HintPath>..\dependencies\ModApi.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\dependencies\protobuf-net.dll</HintPath>

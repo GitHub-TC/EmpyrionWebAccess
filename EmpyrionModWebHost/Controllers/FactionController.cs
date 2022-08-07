@@ -52,6 +52,13 @@ namespace EmpyrionModWebHost.Controllers
             FactionHub?.Clients.All.SendAsync("Update", JsonConvert.SerializeObject(aFaction)).Wait();
         }
 
+        public void QueryFaction(Func<FactionContext, IEnumerable<Faction>> aSelect, Action<Faction> aAction)
+        {
+            using var DB = new FactionContext();
+            aSelect(DB).ForEach(P => aAction(P));
+
+        }
+
         public Faction GetFaction(int aFactionId)
         {
             using var DB = new FactionContext();

@@ -33,6 +33,8 @@ enum RepeatEnum {
 export enum ActionType {
   chat                    = "Chat | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
   chatUntil               = "Chat until | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
+  chatGlobal              = "Chat(Global) | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
+  chatGlobalUntil         = "Chat(Global) until | [Chattext] -> Example:[c][00ffff]Text with color [b] and bold[/b].[/c]",
   restart                 = "Server restart | [minutes] (default:0)",
   startEGS                = "Server start|",
   stopEGS                 = "Server stop | [minutes] (default:0)",

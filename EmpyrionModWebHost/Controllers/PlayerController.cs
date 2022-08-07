@@ -8,7 +8,7 @@ namespace EmpyrionModWebHost.Controllers
     {
     }
 
-    public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect
+    public class PlayerManager : EmpyrionModBase, IEWAPlugin, IDatabaseConnect, IPlayerManager
     {
         public ILogger<PlayerManager> Logger { get; set; }
         public IRoleHubContext<PlayerHub> PlayerHub { get; internal set; }
@@ -21,15 +21,15 @@ namespace EmpyrionModWebHost.Controllers
 
         public PlayerManager(
             ILogger<PlayerManager> aLogger,
-            IRoleHubContext<PlayerHub> aPlayerHub, 
+            IRoleHubContext<PlayerHub> aPlayerHub,
             IProvider<IUserService> aUserService)
         {
-            Logger      = aLogger;
-            PlayerHub   = aPlayerHub;
+            Logger = aLogger;
+            PlayerHub = aPlayerHub;
             UserService = aUserService;
-            SysteminfoManager   = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
-            ChatManager         = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
-            UserManager         = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+            ChatManager = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
+            UserManager = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
 
             TaskTools.Intervall(10000, SendPlayerUpdates);
         }
@@ -74,7 +74,7 @@ namespace EmpyrionModWebHost.Controllers
             }
 
             if (count > 0) ChangedPlayers.ForEach(P => UpdatePlayersQueue.AddOrUpdate(P.Id, P, (S, O) => P));
-//                PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
+            //                PlayerHub?.RoleSendAsync(null, "UpdatePlayers", JsonConvert.SerializeObject(ChangedPlayers));
         }
 
         private async void PlayerManager_Event_Player_Info(PlayerInfo aPlayerInfo)
@@ -86,45 +86,45 @@ namespace EmpyrionModWebHost.Controllers
                 Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
                 var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
 
-                Player.Id              = aPlayerInfo.steamId;
-                Player.EntityId        = aPlayerInfo.entityId;
-                Player.SteamId         = aPlayerInfo.steamId;
-                Player.ClientId        = aPlayerInfo.clientId;
-                Player.Radiation       = aPlayerInfo.radiation;
-                Player.RadiationMax    = aPlayerInfo.radiationMax;
-                Player.BodyTemp        = aPlayerInfo.bodyTemp;
-                Player.BodyTempMax     = aPlayerInfo.bodyTempMax;
-                Player.Kills           = aPlayerInfo.kills;
-                Player.Died            = aPlayerInfo.died;
-                Player.Credits         = aPlayerInfo.credits;
-                Player.FoodMax         = aPlayerInfo.foodMax;
-                Player.Exp             = aPlayerInfo.exp;
-                Player.Upgrade         = aPlayerInfo.upgrade;
-                Player.Ping            = aPlayerInfo.ping;
-                Player.Permission      = aPlayerInfo.permission;
-                Player.Food            = aPlayerInfo.food;
-                Player.Stamina         = aPlayerInfo.stamina;
-                Player.SteamOwnerId    = aPlayerInfo.steamOwnerId;
-                Player.PlayerName      = aPlayerInfo.playerName;
-                Player.Playfield       = aPlayerInfo.playfield;
-                Player.BpInFactory     = aPlayerInfo.bpInFactory;
+                Player.Id = aPlayerInfo.steamId;
+                Player.EntityId = aPlayerInfo.entityId;
+                Player.SteamId = aPlayerInfo.steamId;
+                Player.ClientId = aPlayerInfo.clientId;
+                Player.Radiation = aPlayerInfo.radiation;
+                Player.RadiationMax = aPlayerInfo.radiationMax;
+                Player.BodyTemp = aPlayerInfo.bodyTemp;
+                Player.BodyTempMax = aPlayerInfo.bodyTempMax;
+                Player.Kills = aPlayerInfo.kills;
+                Player.Died = aPlayerInfo.died;
+                Player.Credits = aPlayerInfo.credits;
+                Player.FoodMax = aPlayerInfo.foodMax;
+                Player.Exp = aPlayerInfo.exp;
+                Player.Upgrade = aPlayerInfo.upgrade;
+                Player.Ping = aPlayerInfo.ping;
+                Player.Permission = aPlayerInfo.permission;
+                Player.Food = aPlayerInfo.food;
+                Player.Stamina = aPlayerInfo.stamina;
+                Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
+                Player.PlayerName = aPlayerInfo.playerName;
+                Player.Playfield = aPlayerInfo.playfield;
+                Player.BpInFactory = aPlayerInfo.bpInFactory;
                 Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
-                Player.StartPlayfield  = aPlayerInfo.startPlayfield;
-                Player.StaminaMax      = aPlayerInfo.staminaMax;
-                Player.FactionGroup    = aPlayerInfo.factionGroup;
-                Player.FactionId       = aPlayerInfo.factionId;
-                Player.FactionRole     = aPlayerInfo.factionRole;
-                Player.Health          = aPlayerInfo.health;
-                Player.HealthMax       = aPlayerInfo.healthMax;
-                Player.Oxygen          = aPlayerInfo.oxygen;
-                Player.OxygenMax       = aPlayerInfo.oxygenMax;
-                Player.Origin          = aPlayerInfo.origin;
-                Player.PosX            = aPlayerInfo.pos.x;
-                Player.PosY            = aPlayerInfo.pos.y;
-                Player.PosZ            = aPlayerInfo.pos.z;
-                Player.RotX            = aPlayerInfo.rot.x;
-                Player.RotY            = aPlayerInfo.rot.y;
-                Player.RotZ            = aPlayerInfo.rot.z;
+                Player.StartPlayfield = aPlayerInfo.startPlayfield;
+                Player.StaminaMax = aPlayerInfo.staminaMax;
+                Player.FactionGroup = aPlayerInfo.factionGroup;
+                Player.FactionId = aPlayerInfo.factionId;
+                Player.FactionRole = aPlayerInfo.factionRole;
+                Player.Health = aPlayerInfo.health;
+                Player.HealthMax = aPlayerInfo.healthMax;
+                Player.Oxygen = aPlayerInfo.oxygen;
+                Player.OxygenMax = aPlayerInfo.oxygenMax;
+                Player.Origin = aPlayerInfo.origin;
+                Player.PosX = aPlayerInfo.pos.x;
+                Player.PosY = aPlayerInfo.pos.y;
+                Player.PosZ = aPlayerInfo.pos.z;
+                Player.RotX = aPlayerInfo.rot.x;
+                Player.RotY = aPlayerInfo.rot.y;
+                Player.RotZ = aPlayerInfo.rot.z;
 
                 if (IsNewPlayer)
                 {
@@ -155,7 +155,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (string.IsNullOrEmpty(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage)) return;
 
-            TaskTools.Delay(60, () => ChatManager.Value.ChatMessageADM(string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
+            TaskTools.Delay(60, () => _ = ChatManager.Value.ChatMessageADM(string.Format(SysteminfoManager.Value.SystemConfig.Current.WelcomeMessage, aPlayer.PlayerName)));
         }
 
         public Player GetPlayer(int aPlayerId)
@@ -178,7 +178,8 @@ namespace EmpyrionModWebHost.Controllers
 
         public int OnlinePlayersCount
         {
-            get {
+            get
+            {
                 return TaskTools.Retry(() =>
                 {
                     using var DB = new PlayerContext();
@@ -189,7 +190,8 @@ namespace EmpyrionModWebHost.Controllers
 
         public string PlayersDirectory
         {
-            get {
+            get
+            {
                 Directory.CreateDirectory(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"));
                 return Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players");
             }
@@ -197,8 +199,10 @@ namespace EmpyrionModWebHost.Controllers
 
         public FileSystemWatcher mPlayersDirectoryFileWatcher { get; private set; }
 
-        public Player CurrentPlayer {
-            get {
+        public Player CurrentPlayer
+        {
+            get
+            {
                 return TaskTools.Retry(() =>
                 {
                     using var DB = new PlayerContext();
@@ -212,9 +216,9 @@ namespace EmpyrionModWebHost.Controllers
             GameAPI = dediAPI;
             LogLevel = EmpyrionNetAPIDefinitions.LogLevel.Debug;
 
-            Event_Player_Info           += PlayerManager_Event_Player_Info;
-            Event_Player_Connected      += PlayerConnected;
-            Event_Player_Disconnected   += PlayerDisconnected;
+            Event_Player_Info += PlayerManager_Event_Player_Info;
+            Event_Player_Connected += PlayerConnected;
+            Event_Player_Disconnected += PlayerDisconnected;
 
             UpdateOnlinePlayers();
 
@@ -241,7 +245,7 @@ namespace EmpyrionModWebHost.Controllers
                 if (onlinePlayers.list == null) UpdatePlayer(DB => DB.Players.Where(P => P.Online), PlayerDisconnect);
                 else
                 {
-                    UpdatePlayer(DB => DB.Players.Where(P =>  onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
+                    UpdatePlayer(DB => DB.Players.Where(P => onlinePlayers.list.Contains(P.EntityId) && !P.Online), PlayerConnect);
                     UpdatePlayer(DB => DB.Players.Where(P => !onlinePlayers.list.Contains(P.EntityId) && P.Online), PlayerDisconnect);
                 }
 
@@ -368,7 +372,7 @@ namespace EmpyrionModWebHost.Controllers
             }
         }
     }
-    
+
     [Authorize]
     public class PlayersController : ODataController
     {

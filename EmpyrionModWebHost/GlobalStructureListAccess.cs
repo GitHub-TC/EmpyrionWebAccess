@@ -45,7 +45,7 @@ namespace EgsDbTools
             {
                 DbConnection.Open();
 
-                var playfields = ReadPlayfields(DbConnection);
+                currentPlayfields = ReadPlayfields(DbConnection);
 
                 using (var cmd = new SqliteCommand(
 @"
@@ -122,8 +122,8 @@ ORDER BY pfid
                             if(pfid != currentPlayfieldId)
                             {
                                 currentPlayfieldId = pfid;
-                                playfields.TryGetValue(pfid, out currentPlayfield);
-                                gsl.globalStructures.Add(playfields[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
+                                currentPlayfields.TryGetValue(pfid, out currentPlayfield);
+                                gsl.globalStructures.Add(currentPlayfields[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
                             }
 
                             var gsi = new GlobalStructureInfo() {
@@ -160,6 +160,8 @@ ORDER BY pfid
                             currentPlayfieldStructures.Add(gsi);
                         }
                     }
+
+                    DbConnection.Close();
                 }
             }
 
@@ -181,7 +183,7 @@ ORDER BY pfid
             {
                 DbConnection.Open();
 
-                var playfields = ReadPlayfields(DbConnection);
+                currentPlayfields = ReadPlayfields(DbConnection);
 
                 using (var cmd = new SqliteCommand(
 @"
@@ -250,7 +252,7 @@ WHERE Structures.entityid = " + id.id.ToString(),
                             }
 
                             int pfid = reader.GetInt32(pfIdCol);
-                            playfields.TryGetValue(pfid, out var currentPlayfield);
+                            currentPlayfields.TryGetValue(pfid, out var currentPlayfield);
 
                             return new GlobalStructureInfo() {
                                 id                  = reader.GetInt32(entityIdCol),
@@ -276,18 +278,50 @@ WHERE Structures.entityid = " + id.id.ToString(),
                             };
                         }
                     }
+
+                    DbConnection.Close();
                 }
             }
 
             return new GlobalStructureInfo();
         }
 
-        class SolarSystemData
+        public class SolarSystemData
         {
             public int SsId { get; set; }
+            public int PfId { get; set; }
             public string Name { get; set; }
+            public string PlayfieldType { get; set; }
             public string SolarSystem { get; set; }
         }
+
+        public DateTime LastDbPlayfieldRead { get; set; }
+
+        public Dictionary<int, SolarSystemData> CurrentPlayfields
+        {
+            get
+            {
+                if (UpdateNow || (DateTime.Now - LastDbPlayfieldRead).TotalSeconds > UpdateIntervallInSeconds)
+                {
+                    var connectionString = new SqliteConnectionStringBuilder()
+                    {
+                        Mode = SqliteOpenMode.ReadOnly,
+                        Cache = SqliteCacheMode.Shared,
+                        DataSource = GlobalDbPath
+                    };
+
+                    using (var DbConnection = new SqliteConnection(connectionString.ToString()))
+                    {
+                        DbConnection.Open();
+                        currentPlayfields = ReadPlayfields(DbConnection);
+                        DbConnection.Close();
+                    }
+                    LastDbPlayfieldRead = DateTime.Now;
+                }
+                return currentPlayfields;
+            }
+        }
+        private Dictionary<int, SolarSystemData> currentPlayfields;
 
         private Dictionary<int, SolarSystemData> ReadPlayfields(SqliteConnection dbConnection)
         {
@@ -295,14 +329,22 @@ WHERE Structures.entityid = " + id.id.ToString(),
 
             using (var cmd = new SqliteCommand(
 @"
-SELECT Playfields.pfid, Playfields.name, SolarSystems.ssid, SolarSystems.name FROM Playfields
+SELECT Playfields.pfid, Playfields.name, SolarSystems.ssid, SolarSystems.name, Playfields.planettype FROM Playfields
 JOIN SolarSystems ON Playfields.ssid = SolarSystems.ssid
 ",
             dbConnection))
             {
                 using (var reader = cmd.ExecuteReader())
                 {
-                    while (reader.Read()) result.Add(reader.GetInt32(0), new SolarSystemData { Name = reader.GetString(1), SsId = reader.GetInt32(2), SolarSystem = reader.GetString(3) });
+                    while (reader.Read()) result.Add(reader.GetInt32(0), 
+                        new SolarSystemData 
+                        { 
+                            Name          = reader.GetString(1), 
+                            SsId          = reader.GetInt32(2), 
+                            SolarSystem   = reader.GetString(3), 
+                            PfId          = reader.GetInt32(0), 
+                            PlayfieldType = reader.GetString(4) 
+                        });
                 }
             }
 

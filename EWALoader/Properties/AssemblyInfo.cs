@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ASTIC/TC")]
 [assembly: AssemblyProduct("ModLoader")]
-[assembly: AssemblyCopyright("ASTIC/TC ©2021")]
+[assembly: AssemblyCopyright("ASTIC/TC ©2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

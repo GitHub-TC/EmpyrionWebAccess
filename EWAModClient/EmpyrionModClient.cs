@@ -25,7 +25,7 @@ namespace EWAModClient
         public int GlobalStructureListUpdateIntervallInSeconds { get; set; } = 30;
     }
 
-    public class EmpyrionModClient : ModInterface
+    public class EmpyrionModClient : ModInterface, IMod
     {
         public ModGameAPI GameAPI { get; private set; }
         public ClientMessagePipe OutServer { get; private set; }
@@ -42,6 +42,7 @@ namespace EWAModClient
         ConfigurationManager<Configuration> CurrentConfig;
         public AutoResetEvent GetGlobalStructureList { get; set; } = new AutoResetEvent(false);
         public ConcurrentQueue<EmpyrionGameEventData> GetGlobalStructureListEvents { get; set; } = new ConcurrentQueue<EmpyrionGameEventData>();
+        public IModApi ModAPI { get; private set; }
 
         public void Game_Event(CmdId eventId, ushort seqNr, object data)
         {
@@ -458,6 +459,20 @@ namespace EWAModClient
                 GetGlobalStructureListEvents.Enqueue(TypedMsg);
                 GetGlobalStructureList.Set();
             }
+            else if (TypedMsg.eventId == CmdId.Event_ChatMessage + 100)
+            {
+                object receiveObject = null;
+                try
+                {
+                    receiveObject = TypedMsg.GetEmpyrionObject<Eleon.MessageData>();
+                    ModAPI.Application.SendChatMessage(receiveObject as Eleon.MessageData);
+                    Game_Event(TypedMsg.eventId, TypedMsg.seqNr, true);
+                }
+                catch (Exception error)
+                {
+                    ModAPI.LogError($"SendChatMessage:[{receiveObject}] {error}");
+                }
+            }
             else GameAPI.Game_Request(TypedMsg.eventId, TypedMsg.seqNr, TypedMsg.GetEmpyrionObject());
         }
 
@@ -465,6 +480,15 @@ namespace EWAModClient
         {
             if (Exit) return;
             OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.Game_Update });
+        }
+
+        public void Init(IModApi modAPI)
+        {
+            ModAPI = modAPI;
+        }
+
+        public void Shutdown()
+        {
         }
     }
 }
