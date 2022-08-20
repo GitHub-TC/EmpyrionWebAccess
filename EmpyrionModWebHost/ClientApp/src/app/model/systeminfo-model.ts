@@ -8,7 +8,8 @@ export class SystemInfoModel {
   activePlayers?: number;
   activePlayfields?: number;
   totalPlayfieldserver?: number;
-  totalPlayfieldserverRamMB?: number;
+  totalPlayfieldserverMemorySize?: number;
+  ewaMemorySize?: number;
   diskFreeSpace?: number;
   diskUsedSpace?: number;
   cpuTotalLoad?: number;

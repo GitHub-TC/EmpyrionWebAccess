@@ -27,10 +27,11 @@ namespace EmpyrionModWebHost.Controllers
         public void DeleteOldFactoryItems(int aDays)
         {
             using var DB = new FactoryItemsContext();
-            DB.FactoryItems
-.Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
-.ToList()
-.ForEach(B => DB.FactoryItems.Remove(B));
+
+            var DelTime = DateTime.Now - new TimeSpan(aDays, 0, 0, 0);
+
+            DB.FactoryItems.RemoveRange(DB.FactoryItems.Where(B => B.Timestamp < DelTime));
+
             DB.SaveChanges();
             DB.Database.ExecuteSqlRaw("VACUUM;");
         }

@@ -38,14 +38,15 @@ export class SystemInfoService {
     this.hubConnection.on("UPC", D => {
       this.LastSystemUpdateTime = new Date();
       let perf = JSON.parse(D);
-      if (perf.o  ) this.mCurrentSystemInfo.online = perf.o;
-      if (perf.ap ) this.mCurrentSystemInfo.activePlayers = perf.ap;
-      if (perf.apf) this.mCurrentSystemInfo.activePlayfields = perf.apf;
-      if (perf.c  ) this.mCurrentSystemInfo.cpuTotalLoad = perf.c;
-      if (perf.r  ) this.mCurrentSystemInfo.ramAvailableMB = perf.r;
-      if (perf.tpf) this.mCurrentSystemInfo.totalPlayfieldserver = perf.tpf;
-      if (perf.tpfm) this.mCurrentSystemInfo.totalPlayfieldserverRamMB = perf.tpfm;
-      this.CurrentSystemInfo = this.mCurrentSystemInfo;
+      if (perf.o   ) this.mCurrentSystemInfo.online                         = perf.o;
+      if (perf.ap  ) this.mCurrentSystemInfo.activePlayers                  = perf.ap;
+      if (perf.apf ) this.mCurrentSystemInfo.activePlayfields               = perf.apf;
+      if (perf.c   ) this.mCurrentSystemInfo.cpuTotalLoad                   = perf.c;
+      if (perf.r   ) this.mCurrentSystemInfo.ramAvailableMB                 = perf.r;
+      if (perf.tpf ) this.mCurrentSystemInfo.totalPlayfieldserver           = perf.tpf;
+      if (perf.tpfm) this.mCurrentSystemInfo.totalPlayfieldserverMemorySize = perf.tpfm;
+      if (perf.ewam) this.mCurrentSystemInfo.ewaMemorySize                  = perf.ewam;
+      this.CurrentSystemInfo                                                = this.mCurrentSystemInfo;
     });
 
     // starting the connection

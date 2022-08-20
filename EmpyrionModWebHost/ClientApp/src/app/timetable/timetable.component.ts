@@ -59,6 +59,7 @@ export enum ActionType {
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
   resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",
+  restartEWA              = "Restart the EWA from a running game |",
 }
 
 class SubTimetableAction{

@@ -38,14 +38,15 @@ namespace EmpyrionModWebHost.Controllers
         public int activePlayers { get; set; }
         public int activePlayfields { get; set; }
         public int totalPlayfieldserver { get; set; }
-        public long totalPlayfieldserverRamMB { get; set; }
+        public long totalPlayfieldserverMemorySize { get; set; }
         public long diskFreeSpace { get; set; }
         public long diskUsedSpace { get; set; }
         public int cpuTotalLoad { get; set; }
         public int ramAvailableMB { get; set; }
         public ulong ramTotalMB { get; set; }
         public string serverName { get; set; }
-        public bool eahAvailable { get; internal set; }
+        public bool eahAvailable { get; set; }
+        public long ewaMemorySize { get; set; }
     }
 #pragma warning restore IDE1006 // Naming Styles
 
@@ -143,7 +144,8 @@ namespace EmpyrionModWebHost.Controllers
                 c       = CurrentSysteminfo.cpuTotalLoad,
                 r       = CurrentSysteminfo.ramAvailableMB,
                 tpf     = CurrentSysteminfo.totalPlayfieldserver,
-                tpfm    = CurrentSysteminfo.totalPlayfieldserverRamMB,
+                tpfm    = CurrentSysteminfo.totalPlayfieldserverMemorySize,
+                ewam    = CurrentSysteminfo.ewaMemorySize,
             })).Wait(1000));
             TaskTools.Intervall(30000, UpdateSystemInfo);
             TaskTools.Intervall(5000,  UpdateEmpyrionInfos);
@@ -182,6 +184,8 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.ramTotalMB        = memBytes / (1024 * 1024);
             CurrentSysteminfo.diskUsedSpace     = GameDrive.TotalSize - GameDrive.TotalFreeSpace;
             CurrentSysteminfo.diskFreeSpace     = GameDrive.TotalFreeSpace;
+
+            CurrentSysteminfo.ewaMemorySize     = Process.GetCurrentProcess().PrivateMemorySize64;
         }
 
         public string SetState(string aState, string aStateChar, bool aStateSet)
@@ -212,8 +216,8 @@ namespace EmpyrionModWebHost.Controllers
 
             if (ESGChildProcesses != null)
             {
-                CurrentSysteminfo.totalPlayfieldserver      = ESGChildProcesses.Count();
-                CurrentSysteminfo.totalPlayfieldserverRamMB = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
+                CurrentSysteminfo.totalPlayfieldserver           = ESGChildProcesses.Count();
+                CurrentSysteminfo.totalPlayfieldserverMemorySize = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
 
             var eahProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault();
@@ -418,6 +422,12 @@ namespace EmpyrionModWebHost.Controllers
                 Command = ClientHostCommand.UpdateEWA,
                 Data    = new ProcessInformation() { Id = Process.GetCurrentProcess().Id }
             });
+        }
+
+        public void EWARestart()
+        {
+            Logger.LogInformation("EWARestart");
+            Program.Application.StopAsync();
         }
     }
 
