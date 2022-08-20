@@ -19,7 +19,15 @@ namespace EgsDbTools
             get {
                 if (UpdateNow || (DateTime.Now - LastDbRead).TotalSeconds > UpdateIntervallInSeconds)
                 {
-                    currentList = ReadGlobalStructureList();
+                    UpdateNow = false;
+                    try
+                    {
+                        currentList = ReadGlobalStructureList();
+                    }
+                    catch (Exception error)
+                    {
+                        Console.WriteLine($"GlobalStructureList CurrentList:{error}");
+                    }
                     LastDbRead = DateTime.Now;
                 }
                 return currentList;
@@ -48,11 +56,18 @@ namespace EgsDbTools
                 currentPlayfields = ReadPlayfields(DbConnection);
 
                 using (var cmd = new SqliteCommand(
-@"
+$@"
 SELECT * FROM Structures 
 LEFT JOIN Entities ON Structures.entityid = Entities.entityid
 ORDER BY pfid
 ",
+
+//$@"
+//SELECT * FROM Structures 
+//LEFT JOIN Entities ON Structures.entityid = Entities.entityid
+//WHERE Entities.facid > 0 AND (Entities.facgroup = {(int)FactionGroup.Player} OR Entities.facgroup = {(int)FactionGroup.Faction})
+//ORDER BY pfid
+//",
                 DbConnection))
                 {
                     List<GlobalStructureInfo> currentPlayfieldStructures = null;
@@ -165,7 +180,9 @@ ORDER BY pfid
                 }
             }
 
-            foreach (var item in dockedToList) globalStructuresList[item.Key].dockedShips.AddRange(item.Value);
+            foreach (var item in dockedToList) {
+                if(globalStructuresList.TryGetValue(item.Key, out var structure)) structure.dockedShips.AddRange(item.Value);
+            }
 
             return gsl;
         }

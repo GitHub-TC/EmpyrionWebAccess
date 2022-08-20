@@ -128,8 +128,7 @@ namespace EmpyrionModWebHost.Controllers
 
             BackupManager.CopyAll(
                 new DirectoryInfo(Path.Combine(rootDir, "PublishAddOns", "Temp")),
-                new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods"))
-                );
+                new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods")), false);
 
             try { Directory.Delete(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(GetType()).Location), "PublishAddOns", "Temp"), true); } catch { }
 
@@ -401,7 +400,7 @@ namespace EmpyrionModWebHost.Controllers
             }
 
             try { Directory.CreateDirectory(TargetDir); } catch { }
-            BackupManager.CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
+            BackupManager.CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir), false);
 
             AddToDllNamesIfNotExists(Path.Combine(Path.GetFileNameWithoutExtension(TargetDir), GetFirstModDLL(TargetDir)));
         }

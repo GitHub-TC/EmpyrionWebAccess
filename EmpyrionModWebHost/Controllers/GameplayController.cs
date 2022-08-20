@@ -1,15 +1,5 @@
-﻿using AutoMapper;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
-using Eleon.Modding;
-using EmpyrionModWebHost.Extensions;
-using EmpyrionModWebHost.Models;
-using EmpyrionModWebHost.Services;
-using EmpyrionNetAPIAccess;
-using EmpyrionNetAPITools;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -134,11 +124,16 @@ namespace EmpyrionModWebHost.Controllers
             });
 
             var idNameMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
-            if(!string.IsNullOrEmpty(idNameMappingFile) && File.Exists(idNameMappingFile)) 
-                return JsonConvert
-                    .DeserializeObject<Dictionary<string, int>>(File.ReadAllText(idNameMappingFile))
-                    .Select(m => new ItemInfo() { Id = m.Value, Name = Localisation.TryGetValue(m.Key, out var Value) ? Value?.Count >= 2 ? Value[1] : m.Key : m.Key })
-                    .ToArray();
+            if (!string.IsNullOrEmpty(idNameMappingFile) && File.Exists(idNameMappingFile))
+            {
+                using (var file = File.OpenRead(idNameMappingFile))
+                {
+                    return System.Text.Json.JsonSerializer
+                        .Deserialize<Dictionary<string, int>>(file)
+                        .Select(m => new ItemInfo() { Id = m.Value, Name = Localisation.TryGetValue(m.Key, out var Value) ? Value?.Count >= 2 ? Value[1] : m.Key : m.Key })
+                        .ToArray();
+                }
+            }
 
             var ItemDef = File.ReadAllLines(itemConfigFile)
                 .Where(L => L.Contains(IdDef));
@@ -175,7 +170,7 @@ namespace EmpyrionModWebHost.Controllers
 
             var isBadData = false;
             var translations = new List<List<string>>();
-            using var reader = new StringReader(File.ReadAllText(csvFile));
+            using var reader = File.OpenText(csvFile);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { AllowComments = true, CacheFields = true, IgnoreBlankLines = true, BadDataFound = args => { isBadData = true; LogBadCsvData(args); } });
 
             csv.Read();

@@ -167,7 +167,7 @@ namespace EmpyrionModWebHost.Controllers
             await Request_ConsoleCommand(new PString($"SAY '{($"[c][ffffff]{aMessage}[/c]".Replace("'", "\\'"))}'"));
         }
 
-        public async Task ChatMessageGlobal(string aMessage)
+        public async Task ChatMessageGlobal(string aMessage, Eleon.SenderType senderType)
         {
             if (string.IsNullOrEmpty(aMessage)) return;
 
@@ -186,7 +186,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 Channel             = Eleon.MsgChannel.Global,
                 SenderNameOverride  = "SERVER",
-                SenderType          = Eleon.SenderType.ServerPrio,
+                SenderType          = senderType,
                 IsTextLocaKey       = IsLocalizationText(ref aMessage, out var arg1, out var arg2),
                 Text                = aMessage,
                 Arg1                = arg1,

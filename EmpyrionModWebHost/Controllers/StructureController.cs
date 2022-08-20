@@ -74,9 +74,10 @@ namespace EmpyrionModWebHost.Controllers
             try
             {
                 GSLA.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+                GSLA.UpdateNow = true;
                 //var gsl = Request_GlobalStructure_List(Timeouts.Wait1m).GetAwaiter().GetResult();
                 LastGlobalStructureList.Current = Mapper.Map<GlobalStructureListData>(GSLA.CurrentList);
-                TaskTools.Delay(0, () => LastGlobalStructureList.Save());
+                TaskTools.Delay(0, () => LastGlobalStructureList.Save(false));
             }
             catch (Exception error)
             {

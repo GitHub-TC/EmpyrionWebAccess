@@ -1,13 +1,5 @@
 ﻿using System.Globalization;
 using System.Collections.Concurrent;
-using Eleon.Modding;
-using EmpyrionModWebHost.Extensions;
-using EmpyrionModWebHost.Models;
-using EmpyrionNetAPIAccess;
-using EmpyrionNetAPITools;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
 using EgsDbTools;
 
 namespace EmpyrionModWebHost.Controllers
@@ -21,6 +13,7 @@ namespace EmpyrionModWebHost.Controllers
     public class BackupManager : EmpyrionModBase, IEWAPlugin
     {
         public const string CurrentSaveGame = "### Current Savegame ###";
+        public const string PreBackupDirectoryName = "PreBackup";
         public readonly static string[] EntityTypes = new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" };
 
     public ILogger<BackupManager> Logger { get; set; }
@@ -36,8 +29,11 @@ namespace EmpyrionModWebHost.Controllers
         public ConfigurationManager<BackupStructureData> BackupStructureDB { get; set; }
         public GlobalStructureListAccess GSLA { get; }
 
+        static int copiedFiles  = 0;
+        static int skippedFiles = 0;
+
         public string CurrentBackupDirectory(string aAddOn) {
-            var Result = Path.Combine(BackupDir, $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
+            var Result = Path.Combine(BackupDir, aAddOn == PreBackupDirectoryName ? PreBackupDirectoryName : $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
             Directory.CreateDirectory(Result);
 
             return Result;
@@ -188,16 +184,32 @@ namespace EmpyrionModWebHost.Controllers
             return EntityTypes.Length > entityTypeId && entityTypeId > 0 ? EntityTypes[entityTypeId] : "???";
         }
 
-        public static void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget)
+        public static void CopyAll(DirectoryInfo aSource, DirectoryInfo aTarget, bool onlyIfNewerOrFilesizeDiff)
         {
             aSource.GetDirectories().AsParallel().ForEach(D =>
             {
                 try { aTarget.CreateSubdirectory(D.Name); } catch { }
-                CopyAll(D, new DirectoryInfo(Path.Combine(aTarget.FullName, D.Name)));
+                CopyAll(D, new DirectoryInfo(Path.Combine(aTarget.FullName, D.Name)), onlyIfNewerOrFilesizeDiff);
             });
             aSource.GetFiles().AsParallel().ForEach(F => {
                 Directory.CreateDirectory(aTarget.FullName);
-                try { F.CopyTo(Path.Combine(aTarget.FullName, F.Name), true); } catch { }
+                try {
+                    var targetFilename = Path.Combine(aTarget.FullName, F.Name);
+
+                    if (onlyIfNewerOrFilesizeDiff
+                        && File.Exists(targetFilename)
+                        && File.GetLastWriteTimeUtc(targetFilename) == F.LastWriteTimeUtc
+                        && new FileInfo(targetFilename).Length == F.Length
+                        )
+                    {
+                        Interlocked.Increment(ref skippedFiles);
+                        return;
+                    }
+
+                    F.CopyTo(targetFilename, true);
+                    Interlocked.Increment(ref copiedFiles);
+                }
+                catch { }
             });
         }
 
@@ -231,7 +243,7 @@ namespace EmpyrionModWebHost.Controllers
             };
 
             Directory.CreateDirectory(Path.GetDirectoryName(TargetDir));
-            CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
+            CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir), false);
 
             try { await Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0)); }
             catch { }  // Playfield already loaded
@@ -259,18 +271,43 @@ namespace EmpyrionModWebHost.Controllers
 
         public void FullBackup(string aCurrentBackupDir)
         {
+            var preBackupDir = Path.Combine(Path.GetDirectoryName(aCurrentBackupDir), PreBackupDirectoryName);
+            var usePreBackup = Directory.Exists(preBackupDir);
+
+            copiedFiles = skippedFiles = 0;
+
+            using var _ = Logger.BeginScope($"FullBackup: use PreBackup={usePreBackup}");
+            Logger.LogInformation("FullBackup:start {CurrentBackupDir}: use PreBackup={usePreBackup}", aCurrentBackupDir, usePreBackup);
             BackupState(true);
 
-            SavegameBackup(aCurrentBackupDir);
-            ScenarioBackup(aCurrentBackupDir);
-            ModsBackup(aCurrentBackupDir);
-            EGSMainFilesBackup(aCurrentBackupDir);
+            var currentBackupDir = usePreBackup ? preBackupDir : aCurrentBackupDir;
+
+            SavegameBackup      (currentBackupDir, usePreBackup);
+            ScenarioBackup      (currentBackupDir, usePreBackup);
+            ModsBackup          (currentBackupDir, usePreBackup);
+            EGSMainFilesBackup  (currentBackupDir, usePreBackup);
+
+            if (usePreBackup && preBackupDir != aCurrentBackupDir)
+            {
+                try
+                {
+                    Directory.Delete(aCurrentBackupDir, true);
+                    Directory.Move(preBackupDir, aCurrentBackupDir);
+                    Logger.LogInformation("PreBackup {preBackupDir} to FullBackup {aCurrentBackupDir}", preBackupDir, aCurrentBackupDir);
+                }
+                catch (Exception error)
+                {
+                    Logger.LogError("PreBackup {preBackupDir} to FullBackup {aCurrentBackupDir}: {error}", preBackupDir, aCurrentBackupDir, error);
+                }
+            }
 
             BackupState(false);
+            Logger.LogInformation("FullBackup:finished copied {copiedFiles} file skipped(up to date) {skippedFiles}", copiedFiles, skippedFiles);
         }
 
-        public void BackupPlayfields(string aCurrentBackupDir, string[] playfields)
+        public void BackupPlayfields(string aCurrentBackupDir, string[] playfields, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("BackupPlayfields:start {CurrentBackupDir} -> {PlayfieldsCount}", aCurrentBackupDir, playfields.Length);
             BackupState(true);
 
             playfields.AsParallel()
@@ -278,13 +315,11 @@ namespace EmpyrionModWebHost.Controllers
                 {
                     CopyAll(
                         new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P)),
-                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Playfields", P))
-                        );
+                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Playfields", P)), onlyIfNewerOrFilesizeDiff);
 
                     CopyAll(
                         new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates", P)),
-                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Templates", P))
-                        );
+                        new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Templates", P)), onlyIfNewerOrFilesizeDiff);
 
                     StructureManager.Value.LastGlobalStructureList.Current.globalStructures.TryGetValue(P, out var structures);
                     structures
@@ -295,91 +330,110 @@ namespace EmpyrionModWebHost.Controllers
 
                             CopyAll(
                                 new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", structureName)),
-                                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName))
-                                );
+                                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName)), onlyIfNewerOrFilesizeDiff);
 
                             File.Copy(
                                 Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", structureName + ".txt"),
-                                Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName + ".txt")
-                                );
+                                Path.Combine(aCurrentBackupDir, "Saves", "Games", Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", structureName + ".txt"),
+                                true);
+
+                            Interlocked.Increment(ref copiedFiles);
                         });
                 });
 
             CopyStructureDBToBackup(aCurrentBackupDir);
 
             BackupState(false);
+            Logger.LogInformation("BackupPlayfields:finished");
         }
 
-        public void SavegameBackup(string aCurrentBackupDir)
+        public void SavegameBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("SavegameBackup:start {aCurrentBackupDir}", aCurrentBackupDir);
             BackupState(true);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Games")),
-                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games")));
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Games")), onlyIfNewerOrFilesizeDiff);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Cache")),
-                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Cache")));
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Cache")), onlyIfNewerOrFilesizeDiff);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", "..", "Blueprints")),
-                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Blueprints")));
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Saves", "Blueprints")), onlyIfNewerOrFilesizeDiff);
 
             Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "..", ".."))
                 .AsParallel()
-                .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, "Saves", Path.GetFileName(F))));
+                .ForEach(F =>
+                {
+                    File.Copy(F, Path.Combine(aCurrentBackupDir, "Saves", Path.GetFileName(F)), true);
+                    Interlocked.Increment(ref copiedFiles);
+                });
 
             CopyStructureDBToBackup(aCurrentBackupDir);
 
             BackupState(false);
+            Logger.LogInformation("SavegameBackup:finished");
         }
 
-        public void StructureBackup(string aCurrentBackupDir)
+        public void StructureBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("StructureBackup:start {CurrentBackupDir}", aCurrentBackupDir);
             BackupState(true);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared")),
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir,
-                "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared")));
+                "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared")), onlyIfNewerOrFilesizeDiff);
 
             CopyStructureDBToBackup(aCurrentBackupDir);
 
             BackupState(false);
+            Logger.LogInformation("StructureBackup:finished");
         }
 
         private void CopyStructureDBToBackup(string aCurrentBackupDir)
         {
+            Logger.LogInformation("CopyStructureDBToBackup:start {CurrentBackupDir}", aCurrentBackupDir);
             try
             {
                 File.Copy(BackupStructureDB.ConfigFilename,
                     Path.Combine(aCurrentBackupDir, "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Shared", Path.GetFileName(BackupStructureDB.ConfigFilename)), true);
+
+                Interlocked.Increment(ref copiedFiles);
             }
             catch (Exception error)
             {
                 Logger.LogError(error, "CopyStructureDBToBackup:{0}", BackupStructureDB.ConfigFilename);
             }
+            Logger.LogInformation("CopyStructureDBToBackup:finished");
         }
 
-        public void ScenarioBackup(string aCurrentBackupDir)
+        public void ScenarioBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("ScenarioBackup:start {CurrentBackupDir}", aCurrentBackupDir);
             BackupState(true);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName)),
-                new DirectoryInfo(Path.Combine(aCurrentBackupDir, EmpyrionConfiguration.DedicatedYaml.CustomScenarioName)));
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, EmpyrionConfiguration.DedicatedYaml.CustomScenarioName)), onlyIfNewerOrFilesizeDiff);
 
             BackupState(false);
+            Logger.LogInformation("ScenarioBackup:finished");
         }
 
-        public void ModsBackup(string aCurrentBackupDir)
+        public void ModsBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("ModsBackup:start {CurrentBackupDir}", aCurrentBackupDir);
             BackupState(true);
 
             CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Mods")),
-                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Mods")));
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir, "Mods")), onlyIfNewerOrFilesizeDiff);
 
             BackupState(false);
+            Logger.LogInformation("ModsBackup:finished");
         }
 
-        public void EGSMainFilesBackup(string aCurrentBackupDir)
+        public void EGSMainFilesBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
         {
+            Logger.LogInformation("EGSMainFilesBackup:start {CurrentBackupDir}", aCurrentBackupDir);
             BackupState(true);
 
             var MainBackupFiles = new[] { ".yaml", ".cmd", ".txt" };
@@ -387,9 +441,14 @@ namespace EmpyrionModWebHost.Controllers
             Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.ProgramPath))
                 .Where(F => MainBackupFiles.Contains(Path.GetExtension(F).ToLower()))
                 .AsParallel()
-                .ForEach(F => File.Copy(F, Path.Combine(aCurrentBackupDir, Path.GetFileName(F))));
+                .ForEach(F =>
+                {
+                    File.Copy(F, Path.Combine(aCurrentBackupDir, Path.GetFileName(F)), true);
+                    Interlocked.Increment(ref copiedFiles);
+                });
 
             BackupState(false);
+            Logger.LogInformation("EGSMainFilesBackup:finished");
         }
 
         public void SetNormalAttributes(string path)
@@ -436,7 +495,7 @@ namespace EmpyrionModWebHost.Controllers
             var TargetDir = Path.Combine(EmpyrionConfiguration.ProgramPath, aPath);
 
             if(Directory.Exists(TargetDir)) Directory.Delete(TargetDir, true);
-            if(Directory.Exists(SourceDir)) CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir));
+            if(Directory.Exists(SourceDir)) CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir), false);
         }
     }
 

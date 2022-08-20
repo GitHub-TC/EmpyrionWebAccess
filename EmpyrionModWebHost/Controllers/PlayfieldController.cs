@@ -49,7 +49,7 @@ namespace EmpyrionModWebHost.Controllers
 
             ReadPlayfields();
 
-            PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"));
+            PlayfieldsWatcher = new FileSystemWatcher(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"));
             PlayfieldsWatcher.Created += (S, A) => ReadPlayfields();
             PlayfieldsWatcher.Deleted += (S, A) => ReadPlayfields();
             PlayfieldsWatcher.EnableRaisingEvents = true;
@@ -58,10 +58,11 @@ namespace EmpyrionModWebHost.Controllers
         public void ReadPlayfields()
         {
             Playfields = Directory
-                .EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates"))
+                .EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"))
                 .Select(D => ReadPlayfield(D))
                 .AsParallel()
                 .Where(D => D != null)
+                .OrderBy(D => D.name)
                 .ToArray();
 
             PlayfieldHub?.Clients?.All.SendAsync("Update", "").Wait();
@@ -69,7 +70,7 @@ namespace EmpyrionModWebHost.Controllers
 
         public PlayfieldInfo ReadPlayfield(string aFilename)
         {
-            var PlayfieldYaml = Path.Combine(aFilename, "playfield.yaml");
+            var PlayfieldYaml = Path.Combine(Path.GetDirectoryName(aFilename), ".." , "Templates", Path.GetFileName(aFilename), "playfield.yaml");
             if (!File.Exists(PlayfieldYaml)) return null;
 
             var Result = new PlayfieldInfo() { name = Path.GetFileName(aFilename) };
@@ -108,14 +109,18 @@ namespace EmpyrionModWebHost.Controllers
 
         public void Wipe(IEnumerable<string> aPlayfields, string aWipeType)
         {
-            if (aPlayfields.First() == "*") aPlayfields = Playfields.Select(p => p.name);
+            var wipeAllPlayfields = aPlayfields.FirstOrDefault()?.Trim() == "*";
 
-            if (SysteminfoManager.Value.EGSIsRunning) aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
+            if (wipeAllPlayfields) aPlayfields = Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields")).ToArray();
+
+            if (!wipeAllPlayfields && SysteminfoManager.Value.EGSIsRunning) aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
             else
             {
                 var wipeinfo = aWipeType.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                aPlayfields.ForEach(P =>
+                Parallel.ForEach(aPlayfields, P =>
                 {
+                    if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P))) return;
+
                     string[] wipePresets = null;
                     try {
                         wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"))?.FirstOrDefault()?.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); 

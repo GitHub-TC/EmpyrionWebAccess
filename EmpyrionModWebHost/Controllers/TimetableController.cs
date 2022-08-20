@@ -1,12 +1,6 @@
 ﻿using System.Diagnostics;
-using Eleon.Modding;
-using EmpyrionModWebHost.Extensions;
-using EmpyrionModWebHost.Models;
-using EmpyrionNetAPIAccess;
-using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using BackupManagerStatic = EmpyrionModWebHost.Controllers.BackupManager;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -43,9 +37,12 @@ namespace EmpyrionModWebHost.Controllers
         chatUntil,
         chatGlobal,
         chatGlobalUntil,
+        chatGlobalInfo,
+        chatGlobalInfoUntil,
         restart,
         startEGS,
         stopEGS,
+        backupPrepareFull,
         backupFull,
         backupStructure,
         backupSavegame,
@@ -194,7 +191,6 @@ namespace EmpyrionModWebHost.Controllers
             if (aActions == null) return;
 
             aActions
-                .Where(A => A.active)
                 .ToArray()
                 .ForEach(A => {
                     A.nextExecute = GetNextExecute(A, IsReverseTime(A) ? ReverseAutoRepeatTime(A.repeat) : A.repeat, true);
@@ -207,18 +203,18 @@ namespace EmpyrionModWebHost.Controllers
             switch (aRepeat)
             {
                 case RepeatEnum.manual      : return DateTime.MaxValue;
-                case RepeatEnum.min5        : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0,  5, 0));
-                case RepeatEnum.min10       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 10, 0));
-                case RepeatEnum.min15       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 15, 0));
-                case RepeatEnum.min20       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 20, 0));
-                case RepeatEnum.min30       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 30, 0));
-                case RepeatEnum.min45       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(0, 45, 0));
-                case RepeatEnum.hour1       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(1,  0, 0));
-                case RepeatEnum.hour2       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(2,  0, 0));
-                case RepeatEnum.hour3       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(3,  0, 0));
-                case RepeatEnum.hour6       : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(6,  0, 0));
-                case RepeatEnum.hour12      : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(12, 0, 0));
-                case RepeatEnum.day1        : return DateTime.Now   + (initMode ? aAction.timestamp.TimeOfDay : new TimeSpan(24, 0, 0));
+                case RepeatEnum.min5        : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 5, 0));
+                case RepeatEnum.min10       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 10, 0));
+                case RepeatEnum.min15       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 15, 0));
+                case RepeatEnum.min20       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 20, 0));
+                case RepeatEnum.min30       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 30, 0));
+                case RepeatEnum.min45       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(0, 45, 0));
+                case RepeatEnum.hour1       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(1, 0, 0));
+                case RepeatEnum.hour2       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(2, 0, 0));
+                case RepeatEnum.hour3       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(3, 0, 0));
+                case RepeatEnum.hour6       : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(6, 0, 0));
+                case RepeatEnum.hour12      : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(12, 0, 0));
+                case RepeatEnum.day1        : return CalcNextTime(initMode, DateTime.Now, aAction.timestamp, new TimeSpan(24, 0, 0));
                 case RepeatEnum.dailyAt     : return DateTime.Today + new TimeSpan(aAction.timestamp.TimeOfDay > DateTime.Now.TimeOfDay ? 0 : 24, 0, 0) + aAction.timestamp.TimeOfDay;
                 case RepeatEnum.mondayAt    : return GetNextWeekday(DateTime.Today, DayOfWeek.Monday)    + aAction.timestamp.TimeOfDay;
                 case RepeatEnum.tuesdayAt   : return GetNextWeekday(DateTime.Today, DayOfWeek.Tuesday)   + aAction.timestamp.TimeOfDay;
@@ -230,6 +226,21 @@ namespace EmpyrionModWebHost.Controllers
                 case RepeatEnum.monthly     : return new DateTime(DateTime.Today.Year, (DateTime.Today.Month % 12) + 1, DateTime.Today.Day) + new TimeSpan(24, 0, 0) + aAction.timestamp.TimeOfDay;
                 case RepeatEnum.timeAt      : return (aAction.timestamp.TimeOfDay > DateTime.Now.TimeOfDay ? DateTime.Today : DateTime.MaxValue.Date) + aAction.timestamp.TimeOfDay;
                 default:                      return DateTime.MaxValue;
+            }
+        }
+
+        private static DateTime CalcNextTime(bool initMode, DateTime now, DateTime timestamp, TimeSpan timeSpan)
+        {
+            if (initMode)
+            {
+                var nextTime = now.Date + timestamp.TimeOfDay;
+                while (nextTime < now) nextTime += timeSpan;
+                return nextTime;
+            }
+            else
+            {
+                var nextTime = now - timestamp;
+                return timestamp + new TimeSpan(0, (int)((((int)(nextTime.TotalMinutes / timeSpan.TotalMinutes)) + 1) * timeSpan.TotalMinutes), 0);
             }
         }
 
@@ -246,18 +257,21 @@ namespace EmpyrionModWebHost.Controllers
             {
                 case ActionType.chat                    : _ = ChatManager.Value.ChatMessageSERV(aAction.data); break;
                 case ActionType.chatUntil               : _ = ChatManager.Value.ChatMessageSERV(aAction.data); break;
-                case ActionType.chatGlobal              : _ = ChatManager.Value.ChatMessageGlobal(aAction.data); break;
-                case ActionType.chatGlobalUntil         : _ = ChatManager.Value.ChatMessageGlobal(aAction.data); break;
+                case ActionType.chatGlobal              : _ = ChatManager.Value.ChatMessageGlobal(aAction.data, Eleon.SenderType.ServerPrio); break;
+                case ActionType.chatGlobalUntil         : _ = ChatManager.Value.ChatMessageGlobal(aAction.data, Eleon.SenderType.ServerPrio); break;
+                case ActionType.chatGlobalInfo          : _ = ChatManager.Value.ChatMessageGlobal(aAction.data, Eleon.SenderType.ServerInfo); break;
+                case ActionType.chatGlobalInfoUntil     : _ = ChatManager.Value.ChatMessageGlobal(aAction.data, Eleon.SenderType.ServerInfo); break;
                 case ActionType.restart                 : EGSRestart(aAction); break;
                 case ActionType.startEGS                : SysteminfoManager.Value.EGSStart(); break;
                 case ActionType.stopEGS                 : SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0); ; break;
+                case ActionType.backupPrepareFull       : BackupManager.Value.FullBackup        (BackupManager.Value.CurrentBackupDirectory(BackupManagerStatic.PreBackupDirectoryName)); break;
                 case ActionType.backupFull              : BackupManager.Value.FullBackup        (BackupManager.Value.CurrentBackupDirectory("")); break;
-                case ActionType.backupStructure         : BackupManager.Value.StructureBackup   (BackupManager.Value.CurrentBackupDirectory(" - Structures")); break;
-                case ActionType.backupSavegame          : BackupManager.Value.SavegameBackup    (BackupManager.Value.CurrentBackupDirectory(" - Savegame")); break;
-                case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory(" - Scenario")); break;
-                case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory(" - Mods")); break;
-                case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory(" - ESG MainFiles")); break;
-                case ActionType.backupPlayfields        : BackupManager.Value.BackupPlayfields  (BackupManager.Value.CurrentBackupDirectory(" - Playfields"), aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
+                case ActionType.backupStructure         : BackupManager.Value.StructureBackup   (BackupManager.Value.CurrentBackupDirectory(" - Structures")                                                         , false); break;
+                case ActionType.backupSavegame          : BackupManager.Value.SavegameBackup    (BackupManager.Value.CurrentBackupDirectory(" - Savegame")                                                           , false); break;
+                case ActionType.backupScenario          : BackupManager.Value.ScenarioBackup    (BackupManager.Value.CurrentBackupDirectory(" - Scenario")                                                           , false); break;
+                case ActionType.backupMods              : BackupManager.Value.ModsBackup        (BackupManager.Value.CurrentBackupDirectory(" - Mods")                                                               , false); break;
+                case ActionType.backupEGSMainFiles      : BackupManager.Value.EGSMainFilesBackup(BackupManager.Value.CurrentBackupDirectory(" - ESG MainFiles")                                                      , false); break;
+                case ActionType.backupPlayfields        : BackupManager.Value.BackupPlayfields  (BackupManager.Value.CurrentBackupDirectory(" - Playfields"), aAction.data.Split(';').Select(P => P.Trim()).ToArray(), false); break;
                 case ActionType.deleteOldBackups        : BackupManager.Value.DeleteOldBackups  (int.TryParse(aAction.data, out int BackupDays) ? BackupDays : 14); break;
                 case ActionType.deleteOldBackpacks      : BackpackManager.Value.DeleteOldBackpacks(int.TryParse(aAction.data, out int BackpackDays) ? BackpackDays : 14); break;
                 case ActionType.deletePlayerOnPlayfield : DeletePlayerOnPlayfield(aAction); break;
@@ -329,7 +343,7 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (aAction is TimetableAction MainAction && MainAction.subAction != null)
             {
-                MainAction.subAction.ForEach(async A => await Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}"));
+                MainAction.subAction.ForEach(A => Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}").GetAwaiter().GetResult());
             }
         }
     }

@@ -1,16 +1,4 @@
-﻿using AutoMapper;
-using Eleon.Modding;
-using EmpyrionModWebHost.Extensions;
-using EmpyrionModWebHost.Models;
-using EmpyrionNetAPIAccess;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OData.Edm;
-using Newtonsoft.Json;
-
-namespace EmpyrionModWebHost.Controllers
+﻿namespace EmpyrionModWebHost.Controllers
 {
     [Authorize]
     public class BackpackHub : Hub
@@ -40,10 +28,10 @@ namespace EmpyrionModWebHost.Controllers
         {
             using var DB = new BackpackContext();
 
-            DB.Backpacks
-                .Where(B => B.Timestamp != DateTime.MinValue && (DateTime.Now - B.Timestamp).TotalDays > aDays)
-                .ToList()
-                .ForEach(B => DB.Backpacks.Remove(B));
+            var DelTime = DateTime.Now - new TimeSpan(aDays, 0, 0, 0);
+
+            DB.Backpacks.RemoveRange(DB.Backpacks.Where(B => B.Timestamp < DelTime));
+
             DB.SaveChanges();
             DB.Database.ExecuteSqlRaw("VACUUM;");
         }

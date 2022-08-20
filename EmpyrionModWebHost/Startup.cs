@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EmpyrionModWebHost;
 
@@ -246,7 +248,35 @@ public class Startup
         }
         else
         {
-            app.UseExceptionHandler("/Error");
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    var logger = loggerFactory.CreateLogger<Startup>();
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+                    // using static System.Net.Mime.MediaTypeNames;
+                    context.Response.ContentType = Text.Plain;
+
+                    logger.LogError("An exception was thrown.{@context}", context);
+                    await context.Response.WriteAsync("An exception was thrown.");
+
+                    var exceptionHandlerPathFeature =
+                        context.Features.Get<IExceptionHandlerPathFeature>();
+
+                    logger.LogError("An exception was thrown.{@exceptionHandlerPathFeature} {error}", exceptionHandlerPathFeature, exceptionHandlerPathFeature?.Error);
+
+                    if (exceptionHandlerPathFeature?.Error is FileNotFoundException)
+                    {
+                        await context.Response.WriteAsync(" The file was not found.");
+                    }
+
+                    if (exceptionHandlerPathFeature?.Path == "/")
+                    {
+                        await context.Response.WriteAsync(" Page: Home.");
+                    }
+                });
+            });
             if (Program.AppSettings.UseHttpsRedirection) app.UseHsts();
         }
 
