@@ -7,7 +7,7 @@
   </mat-card-title>
   <div *ngFor="let t of Timetable" style="background-color:aliceblue; width:100%; margin-bottom:10px">
     <mat-checkbox [(ngModel)]="t.active" style="margin-left:1em">Active</mat-checkbox>
-    <mat-form-field style="width:15em">
+    <mat-form-field style="width:12em">
       <mat-select placeholder="Action" [(value)]="t.actionType">
         <mat-option *ngFor="let a of Actions" [value]="a?.key">
           {{a.value}}
@@ -16,7 +16,7 @@
       <mat-hint align="start"><strong>Next run: {{GetNextExecute(t) | date : "dd.MM.yyyy HH:mm"}}</strong> </mat-hint>
     </mat-form-field>
 
-    <mat-form-field style="width:10em">
+    <mat-form-field style="width:8em">
       <mat-select placeholder="Repeat" [(value)]="t.repeat">
         <mat-option *ngFor="let r of Repeats" [value]="r?.key">
           {{r.value}}
@@ -28,7 +28,7 @@
       <input type="time" placeholder="Time" [(ngModel)]="t.timestamp" matInput>
     </mat-form-field>
 
-    <mat-form-field style="width:35em">
+    <mat-form-field style="width:calc(100% - 40em)">
       <input type="text" placeholder="Data" [(ngModel)]="t.data" matInput>
       <mat-hint align="start"><strong>{{ActionHelp(t)}}</strong></mat-hint>
     </mat-form-field>
@@ -48,7 +48,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field style="width:35em">
+      <mat-form-field style="width: calc(100% - 32em)">
         <input type="text" placeholder="Data" [(ngModel)]="st.data" matInput>
         <mat-hint align="start"><strong>{{ActionHelp(st)}}</strong></mat-hint>
       </mat-form-field>

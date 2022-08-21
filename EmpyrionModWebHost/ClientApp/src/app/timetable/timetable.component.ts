@@ -40,7 +40,7 @@ export enum ActionType {
   restart                 = "Server restart | [minutes] (default:0)",
   startEGS                = "Server start|",
   stopEGS                 = "Server stop | [minutes] (default:0)",
-  backupPrepareFull       = "Prepare backup (complete) within running game|",
+  backupPrepareFull       = "Prepare backup (complete)|",
   backupFull              = "Backup (complete)|",
   backupStructure         = "Backup (structures)|",
   backupSavegame          = "Backup (savegame)|",
@@ -59,7 +59,8 @@ export enum ActionType {
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
   resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",
-  restartEWA              = "Restart the EWA from a running game |",
+  restartEWA              = "Restart the EWA |",
+  execSubActions          = "Execute sub actions|",
 }
 
 class SubTimetableAction{
@@ -121,8 +122,12 @@ export class TimetableComponent implements OnInit {
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
   }
 
+  ActionData(aAction) {
+    return this.Actions.find(A => A.key == aAction.actionType);
+  }
+
   ActionHelp(aAction) {
-    let Found = this.Actions.find(A => A.key == aAction.actionType);
+    let Found = this.ActionData(aAction);
     return Found ? Found.help : null;
   }
 
@@ -140,7 +145,7 @@ export class TimetableComponent implements OnInit {
 
   AddAction() {
     if (!this.Timetable) this.Timetable = [];
-    this.Timetable.push({ active: true, repeat: RepeatEnum.min5 })
+    this.Timetable.unshift({ active: true, repeat: RepeatEnum.min5 });
   }
 
   AddSubAction(aAction: TimetableAction) {
@@ -149,7 +154,7 @@ export class TimetableComponent implements OnInit {
   }
 
   RunThis(aAction: SubTimetableAction) {
-    this.YesNo.openDialog({ title: "Run action", question: aAction.actionType }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Run action", question: this.ActionData(aAction)?.value }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
 
@@ -162,7 +167,7 @@ export class TimetableComponent implements OnInit {
   }
 
   DeleteThis(aAction: TimetableAction) {
-    this.YesNo.openDialog({ title: "Delete action", question: aAction.actionType }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Delete action", question: this.ActionData(aAction)?.value }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
         this.Timetable = this.Timetable.filter(T => T != aAction);
@@ -170,7 +175,7 @@ export class TimetableComponent implements OnInit {
   }
 
   DeleteThisSubAction(aAction: TimetableAction, aSubAction: SubTimetableAction) {
-    this.YesNo.openDialog({ title: "Delete action", question: aAction.actionType }).afterClosed().subscribe(
+    this.YesNo.openDialog({ title: "Delete action", question: this.ActionData(aAction)?.value }).afterClosed().subscribe(
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
         aAction.subAction = aAction.subAction.filter(T => T != aSubAction);

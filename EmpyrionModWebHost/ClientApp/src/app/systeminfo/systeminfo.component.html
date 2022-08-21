@@ -14,7 +14,8 @@
           <mat-icon style="vertical-align:bottom" title="Players">person</mat-icon>
           {{CurrentSystemInfo.activePlayers}}
           <mat-icon style="vertical-align:bottom; margin-left:1em" title="Playfields">network_check</mat-icon>
-          {{CurrentSystemInfo.activePlayfields}} ({{CurrentSystemInfo.totalPlayfieldserver}}) = {{CurrentSystemInfo.totalPlayfieldserverMemorySize / (1024 * 1024 * 1024) | number : "1.1-1"}}/{{CurrentSystemInfo.ewaMemorySize / (1024 * 1024 * 1024) | number : "1.1-1"}}GB
+          {{CurrentSystemInfo.activePlayfields}} ({{CurrentSystemInfo.totalPlayfieldserver}}) = {{CurrentSystemInfo.totalPlayfieldserverMemorySize / (1024 * 1024 * 1024) | number : "1.1-1"}}GB
+          <mat-icon style="vertical-align:bottom; margin-left:1em" title="EWA">token</mat-icon> {{CurrentSystemInfo.ewaMemorySize / (1024 * 1024 * 1024) | number : "1.1-1"}}GB
         </div>
         <div style="font-size:smaller !important;">
           <mat-icon style="vertical-align:bottom" title="CPU">computer</mat-icon><div style="display:inline-block; width:2em; text-align:right; margin-left:5px"> {{CurrentSystemInfo.cpuTotalLoad | number : "1.0-0"}}%</div>
