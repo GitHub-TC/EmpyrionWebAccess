@@ -39,7 +39,7 @@ namespace EmpyrionModWebHost.Controllers
             return Result;
         }
 
-        public BackupManager(ILogger<BackupManager> logger, IMapper mapper)
+        public BackupManager(ILogger<BackupManager> logger, IMapper mapper, GlobalStructureListAccess gsla)
         {
             Logger = logger;
             Mapper = mapper;
@@ -55,7 +55,7 @@ namespace EmpyrionModWebHost.Controllers
             };
             BackupStructureDB.Load();
 
-            GSLA = new GlobalStructureListAccess();
+            GSLA = gsla;
         }
 
         private void BackupStructureData()

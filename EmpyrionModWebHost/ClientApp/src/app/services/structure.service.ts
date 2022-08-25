@@ -18,6 +18,7 @@ export class StructureService {
   mPlayers: PlayerModel[] = [];
   private mStructures: GlobalStructureInfo[] = [];
   public FilterPreset: string;
+  public WithPOIs: boolean = false;
 
   private Structures: BehaviorSubject<GlobalStructureInfo[]> = new BehaviorSubject(this.mStructures);
   public readonly StructuresObservable: Observable<GlobalStructureInfo[]> = this.Structures.asObservable();
@@ -72,13 +73,12 @@ export class StructureService {
   }
 
   public ReloadStructures() {
-    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList", { headers: new HttpHeaders({ timeout: `${300000}` }) })
+    let locationsSubscription = this.http.get<any>("Structure/GlobalStructureList?WithPOIs=" + this.WithPOIs, { headers: new HttpHeaders({ timeout: `${300000}` }) })
       .subscribe(
         S => {
-          this.mStructures = [];
-          Object.getOwnPropertyNames(S.globalStructures).map(P => {
-            return S.globalStructures[P].map((S: GlobalStructureInfo) => {
-              S.playfield = P;
+          this.mStructures = S.map((S: GlobalStructureInfo) => {
+              S.playfield       = S.playfieldName;
+              S.solarSystemName = S.solarSystemName;
               S.CoreName = ["None", "Player", "Admin", "Alien", "AlienAdmin", "NoFaction"][S.coreType];
               S.TypeName = ["Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel"][S.type];
               if (S.factionGroup == 1) {
@@ -90,9 +90,8 @@ export class StructureService {
                 S.FactionName = Faction ? Faction.Abbrev : "";
               }
               S.FactionGroup = this.mFactionService.GetFactionGroup(S.factionGroup);
-              this.mStructures.push(S);
+              return S;
             });
-          });
           this.Structures.next(this.mStructures)
         },
         error => this.error = error // error path

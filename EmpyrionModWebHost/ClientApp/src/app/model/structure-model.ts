@@ -25,4 +25,6 @@ export class GlobalStructureInfo
     coreType?: number;
     CoreName?: string;
     pilotId?: number;
+    playfieldName?: string;
+    solarSystemName?: string;
 }

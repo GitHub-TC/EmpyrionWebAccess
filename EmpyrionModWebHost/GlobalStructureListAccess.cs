@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Microsoft.Build.Tasks;
+using Microsoft.Data.Sqlite;
+using System.Diagnostics;
 
 namespace EgsDbTools
 {
@@ -7,6 +9,7 @@ namespace EgsDbTools
         private GlobalStructureList currentList;
 
         public DateTime LastDbRead { get; set; }
+        public ILogger<GlobalStructureListAccess> Logger { get; }
 
         public int UpdateIntervallInSeconds { get; set; } = 30;
 
@@ -14,11 +17,17 @@ namespace EgsDbTools
         string _GlobalDbPath;
         public bool UpdateNow { get; set; }
 
+        public GlobalStructureListAccess(ILogger<GlobalStructureListAccess> logger)
+        {
+            Logger = logger;
+        }
+
         public GlobalStructureList CurrentList
         {
             get {
                 if (UpdateNow || (DateTime.Now - LastDbRead).TotalSeconds > UpdateIntervallInSeconds)
                 {
+                    var stopwatch = Stopwatch.StartNew();
                     UpdateNow = false;
                     try
                     {
@@ -26,8 +35,11 @@ namespace EgsDbTools
                     }
                     catch (Exception error)
                     {
-                        Console.WriteLine($"GlobalStructureList CurrentList:{error}");
+                        Logger.LogError(error, "GlobalStructureList CurrentList");
                     }
+                    stopwatch.Stop();
+                    Logger.LogInformation("GlobalStructureList CurrentList take {stopwatch} for {currentList} structures on {playfields} playfields", stopwatch.Elapsed, currentList?.globalStructures?.Aggregate(0, (c, p) => c + p.Value.Count), currentList?.globalStructures?.Count);
+
                     LastDbRead = DateTime.Now;
                 }
                 return currentList;
@@ -132,47 +144,55 @@ ORDER BY pfid
                                 dockedToCol         = reader.GetOrdinal("dockedTo");
                             }
 
-                            int pfid = reader.GetInt32(pfIdCol);
-
-                            if(pfid != currentPlayfieldId)
+                            try
                             {
-                                currentPlayfieldId = pfid;
-                                currentPlayfields.TryGetValue(pfid, out currentPlayfield);
-                                gsl.globalStructures.Add(currentPlayfields[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
+                                int pfid = reader.GetInt32(pfIdCol);
+
+                                if(pfid != currentPlayfieldId)
+                                {
+                                    currentPlayfieldId = pfid;
+                                    currentPlayfields.TryGetValue(pfid, out currentPlayfield);
+                                    gsl.globalStructures.Add(currentPlayfields[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
+                                }
+
+                                var gsi = new GlobalStructureInfo() {
+                                    id                  = reader.GetInt32(entityIdCol),
+                                    dockedShips         = new List<int>(),
+                                    classNr             = reader.GetInt32(classNrCol),
+                                    cntLights           = reader.GetInt32(cntLightsCol),
+                                    cntTriangles        = reader.GetInt32(cntTrianglesCol),
+                                    cntBlocks           = reader.GetInt32(cntBlocksCol),
+                                    cntDevices          = reader.GetInt32(cntDevicesCol),
+                                    fuel                = (int)reader.GetFloat(fuelCol),
+                                    powered             = reader.GetBoolean(ispoweredCol),
+                                    rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
+                                    pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
+                                    lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
+                                    name                = reader.GetValue(nameCol)?.ToString(),
+                                    factionId           = reader.GetInt32(facIdCol),
+                                    factionGroup        = reader.GetByte(facgroupCol),
+                                    type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
+                                    coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
+                                    pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
+                                    PlayfieldName       = currentPlayfield?.Name        ?? "?",
+                                    SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
+                                };
+
+                                if(!(reader[dockedToCol] is DBNull))
+                                {
+                                    var dockedTo = reader.GetInt32(dockedToCol);
+                                    if (dockedToList.TryGetValue(dockedTo, out var dockedShips)) dockedShips.Add(gsi.id);
+                                    else dockedToList.Add(dockedTo, new List<int> { gsi.id });
+                                }
+
+                                globalStructuresList.Add(gsi.id, gsi);
+                                currentPlayfieldStructures.Add(gsi);
                             }
-
-                            var gsi = new GlobalStructureInfo() {
-                                id                  = reader.GetInt32(entityIdCol),
-                                dockedShips         = new List<int>(),
-                                classNr             = reader.GetInt32(classNrCol),
-                                cntLights           = reader.GetInt32(cntLightsCol),
-                                cntTriangles        = reader.GetInt32(cntTrianglesCol),
-                                cntBlocks           = reader.GetInt32(cntBlocksCol),
-                                cntDevices          = reader.GetInt32(cntDevicesCol),
-                                fuel                = (int)reader.GetFloat(fuelCol),
-                                powered             = reader.GetBoolean(ispoweredCol),
-                                rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
-                                pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
-                                lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
-                                name                = reader.GetValue(nameCol)?.ToString(),
-                                factionId           = reader.GetInt32(facIdCol),
-                                factionGroup        = reader.GetByte(facgroupCol),
-                                type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
-                                coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
-                                pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
-                                PlayfieldName       = currentPlayfield?.Name        ?? "?",
-                                SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
-                            };
-
-                            if(!(reader[dockedToCol] is DBNull))
+                            catch (Exception error)
                             {
-                                var dockedTo = reader.GetInt32(dockedToCol);
-                                if (dockedToList.TryGetValue(dockedTo, out var dockedShips)) dockedShips.Add(gsi.id);
-                                else dockedToList.Add(dockedTo, new List<int> { gsi.id });
+                                object[] values = new object [reader.FieldCount];
+                                Logger.LogError(error, "GlobalStructureList CurrentList: {@reader} {@values}", reader.GetValues(values), values);
                             }
-
-                            globalStructuresList.Add(gsi.id, gsi);
-                            currentPlayfieldStructures.Add(gsi);
                         }
                     }
 

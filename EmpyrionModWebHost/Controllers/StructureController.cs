@@ -33,9 +33,9 @@ namespace EmpyrionModWebHost.Controllers
         public ConfigurationManager<GlobalStructureListData> LastGlobalStructureList { get; private set; }
         public string CurrentEBPFile { get; set; }
 
-        public StructureManager(IMapper mapper, ILogger<StructureManager> logger)
+        public StructureManager(IMapper mapper, ILogger<StructureManager> logger, GlobalStructureListAccess gsla)
         {
-            GSLA = new GlobalStructureListAccess();
+            GSLA = gsla;
 
             Mapper = mapper;
             Logger = logger;
@@ -166,27 +166,27 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         [HttpGet("GlobalStructureList")]
-        public IActionResult GlobalStructureList()
+        public IActionResult GlobalStructureList(bool withPois = false)
         {
             if (UserService.CurrentUser.Role == Role.VIP)
             {
-                var Result = new GlobalStructureListData() { globalStructures = new Dictionary<string, List<GlobalStructureInfoData>>() };
                 var CurrentPlayer = PlayerManager.CurrentPlayer;
                 if (CurrentPlayer == null) return Ok();
 
-                StructureManager.GlobalStructureList().globalStructures
-                    .ForEach(P => {
-                        var L = P.Value.Where(S =>
-                            (S.factionGroup == (byte)Factions.Faction && S.factionId == CurrentPlayer.FactionId) ||
-                            (S.factionGroup == (byte)Factions.Private && S.factionId == CurrentPlayer.EntityId)
-                        ).ToList();
-                        if (L.Count > 0) Result.globalStructures.Add(P.Key, L);
-                    });
-                return Ok(Result);
+                return Ok(StructureManager.GlobalStructureList().globalStructures
+                            .SelectMany(P => 
+                                P.Value.Where(S =>
+                                    (S.factionGroup == (byte)Factions.Faction && S.factionId == CurrentPlayer.FactionId) ||
+                                    (S.factionGroup == (byte)Factions.Private && S.factionId == CurrentPlayer.EntityId)
+                                )
+                            )
+                        );
             }
 
 
-            return Ok(StructureManager.GlobalStructureList());
+            return Ok(withPois 
+                ? StructureManager.GlobalStructureList().globalStructures.SelectMany(P => P.Value) 
+                : StructureManager.GlobalStructureList().globalStructures.SelectMany(P => P.Value.Where(S => S.factionGroup == (byte)Factions.Faction || S.factionGroup == (byte)Factions.Private)));
         }
 
 #pragma warning disable IDE1006 // Naming Styles

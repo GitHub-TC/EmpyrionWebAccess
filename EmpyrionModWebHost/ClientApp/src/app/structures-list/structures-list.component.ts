@@ -26,7 +26,7 @@ export class StructuresListComponent implements OnInit {
   @ViewChild(FactionSelectDialogComponent, { static: true }) FactionSelect: FactionSelectDialogComponent;
   @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
-  displayedColumns = ['Select', 'id', 'playfield', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
+  displayedColumns = ['Select', 'id', 'playfield', 'solarSystem', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);
@@ -44,7 +44,7 @@ export class StructuresListComponent implements OnInit {
   constructor(
     private http: HttpClient,
     public PlayerService: PlayerService,
-    private mStructureService: StructureService,
+    public mStructureService: StructureService,
     private mPositionService: PositionService,
     public mFactionService: FactionService,
     public role: RoleService,

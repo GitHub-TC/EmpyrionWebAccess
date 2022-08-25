@@ -1,3 +1,4 @@
+using EgsDbTools;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 using static System.Net.Mime.MediaTypeNames;
@@ -80,6 +81,7 @@ public class Startup
             });
 
         services.AddSingleton<ModHostDLL>();
+        services.AddSingleton<GlobalStructureListAccess>();
         services.AddSingleton(typeof(IEWAPlugin), typeof(ChatManager));
         services.AddSingleton(typeof(IEWAPlugin), typeof(PlayerManager));
         services.AddSingleton(typeof(IEWAPlugin), typeof(BackpackManager));
