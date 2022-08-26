@@ -1,3 +1,4 @@
+using EgsDbTools;
 using EmpyrionModWebHost.Controllers;
 using EmpyrionNetAPITools.Extensions;
 using Microsoft.Extensions.Logging;
@@ -74,7 +75,7 @@ public class UnitTestsEWA
     [TestMethod]
     public void TestGlobalStructureListDB()
     {
-        var gsl = new EgsDbTools.GlobalStructureListAccess();
+        var gsl = new EgsDbTools.GlobalStructureListAccess(NullLogger<GlobalStructureListAccess>.Instance);
         gsl.GlobalDbPath = @"C:\steamcmd\empyrion.server\Saves\Games\DefaultRE\global.db";
         var result = gsl.CurrentList;
 

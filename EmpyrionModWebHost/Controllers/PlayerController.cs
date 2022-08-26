@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using EgsDbTools;
+using System.Collections.Concurrent;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -13,6 +14,7 @@ namespace EmpyrionModWebHost.Controllers
         public ILogger<PlayerManager> Logger { get; set; }
         public IRoleHubContext<PlayerHub> PlayerHub { get; internal set; }
         public IProvider<IUserService> UserService { get; }
+        public GlobalStructureListAccess GSLA { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public Lazy<ChatManager> ChatManager { get; }
         public Lazy<UserManager> UserManager { get; }
@@ -22,11 +24,13 @@ namespace EmpyrionModWebHost.Controllers
         public PlayerManager(
             ILogger<PlayerManager> aLogger,
             IRoleHubContext<PlayerHub> aPlayerHub,
-            IProvider<IUserService> aUserService)
+            IProvider<IUserService> aUserService,
+            GlobalStructureListAccess gsla)
         {
             Logger = aLogger;
             PlayerHub = aPlayerHub;
             UserService = aUserService;
+            GSLA = gsla;
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
             ChatManager = new Lazy<ChatManager>(() => Program.GetManager<ChatManager>());
             UserManager = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
@@ -86,45 +90,46 @@ namespace EmpyrionModWebHost.Controllers
                 Player = DB.Find<Player>(aPlayerInfo.steamId) ?? new Player();
                 var IsNewPlayer = string.IsNullOrEmpty(Player.Id);
 
-                Player.Id = aPlayerInfo.steamId;
-                Player.EntityId = aPlayerInfo.entityId;
-                Player.SteamId = aPlayerInfo.steamId;
-                Player.ClientId = aPlayerInfo.clientId;
-                Player.Radiation = aPlayerInfo.radiation;
-                Player.RadiationMax = aPlayerInfo.radiationMax;
-                Player.BodyTemp = aPlayerInfo.bodyTemp;
-                Player.BodyTempMax = aPlayerInfo.bodyTempMax;
-                Player.Kills = aPlayerInfo.kills;
-                Player.Died = aPlayerInfo.died;
-                Player.Credits = aPlayerInfo.credits;
-                Player.FoodMax = aPlayerInfo.foodMax;
-                Player.Exp = aPlayerInfo.exp;
-                Player.Upgrade = aPlayerInfo.upgrade;
-                Player.Ping = aPlayerInfo.ping;
-                Player.Permission = aPlayerInfo.permission;
-                Player.Food = aPlayerInfo.food;
-                Player.Stamina = aPlayerInfo.stamina;
-                Player.SteamOwnerId = aPlayerInfo.steamOwnerId;
-                Player.PlayerName = aPlayerInfo.playerName;
-                Player.Playfield = aPlayerInfo.playfield;
-                Player.BpInFactory = aPlayerInfo.bpInFactory;
+                Player.Id              = aPlayerInfo.steamId;
+                Player.EntityId        = aPlayerInfo.entityId;
+                Player.SteamId         = aPlayerInfo.steamId;
+                Player.ClientId        = aPlayerInfo.clientId;
+                Player.Radiation       = aPlayerInfo.radiation;
+                Player.RadiationMax    = aPlayerInfo.radiationMax;
+                Player.BodyTemp        = aPlayerInfo.bodyTemp;
+                Player.BodyTempMax     = aPlayerInfo.bodyTempMax;
+                Player.Kills           = aPlayerInfo.kills;
+                Player.Died            = aPlayerInfo.died;
+                Player.Credits         = aPlayerInfo.credits;
+                Player.FoodMax         = aPlayerInfo.foodMax;
+                Player.Exp             = aPlayerInfo.exp;
+                Player.Upgrade         = aPlayerInfo.upgrade;
+                Player.Ping            = aPlayerInfo.ping;
+                Player.Permission      = aPlayerInfo.permission;
+                Player.Food            = aPlayerInfo.food;
+                Player.Stamina         = aPlayerInfo.stamina;
+                Player.SteamOwnerId    = aPlayerInfo.steamOwnerId;
+                Player.PlayerName      = aPlayerInfo.playerName;
+                Player.Playfield       = aPlayerInfo.playfield;
+                Player.SolarSystem     = (GSLA.PlayfieldsByName?.TryGetValue(aPlayerInfo.playfield, out var foundSystem) == true ? foundSystem.SolarSystem : string.Empty) ?? string.Empty;
+                Player.BpInFactory     = aPlayerInfo.bpInFactory;
                 Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
-                Player.StartPlayfield = aPlayerInfo.startPlayfield;
-                Player.StaminaMax = aPlayerInfo.staminaMax;
-                Player.FactionGroup = aPlayerInfo.factionGroup;
-                Player.FactionId = aPlayerInfo.factionId;
-                Player.FactionRole = aPlayerInfo.factionRole;
-                Player.Health = aPlayerInfo.health;
-                Player.HealthMax = aPlayerInfo.healthMax;
-                Player.Oxygen = aPlayerInfo.oxygen;
-                Player.OxygenMax = aPlayerInfo.oxygenMax;
-                Player.Origin = aPlayerInfo.origin;
-                Player.PosX = aPlayerInfo.pos.x;
-                Player.PosY = aPlayerInfo.pos.y;
-                Player.PosZ = aPlayerInfo.pos.z;
-                Player.RotX = aPlayerInfo.rot.x;
-                Player.RotY = aPlayerInfo.rot.y;
-                Player.RotZ = aPlayerInfo.rot.z;
+                Player.StartPlayfield  = aPlayerInfo.startPlayfield;
+                Player.StaminaMax      = aPlayerInfo.staminaMax;
+                Player.FactionGroup    = aPlayerInfo.factionGroup;
+                Player.FactionId       = aPlayerInfo.factionId;
+                Player.FactionRole     = aPlayerInfo.factionRole;
+                Player.Health          = aPlayerInfo.health;
+                Player.HealthMax       = aPlayerInfo.healthMax;
+                Player.Oxygen          = aPlayerInfo.oxygen;
+                Player.OxygenMax       = aPlayerInfo.oxygenMax;
+                Player.Origin          = aPlayerInfo.origin;
+                Player.PosX            = aPlayerInfo.pos.x;
+                Player.PosY            = aPlayerInfo.pos.y;
+                Player.PosZ            = aPlayerInfo.pos.z;
+                Player.RotX            = aPlayerInfo.rot.x;
+                Player.RotY            = aPlayerInfo.rot.y;
+                Player.RotZ            = aPlayerInfo.rot.z;
 
                 if (IsNewPlayer)
                 {
@@ -303,25 +308,25 @@ namespace EmpyrionModWebHost.Controllers
                 var player = DB.Players.FirstOrDefault(P => P.EntityId == aSet.entityId);
                 if (player == null) return;
 
-                if (aSet.factionRole.HasValue) player.FactionRole = aSet.factionRole.Value;
-                if (aSet.factionId.HasValue) player.FactionId = aSet.factionId.Value;
-                if (aSet.factionGroup.HasValue) player.FactionGroup = aSet.factionGroup.Value;
-                if (aSet.origin.HasValue) player.Origin = (byte)aSet.origin.Value;
-                if (aSet.upgradePoints.HasValue) player.Upgrade = aSet.upgradePoints.Value;
-                if (aSet.experiencePoints.HasValue) player.Exp = aSet.experiencePoints.Value;
-                if (aSet.bodyTempMax.HasValue) player.BodyTempMax = aSet.bodyTempMax.Value;
-                if (aSet.bodyTemp.HasValue) player.BodyTemp = aSet.bodyTemp.Value;
-                if (aSet.radiationMax.HasValue) player.RadiationMax = aSet.radiationMax.Value;
-                if (aSet.oxygenMax.HasValue) player.OxygenMax = aSet.oxygenMax.Value;
-                if (aSet.oxygen.HasValue) player.Oxygen = aSet.oxygen.Value;
-                if (aSet.foodMax.HasValue) player.FoodMax = aSet.foodMax.Value;
-                if (aSet.food.HasValue) player.Food = aSet.food.Value;
-                if (aSet.staminaMax.HasValue) player.StaminaMax = aSet.staminaMax.Value;
-                if (aSet.stamina.HasValue) player.Stamina = aSet.stamina.Value;
-                if (aSet.healthMax.HasValue) player.HealthMax = aSet.healthMax.Value;
-                if (aSet.health.HasValue) player.Health = aSet.health.Value;
+                if (aSet.factionRole     .HasValue) player.FactionRole                = aSet.factionRole.Value;
+                if (aSet.factionId       .HasValue) player.FactionId                  = aSet.factionId.Value;
+                if (aSet.factionGroup    .HasValue) player.FactionGroup               = aSet.factionGroup.Value;
+                if (aSet.origin          .HasValue) player.Origin                     = (byte)aSet.origin.Value;
+                if (aSet.upgradePoints   .HasValue) player.Upgrade                    = aSet.upgradePoints.Value;
+                if (aSet.experiencePoints.HasValue) player.Exp                        = aSet.experiencePoints.Value;
+                if (aSet.bodyTempMax     .HasValue) player.BodyTempMax                = aSet.bodyTempMax.Value;
+                if (aSet.bodyTemp        .HasValue) player.BodyTemp                   = aSet.bodyTemp.Value;
+                if (aSet.radiationMax    .HasValue) player.RadiationMax               = aSet.radiationMax.Value;
+                if (aSet.oxygenMax       .HasValue) player.OxygenMax                  = aSet.oxygenMax.Value;
+                if (aSet.oxygen          .HasValue) player.Oxygen                     = aSet.oxygen.Value;
+                if (aSet.foodMax         .HasValue) player.FoodMax                    = aSet.foodMax.Value;
+                if (aSet.food            .HasValue) player.Food                       = aSet.food.Value;
+                if (aSet.staminaMax      .HasValue) player.StaminaMax                 = aSet.staminaMax.Value;
+                if (aSet.stamina         .HasValue) player.Stamina                    = aSet.stamina.Value;
+                if (aSet.healthMax       .HasValue) player.HealthMax                  = aSet.healthMax.Value;
+                if (aSet.health          .HasValue) player.Health                     = aSet.health.Value;
                 if (!string.IsNullOrEmpty(aSet.startPlayfield)) player.StartPlayfield = aSet.startPlayfield;
-                if (aSet.radiation.HasValue) player.Radiation = aSet.radiation.Value;
+                if (aSet.radiation       .HasValue) player.Radiation                  = aSet.radiation.Value;
 
                 DB.SaveChangesAsync();
             }

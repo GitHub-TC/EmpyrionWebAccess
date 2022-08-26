@@ -47,6 +47,7 @@ namespace EmpyrionModWebHost.Models
         public int Id { get; set; }
         public DateTime Timestamp { get; set; }
         public string Playfield { get; set; }
+        public string SolarSystem { get; set; }
         public string SteamId { get; set; }
         public string Name { get; set; }
         public int PosX { get; set; }

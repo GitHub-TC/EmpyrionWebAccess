@@ -51,6 +51,7 @@ namespace EmpyrionModWebHost.Models
         public string SteamOwnerId { get; set; }
         public string PlayerName { get; set; }
         public string Playfield { get; set; }
+        public string SolarSystem { get; set; }
         public string StartPlayfield { get; set; }
         public float StaminaMax { get; set; }
         public byte FactionGroup { get; set; }

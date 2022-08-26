@@ -71,15 +71,16 @@ namespace EmpyrionModWebHost.Controllers
                 ? DetectChages(LastData, aPlayer)
                 : new HistoryBookOfPlayers()
                 {
-                    Timestamp = DateTime.Now.ToUniversalTime(),
-                    Playfield = aPlayer.Playfield,
-                    PosX = (int)aPlayer.PosX,
-                    PosY = (int)aPlayer.PosY,
-                    PosZ = (int)aPlayer.PosZ,
-                    SteamId = aPlayer.SteamId,
-                    Name    = aPlayer.PlayerName,
-                    Online  = aPlayer.Online,
-                    Changed = GetPlayerChanges(null, aPlayer),
+                    Timestamp   = DateTime.Now.ToUniversalTime(),
+                    Playfield   = aPlayer.Playfield,
+                    SolarSystem = aPlayer.SolarSystem,
+                    PosX        = (int)aPlayer.PosX,
+                    PosY        = (int)aPlayer.PosY,
+                    PosZ        = (int)aPlayer.PosZ,
+                    SteamId     = aPlayer.SteamId,
+                    Name        = aPlayer.PlayerName,
+                    Online      = aPlayer.Online,
+                    Changed     = GetPlayerChanges(null, aPlayer),
                 };
 
             if (!aLastPlayerData.TryAdd(aPlayer.SteamId, aPlayer)) aLastPlayerData[aPlayer.SteamId] = aPlayer;

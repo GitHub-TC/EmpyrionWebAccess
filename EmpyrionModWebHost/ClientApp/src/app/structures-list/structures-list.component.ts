@@ -97,6 +97,7 @@ export class StructuresListComponent implements OnInit {
         data.id       .toString().indexOf(filter) != -1 ||
         data.name     .trim().toLowerCase().indexOf(filter) != -1 ||
         data.playfield.trim().toLowerCase().indexOf(filter) != -1 ||
+        data.solarSystemName.trim().toLowerCase().indexOf(filter) != -1 ||
         data.coreType .toString().indexOf(filter) != -1 ||
         this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1 ||
         ('' + data.factionId).indexOf(filter) != -1;

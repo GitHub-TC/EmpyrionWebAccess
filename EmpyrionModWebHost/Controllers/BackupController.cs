@@ -67,7 +67,7 @@ namespace EmpyrionModWebHost.Controllers
                 List<string> playfields = null; 
                 try
                 {
-                    playfields = GSLA.CurrentPlayfields.Values.Select(p => p.Name).ToList();
+                    playfields = GSLA.PlayfieldsById.Values.Select(p => p.Name).ToList();
                 }
                 catch (Exception error)
                 {

@@ -1,9 +1,14 @@
-﻿using Microsoft.Build.Tasks;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace EgsDbTools
 {
+    public static class SQLiteExtensions
+    {
+        public static string SafeGetString(this SqliteDataReader reader, int colIndex) 
+            => !reader.IsDBNull(colIndex) ? reader.GetString(colIndex) : string.Empty;
+    }
     public class GlobalStructureListAccess
     {
         private GlobalStructureList currentList;
@@ -65,7 +70,7 @@ namespace EgsDbTools
             {
                 DbConnection.Open();
 
-                currentPlayfields = ReadPlayfields(DbConnection);
+                ReadPlayfields(DbConnection);
 
                 using (var cmd = new SqliteCommand(
 $@"
@@ -151,8 +156,8 @@ ORDER BY pfid
                                 if(pfid != currentPlayfieldId)
                                 {
                                     currentPlayfieldId = pfid;
-                                    currentPlayfields.TryGetValue(pfid, out currentPlayfield);
-                                    gsl.globalStructures.Add(currentPlayfields[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
+                                    _PlayfieldsById.TryGetValue(pfid, out currentPlayfield);
+                                    gsl.globalStructures.Add(_PlayfieldsById[pfid].Name, currentPlayfieldStructures = new List<GlobalStructureInfo>());
                                 }
 
                                 var gsi = new GlobalStructureInfo() {
@@ -220,7 +225,7 @@ ORDER BY pfid
             {
                 DbConnection.Open();
 
-                currentPlayfields = ReadPlayfields(DbConnection);
+                ReadPlayfields(DbConnection);
 
                 using (var cmd = new SqliteCommand(
 @"
@@ -289,7 +294,7 @@ WHERE Structures.entityid = " + id.id.ToString(),
                             }
 
                             int pfid = reader.GetInt32(pfIdCol);
-                            currentPlayfields.TryGetValue(pfid, out var currentPlayfield);
+                            _PlayfieldsById.TryGetValue(pfid, out var currentPlayfield);
 
                             return new GlobalStructureInfo() {
                                 id                  = reader.GetInt32(entityIdCol),
@@ -307,8 +312,8 @@ WHERE Structures.entityid = " + id.id.ToString(),
                                 name                = reader.GetValue(nameCol)?.ToString(),
                                 factionId           = reader.GetInt32(facIdCol),
                                 factionGroup        = reader.GetByte(facgroupCol),
-                                type                = reader.GetByte(etypeCol),
-                                coreType            = (sbyte)reader.GetByte(coretypeCol),
+                                type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
+                                coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
                                 pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
                                 PlayfieldName       = currentPlayfield?.Name        ?? "?",
                                 SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
@@ -333,59 +338,60 @@ WHERE Structures.entityid = " + id.id.ToString(),
         }
 
         public DateTime LastDbPlayfieldRead { get; set; }
+        public Dictionary<int, SolarSystemData> PlayfieldsById { get { CheckForUpdateReading(); return _PlayfieldsById; } }
+        Dictionary<int, SolarSystemData> _PlayfieldsById;
+        public Dictionary<string, SolarSystemData> PlayfieldsByName { get { CheckForUpdateReading(); return _PlayfieldsByName; } }
+        Dictionary<string, SolarSystemData> _PlayfieldsByName;
 
-        public Dictionary<int, SolarSystemData> CurrentPlayfields
+        void CheckForUpdateReading()
         {
-            get
+            if (UpdateNow || (DateTime.Now - LastDbPlayfieldRead).TotalSeconds > UpdateIntervallInSeconds || _PlayfieldsById == null || _PlayfieldsByName == null)
             {
-                if (UpdateNow || (DateTime.Now - LastDbPlayfieldRead).TotalSeconds > UpdateIntervallInSeconds)
+                var connectionString = new SqliteConnectionStringBuilder()
                 {
-                    var connectionString = new SqliteConnectionStringBuilder()
-                    {
-                        Mode = SqliteOpenMode.ReadOnly,
-                        Cache = SqliteCacheMode.Shared,
-                        DataSource = GlobalDbPath
-                    };
+                    Mode       = SqliteOpenMode.ReadOnly,
+                    Cache      = SqliteCacheMode.Shared,
+                    DataSource = GlobalDbPath
+                };
 
-                    using (var DbConnection = new SqliteConnection(connectionString.ToString()))
-                    {
-                        DbConnection.Open();
-                        currentPlayfields = ReadPlayfields(DbConnection);
-                        DbConnection.Close();
-                    }
-                    LastDbPlayfieldRead = DateTime.Now;
+                LastDbPlayfieldRead = DateTime.Now;
+
+                using (var DbConnection = new SqliteConnection(connectionString.ToString()))
+                {
+                    DbConnection.Open();
+                    ReadPlayfields(DbConnection);
+                    DbConnection.Close();
                 }
-                return currentPlayfields;
             }
         }
-        private Dictionary<int, SolarSystemData> currentPlayfields;
 
-        private Dictionary<int, SolarSystemData> ReadPlayfields(SqliteConnection dbConnection)
+        private void ReadPlayfields(SqliteConnection dbConnection)
         {
+            LastDbPlayfieldRead = DateTime.Now;
+
             var result = new Dictionary<int, SolarSystemData>();
 
-            using (var cmd = new SqliteCommand(
+            using var cmd = new SqliteCommand(
 @"
 SELECT Playfields.pfid, Playfields.name, SolarSystems.ssid, SolarSystems.name, Playfields.planettype FROM Playfields
 JOIN SolarSystems ON Playfields.ssid = SolarSystems.ssid
 ",
-            dbConnection))
-            {
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read()) result.Add(reader.GetInt32(0), 
-                        new SolarSystemData 
-                        { 
-                            Name          = reader.GetString(1), 
-                            SsId          = reader.GetInt32(2), 
-                            SolarSystem   = reader.GetString(3), 
-                            PfId          = reader.GetInt32(0), 
-                            PlayfieldType = reader.GetString(4) 
-                        });
-                }
-            }
+            dbConnection);
 
-            return result;
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read()) result.Add(reader.GetInt32(0),
+                new SolarSystemData
+                {
+                    Name          = reader.SafeGetString(1),
+                    SsId          = reader.GetInt32(2),
+                    SolarSystem   = reader.SafeGetString(3),
+                    PfId          = reader.GetInt32(0),
+                    PlayfieldType = reader.SafeGetString(4)
+                });
+
+            _PlayfieldsById   = result;
+            _PlayfieldsByName = _PlayfieldsById.Values.GroupBy(P => P.Name).ToDictionary(P => P.Key, P => P.First());
         }
     }
 }

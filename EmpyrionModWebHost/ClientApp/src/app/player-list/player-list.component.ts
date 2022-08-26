@@ -23,7 +23,7 @@ import { SystemInfoService } from '../services/systeminfo.service';
   styleUrls: ['./player-list.component.less']
 })
 export class PlayerListComponent implements OnInit {
-  displayedColumns = ['Online', 'PlayerName', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'Origin', 'LastOnline', 'OnlineHours', 'EntityId', 'SteamId'];
+  displayedColumns = ['Online', 'PlayerName', 'Faction', 'Playfield', 'PosX', 'PosY', 'PosZ', 'SolarSystem', 'Origin', 'LastOnline', 'OnlineHours', 'EntityId', 'SteamId'];
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
 
@@ -68,6 +68,7 @@ export class PlayerListComponent implements OnInit {
       (data: PlayerModel, filter: string) =>
         data.PlayerName                   .trim().toLowerCase().indexOf(filter) != -1 ||
         data.Playfield                    .trim().toLowerCase().indexOf(filter) != -1 ||
+        data.SolarSystem                  .trim().toLowerCase().indexOf(filter) != -1 ||
         data.EntityId                     .toString()          .indexOf(filter) != -1 ||
         data.SteamId                                           .indexOf(filter) != -1 ||
         this.Origin(data)                 .trim().toLowerCase().indexOf(filter) != -1 ||

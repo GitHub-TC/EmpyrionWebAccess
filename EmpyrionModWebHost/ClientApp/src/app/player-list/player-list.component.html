@@ -88,6 +88,16 @@
       <td mat-cell *matCellDef="let player" align="right">{{player.PosZ | number : "1.1-1"}}</td>
     </ng-container>
 
+    <ng-container matColumnDef="SolarSystem">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> SolarSystem </th>
+      <td mat-cell *matCellDef="let player">
+        <div style="display:inline-block; margin-top:2px; width:15px">
+          <mat-icon style="font-size:medium; cursor: pointer; color: lightblue;" (click)="GotoEntities(player)" title="Structures of {{player.SolarSystem}}">stars</mat-icon>
+        </div>
+        {{player.SolarSystem}}
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="LastOnline">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> LastOnline </th>
       <td mat-cell *matCellDef="let player"> {{player.LastOnline | date : "dd.MM.yyyy HH:mm"}} </td>
