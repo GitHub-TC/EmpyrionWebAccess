@@ -111,7 +111,7 @@ namespace EmpyrionModWebHost.Controllers
                 Player.SteamOwnerId    = aPlayerInfo.steamOwnerId;
                 Player.PlayerName      = aPlayerInfo.playerName;
                 Player.Playfield       = aPlayerInfo.playfield;
-                Player.SolarSystem     = (GSLA.PlayfieldsByName?.TryGetValue(aPlayerInfo.playfield, out var foundSystem) == true ? foundSystem.SolarSystem : string.Empty) ?? string.Empty;
+                Player.SolarSystem     = (GSLA.PlayfieldsByName?.TryGetValue(aPlayerInfo.playfield ?? string.Empty, out var foundSystem) == true ? foundSystem.SolarSystem : string.Empty) ?? string.Empty;
                 Player.BpInFactory     = aPlayerInfo.bpInFactory;
                 Player.BpRemainingTime = aPlayerInfo.bpRemainingTime;
                 Player.StartPlayfield  = aPlayerInfo.startPlayfield;
