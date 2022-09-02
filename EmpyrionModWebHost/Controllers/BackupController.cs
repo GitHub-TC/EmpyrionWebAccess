@@ -222,8 +222,10 @@ namespace EmpyrionModWebHost.Controllers
                             @"Saves\Games",
                             Path.GetFileName(EmpyrionConfiguration.SaveGamePath), "Shared", aStructure.structureName);
 
-            var sourceExportDat = Path.Combine(SourceDir, "Export.dat"); 
-            if (!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // Empyrion autosave
+            var sourceExportDat = Path.Combine(SourceDir, "Export.dat");
+
+            // zur Zeit funktioniert das Restaurtieren mit den Devicesettings nicht mit der vom Spiel erzeugten *.dat Datei :-( 
+            //if (!File.Exists(sourceExportDat)) sourceExportDat = Path.Combine(SourceDir, "ents.dat"); // Empyrion autosave
 
             var TargetDir = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{NewID.id}");
 
@@ -231,8 +233,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 forceEntityId   = NewID.id,
                 playfield       = aStructure.Playfield,
-                pos             = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
-                rot             = aStructure.Rot == null ? new PVector3(0, 0, 0) : new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
+                pos             = new PVector3(aStructure.Pos?.x ?? 0, aStructure.Pos?.y ?? 0, aStructure.Pos?.z ?? 0),
+                rot             = new PVector3(aStructure.Rot?.x ?? 0, aStructure.Rot?.y ?? 0, aStructure.Rot?.z ?? 0),
                 name            = aStructure.Name,
                 type            = (byte)Array.IndexOf(EntityTypes, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName  = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
@@ -245,21 +247,30 @@ namespace EmpyrionModWebHost.Controllers
             Directory.CreateDirectory(Path.GetDirectoryName(TargetDir));
             CopyAll(new DirectoryInfo(SourceDir), new DirectoryInfo(TargetDir), false);
 
+            Logger.LogInformation("SourceDir:{SourceDir} TargetDir:{TargetDir} -> {SpawnInfo}", SourceDir, TargetDir, JsonConvert.SerializeObject(SpawnInfo));
+
             try { await Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0)); }
             catch { }  // Playfield already loaded
 
-            await Request_Entity_Spawn(SpawnInfo);
-            for (int i = 0; i < 10; i++)
+            try
             {
-                try
+                await Request_Entity_Spawn(SpawnInfo);
+                for (int i = 0; i < 10; i++)
                 {
-                    await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
-                    break;
+                    try
+                    {
+                        await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
+                        break;
+                    }
+                    catch
+                    {
+                        await Task.Delay(5000);
+                    }
                 }
-                catch
-                {
-                    await Task.Delay(5000);
-                }
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "CreateStructure failed");
             }
         }
 

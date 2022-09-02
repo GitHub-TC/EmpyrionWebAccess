@@ -109,18 +109,20 @@ namespace EmpyrionModWebHost.Controllers
 
             var SpawnInfo = new EntitySpawnInfo()
             {
-                forceEntityId = NewID.id,
-                playfield = aStructure.Playfield,
-                pos = new PVector3(aStructure.Pos.x, aStructure.Pos.y, aStructure.Pos.z),
-                rot = new PVector3(aStructure.Rot.x, aStructure.Rot.y, aStructure.Rot.z),
-                name = $"EBP:{Path.GetFileNameWithoutExtension(aStructure.Name)}",
-                type = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
+                forceEntityId  = NewID.id,
+                playfield      = aStructure.Playfield,
+                pos            = new PVector3(aStructure.Pos?.x ?? 0, aStructure.Pos?.y ?? 0, aStructure.Pos?.z ?? 0),
+                rot            = new PVector3(aStructure.Rot?.x ?? 0, aStructure.Rot?.y ?? 0, aStructure.Rot?.z ?? 0),
+                name           = $"EBP:{Path.GetFileNameWithoutExtension(aStructure.Name)}",
+                type           = (byte)Array.IndexOf(new[] { "Undef", "", "BA", "CV", "SV", "HV", "", "AstVoxel" }, aStructure.Type), // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
                 entityTypeName = "", // 'Kommentare der Devs:  ...or set this to f.e. 'ZiraxMale', 'AlienCivilian1Fat', etc
-                prefabName = Path.GetFileNameWithoutExtension(aEBPFile),
-                prefabDir  = Path.GetDirectoryName(aEBPFile),
-                factionGroup = 0,
-                factionId = 0, // erstmal auf "public" aStructure.Faction,
+                prefabName     = Path.GetFileNameWithoutExtension(aEBPFile),
+                prefabDir      = Path.GetDirectoryName(aEBPFile),
+                factionGroup   = 0,
+                factionId      = 0, // erstmal auf "public" aStructure.Faction,
             };
+
+            Logger.LogInformation("EBPFile:{EBPFile} -> {SpawnInfo}", aEBPFile, JsonConvert.SerializeObject(SpawnInfo));
 
             try { await Request_Load_Playfield(new PlayfieldLoad(20, aStructure.Playfield, 0)); }
             catch { }  // Playfield already loaded
@@ -129,6 +131,10 @@ namespace EmpyrionModWebHost.Controllers
             {
                 await Request_Entity_Spawn(SpawnInfo);
                 await Request_Structure_Touch(NewID); // Sonst wird die Struktur sofort wieder gelöscht !!!
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "CreateStructure EBP failed");
             }
             finally
             {
