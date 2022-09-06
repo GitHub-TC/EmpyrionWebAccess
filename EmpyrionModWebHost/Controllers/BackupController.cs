@@ -22,12 +22,11 @@ namespace EmpyrionModWebHost.Controllers
         public Lazy<StructureManager> StructureManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public string BackupDir { get; internal set; }
-        public Queue<PlayfieldStructureData> SavesStructuresDat { get; set; }
+        public Queue<PlayfieldGlobalStructureInfo> SavesStructuresDat { get; set; }
         public ConcurrentDictionary<string, string> ActivePlayfields { get; set; } = new ConcurrentDictionary<string, string>();
         public ConcurrentDictionary<string, bool> LoggedError { get; set; } = new ConcurrentDictionary<string, bool>();
 
         public ConfigurationManager<BackupStructureData> BackupStructureDB { get; set; }
-        public GlobalStructureListAccess GSLA { get; }
 
         static int copiedFiles  = 0;
         static int skippedFiles = 0;
@@ -39,7 +38,7 @@ namespace EmpyrionModWebHost.Controllers
             return Result;
         }
 
-        public BackupManager(ILogger<BackupManager> logger, IMapper mapper, GlobalStructureListAccess gsla)
+        public BackupManager(ILogger<BackupManager> logger, IMapper mapper)
         {
             Logger = logger;
             Mapper = mapper;
@@ -54,43 +53,18 @@ namespace EmpyrionModWebHost.Controllers
                 ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "BackupStructureDB.json")
             };
             BackupStructureDB.Load();
-
-            GSLA = gsla;
         }
 
         private void BackupStructureData()
         {
-            GSLA.GlobalDbPath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+            if (ActivePlayfields.IsEmpty) return;
 
-            if (ActivePlayfields.Count == 0)
-            {
-                List<string> playfields = null; 
-                try
-                {
-                    playfields = GSLA.PlayfieldsById.Values.Select(p => p.Name).ToList();
-                }
-                catch (Exception error)
-                {
-                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Playfield_List");
-                    return;
-                }
-
-                if (playfields == null)
-                {
-                    var msg = $"Playfield_List: no playfields";
-                    if (LoggedError.TryAdd(msg, true)) Logger?.LogError(msg, $"BackupStructureData: Playfield_List");
-
-                    return;
-                }
-
-                ActivePlayfields = new ConcurrentDictionary<string, string>(playfields.ToDictionary(P => P));
-            }
-
+            bool displayInfo = false;
             if (SavesStructuresDat == null || SavesStructuresDat.Count == 0)
             {
-                SavesStructuresDat = new Queue<PlayfieldStructureData>(StructureManager.Value.CurrentGlobalStructures
-                            .Values
-                            .Where(S => S.StructureInfo.factionId > 0 && ActivePlayfields.TryGetValue(S.Playfield, out _)));
+                SavesStructuresDat = new Queue<PlayfieldGlobalStructureInfo>(BackupStructureDB.Current.AlivePlayerStructures
+                            .Where(S => ActivePlayfields.TryGetValue(S.Playfield, out _)));
+                displayInfo = true;
             }
 
             int errorCounter = 0;
@@ -99,18 +73,23 @@ namespace EmpyrionModWebHost.Controllers
             {
                 try
                 {
-                    var type = GetEntityTypeName(test.StructureInfo.type); // Entity.GetFromEntityType 'Kommentare der Devs: Set this Undef = 0, BA = 2, CV = 3, SV = 4, HV = 5, AstVoxel = 7
-                    var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{test.StructureInfo.id}");
+                    var structurePath = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", $"{test.Id}");
                     var exportDat = Path.Combine(structurePath, "Export.dat");
-                    var entsDat   = Path.Combine(structurePath, "ents.dat");   // A12 autosave
+                    // var entsDat   = Path.Combine(structurePath, "ents.dat");   // A12 autosave: Funktioniert leider beim Restore nicht
 
-                    if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat) && !File.Exists(entsDat))
+                    if (ActivePlayfields.TryGetValue(test.Playfield, out _) && IsExportDatOutdated(exportDat)) // Funktioniert leider beim Restore nicht: && !File.Exists(entsDat))
                     {
+                        if (displayInfo)
+                        {
+                            Logger.LogInformation("BackupStructureData: SavesStructuresDat #{SavesStructuresDat} for ActivePlayfields #{ActivePlayfields}", SavesStructuresDat.Count, ActivePlayfields.Count);
+                            displayInfo = false;
+                        }
+
                         Request_Entity_Export(new EntityExportInfo()
                         {
-                            id = test.StructureInfo.id,
-                            playfield = test.Playfield,
-                            filePath = exportDat,
+                            id            = test.Id,
+                            playfield     = test.Playfield,
+                            filePath      = exportDat,
                             isForceUnload = false,
                         }).Wait(10000);
 
@@ -120,7 +99,7 @@ namespace EmpyrionModWebHost.Controllers
                 }
                 catch (TimeoutException) { }
                 catch (Exception error)  {
-                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Entity_Export[{errorCounter++}] {test.Playfield} -> {test.StructureInfo.id} '{test.StructureInfo.name}'");
+                    if (LoggedError.TryAdd(error.Message, true)) Logger?.LogError(error, $"BackupStructureData: Request_Entity_Export[{errorCounter++}] {test.Playfield} -> {test.Id} '{test.Name}'");
 
                     Thread.Sleep(Program.AppSettings.SleepBetweenEntityExportInSeconds * 1000);
                 }
@@ -191,10 +170,14 @@ namespace EmpyrionModWebHost.Controllers
                 try { aTarget.CreateSubdirectory(D.Name); } catch { }
                 CopyAll(D, new DirectoryInfo(Path.Combine(aTarget.FullName, D.Name)), onlyIfNewerOrFilesizeDiff);
             });
+
+            var targetFiles = new ConcurrentDictionary<string, string>(aTarget.GetFiles().ToDictionary(F => F.Name, F => F.Name));
+
             aSource.GetFiles().AsParallel().ForEach(F => {
                 Directory.CreateDirectory(aTarget.FullName);
                 try {
                     var targetFilename = Path.Combine(aTarget.FullName, F.Name);
+                    targetFiles.TryRemove(F.Name, out _);
 
                     if (onlyIfNewerOrFilesizeDiff
                         && File.Exists(targetFilename)
@@ -211,6 +194,12 @@ namespace EmpyrionModWebHost.Controllers
                 }
                 catch { }
             });
+
+            targetFiles.AsParallel().ForAll(F => {
+                try{ File.Delete(Path.Combine(aTarget.FullName, F.Key)); }
+                catch { }
+            });
+
         }
 
         public async Task CreateStructure(string aSelectBackupDir, PlayfieldGlobalStructureInfo aStructure)
