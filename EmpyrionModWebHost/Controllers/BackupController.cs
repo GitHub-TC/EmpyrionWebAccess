@@ -171,7 +171,7 @@ namespace EmpyrionModWebHost.Controllers
                 CopyAll(D, new DirectoryInfo(Path.Combine(aTarget.FullName, D.Name)), onlyIfNewerOrFilesizeDiff);
             });
 
-            var targetFiles = new ConcurrentDictionary<string, string>(aTarget.GetFiles().ToDictionary(F => F.Name, F => F.Name));
+            var targetFiles = aTarget.Exists ? new ConcurrentDictionary<string, string>(aTarget.GetFiles().ToDictionary(F => F.Name, F => F.Name)) : new ConcurrentDictionary<string, string>();
 
             aSource.GetFiles().AsParallel().ForEach(F => {
                 Directory.CreateDirectory(aTarget.FullName);
