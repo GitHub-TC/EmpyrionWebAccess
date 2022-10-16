@@ -11,6 +11,7 @@ import { PlayfieldModel } from '../model/playfield-model';
 import { StructureService } from '../services/structure.service';
 import { GlobalStructureInfo } from '../model/structure-model';
 import { SelectionModel } from '@angular/cdk/collections';
+import { FactionModel } from '../model/faction-model';
 
 interface PlayfieldGlobalStructureInfo {
   structureName: string;
@@ -41,10 +42,11 @@ interface PlayfieldGlobalStructureInfo {
   styleUrls: ['./restore-structure.component.less']
 })
 export class RestoreStructureComponent implements OnInit {
-  displayedColumns = ['Select', 'id', 'name', 'playfield', 'type', 'core', 'posX', 'posY', 'posZ', 'faction', 'blocks', 'devices', 'touched_time', 'touched_name', 'add_info', 'structureName'];
+  displayedColumns = ['Select', 'id', 'name', 'playfield', 'type', 'core', 'posX', 'posY', 'posZ', 'faction', 'blocks', 'devices', 'touched_time', 'touched_name', 'add_info'];
   Backups: string[];
   error: any;
   mSelectedBackup: string;
+  mFactions: FactionModel[] = [];
   mCurrentStructure: PlayfieldGlobalStructureInfo;
   WarpData: PositionModel = {};
   Playfields: PlayfieldModel[] = [];
@@ -59,7 +61,7 @@ export class RestoreStructureComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    public FactionService: FactionService,
+    private mFactionService: FactionService,
     private mStructureService: StructureService,
     public mPositionService: PositionService,
     private mPlayfields: PlayfieldService,
@@ -79,6 +81,7 @@ export class RestoreStructureComponent implements OnInit {
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
+    this.mFactionService.GetFactions().subscribe(F => this.mFactions = F);
   }
 
   ngAfterViewInit() {
@@ -94,7 +97,13 @@ export class RestoreStructureComponent implements OnInit {
         (data.name       && data.name     .trim().toLowerCase().indexOf(filter) != -1) ||
         (data.playfield  && data.playfield.trim().toLowerCase().indexOf(filter) != -1) ||
         (data.type       && data.type     .trim().toLowerCase().indexOf(filter) != -1) ||
+        (data.faction    && data.faction.toString().toLowerCase().indexOf(filter) != -1) ||
+        (this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1) ||
         (data.add_info   && data.add_info .trim().toLowerCase().indexOf(filter) != -1);
+  }
+
+  Faction(data: PlayfieldGlobalStructureInfo) {
+    return data ? this.mFactions.find(F => F.FactionId == data.faction) : new FactionModel();
   }
 
   applyFilter(filterValue: string) {

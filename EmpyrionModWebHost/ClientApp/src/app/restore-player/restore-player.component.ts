@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PlayerModel } from '../model/player-model';
 import { MatTableDataSource } from '@angular/material/table';
 import { SystemInfoService } from '../services/systeminfo.service';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-restore-player',
@@ -13,6 +14,7 @@ export class RestorePlayerComponent implements OnInit {
   displayedColumns = ['online', 'playerName', 'origin', 'playfield', 'posX', 'posY', 'posZ', 'lastOnline', 'onlineHours', 'entityId', 'steamId'];
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
   Backups: string[];
   mSelectedBackup: string;
   error: any;
@@ -31,6 +33,18 @@ export class RestorePlayerComponent implements OnInit {
       );
     // Stop listening for location after 10 seconds
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
+  }
+
+  ngAfterViewInit() {
+    this.players.sort = this.sort;
+    this.players.filterPredicate =
+      (data: PlayerModel | any, filter: string) =>
+        data.playerName.trim().toLowerCase().indexOf(filter) != -1 ||
+        data.playfield.trim().toLowerCase().indexOf(filter) != -1 ||
+        data.solarSystem.trim().toLowerCase().indexOf(filter) != -1 ||
+        data.entityId.toString().indexOf(filter) != -1 ||
+        data.steamId.indexOf(filter) != -1 ||
+        ('' + data.factionId).indexOf(filter) != -1;
   }
 
   get SelectedBackup() {

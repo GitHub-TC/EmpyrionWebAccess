@@ -170,7 +170,7 @@
                   Faction
                 </th>
                 <td mat-cell *matCellDef="let s">
-                  {{FactionService.GetFaction(s.faction)?.Abbrev}} ({{s.faction}})
+                  {{mFactionService.GetFaction(s.faction)?.Abbrev}} ({{s.faction}})
                 </td>
               </ng-container>
 
@@ -216,15 +216,6 @@
                 </th>
                 <td mat-cell *matCellDef="let s">
                   {{s.add_info}}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="structureName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                  StructureName
-                </th>
-                <td mat-cell *matCellDef="let s">
-                  {{s.structureName}}
                 </td>
               </ng-container>
 

@@ -23,7 +23,7 @@
           </mat-form-field>
         </div>
 
-        <table mat-table [dataSource]="players" class="mat-elevation-z8" matSort>
+        <table mat-table [dataSource]="players" class="mat-elevation-z8" matSort matSortActive="playerName" matSortDirection="asc" matSortDisableClear>
           <ng-container matColumnDef="online" [sticky]="true">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
               <mat-icon style="cursor:pointer" [style.color]="FilterInput.value ? 'blue' : ''" title="Filter" (click)="toggleFilterDisplay(FilterInput)">search</mat-icon>
