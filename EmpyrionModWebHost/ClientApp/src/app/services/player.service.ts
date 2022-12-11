@@ -164,6 +164,18 @@ export class PlayerService {
       );
   }
 
+  executeCommand(aPlayer: PlayerModel, command: string): any {
+    this.http.post('Player/PlayerRemoteEx', {
+      ClientId: aPlayer.ClientId,
+      Command: command
+    })
+      .pipe()
+      .subscribe(
+        () => { },
+        error => this.error = error // error path
+      );
+  }
+
   GetPlayer(aSelect: (PlayerModel) => boolean) {
     return this.players.getValue().find(aSelect);
   }

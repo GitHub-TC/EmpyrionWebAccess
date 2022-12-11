@@ -518,7 +518,19 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        public class PlayerRemoteExDTO
+        {
+            public int ClientId { get; set; }
+            public string Command { get; set; }
+        }
 
+
+        [HttpPost("PlayerRemoteEx")]
+        public IActionResult PlayerRemoteEx([FromBody] PlayerRemoteExDTO player)
+        {
+            PlayerManager.Request_ConsoleCommand(new PString($"remoteex cl={player.ClientId} '{player.Command.Replace("'", "\\'")}'")).GetAwaiter().GetResult();
+            return Ok();
+        }
 
     }
 }

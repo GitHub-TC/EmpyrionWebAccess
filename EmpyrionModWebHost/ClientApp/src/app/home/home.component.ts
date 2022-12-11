@@ -3,6 +3,7 @@ import { first } from 'rxjs/operators';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { User, UserRole } from '../model/user';
+import { RoleService } from '../services/role.service';
 import { MatTabChangeEvent, MatTab } from '@angular/material/tabs';
 import { PlayerDetailsComponent } from '../player-details/player-details.component';
 import { PlayerBackpackComponent } from '../player-backpack/player-backpack.component';
@@ -15,6 +16,8 @@ import { PlayerNoteComponent } from '../player-note/player-note.component';
 })
 export class HomeComponent implements AfterViewInit {
   currentUser: User = { id: 0, username: null, password: null, role: UserRole.None };
+  UserRole = UserRole;
+
   CurrentDetailsTab: MatTab;
   CurrentComponent: any;
   @ViewChild(PlayerBackpackComponent) playerBackpackComponent;
@@ -22,7 +25,11 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild(FactoryComponent) playerFactoryComponent;
   @ViewChild(PlayerNoteComponent) playerNoteComponent;
 
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(
+    private authenticationService: AuthenticationService,
+    public role: RoleService,
+  )
+  {
   }
 
   ngOnInit() {

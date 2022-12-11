@@ -47,6 +47,14 @@
                   <app-player-note #PlayerNote></app-player-note>
                 </ng-template>
               </mat-tab>
+              <mat-tab *ngIf="role.is(UserRole.Moderator)">
+                <ng-template mat-tab-label>
+                  Command
+                </ng-template>
+                <ng-template matTabContent>
+                  <app-player-command #PlayerCommand></app-player-command>
+                </ng-template>
+              </mat-tab>
             </mat-tab-group>
           </div>
         </div>

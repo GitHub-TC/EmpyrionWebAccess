@@ -52,6 +52,7 @@ import { HistoryBookOfComponent } from './history-book-of/history-book-of.compon
 import { GalaxyMapComponent } from './galaxy-map/galaxy-map.component';
 import { ThreeJsModule } from './three-js/three-js.module';
 import { PlayerNoteComponent } from './player-note/player-note.component';
+import { PlayerCommandComponent } from './player-command/player-command.component';
 import { PlayfieldPlanetview3dComponent } from './playfield-planetview3d/playfield-planetview3d.component';
 import { PlayfieldSpaceview3dComponent } from './playfield-spaceview3d/playfield-spaceview3d.component';
 import { ModConfigurationComponent } from './mod-configuration/mod-configuration.component';
@@ -98,6 +99,7 @@ import { RestoreFactoryItemsComponent } from './restore-factoryitems/restore-fac
     HistoryBookOfComponent,
     GalaxyMapComponent,
     PlayerNoteComponent,
+    PlayerCommandComponent,
     PlayfieldPlanetview3dComponent,
     PlayfieldSpaceview3dComponent,
     ModConfigurationComponent
