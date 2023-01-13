@@ -55,7 +55,7 @@ export enum ActionType {
   deleteOldFactoryItems   = "Delete old factory items | [days] (default:14)",
   runShell                = "Run shell| [cmd] -> Working directory ist the current savegame folder",
   consoleCommand          = "InGame console command | [cmd] -> Help description of commands in the console with 'help'",
-  wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield]] * = all playfields -> Example: poi deposit : Akua; Hsaa",
+  wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield];S*Solar System] * = all playfields -> Example: poi deposit : Akua; Hsaa; S*Alpha",
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
   resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",

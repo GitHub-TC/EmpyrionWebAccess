@@ -9,6 +9,7 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using Newtonsoft.Json;
 using EmpyrionNetAPITools;
+using Microsoft.Build.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -27,16 +28,21 @@ namespace EmpyrionModWebHost.Controllers
 
     public class PlayfieldManager : EmpyrionModBase, IEWAPlugin
     {
+        public ILogger<PlayfieldManager> Logger { get; }
         public IHubContext<PlayfieldHub> PlayfieldHub { get; }
         public Lazy<StructureManager> StructureManager { get; }
         public Lazy<SysteminfoManager> SysteminfoManager { get; }
+        public Lazy<SectorsManager> SectorsManager { get; }
+
         public ModGameAPI GameAPI { get; private set; }
 
-        public PlayfieldManager(IHubContext<PlayfieldHub> aPlayfieldHub)
+        public PlayfieldManager(ILogger<PlayfieldManager> logger, IHubContext<PlayfieldHub> aPlayfieldHub)
         {
+            Logger              = logger;
             PlayfieldHub        = aPlayfieldHub;
-            StructureManager    = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
-            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
+            StructureManager    = new Lazy<StructureManager>    (() => Program.GetManager<StructureManager> ());
+            SysteminfoManager   = new Lazy<SysteminfoManager>   (() => Program.GetManager<SysteminfoManager>());
+            SectorsManager      = new Lazy<SectorsManager>      (() => Program.GetManager<SectorsManager>   ());
         }
 
         public PlayfieldInfo[] Playfields { get; set; }
@@ -113,25 +119,52 @@ namespace EmpyrionModWebHost.Controllers
 
             if (wipeAllPlayfields) aPlayfields = Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields")).ToArray();
 
-            if (!wipeAllPlayfields && SysteminfoManager.Value.EGSIsRunning) aPlayfields.ForEach(P => Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait());
+            if (!wipeAllPlayfields && SysteminfoManager.Value.EGSIsRunning) aPlayfields.Where(P => !string.IsNullOrEmpty(P)).ForEach(P => { if (P.StartsWith("S*")) WipeSolarSystem(aWipeType, P[2..]); else Request_ConsoleCommand(new PString($"wipe '{P}' {aWipeType}")).Wait(); });
             else
             {
+                Logger.LogDebug("Wipe Playfields: {@name}", aPlayfields);
+
                 var wipeinfo = aWipeType.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 Parallel.ForEach(aPlayfields, P =>
                 {
-                    if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P))) return;
-
-                    string[] wipePresets = null;
-                    try {
-                        wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"))?.FirstOrDefault()?.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries); 
+                    if (P.StartsWith("S*"))
+                    {
+                        WipeSolarSystem(aWipeType, P[2..]);
                     }
-                    catch { }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(P) || !Directory.Exists(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P))) return;
 
-                    try { 
-                        File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct());
+                        string[] wipePresets = null;
+                        try
+                        {
+                            wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"))?.FirstOrDefault()?.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        }
+                        catch { }
+
+                        try
+                        {
+                            File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct());
+                        }
+                        catch { }
                     }
-                    catch { }
                 });
+            }
+        }
+
+        private void WipeSolarSystem(string aWipeType, string solarSystemName)
+        {
+            try
+            {
+                Logger.LogDebug("Wipe SolarSystem: {@name}", solarSystemName);
+
+                var solarSystem = SectorsManager.Value.SectorsData?.SolarSystems?.FirstOrDefault(S => S.Name == solarSystemName);
+                var wipePlayfieldOfSolarSystem = solarSystem?.Sectors?.SelectMany(S => S.Playfields.Select(P => P.Skip(1).FirstOrDefault()));
+                if (wipePlayfieldOfSolarSystem?.Any() == true) Wipe(wipePlayfieldOfSolarSystem, aWipeType);
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "WipeSolarSystem");
             }
         }
 

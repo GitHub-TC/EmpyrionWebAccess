@@ -151,7 +151,7 @@ ORDER BY pfid
 
                             try
                             {
-                                int pfid = reader.GetInt32(pfIdCol);
+                                int pfid = ReadInt32(reader, pfIdCol);
 
                                 if(pfid != currentPlayfieldId)
                                 {
@@ -161,31 +161,33 @@ ORDER BY pfid
                                 }
 
                                 var gsi = new GlobalStructureInfo() {
-                                    id                  = reader.GetInt32(entityIdCol),
+                                    id                  = ReadInt32(reader, entityIdCol),
                                     dockedShips         = new List<int>(),
-                                    classNr             = reader.GetInt32(classNrCol),
-                                    cntLights           = reader.GetInt32(cntLightsCol),
-                                    cntTriangles        = reader.GetInt32(cntTrianglesCol),
-                                    cntBlocks           = reader.GetInt32(cntBlocksCol),
-                                    cntDevices          = reader.GetInt32(cntDevicesCol),
-                                    fuel                = (int)reader.GetFloat(fuelCol),
-                                    powered             = reader.GetBoolean(ispoweredCol),
-                                    rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
-                                    pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
-                                    lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
+                                    classNr             = ReadInt32(reader, classNrCol),
+                                    cntLights           = ReadInt32(reader, cntLightsCol),
+                                    cntTriangles        = ReadInt32(reader, cntTrianglesCol),
+                                    cntBlocks           = ReadInt32(reader, cntBlocksCol),
+                                    cntDevices          = ReadInt32(reader, cntDevicesCol),
+                                    fuel                = (int)ReadFloat(reader, fuelCol),
+                                    powered             = ReadBoolean(reader, ispoweredCol),
+                                    rot                 = new PVector3(ReadFloat(reader, rotXCol), ReadFloat(reader, rotYCol), ReadFloat(reader, rotZCol)),
+                                    pos                 = new PVector3(ReadFloat(reader, posXCol), ReadFloat(reader, posYCol), ReadFloat(reader, posZCol)),
+                                    lastVisitedUTC      = ReadInt64(reader, lastvisitedticksCol),
                                     name                = reader.GetValue(nameCol)?.ToString(),
-                                    factionId           = reader.GetInt32(facIdCol),
-                                    factionGroup        = reader.GetByte(facgroupCol),
-                                    type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
-                                    coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
-                                    pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
+                                    factionId           = ReadInt32(reader, facIdCol),
+                                    factionGroup        = ReadByte(reader, facgroupCol),
+                                    type                = (byte)(ReadInt32(reader, etypeCol) & 0xff),
+                                    coreType            = (sbyte)(ReadInt32(reader, coretypeCol) & 0xff),
+                                    pilotId             = reader[pilotidCol] is DBNull ? 0 : ReadInt32(reader, pilotidCol),
                                     PlayfieldName       = currentPlayfield?.Name        ?? "?",
                                     SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
                                 };
 
+                                if (gsi.id == 0) continue;
+
                                 if(!(reader[dockedToCol] is DBNull))
                                 {
-                                    var dockedTo = reader.GetInt32(dockedToCol);
+                                    var dockedTo = ReadInt32(reader, dockedToCol);
                                     if (dockedToList.TryGetValue(dockedTo, out var dockedShips)) dockedShips.Add(gsi.id);
                                     else dockedToList.Add(dockedTo, new List<int> { gsi.id });
                                 }
@@ -211,6 +213,12 @@ ORDER BY pfid
 
             return gsl;
         }
+
+        static int ReadInt32(SqliteDataReader reader,  int col) => reader.IsDBNull(col) || reader[col] is DBNull ? 0 : reader.GetInt32(col);
+        static long ReadInt64(SqliteDataReader reader, int col) => reader.IsDBNull(col) || reader[col] is DBNull ? 0 : reader.GetInt64(col);
+        static byte ReadByte(SqliteDataReader reader,  int col) => reader.IsDBNull(col) || reader[col] is DBNull ? (byte)0 : reader.GetByte(col);
+        static float ReadFloat(SqliteDataReader reader, int col) => reader.IsDBNull(col) || reader[col] is DBNull ? 0 : reader.GetFloat(col);
+        static bool ReadBoolean(SqliteDataReader reader, int col) => reader.IsDBNull(col) || reader[col] is DBNull ? false : reader.GetBoolean(col);
 
         public GlobalStructureInfo ReadGlobalStructureInfo(Id id)
         {
