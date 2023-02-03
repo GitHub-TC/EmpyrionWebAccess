@@ -48,10 +48,20 @@ export class RestoreBackpackComponent implements OnInit {
     setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
 
     this.PlayerService.GetCurrentPlayer().subscribe(P => this.CurrentPlayer = P);
+    this.Backpacks.filterPredicate =
+      (data: BackpackODataModel, filter: string) =>
+        data.toolbarContent.indexOf(filter) != -1 ||
+        data.bagContent    .indexOf(filter) != -1;
   }
 
   ngAfterViewInit() {
     this.Backpacks.paginator = this.paginator;
+  }
+
+  applyFilter(filterValue: string) {
+    filterValue = filterValue.trim(); // Remove whitespace
+    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
+    this.Backpacks.filter = filterValue ? "\"id\":" + filterValue + "," : "";
   }
 
   SetCurrentBackpack(aData: BackpackODataModel) {

@@ -6,6 +6,10 @@
   <div class="row">
     <div class="col col-lg-4">
       <div class="divBackpackList">
+        <mat-form-field style="width:100%">
+          <input matInput (keyup)="applyFilter($event.target.value)" #FilterInput placeholder="Filter by ID">
+        </mat-form-field>
+        <br/>
         <table mat-table [dataSource]="Backpacks" class="mat-elevation-z8" style="width:100%">
           <ng-container matColumnDef="Timestamp">
             <th mat-header-cell *matHeaderCellDef>
@@ -24,7 +28,7 @@
               {{SlotCount(b)}}
             </td>
           </ng-container>
-          
+
 
           <tr mat-header-row *matHeaderRowDef="['Timestamp', 'Slots']; sticky: true"></tr>
           <tr mat-row *matRowDef="let row; columns: ['Timestamp', 'Slots'];"
