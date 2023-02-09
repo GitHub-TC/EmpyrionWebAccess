@@ -376,6 +376,36 @@ namespace EmpyrionModWebHost.Controllers
             await PlayfieldManager.Request_ConsoleCommand(new PString($"remoteex pf={pf.processId} {aData.Command}"));
         }
 
+        [Authorize(Roles = nameof(Role.InGameAdmin))]
+        [HttpGet("StopPlayfield")]
+        public async Task StopPlayfield([FromQuery] string Playfield, [FromQuery] int Timeout)
+        {
+            var output = new StringBuilder();
+
+            try
+            {
+                using var telnetClient = new PrimS.Telnet.Client("localhost", EmpyrionConfiguration.DedicatedYaml.Tel_Port, CancellationToken.None);
+                await Task.Delay(1000);
+                output.AppendLine(await telnetClient.TerminatedReadAsync("Enter password:"));
+                await telnetClient.WriteLineAsync(EmpyrionConfiguration.DedicatedYaml.Tel_Pwd);
+                await Task.Delay(1000);
+                string nextLine = null;
+                for (int trys = 20; trys >= 0; trys--)
+                {
+                    await Task.Delay(100);
+                    nextLine = await telnetClient.TerminatedReadAsync("\n", TimeSpan.FromSeconds(1));
+                    if(nextLine.Contains("Wrong password, please reenter password")) await telnetClient.WriteLineAsync(EmpyrionConfiguration.DedicatedYaml.Tel_Pwd);
+                    else                                                             output.AppendLine(nextLine);
+
+                    if (nextLine?.Contains("INFO:") == true) break;
+                }
+
+                Logger.LogDebug("StopPlayfield: telnet session {Output}", output);
+                await telnetClient.WriteLineAsync($"stoppf '{Playfield}' {Timeout}");
+                Logger.LogInformation("StopPlayfield: stoppf {Playfield} {Timeout}", Playfield, Timeout);
+            }
+            catch (Exception Error) { Logger.LogError(Error, $"stoppf \"{Playfield}\" {Timeout} -> {output}", output); }
+        }
 
 
 

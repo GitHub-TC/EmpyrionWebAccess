@@ -202,10 +202,12 @@ ORDER BY pfid
                             }
                         }
                     }
-
-                    DbConnection.Close();
                 }
+
+                DbConnection.Close();
             }
+
+            SqliteConnection.ClearAllPools();
 
             foreach (var item in dockedToList) {
                 if(globalStructuresList.TryGetValue(item.Key, out var structure)) structure.dockedShips.AddRange(item.Value);
@@ -267,71 +269,72 @@ WHERE Structures.entityid = " + id.id.ToString(),
                     int coretypeCol         = 0; 
                     int dockedToCol         = 0;
 
-                    using(var reader = cmd.ExecuteReader())
+                    using var reader = cmd.ExecuteReader();
+                    
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        if (initCols)
                         {
-                            if (initCols)
-                            {
-                                initCols = false;
+                            initCols = false;
 
-                                pfIdCol             = reader.GetOrdinal("pfid");
+                            pfIdCol             = reader.GetOrdinal("pfid");
 
-                                entityIdCol         = reader.GetOrdinal("entityid");
-                                classNrCol          = reader.GetOrdinal("classNr");
-                                cntLightsCol        = reader.GetOrdinal("cntLights");
-                                cntTrianglesCol     = reader.GetOrdinal("cntTriangles");
-                                cntBlocksCol        = reader.GetOrdinal("cntBlocks");
-                                cntDevicesCol       = reader.GetOrdinal("cntDevices");
-                                fuelCol             = reader.GetOrdinal("fuel");
-                                ispoweredCol        = reader.GetOrdinal("ispowered");
-                                pilotidCol          = reader.GetOrdinal("pilotid");
-                                rotXCol             = reader.GetOrdinal("rotX");
-                                rotYCol             = reader.GetOrdinal("rotY");
-                                rotZCol             = reader.GetOrdinal("rotZ");
-                                posXCol             = reader.GetOrdinal("posX");
-                                posYCol             = reader.GetOrdinal("posY");
-                                posZCol             = reader.GetOrdinal("posZ");
-                                nameCol             = reader.GetOrdinal("name");
-                                facIdCol            = reader.GetOrdinal("facid");
-                                lastvisitedticksCol = reader.GetOrdinal("lastvisitedticks");
-                                facgroupCol         = reader.GetOrdinal("facgroup");
-                                etypeCol            = reader.GetOrdinal("etype");
-                                coretypeCol         = reader.GetOrdinal("coretype");
-                                dockedToCol         = reader.GetOrdinal("dockedTo");
-                            }
-
-                            int pfid = reader.GetInt32(pfIdCol);
-                            _PlayfieldsById.TryGetValue(pfid, out var currentPlayfield);
-
-                            return new GlobalStructureInfo() {
-                                id                  = reader.GetInt32(entityIdCol),
-                                dockedShips         = new List<int>(),
-                                classNr             = reader.GetInt32(classNrCol),
-                                cntLights           = reader.GetInt32(cntLightsCol),
-                                cntTriangles        = reader.GetInt32(cntTrianglesCol),
-                                cntBlocks           = reader.GetInt32(cntBlocksCol),
-                                cntDevices          = reader.GetInt32(cntDevicesCol),
-                                fuel                = (int)reader.GetFloat(fuelCol),
-                                powered             = reader.GetBoolean(ispoweredCol),
-                                rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
-                                pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
-                                lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
-                                name                = reader.GetValue(nameCol)?.ToString(),
-                                factionId           = reader.GetInt32(facIdCol),
-                                factionGroup        = reader.GetByte(facgroupCol),
-                                type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
-                                coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
-                                pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
-                                PlayfieldName       = currentPlayfield?.Name        ?? "?",
-                                SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
-                            };
+                            entityIdCol         = reader.GetOrdinal("entityid");
+                            classNrCol          = reader.GetOrdinal("classNr");
+                            cntLightsCol        = reader.GetOrdinal("cntLights");
+                            cntTrianglesCol     = reader.GetOrdinal("cntTriangles");
+                            cntBlocksCol        = reader.GetOrdinal("cntBlocks");
+                            cntDevicesCol       = reader.GetOrdinal("cntDevices");
+                            fuelCol             = reader.GetOrdinal("fuel");
+                            ispoweredCol        = reader.GetOrdinal("ispowered");
+                            pilotidCol          = reader.GetOrdinal("pilotid");
+                            rotXCol             = reader.GetOrdinal("rotX");
+                            rotYCol             = reader.GetOrdinal("rotY");
+                            rotZCol             = reader.GetOrdinal("rotZ");
+                            posXCol             = reader.GetOrdinal("posX");
+                            posYCol             = reader.GetOrdinal("posY");
+                            posZCol             = reader.GetOrdinal("posZ");
+                            nameCol             = reader.GetOrdinal("name");
+                            facIdCol            = reader.GetOrdinal("facid");
+                            lastvisitedticksCol = reader.GetOrdinal("lastvisitedticks");
+                            facgroupCol         = reader.GetOrdinal("facgroup");
+                            etypeCol            = reader.GetOrdinal("etype");
+                            coretypeCol         = reader.GetOrdinal("coretype");
+                            dockedToCol         = reader.GetOrdinal("dockedTo");
                         }
-                    }
 
-                    DbConnection.Close();
+                        int pfid = reader.GetInt32(pfIdCol);
+                        _PlayfieldsById.TryGetValue(pfid, out var currentPlayfield);
+
+                        return new GlobalStructureInfo() {
+                            id                  = reader.GetInt32(entityIdCol),
+                            dockedShips         = new List<int>(),
+                            classNr             = reader.GetInt32(classNrCol),
+                            cntLights           = reader.GetInt32(cntLightsCol),
+                            cntTriangles        = reader.GetInt32(cntTrianglesCol),
+                            cntBlocks           = reader.GetInt32(cntBlocksCol),
+                            cntDevices          = reader.GetInt32(cntDevicesCol),
+                            fuel                = (int)reader.GetFloat(fuelCol),
+                            powered             = reader.GetBoolean(ispoweredCol),
+                            rot                 = new PVector3(reader.GetFloat(rotXCol), reader.GetFloat(rotYCol), reader.GetFloat(rotZCol)),
+                            pos                 = new PVector3(reader.GetFloat(posXCol), reader.GetFloat(posYCol), reader.GetFloat(posZCol)),
+                            lastVisitedUTC      = reader.GetInt64(lastvisitedticksCol),
+                            name                = reader.GetValue(nameCol)?.ToString(),
+                            factionId           = reader.GetInt32(facIdCol),
+                            factionGroup        = reader.GetByte(facgroupCol),
+                            type                = (byte)(reader.GetInt32(etypeCol) & 0xff),
+                            coreType            = (sbyte)(reader.GetInt32(coretypeCol) & 0xff),
+                            pilotId             = reader[pilotidCol] is DBNull ? 0 : reader.GetInt32(pilotidCol),
+                            PlayfieldName       = currentPlayfield?.Name        ?? "?",
+                            SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
+                        };
+                    }
                 }
+
+                DbConnection.Close();
             }
+
+            SqliteConnection.ClearAllPools();
 
             return new GlobalStructureInfo();
         }

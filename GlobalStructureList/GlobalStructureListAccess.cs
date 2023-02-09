@@ -166,6 +166,8 @@ ORDER BY pfid
                         }
                     }
                 }
+
+                DbConnection.Close();
             }
 
             foreach (var item in dockedToList) globalStructuresList[item.Key].dockedShips.AddRange(item.Value);
@@ -283,6 +285,8 @@ WHERE Structures.entityid = " + id.id.ToString();
                         }
                     }
                 }
+
+                DbConnection.Close();
             }
 
             return new GlobalStructureInfo();

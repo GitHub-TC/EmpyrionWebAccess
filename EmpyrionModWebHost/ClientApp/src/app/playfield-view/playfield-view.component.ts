@@ -314,4 +314,22 @@ export class PlayfieldViewComponent implements OnInit {
           );
       });
   }
+
+  StopPlayfield() {
+    this.YesNo.openDialog({ title: "Stop playfield", question: this.SelectedPlayfieldName }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        //this.http.post("Playfield/CallPlayfieldConsoleCommand", { Playfield: this.SelectedPlayfieldName, Command: "stoppf '" + this.SelectedPlayfieldName + "' 0" })
+        //  .subscribe(
+        //    error => this.error = error // error path
+        //  );
+        
+        this.http.get("Playfield/StopPlayfield" +
+          "?Playfield=" + encodeURIComponent(this.SelectedPlayfieldName) + "&Timeout=0")
+          .subscribe(
+            error => this.error = error // error path
+          );
+      });
+  }
 }
