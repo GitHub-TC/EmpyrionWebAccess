@@ -175,14 +175,35 @@ namespace EmpyrionModWebHost.Controllers
 
         public void RecreatePlayfield(params string[] aPlayfields)
         {
-            aPlayfields.AsParallel().ForEach(P =>
+            aPlayfields.AsParallel().ForEach(fullPath =>
             {
+                var P = Path.GetFileName(fullPath);
+
                 Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Playfields", P), true);
                 Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Templates",  P), true);
                 Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath,  "Playfields", P), true);
             });
         }
 
+        public void RecreateDefectPlayfield(params string[] aPlayfields)
+        {
+            var wipeAllPlayfields = aPlayfields.FirstOrDefault()?.Trim() == "*";
+
+            if (wipeAllPlayfields) aPlayfields = Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates")).ToArray();
+
+            aPlayfields.AsParallel().ForEach(fullPath =>
+            {
+                var P = Path.GetFileName(fullPath);
+
+                if (File.Exists(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates", P, "playfield.yaml"))) return;
+
+                Logger.LogInformation("DefectPlayfield(or instance playfield): {playfield}", P);
+
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Templates", P), true); } catch { }
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true);  } catch { }
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true);  } catch { }
+            });
+        }
         public void ResetPlayfieldIfEmpty(string[] playfields)
         {
             playfields.AsParallel()

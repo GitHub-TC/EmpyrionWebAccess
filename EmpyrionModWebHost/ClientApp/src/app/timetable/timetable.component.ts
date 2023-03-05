@@ -58,6 +58,7 @@ export enum ActionType {
   wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield];S*Solar System] * = all playfields -> Example: poi deposit : Akua; Hsaa; S*Alpha",
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
+  recreateDefectPlayfield = "Recreate defect playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> * = check all playfields; Example: Akua; Hsaa",
   resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",
   restartEWA              = "Restart the EWA |",
   execSubActions          = "Execute sub actions|",
