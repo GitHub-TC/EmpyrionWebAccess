@@ -173,21 +173,6 @@ namespace EmpyrionModWebHost.Controllers
         {
             try
             {
-                //if (aRessources.replaceExisting)
-                //{
-                //    var p = await FactoryManager.Request_Player_Info(aRessources.playerId.ToId());
-                //    var setRes = new List<ItemStackDTO>();
-                //    aRessources.itemStacks.ForEach(I => {
-                //        if (p.bpResourcesInFactory.TryGetValue(I.id, out var count))
-                //        {
-                //            if(count < I.count) setRes.Add(new ItemStackDTO() { id = I.id, count = I.count - (int)count });
-                //        }
-                //        else setRes.Add(I);
-                //    });
-                //    aRessources.itemStacks      = setRes;
-                //    aRessources.replaceExisting = false;
-                //}
-
                 await FactoryManager.Request_Blueprint_Resources(Mapper.Map<BlueprintResourcesDTO, BlueprintResources>(aRessources));
                 return Ok();
             }

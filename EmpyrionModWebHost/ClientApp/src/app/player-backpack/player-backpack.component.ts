@@ -62,7 +62,7 @@ export class PlayerBackpackComponent implements OnInit {
     this.contextMenuTrigger.closeMenu();
     this.selectItem.openDialog(new ItemStackModel()).afterClosed().subscribe(
       (ItemStack: ItemStackModel) => {
-        if (ItemStack.id == 0) return;
+        if (!ItemStack.id) return;
 
         this.http.post<any>('Backpacks/AddItem', {
           id: this.mPlayerService.CurrentPlayer.EntityId,

@@ -139,7 +139,7 @@
 
             var Items = new Inventory(player.EntityId, aSet.Toolbar, aSet.Bag);
 
-            Request_Player_SetInventory(Items);
+            Request_Player_SetInventory(Items).GetAwaiter().GetResult();
         }
 
 
@@ -171,12 +171,12 @@
 
         [Authorize(Roles = nameof(Role.GameMaster))]
         [HttpPost("AddItem")]
-        public IActionResult AddItem([FromBody]IdItemStackDTO idItemStackDTO)
+        public async Task<IActionResult> AddItem([FromBody]IdItemStackDTO idItemStackDTO)
         {
             try
             {
                 var idItemStack = Mapper.Map<IdItemStack>(idItemStackDTO);
-                BackpackManager.Request_Player_AddItem(idItemStack);
+                await BackpackManager.Request_Player_AddItem(idItemStack);
                 TaskTools.Delay(5, () => BackpackManager.Request_Player_Info(new Id(idItemStack.id)).Wait());
                 return Ok();
             }

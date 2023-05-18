@@ -66,18 +66,24 @@ export class SelectItemDialogContentComponent implements OnInit {
     );
   }
 
+  SelectItemId(id: number) {
+    this.ItemStack.id = id;
+
+    let foundItem = this.ItemService.ItemInfo.find(I => I.id == this.ItemStack.id);
+    this.SelectedItemInfo.id = this.ItemStack.id;
+    this.SelectedItemInfo.name = foundItem ? foundItem.name : "";
+  }
+
   ngAfterViewInit() {
     if (this.SelectedItemInfo.name) this.SelectedItem.setValue(this.SelectedItemInfo.name);
   }
 
   private _filter(value: string): ItemInfoModel[] {
     const filterValue = value.toLowerCase();
-
     return this.ItemService.ItemInfo.filter(option => (option.id + option.name.toLowerCase()).includes(filterValue));
   }
 
   AddItem() {
-    this.ItemStack.id = this.SelectedItemInfo.id;
     this.dialogRef.close(this.ItemStack);
   }
 

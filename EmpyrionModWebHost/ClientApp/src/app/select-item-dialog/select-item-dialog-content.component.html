@@ -6,7 +6,7 @@
   <mat-form-field>
     <input type="text" placeholder="Item" [formControl]="SelectedItem" aria-label="Number" matInput [matAutocomplete]="auto">
     <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-      <mat-option *ngFor="let i of filteredOptions | async" [value]="i.name">
+      <mat-option *ngFor="let i of filteredOptions | async" [value]="i.name" (onSelectionChange)="SelectItemId(i.id)">
         <div style="display:inline-block; width:2em">
           <img class="image" src="../../assets/Items/{{i.id}}.png" style="width:2em" />
         </div>

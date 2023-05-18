@@ -390,6 +390,21 @@ namespace EmpyrionModWebHost.Controllers
             Logger.LogInformation("StructureBackup:finished");
         }
 
+        public void PlayersBackup(string aCurrentBackupDir, bool onlyIfNewerOrFilesizeDiff)
+        {
+            Logger.LogInformation("PlayerBackup:start {CurrentBackupDir}", aCurrentBackupDir);
+            BackupState(true);
+
+            CopyAll(new DirectoryInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players")),
+                new DirectoryInfo(Path.Combine(aCurrentBackupDir,
+                "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Players")), onlyIfNewerOrFilesizeDiff);
+
+            CopyStructureDBToBackup(aCurrentBackupDir);
+
+            BackupState(false);
+            Logger.LogInformation("PlayerBackup:finished");
+        }
+
         private void CopyStructureDBToBackup(string aCurrentBackupDir)
         {
             Logger.LogInformation("CopyStructureDBToBackup:start {CurrentBackupDir}", aCurrentBackupDir);
