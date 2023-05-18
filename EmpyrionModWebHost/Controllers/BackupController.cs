@@ -399,7 +399,8 @@ namespace EmpyrionModWebHost.Controllers
                 new DirectoryInfo(Path.Combine(aCurrentBackupDir,
                 "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, "Players")), onlyIfNewerOrFilesizeDiff);
 
-            CopyStructureDBToBackup(aCurrentBackupDir);
+            Directory.CreateDirectory(Path.Combine(aCurrentBackupDir, "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, @"Mods\EWA\DB"));
+            File.Copy(Path.Combine(EmpyrionConfiguration.SaveGamePath, @"Mods\EWA\DB\Players.db"), Path.Combine(aCurrentBackupDir, "Saves", "Games", EmpyrionConfiguration.DedicatedYaml.SaveGameName, @"Mods\EWA\DB\Players.db"), true);
 
             BackupState(false);
             Logger.LogInformation("PlayerBackup:finished");
