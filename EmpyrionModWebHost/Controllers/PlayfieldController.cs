@@ -170,7 +170,13 @@ namespace EmpyrionModWebHost.Controllers
 
         public void ResetPlayfield(params string[] aPlayfields)
         {
-            aPlayfields.AsParallel().ForEach(P => Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true));
+            aPlayfields.AsParallel().ForEach(fullPath =>
+            {
+                var P = Path.GetFileName(fullPath);
+
+                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,      "Playfields", P), true);
+                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true);
+            });
         }
 
         public void RecreatePlayfield(params string[] aPlayfields)

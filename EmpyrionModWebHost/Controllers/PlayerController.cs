@@ -1,4 +1,5 @@
 ﻿using EgsDbTools;
+using Microsoft.Build.Tasks;
 using System.Collections.Concurrent;
 
 namespace EmpyrionModWebHost.Controllers
@@ -149,6 +150,12 @@ namespace EmpyrionModWebHost.Controllers
                 }
 
                 if (IsNewPlayer) SendWelcomeMessage(Player);
+            }
+            catch(Microsoft.Data.Sqlite.SqliteException sqliteError)
+            {
+                Logger?.LogError(sqliteError, "PlayerManager_Event_Player_Info:{@aPlayerInfo}->{@Player} {SqliteErrorCode}:{SqliteExtendedErrorCode}", aPlayerInfo, Player, sqliteError.SqliteErrorCode, sqliteError.SqliteExtendedErrorCode);
+
+                if(sqliteError.Message.Contains("database is locked")) System.Environment.Exit(sqliteError.ErrorCode);
             }
             catch (Exception error)
             {
