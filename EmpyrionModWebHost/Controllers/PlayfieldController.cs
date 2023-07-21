@@ -144,7 +144,8 @@ namespace EmpyrionModWebHost.Controllers
 
                         try
                         {
-                            File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct());
+                            var newWipeInfo = wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct();
+                            if (wipePresets != newWipeInfo) File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), newWipeInfo);
                         }
                         catch { }
                     }
@@ -215,6 +216,38 @@ namespace EmpyrionModWebHost.Controllers
             playfields.AsParallel()
                 .Where(NoPlayerStuffPresent)
                 .ForEach(P => Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true));
+        }
+
+        public void WipeOldUnusedPlayfields(int days)
+        {
+            var deleteDateTime = DateTime.Now - new TimeSpan(days, 0, 0, 0);
+
+            string playfieldsDirectory = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields");
+            var wipePlayfields = Directory.EnumerateDirectories(playfieldsDirectory, "*.*")
+                .Where(P => FilesAreOlder(P, deleteDateTime))
+                .ToArray();
+
+            wipePlayfields.AsParallel().ForEach(fullPath =>
+            {
+                var P = Path.GetFileName(fullPath);
+
+                Logger.LogInformation("WipeOldUnusedPlayfield: {playfield}", P);
+
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true); } catch { }
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true); } catch { }
+            });
+        }
+
+        private static bool FilesAreOlder(string directory, DateTime deleteDateTime)
+        {
+            if(Directory.GetLastWriteTime(directory) >= deleteDateTime) return false;
+
+            if (Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
+                .All(F => File.GetLastWriteTime(F) < deleteDateTime)) return true;
+
+            Directory.SetLastWriteTime(directory, DateTime.Now);
+
+            return false;
         }
 
         private bool NoPlayerStuffPresent(string playfield)

@@ -26,7 +26,7 @@ export class StructuresListComponent implements OnInit {
   @ViewChild(FactionSelectDialogComponent, { static: true }) FactionSelect: FactionSelectDialogComponent;
   @Output() SelectStructure = new EventEmitter<GlobalStructureInfo>();
 
-  displayedColumns = ['Select', 'id', 'playfield', 'solarSystem', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId'];
+  displayedColumns = ['Select', 'id', 'playfield', 'solarSystem', 'name', 'TypeName', 'CoreName', 'FactionName', 'FactionGroup', 'PosX', 'PosY', 'PosZ', 'RotX', 'RotY', 'RotZ', 'dockedShips', 'classNr', 'cntLights', 'cntTriangles', 'cntBlocks', 'cntDevices', 'fuel', 'powered', 'pilotId', 'lastVisitedUTC'];
   structures: MatTableDataSource<GlobalStructureInfo> = new MatTableDataSource([]);
 
   selection = new SelectionModel<GlobalStructureInfo>(true, []);
@@ -152,6 +152,19 @@ export class StructuresListComponent implements OnInit {
           .pipe()
           .subscribe(
             S => {},
+            error => this.error = error // error path
+          );
+      });
+  }
+
+  Touch() {
+    this.YesNo.openDialog({ title: "Touch", question: this.selection.selected.length + " structures?" }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+        this.http.post("Structure/TouchStructures", this.selection.selected.map(S => <any>{ id: S.id, playfield: S.playfield }))
+          .pipe()
+          .subscribe(
+            S => { },
             error => this.error = error // error path
           );
       });

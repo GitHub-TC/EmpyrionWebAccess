@@ -59,6 +59,7 @@ namespace EmpyrionModWebHost.Controllers
         runShell,
         consoleCommand,
         wipePlayfield,
+        wipeOldUnusedPlayfields,
         resetPlayfield,
         recreatePlayfield,
         recreateDefectPlayfield,
@@ -285,6 +286,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.runShell                : ExecShell(aAction); break;
                 case ActionType.consoleCommand          : GameplayManager.Value.Request_ConsoleCommand(new PString(aAction.data)); break;
                 case ActionType.wipePlayfield           : PlayfieldManager.Value.Wipe(aAction.data.Split(':')[1].Split(';').Select(P => P.Trim()), aAction.data.Split(':')[0]); break;
+                case ActionType.wipeOldUnusedPlayfields : PlayfieldManager.Value.WipeOldUnusedPlayfields(int.TryParse(aAction.data, out int wipeDays) ? wipeDays : 14); break;
                 case ActionType.resetPlayfield          : PlayfieldManager.Value.ResetPlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
                 case ActionType.recreatePlayfield       : PlayfieldManager.Value.RecreatePlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
                 case ActionType.recreateDefectPlayfield : PlayfieldManager.Value.RecreateDefectPlayfield(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;

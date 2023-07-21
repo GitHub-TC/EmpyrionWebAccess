@@ -57,6 +57,7 @@ export enum ActionType {
   runShell                = "Run shell| [cmd] -> Working directory ist the current savegame folder",
   consoleCommand          = "InGame console command | [cmd] -> Help description of commands in the console with 'help'",
   wipePlayfield           = "Wipe playfields | [poi deposit terrain player]:[playfield[;playfield];S*Solar System] * = all playfields -> Example: poi deposit : Akua; Hsaa; S*Alpha",
+  wipeOldUnusedPlayfields = "Wipe old and unused playfields | [days] (default:14)",
   resetPlayfield          = "Reset playfields | [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreatePlayfield       = "Recreate playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> Example: Akua; Hsaa",
   recreateDefectPlayfield = "Recreate defect playfields | delete Data,Cache,Template -> [playfield[;playfield]] -> * = check all playfields; Example: Akua; Hsaa",

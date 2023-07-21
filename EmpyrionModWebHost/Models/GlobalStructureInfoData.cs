@@ -17,6 +17,7 @@ namespace EmpyrionModWebHost.Models
         public Vector3Data rot { get; set; }
         public Vector3Data pos { get; set; }
         public long lastVisitedUTC { get; set; }
+        public DateTime touched_time => lastVisitedUTC == 0 ? DateTime.MinValue : DateTime.FromBinary(lastVisitedUTC);
         public string name { get; set; }
         public int factionId { get; set; }
         public byte factionGroup { get; set; }

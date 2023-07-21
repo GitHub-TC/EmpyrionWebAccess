@@ -196,7 +196,7 @@ namespace EmpyrionModWebHost.Controllers
         }
 
 #pragma warning disable IDE1006 // Naming Styles
-        public class DeleteStructuresData
+        public class PlayfieldStructureIdData
         {
             public int id { get; set; }
             public string playfield { get; set; }
@@ -204,7 +204,7 @@ namespace EmpyrionModWebHost.Controllers
 #pragma warning restore IDE1006 // Naming Styles
 
         [HttpPost("DeleteStructures")]
-        public IActionResult DeleteStructures([FromBody]DeleteStructuresData[] aEntities)
+        public IActionResult DeleteStructures([FromBody]PlayfieldStructureIdData[] aEntities)
         {
             var Structures = StructureManager.CurrentGlobalStructures.Where(S => aEntities.Any(I => I.id == S.Key));
 
@@ -221,17 +221,62 @@ namespace EmpyrionModWebHost.Controllers
                         .ToArray();
             }
 
+            var currentPlayfield = string.Empty;
+
             Structures
                 .OrderBy(S => S.Value.Playfield)
                 .ForEach(S =>
                 {
-                    try
+                    if (currentPlayfield != S.Value.Playfield)
                     {
-                        StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, S.Value.Playfield, 0)).Wait();
-                        Thread.Sleep(2000); // wait for Playfield finish
+                        try
+                        {
+                            StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, S.Value.Playfield, 0)).Wait();
+                            Thread.Sleep(2000); // wait for Playfield finish
+                            currentPlayfield = S.Value.Playfield;
+                        }
+                        catch { }  // Playfield already loaded
                     }
-                    catch { }  // Playfield already loaded
                     StructureManager.Request_Entity_Destroy(new Id(S.Value.StructureInfo.id));
+                });
+            return Ok();
+        }
+
+        [HttpPost("TouchStructures")]
+        public IActionResult TouchStructures([FromBody] PlayfieldStructureIdData[] aEntities)
+        {
+            var Structures = StructureManager.CurrentGlobalStructures.Where(S => aEntities.Any(I => I.id == S.Key));
+
+            if (UserService.CurrentUser.Role == Role.VIP)
+            {
+                var CurrentPlayer = PlayerManager.CurrentPlayer;
+                if (CurrentPlayer == null) return NotFound();
+
+                var Faction = CurrentPlayer?.FactionId;
+
+                Structures = Structures.Where(S =>
+                        (S.Value.StructureInfo.factionGroup == (byte)Factions.Faction && S.Value.StructureInfo.factionId == Faction) ||
+                        (S.Value.StructureInfo.factionGroup == (byte)Factions.Private && S.Value.StructureInfo.factionId == CurrentPlayer.EntityId))
+                        .ToArray();
+            }
+
+            var currentPlayfield = string.Empty;
+
+            Structures
+                .OrderBy(S => S.Value.Playfield)
+                .ForEach(S =>
+                {
+                    if (currentPlayfield != S.Value.Playfield)
+                    {
+                        try
+                        {
+                            StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, S.Value.Playfield, 0)).Wait();
+                            Thread.Sleep(2000); // wait for Playfield finish
+                            currentPlayfield = S.Value.Playfield;
+                        }
+                        catch { }  // Playfield already loaded
+                    }
+                    StructureManager.Request_Structure_Touch(new Id(S.Value.StructureInfo.id));
                 });
             return Ok();
         }
