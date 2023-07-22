@@ -138,14 +138,14 @@ namespace EmpyrionModWebHost.Controllers
                     string[] wipePresets = null;
                     try
                     {
-                        wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"))?.FirstOrDefault()?.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        wipePresets = File.ReadAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"));
                     }
                     catch { }
 
                     try
                     {
-                        var newWipeInfo = wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct();
-                        if (wipePresets != newWipeInfo) File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), newWipeInfo);
+                        var newWipeInfo = wipePresets == null ? wipeinfo : wipeinfo.Concat(wipePresets).Distinct().OrderBy(W => W).ToArray();
+                        if (wipePresets == null || newWipeInfo.Any(W => !wipePresets.Contains(W))) File.WriteAllLines(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P, "wipeinfo.txt"), newWipeInfo);
                     }
                     catch { }
                 }
