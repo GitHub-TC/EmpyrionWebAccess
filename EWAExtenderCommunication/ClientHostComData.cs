@@ -11,7 +11,8 @@ namespace EWAExtenderCommunication
         ExposeShutdownHost,
         Ping,
         ProcessInformation,
-        UpdateEWA
+        UpdateEWA,
+        GameTicks
     }
 
     [Serializable]

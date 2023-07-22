@@ -224,7 +224,7 @@ namespace EmpyrionModWebHost.Controllers
 
             string playfieldsDirectory = Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields");
             var wipePlayfields = Directory.EnumerateDirectories(playfieldsDirectory, "*.*")
-                .Where(P => FilesAreOlder(P, deleteDateTime))
+                .Where(P => FilesAreOlder(P, deleteDateTime) && NoPlayerStuffPresent(Path.GetFileName(P)))
                 .ToArray();
 
             wipePlayfields.AsParallel().ForEach(fullPath =>
@@ -253,7 +253,7 @@ namespace EmpyrionModWebHost.Controllers
         private bool NoPlayerStuffPresent(string playfield)
         {
             return StructureManager.Value.LastGlobalStructureList.Current.globalStructures.TryGetValue(playfield, out var structures) &&
-                structures.All(S => S.factionGroup != (byte)Factions.Faction && S.factionGroup != (byte)Factions.Private);
+                !structures.Any(S => (S.factionGroup == (byte)Factions.Faction || S.factionGroup == (byte)Factions.Private) && S.factionId != 0);
         }
     }
 

@@ -43,6 +43,7 @@ namespace EWAModClient
         public AutoResetEvent GetGlobalStructureList { get; set; } = new AutoResetEvent(false);
         public ConcurrentQueue<EmpyrionGameEventData> GetGlobalStructureListEvents { get; set; } = new ConcurrentQueue<EmpyrionGameEventData>();
         public IModApi ModAPI { get; private set; }
+        public ulong GameTicks { get; private set; }
 
         public void Game_Event(CmdId eventId, ushort seqNr, object data)
         {
@@ -349,6 +350,9 @@ namespace EWAModClient
                                                               else RetrieveHostProcessInformation(aMsg.Data as ProcessInformation);
                                                               break;
                 case ClientHostCommand.UpdateEWA            : new Thread(() => UpdateEWA(aMsg.Data as ProcessInformation)).Start(); break;
+                case ClientHostCommand.GameTicks            : if (aMsg.Data == null) ReturnGameTicks(); 
+                                                              else GameTicks = (ulong) aMsg.Data;
+                                                              break;
             }
         }
 
@@ -447,6 +451,15 @@ namespace EWAModClient
                     Arguments        = Environment.GetCommandLineArgs().Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
                 }
             });
+        }
+
+        private void ReturnGameTicks()
+        {
+            OutServer.SendMessage(new ClientHostComData()
+            {
+                Command = ClientHostCommand.GameTicks,
+                Data    = GameAPI.Game_GetTickTime()
+            }); 
         }
 
         private string HandleQuoteWhenNotSwitchOrContainsQuote(string S, string A) => 
