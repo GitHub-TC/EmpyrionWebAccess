@@ -15,7 +15,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC ©2023</Copyright>
-    <Version>6.4.1</Version>
+    <Version>6.4.2</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -25,7 +25,7 @@
     <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.</Description>
     <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
     <PackageReleaseNotes>GNU General Public License v3.0</PackageReleaseNotes>
-    <FileVersion>6.4.1.0</FileVersion>
+    <FileVersion>6.4.2.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
