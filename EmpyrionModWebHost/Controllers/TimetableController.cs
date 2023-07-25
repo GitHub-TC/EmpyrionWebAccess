@@ -66,6 +66,7 @@ namespace EmpyrionModWebHost.Controllers
         resetPlayfieldIfEmpty,
         restartEWA,
         execSubActions,
+        saveGameCleanUp,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -293,6 +294,7 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.resetPlayfieldIfEmpty   : PlayfieldManager.Value.ResetPlayfieldIfEmpty(aAction.data.Split(';').Select(P => P.Trim()).ToArray()); break;
                 case ActionType.restartEWA              : SysteminfoManager.Value.EWARestart(); break;
                 case ActionType.execSubActions          : break;
+                case ActionType.saveGameCleanUp         : GameplayManager.Value.SaveGameCleanUp(int.TryParse(aAction.data, out int wipePlayerDays) ? wipePlayerDays : 30); break;
             }
 
             if (aAction.actionType != ActionType.restart) ExecSubActions(aAction);
@@ -365,10 +367,12 @@ namespace EmpyrionModWebHost.Controllers
     {
 
         public TimetableManager TimetableManager { get; }
+        public IMapper Mapper { get; }
         public ILogger<TimetableController> Logger { get; set; }
 
-        public TimetableController(ILogger<TimetableController> aLogger)
+        public TimetableController(IMapper mapper, ILogger<TimetableController> aLogger)
         {
+            Mapper = mapper;
             Logger = aLogger;
             TimetableManager = Program.GetManager<TimetableManager>();
         }
@@ -390,10 +394,24 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
-        [HttpPost("RunThis")]
-        public async Task<IActionResult> RunThis([FromBody]SubTimetableAction aAction)
+        [HttpPost("RunThisSubAction")]
+        public async Task<IActionResult> RunThisSubAction([FromBody]SubTimetableAction aAction)
         {
             await Program.Host.SaveApiCall(() => TimetableManager.RunThis(aAction), TimetableManager, $"{aAction.actionType}");
+            return Ok();
+        }
+
+        [AutoMap(typeof(TimetableAction), ReverseMap = true)]
+        public class RunThisTimetableAction : SubTimetableAction
+        {
+            public SubTimetableAction[] subAction { get; set; }
+        }
+
+        [HttpPost("RunThis")]
+        public async Task<IActionResult> RunThis([FromBody] RunThisTimetableAction aAction)
+        {
+
+            await Program.Host.SaveApiCall(() => TimetableManager.RunThis(Mapper.Map<TimetableAction>(aAction)), TimetableManager, $"{aAction.actionType}");
             return Ok();
         }
 

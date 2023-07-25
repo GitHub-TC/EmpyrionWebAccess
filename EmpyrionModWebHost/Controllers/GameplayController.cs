@@ -1,8 +1,12 @@
-﻿using CsvHelper;
+﻿using Microsoft.Data.Sqlite;
+using CsvHelper;
 using CsvHelper.Configuration;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using EmpyrionModWebHost.Extensions;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -17,7 +21,7 @@ namespace EmpyrionModWebHost.Controllers
         public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; }
         public ILogger<GameplayManager> Logger { get; }
         public Lazy<StructureManager> StructureManager { get; }
-
+        public Lazy<PlayerManager> PlayerManager { get; }
         public ConfigurationManager<ConcurrentDictionary<int, OfflineWarpPlayerData>> OfflineWarpPlayer { get; set; }
         public static Regex RemoveNameFormatting { get; } = new Regex(@"\[\S+?\]");
 
@@ -27,6 +31,7 @@ namespace EmpyrionModWebHost.Controllers
             Configuration = configuration;
             Logger = logger;
             StructureManager = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
+            PlayerManager    = new Lazy<PlayerManager>(() => Program.GetManager<PlayerManager>());
         }
 
         public override void Initialize(ModGameAPI dediAPI)
@@ -41,6 +46,217 @@ namespace EmpyrionModWebHost.Controllers
             OfflineWarpPlayer.Load();
 
             Event_Player_Connected += GameplayManager_Event_Player_Connected;
+        }
+
+        public void SaveGameCleanUp(int playerAutoDelete)
+        {
+            var globalDB = Path.Combine(EmpyrionConfiguration.SaveGamePath, "global.db");
+
+            Logger.LogInformation($"SaveGameCleanUp: {globalDB} PlayerDeleteDays:{playerAutoDelete}");
+
+            using var con = new SqliteConnection(new SqliteConnectionStringBuilder()
+            {
+                Mode = SqliteOpenMode.ReadWrite,
+                Cache = SqliteCacheMode.Shared,
+                DataSource = globalDB
+            }.ToString());
+            con.Open();
+
+            using (var cmd = new SqliteCommand("PRAGMA journal_mode=OFF", con))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            var generatedPlayfields = new Dictionary<string, int>();
+
+            using (var cmd = new SqliteCommand(@"
+SELECT DISTINCT P.pfid, P.name
+FROM Playfields P
+JOIN Entities E ON P.pfid = E.pfid;
+", con))
+            {
+                using var rdrPlayfields = cmd.ExecuteReader();
+
+                var pfidCol = rdrPlayfields.GetOrdinal("pfid");
+                var nameCol = rdrPlayfields.GetOrdinal("name");
+
+                while (rdrPlayfields.Read())
+                {
+                    generatedPlayfields.Add(rdrPlayfields.GetString(nameCol), rdrPlayfields.GetInt32(pfidCol));
+                }
+
+                rdrPlayfields.Close();
+            }
+
+            Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"))
+                .ToList()
+                .ForEach(P => generatedPlayfields.Remove(Path.GetFileName(P)));
+
+
+            Logger.LogInformation($"CleanUpStructures for {generatedPlayfields.Count} unused playfields");
+
+            var deleteEntites = new HashSet<int>();
+
+            using (var cmd = new SqliteCommand($@"
+SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfields.Values)})
+
+            ", con))
+            {
+
+                using var rdrEntities = cmd.ExecuteReader();
+
+                var entityidCol = rdrEntities.GetOrdinal("entityid");
+
+                while (rdrEntities.Read())
+                {
+                    deleteEntites.Add(rdrEntities.GetInt32(entityidCol));
+                }
+
+                rdrEntities.Close();
+            }
+
+            Logger.LogInformation($"CleanUpStructures for {deleteEntites.Count} entities");
+            DeleteEntitesInDb(con, deleteEntites);
+
+            deleteEntites.AsParallel()
+                .ForAll(E =>
+                {
+                    try
+                    {
+                        Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", E.ToString()), true);
+                    }
+                    catch (DirectoryNotFoundException) { }
+                    catch (Exception error)
+                    {
+                        Logger.LogWarning($"Delete entity {E}: {error}");
+                    }
+                });
+
+            var totalPlayerFiles = Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"), "*.ply").ToArray();
+            var oldPlayerSteamId = totalPlayerFiles
+                .Where(F => (DateTime.Now - File.GetLastWriteTime(F)).TotalDays > playerAutoDelete)
+                .ToDictionary(F => Path.GetFileNameWithoutExtension(F), F => F);
+
+            Logger.LogInformation($"Found {totalPlayerFiles.Length} with {oldPlayerSteamId.Count} old player files");
+
+            Dictionary<int, string> oldPlayerEntityId;
+            using (var DB = new PlayerContext())
+            {
+                oldPlayerEntityId = DB.Players
+                    .ToArray()
+                    .Where(P => oldPlayerSteamId.ContainsKey(P.SteamId))
+                    .ToDictionary(P => P.EntityId, P => P.PlayerName);
+            }
+
+            DeleteEntitesInDb (con, oldPlayerEntityId.Keys);
+
+            oldPlayerSteamId.Values.AsParallel()
+            .ForAll(P =>
+            {
+                try
+                {
+                    File.Delete(P);
+                }
+                catch (FileNotFoundException) { }
+                catch (Exception error)
+                {
+                    Logger.LogWarning($"Delete entity {P}: {error}");
+                }
+            });
+
+            PlayerManager.Value.SyncronizePlayersWithSaveGameDirectory();
+
+            using (var cmd = new SqliteCommand("VACUUM", con))
+            {
+                var vaccumDBSize = new FileInfo(globalDB).Length;
+
+                var vaccumTimer = Stopwatch.StartNew();
+                try { Logger.LogInformation($"VACUUM {cmd.ExecuteNonQuery()}"); }
+                catch (Exception error) { Logger.LogError($"SQL:{cmd.CommandText} Error:{error}"); }
+                vaccumTimer.Stop();
+
+                Logger.LogInformation($"DB VACCUM take {vaccumTimer.Elapsed} and free {(vaccumDBSize - new FileInfo(globalDB).Length) / (1024 * 1024)}MB");
+            }
+
+
+            con.Close();
+        }
+
+        private void DeleteEntitesInDb(SqliteConnection con, IEnumerable<int> deleteEntites)
+        {
+            var tables = new List<string>();
+            using (var cmd = new SqliteCommand(@"
+SELECT name
+FROM sqlite_master
+WHERE type='table';
+", con))
+            {
+                using SqliteDataReader rdTables = cmd.ExecuteReader();
+
+                var tableCol = rdTables.GetOrdinal("name");
+
+                while (rdTables.Read())
+                {
+                    tables.Add(rdTables.GetString(tableCol));
+                }
+
+                rdTables.Close();
+            }
+
+            var directRef = new List<string>();
+            var fieldRef = new List<Tuple<string, string>>();
+
+            tables.ForEach(T =>
+            {
+                using var cmd = new SqliteCommand($"PRAGMA foreign_key_list({T})", con);
+                using SqliteDataReader rdForeignKeys = cmd.ExecuteReader();
+
+                var tableCol = rdForeignKeys.GetOrdinal("table");
+                var fromCol = rdForeignKeys.GetOrdinal("from");
+                var toCol = rdForeignKeys.GetOrdinal("to");
+
+                while (rdForeignKeys.Read())
+                {
+                    if (rdForeignKeys.GetString(tableCol) == "Entities")
+                    {
+                        if (rdForeignKeys.GetString(fromCol) == "entityid") directRef.Add(T);
+                        else if (rdForeignKeys.GetString(toCol) == "entityid") fieldRef.Add(new Tuple<string, string>(T, rdForeignKeys.GetString(fromCol)));
+                    }
+                }
+
+                rdForeignKeys.Close();
+            });
+
+            directRef.Remove("Entities");
+
+            DeleteEntitesInDbTable("VisitedStructures", "poiid");
+
+            ExecSqlInDbTable("PlayerInventoryItems", $@"
+DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))
+");
+
+            fieldRef.ForEach(R => {
+                ExecSqlInDbTable(R.Item1, $"UPDATE {R.Item1} SET {R.Item2} = NULL WHERE {R.Item2} IN ({string.Join(',', deleteEntites)})");
+            });
+            directRef.ForEach(T => DeleteEntitesInDbTable(T));
+            
+            //ExecSqlInDbTable("PRAGMA", "PRAGMA foreign_keys = OFF;");
+            DeleteEntitesInDbTable("Entities");
+            //ExecSqlInDbTable("PRAGMA", "PRAGMA foreign_keys = ON;");
+
+            void DeleteEntitesInDbTable(string tableName, string fieldName = "entityid")
+            {
+                ExecSqlInDbTable(tableName, $@"
+DELETE FROM {tableName} WHERE {fieldName} IN ({string.Join(',', deleteEntites)})
+");
+            }
+
+            void ExecSqlInDbTable(string tableName, string sql)
+            {
+                using var cmd = new SqliteCommand(sql, con);
+                try { Logger.LogInformation($"{cmd.CommandText} -> {cmd.ExecuteNonQuery()} entities in {tableName} DB"); }
+                catch (Exception error) { Logger.LogError($"SQL[{tableName}]:{cmd.CommandText} Error:{error}"); }
+            }
         }
 
         private void GameplayManager_Event_Player_Connected(Id player)

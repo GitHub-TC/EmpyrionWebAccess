@@ -64,6 +64,7 @@ export enum ActionType {
   resetPlayfieldIfEmpty   = "Reset playfields if empty | [playfield[;playfield]] -> Example: Akua; Hsaa",
   restartEWA              = "Restart the EWA |",
   execSubActions          = "Execute sub actions|",
+  saveGameCleanUp         = "Savegame CleanUp | [old player days] (default:30)",
 }
 
 class SubTimetableAction{
@@ -161,7 +162,14 @@ export class TimetableComponent implements OnInit {
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
 
-        this.http.post("Timetable/RunThis", aAction)
+        let fullAction = aAction as TimetableAction;
+        if (fullAction && fullAction.timestamp)
+          this.http.post("Timetable/RunThis", aAction)
+            .subscribe(
+              T => { },
+              error => this.error = error // error path
+            );
+        else this.http.post("Timetable/RunThisSubAction", aAction)
           .subscribe(
             T => { },
             error => this.error = error // error path

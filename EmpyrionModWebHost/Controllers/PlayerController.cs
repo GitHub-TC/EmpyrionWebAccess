@@ -265,7 +265,7 @@ namespace EmpyrionModWebHost.Controllers
             });
         }
 
-        private void SyncronizePlayersWithSaveGameDirectory()
+        public void SyncronizePlayersWithSaveGameDirectory()
         {
             TaskTools.Delay(1, () =>
             {
