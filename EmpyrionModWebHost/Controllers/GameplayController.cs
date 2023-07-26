@@ -170,12 +170,13 @@ SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfiel
             {
                 var vaccumDBSize = new FileInfo(globalDB).Length;
 
+                Logger.LogInformation($"VACUUM START: {vaccumDBSize / (1024 * 1024)}MB");
                 var vaccumTimer = Stopwatch.StartNew();
                 try { Logger.LogInformation($"VACUUM {cmd.ExecuteNonQuery()}"); }
                 catch (Exception error) { Logger.LogError($"SQL:{cmd.CommandText} Error:{error}"); }
                 vaccumTimer.Stop();
 
-                Logger.LogInformation($"DB VACCUM take {vaccumTimer.Elapsed} and free {(vaccumDBSize - new FileInfo(globalDB).Length) / (1024 * 1024)}MB");
+                Logger.LogInformation($"VACCUM END: take {vaccumTimer.Elapsed} and free {(vaccumDBSize - new FileInfo(globalDB).Length) / (1024 * 1024)}MB");
             }
 
 
@@ -230,6 +231,7 @@ WHERE type='table';
             directRef.Remove("Entities");
 
             DeleteEntitesInDbTable("VisitedStructures", "poiid");
+            DeleteEntitesInDbTable("TraderHistory", "poiid");
 
             ExecSqlInDbTable("PlayerInventoryItems", $@"
 DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))
@@ -254,8 +256,9 @@ DELETE FROM {tableName} WHERE {fieldName} IN ({string.Join(',', deleteEntites)})
             void ExecSqlInDbTable(string tableName, string sql)
             {
                 using var cmd = new SqliteCommand(sql, con);
-                try { Logger.LogInformation($"{cmd.CommandText} -> {cmd.ExecuteNonQuery()} entities in {tableName} DB"); }
-                catch (Exception error) { Logger.LogError($"SQL[{tableName}]:{cmd.CommandText} Error:{error}"); }
+                Logger.LogInformation($"{cmd.CommandText}");
+                try { Logger.LogInformation($" -> {cmd.ExecuteNonQuery()} entities in {tableName} DB"); }
+                catch (Exception error) { Logger.LogError($"SQL[{tableName}]:{error}"); }
             }
         }
 
