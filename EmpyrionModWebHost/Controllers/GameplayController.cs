@@ -1,12 +1,10 @@
-﻿using Microsoft.Data.Sqlite;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using EmpyrionModWebHost.Extensions;
+using System.Data.SQLite;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -54,22 +52,22 @@ namespace EmpyrionModWebHost.Controllers
 
             Logger.LogInformation($"SaveGameCleanUp: {globalDB} PlayerDeleteDays:{playerAutoDelete}");
 
-            using var con = new SqliteConnection(new SqliteConnectionStringBuilder()
+            using var con = new SQLiteConnection(new SQLiteConnectionStringBuilder()
             {
-                Mode = SqliteOpenMode.ReadWrite,
-                Cache = SqliteCacheMode.Shared,
-                DataSource = globalDB
+                JournalMode = SQLiteJournalModeEnum.Off,
+                ReadOnly    = false,
+                DataSource  = globalDB
             }.ToString());
             con.Open();
 
-            using (var cmd = new SqliteCommand("PRAGMA journal_mode=OFF", con))
+            using (var cmd = new SQLiteCommand("PRAGMA journal_mode=OFF", con))
             {
                 cmd.ExecuteNonQuery();
             }
 
             var generatedPlayfields = new Dictionary<string, int>();
 
-            using (var cmd = new SqliteCommand(@"
+            using (var cmd = new SQLiteCommand(@"
 SELECT DISTINCT P.pfid, P.name
 FROM Playfields P
 JOIN Entities E ON P.pfid = E.pfid;
@@ -97,7 +95,7 @@ JOIN Entities E ON P.pfid = E.pfid;
 
             var deleteEntites = new HashSet<int>();
 
-            using (var cmd = new SqliteCommand($@"
+            using (var cmd = new SQLiteCommand($@"
 SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfields.Values)})
 
             ", con))
@@ -166,7 +164,7 @@ SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfiel
 
             PlayerManager.Value.SyncronizePlayersWithSaveGameDirectory();
 
-            using (var cmd = new SqliteCommand("VACUUM", con))
+            using (var cmd = new SQLiteCommand("VACUUM", con))
             {
                 var vaccumDBSize = new FileInfo(globalDB).Length;
 
@@ -183,16 +181,16 @@ SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfiel
             con.Close();
         }
 
-        private void DeleteEntitesInDb(SqliteConnection con, IEnumerable<int> deleteEntites)
+        private void DeleteEntitesInDb(SQLiteConnection con, IEnumerable<int> deleteEntites)
         {
             var tables = new List<string>();
-            using (var cmd = new SqliteCommand(@"
+            using (var cmd = new SQLiteCommand(@"
 SELECT name
 FROM sqlite_master
 WHERE type='table';
 ", con))
             {
-                using SqliteDataReader rdTables = cmd.ExecuteReader();
+                using var rdTables = cmd.ExecuteReader();
 
                 var tableCol = rdTables.GetOrdinal("name");
 
@@ -209,8 +207,8 @@ WHERE type='table';
 
             tables.ForEach(T =>
             {
-                using var cmd = new SqliteCommand($"PRAGMA foreign_key_list({T})", con);
-                using SqliteDataReader rdForeignKeys = cmd.ExecuteReader();
+                using var cmd = new SQLiteCommand($"PRAGMA foreign_key_list({T})", con);
+                using var rdForeignKeys = cmd.ExecuteReader();
 
                 var tableCol = rdForeignKeys.GetOrdinal("table");
                 var fromCol = rdForeignKeys.GetOrdinal("from");
@@ -232,10 +230,14 @@ WHERE type='table';
 
             DeleteEntitesInDbTable("VisitedStructures", "poiid");
             DeleteEntitesInDbTable("TraderHistory", "poiid");
+            DeleteEntitesInDbTable("PlayerStatisticsAIVessels", "vesselid");
+            DeleteEntitesInDbTable("Marketplace", "stationentityid");
+            DeleteEntitesInDbTable("PlayerStatisticsAIVessels", "vesselid");
+            DeleteEntitesInDbTable("StationServicesHistory", "stationid");
+            DeleteEntitesInDbTable("StationServicesHistory", "shipid");
+            DeleteEntitesInDbTable("StationServicesHistory", "playerid");
 
-            ExecSqlInDbTable("PlayerInventoryItems", $@"
-DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))
-");
+            ExecSqlInDbTable("PlayerInventoryItems", $"DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))");
 
             fieldRef.ForEach(R => {
                 ExecSqlInDbTable(R.Item1, $"UPDATE {R.Item1} SET {R.Item2} = NULL WHERE {R.Item2} IN ({string.Join(',', deleteEntites)})");
@@ -248,14 +250,12 @@ DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory
 
             void DeleteEntitesInDbTable(string tableName, string fieldName = "entityid")
             {
-                ExecSqlInDbTable(tableName, $@"
-DELETE FROM {tableName} WHERE {fieldName} IN ({string.Join(',', deleteEntites)})
-");
+                ExecSqlInDbTable(tableName, $"DELETE FROM {tableName} WHERE {fieldName} IN ({string.Join(',', deleteEntites)})");
             }
 
             void ExecSqlInDbTable(string tableName, string sql)
             {
-                using var cmd = new SqliteCommand(sql, con);
+                using var cmd = new SQLiteCommand(sql, con);
                 Logger.LogInformation($"{cmd.CommandText}");
                 try { Logger.LogInformation($" -> {cmd.ExecuteNonQuery()} entities in {tableName} DB"); }
                 catch (Exception error) { Logger.LogError($"SQL[{tableName}]:{error}"); }

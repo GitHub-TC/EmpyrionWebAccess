@@ -1,5 +1,4 @@
 ﻿using Eleon.Modding;
-using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -38,10 +37,10 @@ namespace EgsDbTools
             var dockedToList         = new Dictionary<int, List<int>>();
             SolarSystemData currentPlayfield = null;
 
-            var connectionString = new SqliteConnectionStringBuilder()
+            var connectionString = new SQLiteConnectionStringBuilder()
             {
-                Mode        = SqliteOpenMode.ReadOnly,
-                Cache       = SqliteCacheMode.Shared,
+                JournalMode = SQLiteJournalModeEnum.Off,
+                ReadOnly    = true,
                 DataSource  = GlobalDbPath
             };
 
@@ -164,6 +163,8 @@ ORDER BY pfid
                             globalStructuresList.Add(gsi.id, gsi);
                             currentPlayfieldStructures.Add(gsi);
                         }
+
+                        reader.Close();
                     }
                 }
 
@@ -177,10 +178,10 @@ ORDER BY pfid
 
         public GlobalStructureInfo ReadGlobalStructureInfo(Id id)
         {
-            var connectionString = new SqliteConnectionStringBuilder()
+            var connectionString = new SQLiteConnectionStringBuilder()
             {
-                Mode        = SqliteOpenMode.ReadOnly,
-                Cache       = SqliteCacheMode.Shared,
+                JournalMode = SQLiteJournalModeEnum.Off,
+                ReadOnly    = true,
                 DataSource  = GlobalDbPath
             };
 
@@ -283,6 +284,8 @@ WHERE Structures.entityid = " + id.id.ToString();
                                 SolarSystemName     = currentPlayfield?.SolarSystem ?? "?"
                             };
                         }
+
+                        reader.Close();
                     }
                 }
 
