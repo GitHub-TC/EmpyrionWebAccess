@@ -202,53 +202,58 @@ WHERE type='table';
                 rdTables.Close();
             }
 
-            var directRef = new List<string>();
-            var fieldRef = new List<Tuple<string, string>>();
+            tables.Remove("Entities"); // Die Tabelle muss eh als letztes behandelt werden
+
+            var deleteRef = new List<Tuple<string, string>>();
+            var setNullRef = new List<Tuple<string, string>>();
 
             tables.ForEach(T =>
             {
-                using var cmd = new SQLiteCommand($"PRAGMA foreign_key_list({T})", con);
-                using var rdForeignKeys = cmd.ExecuteReader();
+                var notNullFields = new List<string>();
 
-                var tableCol = rdForeignKeys.GetOrdinal("table");
-                var fromCol = rdForeignKeys.GetOrdinal("from");
-                var toCol = rdForeignKeys.GetOrdinal("to");
-
-                while (rdForeignKeys.Read())
+                using (var cmd = new SQLiteCommand($"PRAGMA table_info({T})", con))
                 {
-                    if (rdForeignKeys.GetString(tableCol) == "Entities")
+                    using SQLiteDataReader rdTableInfo = cmd.ExecuteReader();
+
+                    var nameCol = rdTableInfo.GetOrdinal("name");
+                    var notNullCol = rdTableInfo.GetOrdinal("notnull");
+
+                    while (rdTableInfo.Read())
                     {
-                        if (rdForeignKeys.GetString(fromCol) == "entityid") directRef.Add(T);
-                        else if (rdForeignKeys.GetString(toCol) == "entityid") fieldRef.Add(new Tuple<string, string>(T, rdForeignKeys.GetString(fromCol)));
+                        if (rdTableInfo.GetBoolean(notNullCol)) notNullFields.Add(rdTableInfo.GetString(nameCol));
                     }
                 }
 
-                rdForeignKeys.Close();
+                using (var cmd = new SQLiteCommand($"PRAGMA foreign_key_list({T})", con))
+                {
+                    using var rdForeignKeys = cmd.ExecuteReader();
+
+                    var tableCol = rdForeignKeys.GetOrdinal("table");
+                    var fromCol = rdForeignKeys.GetOrdinal("from");
+                    var toCol = rdForeignKeys.GetOrdinal("to");
+
+                    while (rdForeignKeys.Read())
+                    {
+                        if (rdForeignKeys.GetString(tableCol) == "Entities")
+                        {
+                            var fieldName = rdForeignKeys.GetString(fromCol);
+                            if (notNullFields.Contains(fieldName)) deleteRef .Add(new Tuple<string, string>(T, fieldName));
+                            else                                   setNullRef.Add(new Tuple<string, string>(T, fieldName));
+                        }
+                    }
+
+                    rdForeignKeys.Close();
+                }
             });
-
-            directRef.Remove("Entities");
-
-            DeleteEntitesInDbTable("VisitedStructures", "poiid");
-            DeleteEntitesInDbTable("TraderHistory", "poiid");
-            DeleteEntitesInDbTable("PlayerStatisticsAIVessels", "vesselid");
-            DeleteEntitesInDbTable("Marketplace", "stationentityid");
-            DeleteEntitesInDbTable("PlayerStatisticsAIVessels", "vesselid");
-            DeleteEntitesInDbTable("StationServicesHistory", "stationid");
-            DeleteEntitesInDbTable("StationServicesHistory", "shipid");
-            DeleteEntitesInDbTable("StationServicesHistory", "playerid");
 
             ExecSqlInDbTable("PlayerInventoryItems", $"DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))");
 
-            fieldRef.ForEach(R => {
-                ExecSqlInDbTable(R.Item1, $"UPDATE {R.Item1} SET {R.Item2} = NULL WHERE {R.Item2} IN ({string.Join(',', deleteEntites)})");
-            });
-            directRef.ForEach(T => DeleteEntitesInDbTable(T));
+            setNullRef.ForEach(R => ExecSqlInDbTable(R.Item1, $"UPDATE {R.Item1} SET {R.Item2} = NULL WHERE {R.Item2} IN ({string.Join(',', deleteEntites)})"));
+            deleteRef .ForEach(T => DeleteEntitesInDbTable(T.Item1, T.Item2));
             
-            //ExecSqlInDbTable("PRAGMA", "PRAGMA foreign_keys = OFF;");
-            DeleteEntitesInDbTable("Entities");
-            //ExecSqlInDbTable("PRAGMA", "PRAGMA foreign_keys = ON;");
+            DeleteEntitesInDbTable("Entities", "entityid");
 
-            void DeleteEntitesInDbTable(string tableName, string fieldName = "entityid")
+            void DeleteEntitesInDbTable(string tableName, string fieldName)
             {
                 ExecSqlInDbTable(tableName, $"DELETE FROM {tableName} WHERE {fieldName} IN ({string.Join(',', deleteEntites)})");
             }
