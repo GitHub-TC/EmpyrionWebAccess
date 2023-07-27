@@ -91,7 +91,7 @@ JOIN Entities E ON P.pfid = E.pfid;
                 .ForEach(P => generatedPlayfields.Remove(Path.GetFileName(P)));
 
 
-            Logger.LogInformation($"CleanUpStructures for {generatedPlayfields.Count} unused playfields");
+            Logger.LogInformation($"CleanUpStructures for {generatedPlayfields.Count} unused playfields {string.Join(',', generatedPlayfields)}");
 
             var deleteEntites = new HashSet<int>();
 
@@ -261,9 +261,9 @@ WHERE type='table';
             void ExecSqlInDbTable(string tableName, string sql)
             {
                 using var cmd = new SQLiteCommand(sql, con);
-                Logger.LogInformation($"{cmd.CommandText}");
+                Logger.LogInformation($"{cmd.CommandText.Substring(0, Math.Max(0,cmd.CommandText.IndexOf(' ')))} [{tableName}]");
                 try { Logger.LogInformation($" -> {cmd.ExecuteNonQuery()} entities in {tableName} DB"); }
-                catch (Exception error) { Logger.LogError($"SQL[{tableName}]:{error}"); }
+                catch (Exception error) { Logger.LogError($"SQL: {cmd.CommandText} Error:{error}"); }
             }
         }
 
