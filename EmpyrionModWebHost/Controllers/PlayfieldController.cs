@@ -238,16 +238,8 @@ namespace EmpyrionModWebHost.Controllers
         }
 
         private static bool FilesAreOlder(string directory, DateTime deleteDateTime)
-        {
-            if(Directory.GetLastWriteTime(directory) >= deleteDateTime) return false;
-
-            if (Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
-                .All(F => File.GetLastWriteTime(F) < deleteDateTime)) return true;
-
-            Directory.SetLastWriteTime(directory, DateTime.Now);
-
-            return false;
-        }
+            => Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
+                .All(F => File.GetLastWriteTime(F) < deleteDateTime);
 
         private bool NoPlayerStuffPresent(string playfield)
         {
