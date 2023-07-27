@@ -235,6 +235,21 @@ namespace EmpyrionModWebHost.Controllers
                 try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields", P), true); } catch { }
                 try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true); } catch { }
             });
+
+            var existingPlayfields = Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"), "*.*", SearchOption.TopDirectoryOnly)
+                .Select(P => Path.GetFileName(P.Contains('#') ? P[..P.IndexOf("#")] : P))
+                .Distinct()
+                .ToHashSet();
+
+            var deletedCachePlayfields = 0;
+            Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields"), "*.*", SearchOption.TopDirectoryOnly)
+                .Where(P => !existingPlayfields.Contains(Path.GetFileName(P)))
+                .AsParallel()
+                .ForEach(P => {
+                    try { Directory.Delete(P, true); Interlocked.Increment(ref deletedCachePlayfields); } catch { }
+                });
+
+            Logger.LogInformation("WipeOldUnusedPlayfield: CleanUpCache {countDeletedCachePlayfields}", deletedCachePlayfields);
         }
 
         private static bool FilesAreOlder(string directory, DateTime deleteDateTime)
