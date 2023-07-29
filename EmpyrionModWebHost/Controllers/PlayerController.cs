@@ -1,6 +1,7 @@
 ﻿using EgsDbTools;
 using Microsoft.Build.Tasks;
 using System.Collections.Concurrent;
+using System.Drawing;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -281,6 +282,41 @@ namespace EmpyrionModWebHost.Controllers
                 DB.SaveChangesAsync();
 
             });
+        }
+
+        public void DeleteOldPlayerFiles(int playerAutoDelete)
+        {
+            var totalPlayerFiles = Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"), "*.ply").ToArray();
+            var oldPlayerSteamId = totalPlayerFiles
+                .Where(F => (DateTime.Now - File.GetLastWriteTime(F)).TotalDays > playerAutoDelete)
+                .ToDictionary(F => Path.GetFileNameWithoutExtension(F), F => F);
+
+            Logger.LogInformation($"Found {totalPlayerFiles.Length} with {oldPlayerSteamId.Count} old player files");
+
+            Dictionary<int, string> oldPlayerEntityId;
+            using (var DB = new PlayerContext())
+            {
+                oldPlayerEntityId = DB.Players
+                    .ToArray()
+                    .Where(P => oldPlayerSteamId.ContainsKey(P.SteamId))
+                    .ToDictionary(P => P.EntityId, P => P.PlayerName);
+            }
+
+            oldPlayerSteamId.Values.AsParallel()
+            .ForAll(P =>
+            {
+                try
+                {
+                    File.Delete(P);
+                }
+                catch (FileNotFoundException) { }
+                catch (Exception error)
+                {
+                    Logger.LogWarning($"Delete entity {P}: {error}");
+                }
+            });
+
+            SyncronizePlayersWithSaveGameDirectory();
         }
 
         private void PlayerDisconnected(Id ID)

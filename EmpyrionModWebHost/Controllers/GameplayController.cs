@@ -60,125 +60,128 @@ namespace EmpyrionModWebHost.Controllers
             }.ToString());
             con.Open();
 
-            using (var cmd = new SQLiteCommand("PRAGMA journal_mode=OFF", con))
+            try
             {
-                cmd.ExecuteNonQuery();
-            }
+                using (var cmd = new SQLiteCommand("PRAGMA journal_mode=OFF", con))
+                {
+                    cmd.ExecuteNonQuery();
+                }
 
-            var generatedPlayfields = new Dictionary<string, int>();
+                var generatedPlayfields = new Dictionary<string, int>();
 
-            using (var cmd = new SQLiteCommand(@"
+                using (var cmd = new SQLiteCommand(@"
 SELECT DISTINCT P.pfid, P.name
 FROM Playfields P
 JOIN Entities E ON P.pfid = E.pfid;
 ", con))
-            {
-                using var rdrPlayfields = cmd.ExecuteReader();
-
-                var pfidCol = rdrPlayfields.GetOrdinal("pfid");
-                var nameCol = rdrPlayfields.GetOrdinal("name");
-
-                while (rdrPlayfields.Read())
                 {
-                    generatedPlayfields.Add(rdrPlayfields.GetString(nameCol), rdrPlayfields.GetInt32(pfidCol));
+                    using var rdrPlayfields = cmd.ExecuteReader();
+
+                    var pfidCol = rdrPlayfields.GetOrdinal("pfid");
+                    var nameCol = rdrPlayfields.GetOrdinal("name");
+
+                    while (rdrPlayfields.Read())
+                    {
+                        generatedPlayfields.Add(rdrPlayfields.GetString(nameCol), rdrPlayfields.GetInt32(pfidCol));
+                    }
+
+                    rdrPlayfields.Close();
                 }
 
-                rdrPlayfields.Close();
-            }
+                Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"))
+                    .ToList()
+                    .ForEach(P => generatedPlayfields.Remove(Path.GetFileName(P)));
 
-            Directory.EnumerateDirectories(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Playfields"))
-                .ToList()
-                .ForEach(P => generatedPlayfields.Remove(Path.GetFileName(P)));
+                Logger.LogInformation($"CleanUpStructures for {generatedPlayfields.Count} unused playfields {string.Join(',', generatedPlayfields)}");
 
+                var deleteEntites = new HashSet<int>();
 
-            Logger.LogInformation($"CleanUpStructures for {generatedPlayfields.Count} unused playfields {string.Join(',', generatedPlayfields)}");
-
-            var deleteEntites = new HashSet<int>();
-
-            using (var cmd = new SQLiteCommand($@"
+                using (var cmd = new SQLiteCommand($@"
 SELECT entityid FROM Entities WHERE pfid IN ({string.Join(',', generatedPlayfields.Values)})
-
             ", con))
-            {
-
-                using var rdrEntities = cmd.ExecuteReader();
-
-                var entityidCol = rdrEntities.GetOrdinal("entityid");
-
-                while (rdrEntities.Read())
                 {
-                    deleteEntites.Add(rdrEntities.GetInt32(entityidCol));
+
+                    using var rdrEntities = cmd.ExecuteReader();
+
+                    var entityidCol = rdrEntities.GetOrdinal("entityid");
+
+                    while (rdrEntities.Read())
+                    {
+                        deleteEntites.Add(rdrEntities.GetInt32(entityidCol));
+                    }
+
+                    rdrEntities.Close();
                 }
 
-                rdrEntities.Close();
-            }
+                Logger.LogInformation($"CleanUpStructures for {deleteEntites.Count} entities. DeleteEntities:{string.Join(',', deleteEntites)}");
+                DeleteEntitesInDb(con, deleteEntites);
 
-            Logger.LogInformation($"CleanUpStructures for {deleteEntites.Count} entities");
-            DeleteEntitesInDb(con, deleteEntites);
+                deleteEntites.AsParallel()
+                    .ForAll(E =>
+                    {
+                        try
+                        {
+                            Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", E.ToString()), true);
+                        }
+                        catch (DirectoryNotFoundException) { }
+                        catch (Exception error)
+                        {
+                            Logger.LogWarning($"Delete entity {E}: {error}");
+                        }
+                    });
 
-            deleteEntites.AsParallel()
-                .ForAll(E =>
+                var totalPlayerFiles = Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"), "*.ply").ToArray();
+                var oldPlayerSteamId = totalPlayerFiles
+                    .Where(F => (DateTime.Now - File.GetLastWriteTime(F)).TotalDays > playerAutoDelete)
+                    .ToDictionary(F => Path.GetFileNameWithoutExtension(F), F => F);
+
+                Logger.LogInformation($"Found {totalPlayerFiles.Length} with {oldPlayerSteamId.Count} old player files");
+
+                Dictionary<int, string> oldPlayerEntityId;
+                using (var DB = new PlayerContext())
+                {
+                    oldPlayerEntityId = DB.Players
+                        .ToArray()
+                        .Where(P => oldPlayerSteamId.ContainsKey(P.SteamId))
+                        .ToDictionary(P => P.EntityId, P => P.PlayerName);
+                }
+
+                DeleteEntitesInDb(con, oldPlayerEntityId.Keys);
+
+                oldPlayerSteamId.Values.AsParallel()
+                .ForAll(P =>
                 {
                     try
                     {
-                        Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Shared", E.ToString()), true);
+                        File.Delete(P);
                     }
-                    catch (DirectoryNotFoundException) { }
+                    catch (FileNotFoundException) { }
                     catch (Exception error)
                     {
-                        Logger.LogWarning($"Delete entity {E}: {error}");
+                        Logger.LogWarning($"Delete entity {P}: {error}");
                     }
                 });
 
-            var totalPlayerFiles = Directory.EnumerateFiles(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players"), "*.ply").ToArray();
-            var oldPlayerSteamId = totalPlayerFiles
-                .Where(F => (DateTime.Now - File.GetLastWriteTime(F)).TotalDays > playerAutoDelete)
-                .ToDictionary(F => Path.GetFileNameWithoutExtension(F), F => F);
+                PlayerManager.Value.SyncronizePlayersWithSaveGameDirectory();
 
-            Logger.LogInformation($"Found {totalPlayerFiles.Length} with {oldPlayerSteamId.Count} old player files");
-
-            Dictionary<int, string> oldPlayerEntityId;
-            using (var DB = new PlayerContext())
-            {
-                oldPlayerEntityId = DB.Players
-                    .ToArray()
-                    .Where(P => oldPlayerSteamId.ContainsKey(P.SteamId))
-                    .ToDictionary(P => P.EntityId, P => P.PlayerName);
-            }
-
-            DeleteEntitesInDb (con, oldPlayerEntityId.Keys);
-
-            oldPlayerSteamId.Values.AsParallel()
-            .ForAll(P =>
-            {
-                try
+                using (var cmd = new SQLiteCommand("VACUUM", con))
                 {
-                    File.Delete(P);
+                    var vaccumDBSize = new FileInfo(globalDB).Length;
+
+                    Logger.LogInformation($"VACUUM START: {vaccumDBSize / (1024 * 1024)}MB");
+                    var vaccumTimer = Stopwatch.StartNew();
+                    try { Logger.LogInformation($"VACUUM {cmd.ExecuteNonQuery()}"); }
+                    catch (Exception error) { Logger.LogError($"SQL:{cmd.CommandText} Error:{error}"); }
+                    vaccumTimer.Stop();
+
+                    Logger.LogInformation($"VACCUM END: take {vaccumTimer.Elapsed} and free {(vaccumDBSize - new FileInfo(globalDB).Length) / (1024 * 1024)}MB");
                 }
-                catch (FileNotFoundException) { }
-                catch (Exception error)
-                {
-                    Logger.LogWarning($"Delete entity {P}: {error}");
-                }
-            });
 
-            PlayerManager.Value.SyncronizePlayersWithSaveGameDirectory();
-
-            using (var cmd = new SQLiteCommand("VACUUM", con))
-            {
-                var vaccumDBSize = new FileInfo(globalDB).Length;
-
-                Logger.LogInformation($"VACUUM START: {vaccumDBSize / (1024 * 1024)}MB");
-                var vaccumTimer = Stopwatch.StartNew();
-                try { Logger.LogInformation($"VACUUM {cmd.ExecuteNonQuery()}"); }
-                catch (Exception error) { Logger.LogError($"SQL:{cmd.CommandText} Error:{error}"); }
-                vaccumTimer.Stop();
-
-                Logger.LogInformation($"VACCUM END: take {vaccumTimer.Elapsed} and free {(vaccumDBSize - new FileInfo(globalDB).Length) / (1024 * 1024)}MB");
             }
-
-
-            con.Close();
+            finally
+            {
+                con.Close();
+            }
         }
 
         private void DeleteEntitesInDb(SQLiteConnection con, IEnumerable<int> deleteEntites)
@@ -247,6 +250,7 @@ WHERE type='table';
             });
 
             ExecSqlInDbTable("PlayerInventoryItems", $"DELETE FROM PlayerInventoryItems WHERE piid IN (SELECT piid FROM PlayerInventory P WHERE P.entityid IN ({string.Join(',', deleteEntites)}))");
+            DeleteEntitesInDbTable("Bookmarks", "refid");
 
             setNullRef.ForEach(R => ExecSqlInDbTable(R.Item1, $"UPDATE {R.Item1} SET {R.Item2} = NULL WHERE {R.Item2} IN ({string.Join(',', deleteEntites)})"));
             deleteRef .ForEach(T => DeleteEntitesInDbTable(T.Item1, T.Item2));
