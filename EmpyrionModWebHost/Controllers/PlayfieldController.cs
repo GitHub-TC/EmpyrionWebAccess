@@ -174,8 +174,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 var P = Path.GetFileName(fullPath);
 
-                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,      "Playfields", P), true);
-                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true);
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,      "Playfields", P), true); } catch (Exception error){ Logger.LogDebug("ResetPlayfield: {error}", error); }
+                try { Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath, "Playfields", P), true); } catch (Exception error){ Logger.LogDebug("ResetPlayfield: {error}", error); }
             });
         }
 
@@ -185,9 +185,9 @@ namespace EmpyrionModWebHost.Controllers
             {
                 var P = Path.GetFileName(fullPath);
 
-                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Playfields", P), true);
-                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Templates",  P), true);
-                Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath,  "Playfields", P), true);
+                try{ Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Playfields", P), true); } catch (Exception error){ Logger.LogDebug("RecreatePlayfield: {error}", error); }
+                try{ Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGamePath,       "Templates",  P), true); } catch (Exception error){ Logger.LogDebug("RecreatePlayfield: {error}", error); }
+                try{ Directory.Delete(Path.Combine(EmpyrionConfiguration.SaveGameCachePath,  "Playfields", P), true); } catch (Exception error){ Logger.LogDebug("RecreatePlayfield: {error}", error); }
             });
         }
 

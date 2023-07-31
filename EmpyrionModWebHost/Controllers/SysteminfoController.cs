@@ -52,11 +52,10 @@ namespace EmpyrionModWebHost.Controllers
 
     public class SystemConfig
     {
-        public ProcessInformation ProcessInformation { get; set; }
+        public ProcessInformation ProcessInformation { get; set; } = new ProcessInformation();
         public string StartCMD { get; set; }
         public string WelcomeMessage { get; set; }
         public string PlayerSteamInfoUrl { get; set; }
-
     }
 
     [Authorize]
@@ -171,6 +170,8 @@ namespace EmpyrionModWebHost.Controllers
 
         public bool EGSIsRunning => CurrentSysteminfo.online == "o";
 
+        public Process EAHProcess { get; private set; }
+
         private void UpdatePerformanceInfos()
         {
             CurrentSysteminfo.online = SetState(CurrentSysteminfo.online, "oc", (DateTime.Now - LastProcessInformationUpdate).TotalSeconds <= 10);
@@ -220,8 +221,8 @@ namespace EmpyrionModWebHost.Controllers
                 CurrentSysteminfo.totalPlayfieldserverMemorySize = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
 
-            var eahProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault();
-            CurrentSysteminfo.eahAvailable = eahProcess != null;
+            EAHProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault();
+            CurrentSysteminfo.eahAvailable = EAHProcess != null;
 
             SystemConfig.Current.ProcessInformation = ProcessInformation;
             SystemConfig.Save();
@@ -235,6 +236,47 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.versionESG = EmpyrionConfiguration.Version;
             CurrentSysteminfo.versionESGBuild = EmpyrionConfiguration.BuildVersion;
             CurrentSysteminfo.copyright = CurrentAssembly.GetAttribute<AssemblyCopyrightAttribute>()?.Copyright;
+        }
+
+        public void StopEAH()
+        {
+            if(EAHProcess == null) return;
+
+            try{ EAHProcess.CloseMainWindow(); } catch (Exception error){ Logger.LogError(error, "EAH:CloseMainWindow"); }
+            try
+            {
+                if (!EAHProcess.WaitForExit(60 * 1000))
+                {
+                    try { EAHProcess.Kill(); } catch (Exception error) { Logger.LogError(error, "EAH:Kill"); }
+                }
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "EAH:WaitForExit");
+                try { EAHProcess.Kill(); } catch (Exception killError) { Logger.LogError(killError, "EAH:Kill2"); }
+            }
+
+            EAHProcess = null;
+        }
+
+        public void StartEAH(string commandline)
+        {
+            try
+            {
+                EAHProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(commandline) ? Path.Combine(EmpyrionConfiguration.ProgramPath, "DedicatedServer", "EmpyrionAdminHelper", "EmpAdminHelper.exe") : commandline)
+                    {
+                        UseShellExecute  = true,
+                    }
+                };
+
+                EAHProcess.Start();
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "StartEAH:{commandline}", commandline);
+            }
         }
 
         public void ClientHostMessage(ClientHostComData aMessage)

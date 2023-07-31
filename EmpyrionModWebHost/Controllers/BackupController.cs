@@ -57,7 +57,7 @@ namespace EmpyrionModWebHost.Controllers
 
         private void BackupStructureData()
         {
-            if (ActivePlayfields.IsEmpty) return;
+            if (ActivePlayfields.IsEmpty || !SysteminfoManager.Value.EGSIsRunning) return;
 
             bool displayInfo = false;
             if (SavesStructuresDat == null || SavesStructuresDat.Count == 0)

@@ -66,6 +66,8 @@ export enum ActionType {
   restartEWA              = "Restart the EWA |",
   execSubActions          = "Execute sub actions|",
   saveGameCleanUp         = "Savegame CleanUp | [old player days] (default:30)",
+  startEAH                = "EAH start|[command line] (default:last running or default path)",
+  stopEAH                 = "EAH stop |",
 }
 
 class SubTimetableAction{
@@ -163,6 +165,9 @@ export class TimetableComponent implements OnInit {
       (YesNoData: YesNoData) => {
         if (!YesNoData.result) return;
 
+        let saveActive = aAction.active;
+        aAction.active = true;
+
         let fullAction = aAction as TimetableAction;
         if (fullAction && fullAction.timestamp)
           this.http.post("Timetable/RunThis", aAction)
@@ -174,7 +179,9 @@ export class TimetableComponent implements OnInit {
           .subscribe(
             T => { },
             error => this.error = error // error path
-          );
+        );
+
+        aAction.active = saveActive;
       });
   }
 

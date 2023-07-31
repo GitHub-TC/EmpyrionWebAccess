@@ -68,6 +68,8 @@ namespace EmpyrionModWebHost.Controllers
         restartEWA,
         execSubActions,
         saveGameCleanUp,
+        startEAH,
+        stopEAH,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -297,6 +299,8 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.restartEWA              : SysteminfoManager.Value.EWARestart(); break;
                 case ActionType.execSubActions          : break;
                 case ActionType.saveGameCleanUp         : GameplayManager.Value.SaveGameCleanUp(int.TryParse(aAction.data, out int wipePlayerDays) ? wipePlayerDays : 30); break;
+                case ActionType.startEAH                : SysteminfoManager.Value.StartEAH(aAction.data); break;
+                case ActionType.stopEAH                 : SysteminfoManager.Value.StopEAH(); break;
             }
 
             if (aAction.actionType != ActionType.restart) ExecSubActions(aAction);
@@ -343,8 +347,8 @@ namespace EmpyrionModWebHost.Controllers
             {
                 StartInfo = new ProcessStartInfo(aAction.data)
                 {
-                    UseShellExecute = true,
-                    CreateNoWindow = true,
+                    UseShellExecute  = true,
+                    CreateNoWindow   = true,
                     WorkingDirectory = EmpyrionConfiguration.SaveGamePath,
                 }
             };
@@ -357,7 +361,9 @@ namespace EmpyrionModWebHost.Controllers
         {
             if (aAction is TimetableAction MainAction && MainAction.subAction != null)
             {
-                MainAction.subAction.ForEach(A => Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}").GetAwaiter().GetResult());
+                MainAction.subAction
+                    .Where(A => A.active).ToList()
+                    .ForEach(A => Program.Host.SaveApiCall(() => RunThis(A), this, $"{A.actionType}").GetAwaiter().GetResult());
             }
         }
     }

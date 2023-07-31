@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using EmpyrionModWebHost;
+using Microsoft.Data.Sqlite;
 using System.Data.Common;
 using System.Diagnostics;
 
@@ -15,7 +16,7 @@ namespace EgsDbTools
 
         public DateTime LastDbRead { get; set; }
         public ILogger<GlobalStructureListAccess> Logger { get; }
-
+        public Lazy<SysteminfoManager> SysteminfoManager { get; }
         public int UpdateIntervallInSeconds { get; set; } = 30;
 
         public string GlobalDbPath { get => _GlobalDbPath; set { if (_GlobalDbPath != value) UpdateNow = true; _GlobalDbPath = value; } }
@@ -25,12 +26,13 @@ namespace EgsDbTools
         public GlobalStructureListAccess(ILogger<GlobalStructureListAccess> logger)
         {
             Logger = logger;
+            SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
         }
 
         public GlobalStructureList CurrentList
         {
             get {
-                if (UpdateNow || (DateTime.Now - LastDbRead).TotalSeconds > UpdateIntervallInSeconds)
+                if (UpdateNow || (SysteminfoManager.Value.EGSIsRunning && (DateTime.Now - LastDbRead).TotalSeconds > UpdateIntervallInSeconds))
                 {
                     var stopwatch = Stopwatch.StartNew();
                     UpdateNow = false;
