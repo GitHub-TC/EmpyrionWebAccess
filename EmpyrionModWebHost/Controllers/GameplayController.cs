@@ -323,7 +323,7 @@ WHERE type='table';
             {
                 if (_mItemInfo != null) return _mItemInfo;
 
-                var ConfigFilesPath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration");
+                var ConfigFilesPath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content" , "Configuration");
                 var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
                 if (!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
 
@@ -334,6 +334,7 @@ WHERE type='table';
                 catch (Exception error)
                 {
                     Logger.LogError(error, "ConfigFilesPath: {ConfigFilesPath} Localization.csv:{LocalizationFile}", ConfigFilesPath, LocalizationFile);
+                    _mItemInfo = Array.Empty<ItemInfo>();
                 }
 
                 CreateDummyPNGForUnknownItems(_mItemInfo);

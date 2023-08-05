@@ -268,6 +268,7 @@ namespace EmpyrionModWebHost.Controllers
                     StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(commandline) ? Path.Combine(EmpyrionConfiguration.ProgramPath, "DedicatedServer", "EmpyrionAdminHelper", "EmpAdminHelper.exe") : commandline)
                     {
                         UseShellExecute  = true,
+                        WorkingDirectory = EmpyrionConfiguration.ProgramPath
                     }
                 };
 
