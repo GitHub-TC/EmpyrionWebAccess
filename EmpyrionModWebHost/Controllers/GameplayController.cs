@@ -323,17 +323,17 @@ WHERE type='table';
             {
                 if (_mItemInfo != null) return _mItemInfo;
 
-                var ItemConfigFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration\Config_Example.ecf");
+                var ConfigFilesPath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Configuration");
                 var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
                 if (!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
 
                 try
                 {
-                    _mItemInfo = ReadItemInfos(ItemConfigFile, LocalizationFile);
+                    _mItemInfo = ReadItemInfos(ConfigFilesPath, LocalizationFile);
                 }
                 catch (Exception error)
                 {
-                    Logger.LogError(error, "Config_Example.ecf: {ItemConfigFile} Localization.csv:{LocalizationFile}", ItemConfigFile, LocalizationFile);
+                    Logger.LogError(error, "ConfigFilesPath: {ConfigFilesPath} Localization.csv:{LocalizationFile}", ConfigFilesPath, LocalizationFile);
                 }
 
                 CreateDummyPNGForUnknownItems(_mItemInfo);
@@ -342,9 +342,9 @@ WHERE type='table';
             return _mItemInfo;
         }
 
-        public ItemInfo[] ReadItemInfos(string itemConfigFile, string localizationFile)
+        public ItemInfo[] ReadItemInfos(string configFilesPath, string localizationFile)
         {
-            Logger.LogInformation("Config_Example.ecf: {itemConfigFile} Localization.csv:{localizationFile}", itemConfigFile, localizationFile);
+            Logger.LogInformation("ConfigFilesPath: {configFilesPath} Localization.csv:{localizationFile}", configFilesPath, localizationFile);
 
             var Localisation = ReadTranslationFromCsv(localizationFile).Aggregate(new Dictionary<string, List<string>>(), (r, d) => {
                 if (d?.Count >= 2 && !r.ContainsKey(d[0])) r.Add(d[0], d.Select(name => RemoveNameFormatting.Replace(name, "")).ToList());
@@ -363,8 +363,12 @@ WHERE type='table';
                 }
             }
 
-            var ItemDef = File.ReadAllLines(itemConfigFile)
-                .Where(L => L.Contains(IdDef));
+            var ItemDef = File.ReadAllLines(Path.Combine(configFilesPath, "BlocksConfig.ecf"))
+                .Where(L => L.Contains(IdDef))
+                .ToList();
+
+            ItemDef.AddRange(File.ReadAllLines(Path.Combine(configFilesPath, "ItemsConfig.ecf"))
+                .Where(L => L.Contains(IdDef)));
 
             return ItemDef.Select(L =>
             {

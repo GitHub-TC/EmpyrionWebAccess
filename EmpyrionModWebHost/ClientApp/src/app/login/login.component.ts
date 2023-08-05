@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
   returnUrl: string;
+  steamLoginUrl: string;
   error = '';
 
   constructor(
@@ -34,6 +35,17 @@ export class LoginComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+
+    let currentUrl = new URL(window.location.href);
+
+    let steamUri = new URL("https://steamcommunity.com/openid/login?openid.ns=http");
+    steamUri.searchParams.set('openid.ns',         'http://specs.openid.net/auth/2.0');
+    steamUri.searchParams.set('openid.mode'      , 'checkid_setup');
+    steamUri.searchParams.set('openid.return_to' ,  currentUrl.protocol + '://' + currentUrl.host + "/login");
+    steamUri.searchParams.set('openid.realm',       currentUrl.protocol + '://' + currentUrl.host);
+    steamUri.searchParams.set('openid.identity'  , 'http://specs.openid.net/auth/2.0/identifier_select');
+    steamUri.searchParams.set('openid.claimed_id', 'http://specs.openid.net/auth/2.0/identifier_select');
+    this.steamLoginUrl = steamUri.toString();
   }
 
   // convenience getter for easy access to form fields

@@ -15,7 +15,7 @@ public class UnitTestsEWA
     [TestMethod]
     public void TestReadItemInfos()
     {
-        var ItemConfigFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Config_Example.ecf");
+        var ItemConfigFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "BlocksConfig.ecf");
         var LocalizationFile = Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..", "Data", "Localization.csv");
 
         var items = new GameplayManager(null, null, NullLogger<GameplayManager>.Instance).ReadItemInfos(ItemConfigFile, LocalizationFile);
