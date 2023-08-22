@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.Collections.Concurrent;
 using EgsDbTools;
+using System.IO.Compression;
+using System.ComponentModel;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -493,6 +495,12 @@ namespace EmpyrionModWebHost.Controllers
                 .ForAll(T => { SetNormalAttributes(T.FullPath); Directory.Delete(T.FullPath, true); });
         }
 
+        public void ZipBackup(string backup)
+        {
+            File.Delete(Path.Combine(BackupDir, backup + ".zip"));
+            ZipFile.CreateFromDirectory(Path.Combine(BackupDir, backup), Path.Combine(BackupDir, backup + ".zip"), CompressionLevel.SmallestSize, false);
+        }
+
         public void RestorePlayfield(string aBackup, string aPlayfield)
         {
             RestoreCopy(aBackup, Path.Combine("Saves", "Cache", 
@@ -886,5 +894,12 @@ namespace EmpyrionModWebHost.Controllers
             return Ok();
         }
 
+        [HttpPost("ZipBackup")]
+        public IActionResult ZipBackup([FromBody] MarkBackupData aData)
+        {
+            new Thread(() => BackupManager.ZipBackup(aData.backup)){ IsBackground = true }.Start();
+
+            return Ok();
+        }
     }
 }

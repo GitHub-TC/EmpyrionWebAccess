@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-restore-manager',
@@ -7,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./restore-manager.component.less']
 })
 export class RestoreManagerComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   MarkBackup: string = "";
   SelectedBackup: string;
   Backups: string[];
@@ -38,6 +40,23 @@ export class RestoreManagerComponent implements OnInit {
         B => this.LoadBackupList(),
         error => this.error = error // error path
       );
+  }
+
+  Zip() {
+    if (!this.SelectedBackup) return;
+
+    this.YesNo.openDialog({ title: "Zip this backup directory", question: this.SelectedBackup }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        this.http.post("Backups/ZipBackup", { backup: this.SelectedBackup, mark: this.MarkBackup })
+          .pipe()
+          .subscribe(
+            B => this.LoadBackupList(),
+            error => this.error = error // error path
+          );
+      });
+
   }
 
 
