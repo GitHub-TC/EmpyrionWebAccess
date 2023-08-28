@@ -32,6 +32,7 @@ namespace EmpyrionModWebHost.Controllers
 
         static int copiedFiles  = 0;
         static int skippedFiles = 0;
+        private int BackupStructureDataLogCounter;
 
         public string CurrentBackupDirectory(string aAddOn) {
             var Result = Path.Combine(BackupDir, aAddOn == PreBackupDirectoryName ? PreBackupDirectoryName : $"{DateTime.Now.ToString("yyyyMMdd HHmm")} Backup{aAddOn}");
@@ -83,7 +84,9 @@ namespace EmpyrionModWebHost.Controllers
                     {
                         if (displayInfo)
                         {
-                            Logger.LogInformation("BackupStructureData: SavesStructuresDat #{SavesStructuresDat} for ActivePlayfields #{ActivePlayfields}", SavesStructuresDat.Count, ActivePlayfields.Count);
+                            if(BackupStructureDataLogCounter++ % 100 == 0) Logger.LogInformation("BackupStructureData: SavesStructuresDat #{SavesStructuresDat} for ActivePlayfields #{ActivePlayfields}", SavesStructuresDat.Count, ActivePlayfields.Count);
+                            else                                           Logger.LogDebug      ("BackupStructureData: SavesStructuresDat #{SavesStructuresDat} for ActivePlayfields #{ActivePlayfields}", SavesStructuresDat.Count, ActivePlayfields.Count);
+
                             displayInfo = false;
                         }
 

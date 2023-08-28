@@ -45,7 +45,8 @@ namespace EgsDbTools
                         Logger.LogError(error, "GlobalStructureList CurrentList");
                     }
                     stopwatch.Stop();
-                    Logger.LogInformation("GlobalStructureList CurrentList take {stopwatch} for {currentList} structures on {playfields} playfields", stopwatch.Elapsed, currentList?.globalStructures?.Aggregate(0, (c, p) => c + p.Value.Count), currentList?.globalStructures?.Count);
+                    if(GlobalStructureListLogCounter++ % 100 == 0) Logger.LogInformation("GlobalStructureList CurrentList take {stopwatch} for {currentList} structures on {playfields} playfields", stopwatch.Elapsed, currentList?.globalStructures?.Aggregate(0, (c, p) => c + p.Value.Count), currentList?.globalStructures?.Count);
+                    else                                           Logger.LogDebug      ("GlobalStructureList CurrentList take {stopwatch} for {currentList} structures on {playfields} playfields", stopwatch.Elapsed, currentList?.globalStructures?.Aggregate(0, (c, p) => c + p.Value.Count), currentList?.globalStructures?.Count);
 
                     LastDbRead = DateTime.Now;
                 }
@@ -355,6 +356,7 @@ WHERE Structures.entityid = " + id.id.ToString(),
         Dictionary<int, SolarSystemData> _PlayfieldsById;
         public Dictionary<string, SolarSystemData> PlayfieldsByName { get { CheckForUpdateReading(); return _PlayfieldsByName; } }
         Dictionary<string, SolarSystemData> _PlayfieldsByName;
+        private int GlobalStructureListLogCounter;
 
         void CheckForUpdateReading()
         {
