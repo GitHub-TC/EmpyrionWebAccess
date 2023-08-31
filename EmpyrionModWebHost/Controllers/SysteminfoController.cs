@@ -46,6 +46,7 @@ namespace EmpyrionModWebHost.Controllers
         public ulong ramTotalMB { get; set; }
         public string serverName { get; set; }
         public bool eahAvailable { get; set; }
+        public bool eahProcessWithNoGUI { get; set; }
         public long ewaMemorySize { get; set; }
     }
 #pragma warning restore IDE1006 // Naming Styles
@@ -171,6 +172,7 @@ namespace EmpyrionModWebHost.Controllers
         public bool EGSIsRunning => CurrentSysteminfo.online == "o";
 
         public Process EAHProcess { get; private set; }
+        public bool EAHProcessWithNoGUI { get; private set; }
 
         private void UpdatePerformanceInfos()
         {
@@ -221,8 +223,11 @@ namespace EmpyrionModWebHost.Controllers
                 CurrentSysteminfo.totalPlayfieldserverMemorySize = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
 
-            EAHProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault();
+            EAHProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault() ?? Process.GetProcessesByName("EmpAdminHelper_NoGUI").FirstOrDefault();
+            EAHProcessWithNoGUI = EAHProcess?.ProcessName?.Contains("NoGUI") == true;
+
             CurrentSysteminfo.eahAvailable = EAHProcess != null;
+            CurrentSysteminfo.eahProcessWithNoGUI = EAHProcessWithNoGUI;
 
             SystemConfig.Current.ProcessInformation = ProcessInformation;
             SystemConfig.Save();
@@ -265,7 +270,7 @@ namespace EmpyrionModWebHost.Controllers
             {
                 EAHProcess = new Process
                 {
-                    StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(commandline) ? Path.Combine(EmpyrionConfiguration.ProgramPath, "DedicatedServer", "EmpyrionAdminHelper", "EmpAdminHelper.exe") : commandline)
+                    StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(commandline) ? Path.Combine(EmpyrionConfiguration.ProgramPath, "DedicatedServer", "EmpyrionAdminHelper", EAHProcessWithNoGUI ? "EmpAdminHelper_NoGUI.exe" : "EmpAdminHelper.exe") : commandline)
                     {
                         UseShellExecute  = true,
                         WorkingDirectory = EmpyrionConfiguration.ProgramPath
