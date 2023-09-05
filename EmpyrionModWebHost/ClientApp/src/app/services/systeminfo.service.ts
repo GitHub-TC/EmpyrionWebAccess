@@ -46,6 +46,7 @@ export class SystemInfoService {
       if (perf.tpf ) this.mCurrentSystemInfo.totalPlayfieldserver           = perf.tpf;
       if (perf.tpfm) this.mCurrentSystemInfo.totalPlayfieldserverMemorySize = perf.tpfm;
       if (perf.ewam) this.mCurrentSystemInfo.ewaMemorySize                  = perf.ewam;
+      if (perf.eahm) this.mCurrentSystemInfo.eahMemorySize                  = perf.eahm;
       this.CurrentSystemInfo                                                = this.mCurrentSystemInfo;
     });
 

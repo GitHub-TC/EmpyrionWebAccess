@@ -48,6 +48,7 @@ namespace EmpyrionModWebHost.Controllers
         public bool eahAvailable { get; set; }
         public bool eahProcessWithNoGUI { get; set; }
         public long ewaMemorySize { get; set; }
+        public long eahMemorySize { get; set; }
     }
 #pragma warning restore IDE1006 // Naming Styles
 
@@ -146,6 +147,7 @@ namespace EmpyrionModWebHost.Controllers
                 tpf     = CurrentSysteminfo.totalPlayfieldserver,
                 tpfm    = CurrentSysteminfo.totalPlayfieldserverMemorySize,
                 ewam    = CurrentSysteminfo.ewaMemorySize,
+                eahm    = CurrentSysteminfo.eahMemorySize,
             })).Wait(1000));
             TaskTools.Intervall(30000, UpdateSystemInfo);
             TaskTools.Intervall(5000,  UpdateEmpyrionInfos);
@@ -189,6 +191,7 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.diskFreeSpace     = GameDrive.TotalFreeSpace;
 
             CurrentSysteminfo.ewaMemorySize     = Process.GetCurrentProcess().PrivateMemorySize64;
+            CurrentSysteminfo.eahMemorySize     = EAHProcess?.PrivateMemorySize64 ?? 0;
         }
 
         public string SetState(string aState, string aStateChar, bool aStateSet)
@@ -223,10 +226,13 @@ namespace EmpyrionModWebHost.Controllers
                 CurrentSysteminfo.totalPlayfieldserverMemorySize = ESGChildProcesses.Aggregate(0L, (S, P) => S + P.PrivateMemorySize64);
             }
 
-            EAHProcess = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault() ?? Process.GetProcessesByName("EmpAdminHelper_NoGUI").FirstOrDefault();
+            CurrentSysteminfo.totalPlayfieldserverMemorySize += EGSProcess?.PrivateMemorySize64 ?? 0;
+
+            EAHProcess          = Process.GetProcessesByName("EmpAdminHelper").FirstOrDefault() ?? Process.GetProcessesByName("EmpAdminHelper_NoGUI").FirstOrDefault();
             EAHProcessWithNoGUI = EAHProcess?.ProcessName?.Contains("NoGUI") == true;
 
-            CurrentSysteminfo.eahAvailable = EAHProcess != null;
+            CurrentSysteminfo.eahAvailable        = EAHProcess != null;
+            CurrentSysteminfo.eahMemorySize       = EAHProcess?.PrivateMemorySize64 ?? 0;
             CurrentSysteminfo.eahProcessWithNoGUI = EAHProcessWithNoGUI;
 
             SystemConfig.Current.ProcessInformation = ProcessInformation;

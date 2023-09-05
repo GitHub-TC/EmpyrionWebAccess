@@ -17,5 +17,6 @@ export class SystemInfoModel {
   ramTotalMB?: number;
   serverName?: string;
   eahAvailable?: string;
+  eahMemorySize?: number;
   eahProcessWithNoGUI?: string;
 }

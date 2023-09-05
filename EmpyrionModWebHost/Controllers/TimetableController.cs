@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using EWAExtenderCommunication;
+using Microsoft.OData.Edm;
 using BackupManagerStatic = EmpyrionModWebHost.Controllers.BackupManager;
 
 namespace EmpyrionModWebHost.Controllers
@@ -343,18 +344,35 @@ namespace EmpyrionModWebHost.Controllers
 
         private void ExecShell(SubTimetableAction aAction)
         {
-            var ExecProcess = new Process
-            {
-                StartInfo = new ProcessStartInfo(aAction.data)
-                {
-                    UseShellExecute  = true,
-                    CreateNoWindow   = true,
-                    WorkingDirectory = EmpyrionConfiguration.SaveGamePath,
-                }
-            };
+            var programCommand   = aAction.data;
+            var programArguments = string.Empty;
 
-            ExecProcess.Start();
-            ExecProcess.WaitForExit(60000);
+            try
+            {
+                if (aAction.data.StartsWith("\""))
+                {
+                    programCommand   = aAction.data.Substring(0, aAction.data.IndexOf('"', 1) + 1);
+                    programArguments = aAction.data.Substring(aAction.data.IndexOf('"', 1) + 1);
+                }
+
+                var ExecProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo(programCommand)
+                    {
+                        Arguments        = programArguments,
+                        UseShellExecute  = true,
+                        CreateNoWindow   = true,
+                        WorkingDirectory = EmpyrionConfiguration.SaveGamePath,
+                    }
+                };
+
+                ExecProcess.Start();
+                ExecProcess.WaitForExit(60000);
+            }
+            catch (Exception error)
+            {
+                Logger.LogError(error, "ExecShell: {data} -> Cmd:{programCommand} Args:{programArguments}", aAction.data, programCommand, programArguments);
+            }
         }
 
         private void ExecSubActions(SubTimetableAction aAction)
