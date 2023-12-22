@@ -75,5 +75,6 @@ namespace EmpyrionModWebHost.Models
         public int OnlineHours { get; set; }
         public string BpInFactory { get; set; }
         public float BpRemainingTime { get; set; }
+        public long Filesize { get; set; }
     }
 }

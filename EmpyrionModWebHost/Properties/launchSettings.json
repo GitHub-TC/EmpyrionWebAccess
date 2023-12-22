@@ -1,16 +1,8 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:54630",
-      "sslPort": 44324
-    }
-  },
   "profiles": {
     "Kestrel": {
       "commandName": "Project",
-      "commandLineArgs": "-EmpyrionToModPipe EmpyrionToEWAPipedc9b9c90f78343d2b8d8eeeae58cf4d3x -ModToEmpyrionPipe EWAToEmpyrionPipe8707244717564f8b995e1eef65fc0ff7x EmpyrionDedicated.exe -batchmode -nographics -dedicated dedicated_WEB.yaml -logFile Logs/1905/Dedicated_181101-111823-53.log -GameDir C:\\steamcmd\\empyrion",
+      "commandLineArgs": "-EmpyrionToModPipe EmpyrionToEWAPipedc423a62679c4280aa62d567ec44919e -ModToEmpyrionPipe EWAToEmpyrionPipe8a1abe7f079845a4a3eca3996271e116 EmpyrionDedicated.exe -batchmode -nographics -dedicated dedicated_ASTIC.yaml -logFile Logs/1905/Dedicated_181101-111823-53.log -GameDir C:\\steamcmd\\empyrion",
       "launchUrl": "https://localhost:5001/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -31,6 +23,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:54630",
+      "sslPort": 44324
     }
   }
 }

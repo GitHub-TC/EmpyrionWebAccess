@@ -1,7 +1,6 @@
 ﻿using EgsDbTools;
-using Microsoft.Build.Tasks;
+using Eleon.Modding;
 using System.Collections.Concurrent;
-using System.Drawing;
 
 namespace EmpyrionModWebHost.Controllers
 {
@@ -38,6 +37,24 @@ namespace EmpyrionModWebHost.Controllers
             UserManager = new Lazy<UserManager>(() => Program.GetManager<UserManager>());
 
             TaskTools.Intervall(10000, SendPlayerUpdates);
+            TaskTools.Intervall(60000, CheckPlayerfileIntegrity);
+        }
+
+        private void CheckPlayerfileIntegrity()
+        {
+            UpdatePlayer(context => context.Players, player =>
+            {
+                try
+                {
+                    var playerFilesize = new FileInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", player.SteamId + ".ply")).Length;
+                    player.Filesize = playerFilesize > 0 ? playerFilesize : -1;
+                }
+                catch (Exception error)
+                {
+                    Logger.LogError(error, "Playerfile {playerName} [{steamId}]", player.PlayerName, player.SteamId);
+                    player.Filesize = -1;
+                }
+            });
         }
 
         private void SendPlayerUpdates()
@@ -132,6 +149,16 @@ namespace EmpyrionModWebHost.Controllers
                 Player.RotX            = aPlayerInfo.rot.x;
                 Player.RotY            = aPlayerInfo.rot.y;
                 Player.RotZ            = aPlayerInfo.rot.z;
+
+                try
+                {
+                    var playerFilesize = new FileInfo(Path.Combine(EmpyrionConfiguration.SaveGamePath, "Players", aPlayerInfo.steamId + ".ply")).Length;
+                    Player.Filesize = playerFilesize > 0 ? playerFilesize : -1;
+                }
+                catch
+                {
+                    Player.Filesize = -1;
+                }
 
                 if (IsNewPlayer)
                 {

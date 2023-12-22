@@ -9,7 +9,6 @@ using EmpyrionModWebHost.Extensions;
 using EmpyrionModWebHost.Models;
 using Newtonsoft.Json;
 using EmpyrionNetAPITools;
-using Microsoft.Build.Tasks;
 
 namespace EmpyrionModWebHost.Controllers
 {

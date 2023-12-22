@@ -58,6 +58,7 @@ export class PlayerModel {
   Note           ?: string;
   LastOnline     ?: string | Date;
   OnlineHours    ?: number;
+  Filesize       ?: number;
 }
 
 

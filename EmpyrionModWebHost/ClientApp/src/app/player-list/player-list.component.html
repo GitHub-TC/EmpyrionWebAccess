@@ -100,7 +100,7 @@
 
     <ng-container matColumnDef="LastOnline">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> LastOnline </th>
-      <td mat-cell *matCellDef="let player"> {{player.LastOnline | date : "dd.MM.yyyy HH:mm"}} </td>
+      <td mat-cell *matCellDef="let player" [title]="player.Filesize == 0 ? 'Playerfile ???' : (player.Filesize == -1 ? 'Playerfile 0KB' : 'Playerfile ' + (player.Filesize / 1024).toFixed(2) + 'KB')"> {{player.LastOnline | date : "dd.MM.yyyy HH:mm"}} </td>
     </ng-container>
 
     <ng-container matColumnDef="OnlineHours">
@@ -121,6 +121,8 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"
         [ngClass]="{'highlight': mPlayerService.CurrentPlayer?.SteamId == row.SteamId}"
+        [style.background-color]="row.Filesize == -1 ? 'red' : ''"
+        [title]="row.Filesize == -1 ? 'Playerfile corrupt 0KB' : ''"
         (click)="CurrentPlayer = row"></tr>
   </table>
 </div>

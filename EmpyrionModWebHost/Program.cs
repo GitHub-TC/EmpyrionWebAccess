@@ -6,7 +6,11 @@ using EmpyrionNetAPITools;
 using EWAExtenderCommunication;
 using FluffySpoon.AspNet.LetsEncrypt;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EmpyrionModWebHost
 {
@@ -29,7 +33,7 @@ namespace EmpyrionModWebHost
 
     public class Program
     {
-        public static IWebHost Application { get; private set; }
+        public static IHost Application { get; private set; }
         public static LifetimeEventsHostedService AppLifetime { get; private set; }
         public static ModHostDLL Host { get; set; }
         public static AppSettings AppSettings { get; set; }
@@ -74,23 +78,28 @@ namespace EmpyrionModWebHost
             }
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost
-            .CreateDefaultBuilder(args)
-            .UseSerilog()
-            .ConfigureAppConfiguration((hostingContext, config) =>
-            {
-                config.AddNewtonsoftJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                      .AddNewtonsoftJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true, reloadOnChange: true);
-                config.AddEnvironmentVariables();
-            })
-            .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
-            httpsOptions => httpsOptions.ServerCertificateSelector =
-                (c, s) => LetsEncryptACME != null && LetsEncryptACME.UseLetsEncrypt
-                    ? (LetsEncryptRenewalService.Certificate ?? EWAStandardCertificate)
-                    : EWAStandardCertificate
-                ))
-            .UseStartup<Startup>();
+        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
+            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webHostBuilder =>
+                webHostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                          .AddJsonFile(Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "appsettings.json"), optional: true, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                })
+                .UseKestrel(kestrelOptions => kestrelOptions.ConfigureHttpsDefaults(
+                httpsOptions => httpsOptions.ServerCertificateSelector =
+                    (c, s) => LetsEncryptACME != null && LetsEncryptACME.UseLetsEncrypt
+                        ? (LetsEncryptRenewalService.Certificate ?? EWAStandardCertificate)
+                        : EWAStandardCertificate
+                    ))
+                .UseStartup<Startup>())
+            .UseSerilog(
+                (hostingContext, loggerConfig) =>
+                    loggerConfig
+                        .ReadFrom.Configuration(hostingContext.Configuration)
+                        .Enrich.FromLogContext(),
+                writeToProviders: true);
 
         public static void CreateTempPath()
         {

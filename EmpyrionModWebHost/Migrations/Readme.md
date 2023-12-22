@@ -13,4 +13,4 @@ Add-Migration InitialCreate -Context HistoryBookContext
 Add-Migration InitialCreate -Context FactoryItemsContext
 
 ## Für DB Änderungen einfach in einer Powershell Console
-dotnet ef migrations add Beschreibung --context XYZContext
+dotnet-ef migrations add Beschreibung --context XYZContext
