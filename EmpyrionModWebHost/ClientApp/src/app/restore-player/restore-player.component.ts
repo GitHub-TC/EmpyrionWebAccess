@@ -4,6 +4,7 @@ import { PlayerModel } from '../model/player-model';
 import { MatTableDataSource } from '@angular/material/table';
 import { SystemInfoService } from '../services/systeminfo.service';
 import { MatSort } from '@angular/material/sort';
+import { YesNoDialogComponent, YesNoData } from '../yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-restore-player',
@@ -11,6 +12,7 @@ import { MatSort } from '@angular/material/sort';
   styleUrls: ['./restore-player.component.less']
 })
 export class RestorePlayerComponent implements OnInit {
+  @ViewChild(YesNoDialogComponent, { static: true }) YesNo: YesNoDialogComponent;
   displayedColumns = ['online', 'playerName', 'origin', 'playfield', 'posX', 'posY', 'posZ', 'lastOnline', 'onlineHours', 'entityId', 'steamId'];
   players: MatTableDataSource<PlayerModel> = new MatTableDataSource([]);
   displayFilter: boolean;
@@ -79,13 +81,19 @@ export class RestorePlayerComponent implements OnInit {
   }
 
   RestorePlayer(aPlayer: PlayerModel) {
-    let locationsSubscription = this.http.post<{ backup: string, steamId: string}>("Backups/RestorePlayer", { backup: this.SelectedBackup, steamId: (<any>aPlayer).steamId })
-      .pipe()
-      .subscribe(
-        S => { },
-        error => this.error = error // error path
-      );
-    // Stop listening for location after 10 seconds
-    setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
+    this.YesNo.openDialog({
+      title: "Restore player " + (<any>aPlayer).playerName, question: (<any>aPlayer).playerName + " " + ((<any>aPlayer).filesize == 0 ? 'Playerfile ???' : ((<any>aPlayer).filesize == -1 ? 'Playerfile 0KB' : 'Playerfile ' + ((<any>aPlayer).filesize / 1024).toFixed(2) + 'KB')) }).afterClosed().subscribe(
+      (YesNoData: YesNoData) => {
+        if (!YesNoData.result) return;
+
+        let locationsSubscription = this.http.post<{ backup: string, steamId: string }>("Backups/RestorePlayer", { backup: this.SelectedBackup, steamId: (<any>aPlayer).steamId })
+          .pipe()
+          .subscribe(
+            S => { },
+            error => this.error = error // error path
+          );
+        // Stop listening for location after 10 seconds
+        setTimeout(() => { locationsSubscription.unsubscribe(); }, 120000);
+      });
   }
 }
