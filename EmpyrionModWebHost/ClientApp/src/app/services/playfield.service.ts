@@ -10,7 +10,7 @@ import { HubConnection } from '@aspnet/signalr';
 })
 export class PlayfieldService{
   hubConnection: HubConnection;
-  private mPlayfieldsData: PlayfieldModel[];
+  private mPlayfieldsData: PlayfieldModel[] = null;
   private error: any;
 
   private mPlayfields: BehaviorSubject<PlayfieldModel[]> = new BehaviorSubject(this.mPlayfieldsData);

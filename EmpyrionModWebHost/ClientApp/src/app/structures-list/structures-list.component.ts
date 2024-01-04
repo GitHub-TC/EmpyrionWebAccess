@@ -91,16 +91,26 @@ export class StructuresListComponent implements OnInit {
     this.structures.sort = this.sort;
     this.structures.paginator = this.paginator;
     this.structures.sortingDataAccessor = (D, H) => typeof (D[H]) === "string" ? ("" + D[H]).toLowerCase() : D[H];
+    var _this = this;
 
     this.structures.filterPredicate =
-      (data: GlobalStructureInfo, filter: string) =>
-        data.id       .toString().indexOf(filter) != -1 ||
-        data.name     .trim().toLowerCase().indexOf(filter) != -1 ||
-        data.playfield.trim().toLowerCase().indexOf(filter) != -1 ||
-        data.solarSystemName.trim().toLowerCase().indexOf(filter) != -1 ||
-        data.coreType .toString().indexOf(filter) != -1 ||
-        this.Faction(data) && this.Faction(data).Abbrev.trim().toLowerCase().indexOf(filter) != -1 ||
-        ('' + data.factionId).indexOf(filter) != -1;
+      (data: GlobalStructureInfo, filter: string) => {
+          var filterPart = filter.split(" +"); 
+          for (var i = filterPart.length - 1; i >= 0; i--) {
+            var testFilterPart = filterPart[i];
+            if (
+                data.id               .toString()          .indexOf(testFilterPart) != -1 ||
+                data.name             .trim().toLowerCase().indexOf(testFilterPart) != -1 ||
+                data.FactionName      .trim().toLowerCase().indexOf(testFilterPart) != -1 ||
+                data.playfield        .trim().toLowerCase().indexOf(testFilterPart) != -1 ||
+                data.solarSystemName  .trim().toLowerCase().indexOf(testFilterPart) != -1 ||
+                data.coreType         .toString()          .indexOf(testFilterPart) != -1 ||
+                _this.Faction(data) && _this.Faction(data).Abbrev.trim().toLowerCase().indexOf(testFilterPart) != -1 ||
+                ('' + data.factionId).indexOf(testFilterPart) != -1
+              ) return true;
+          };
+        return false;
+      };
   }
 
   applyFilter(filterValue: string) {

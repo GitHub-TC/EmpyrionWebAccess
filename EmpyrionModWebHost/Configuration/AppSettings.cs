@@ -3,7 +3,7 @@
     public class AppSettings
     {
         public string Secret { get; set; }
-        public string BackupDirectory { get; set; }
+        public string BackupDirectory { get; set; } = "Backup";
         public bool UseHttpsRedirection { get; set; } = true;
         public int GlobalStructureUpdateInSeconds { get; set; } = 5 * 60;
         public int HistoryLogUpdateInSeconds { get; set; } = 30;

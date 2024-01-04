@@ -162,7 +162,7 @@ export class PlayerListComponent implements OnInit {
 
   GotoEntities(aPlayer: PlayerModel) {
     let foundFaction = this.mFactions.find(F => F.FactionId == aPlayer.FactionId);
-    this.mStructureService.FilterPreset = foundFaction ? foundFaction.Abbrev : aPlayer.PlayerName;
+    this.mStructureService.FilterPreset = aPlayer.PlayerName + (foundFaction ? " +" + foundFaction.Abbrev : "");
     this.router.navigate(['entities/structureslist'])
   }
 }

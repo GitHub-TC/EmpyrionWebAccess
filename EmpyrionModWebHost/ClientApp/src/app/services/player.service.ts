@@ -21,7 +21,7 @@ export class PlayerService {
 
   private players: BehaviorSubject<PlayerModel[]> = new BehaviorSubject(this.mPlayers);
   public readonly playersObservable: Observable<PlayerModel[]> = this.players.asObservable();
-  mCurrentPlayer: PlayerModel;
+  mCurrentPlayer: PlayerModel = null;
 
   private currentPlayer: BehaviorSubject<PlayerModel> = new BehaviorSubject(this.mCurrentPlayer);
   public readonly currentPlayerObservable: Observable<PlayerModel> = this.currentPlayer.asObservable();

@@ -49,7 +49,7 @@ namespace EmpyrionModWebHost.Controllers
             StructureManager  = new Lazy<StructureManager> (() => Program.GetManager<StructureManager>());
             SysteminfoManager = new Lazy<SysteminfoManager>(() => Program.GetManager<SysteminfoManager>());
 
-            BackupDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", Program.AppSettings.BackupDirectory ?? "Backup");
+            BackupDir = Path.Combine(EmpyrionConfiguration.ProgramPath, "Saves", Program.AppSettings.BackupDirectory);
 
             BackupStructureDB = new ConfigurationManager<BackupStructureData>()
             {

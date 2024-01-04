@@ -23,7 +23,7 @@ export class StructureService {
   private Structures: BehaviorSubject<GlobalStructureInfo[]> = new BehaviorSubject(this.mStructures);
   public readonly StructuresObservable: Observable<GlobalStructureInfo[]> = this.Structures.asObservable();
 
-  mCurrentStructure: GlobalStructureInfo;
+  mCurrentStructure: GlobalStructureInfo = null;
 
   private currentStructure: BehaviorSubject<GlobalStructureInfo> = new BehaviorSubject(this.mCurrentStructure);
   public readonly currentStructureObservable: Observable<GlobalStructureInfo> = this.currentStructure.asObservable();

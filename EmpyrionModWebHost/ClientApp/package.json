@@ -33,6 +33,7 @@
     "js-yaml": "^3.13.1",
     "jsoneditor": "^5.32.5",
     "ng-pick-datetime": "^7.0.0",
+    "node": "^12.16.1",
     "popper.js": "^1.15.0",
     "rxjs": "~6.5.4",
     "three": "^0.101.1",
