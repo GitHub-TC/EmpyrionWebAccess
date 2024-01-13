@@ -16,9 +16,5 @@ namespace FluffySpoon.AspNet.LetsEncrypt.Exceptions
 		public OrderInvalidException(string message, Exception innerException) : base(message, innerException)
 		{
 		}
-
-		protected OrderInvalidException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
 	}
 }

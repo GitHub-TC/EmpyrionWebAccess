@@ -25,9 +25,9 @@ namespace EmpyrionModWebHost.Controllers
 
         public GameplayManager(IMapper mapper, Microsoft.Extensions.Configuration.IConfiguration configuration, ILogger<GameplayManager> logger)
         {
-            Mapper = mapper;
-            Configuration = configuration;
-            Logger = logger;
+            Mapper           = mapper;
+            Configuration    = configuration;
+            Logger           = logger;
             StructureManager = new Lazy<StructureManager>(() => Program.GetManager<StructureManager>());
             PlayerManager    = new Lazy<PlayerManager>(() => Program.GetManager<PlayerManager>());
         }
@@ -352,10 +352,10 @@ WHERE type='table';
                 return r; 
             });
 
-            var idNameMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
-            if (!string.IsNullOrEmpty(idNameMappingFile) && File.Exists(idNameMappingFile))
+            var nameIdMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
+            if (!string.IsNullOrEmpty(nameIdMappingFile) && File.Exists(nameIdMappingFile))
             {
-                using (var file = File.OpenRead(idNameMappingFile))
+                using (var file = File.OpenRead(nameIdMappingFile))
                 {
                     return System.Text.Json.JsonSerializer
                         .Deserialize<Dictionary<string, int>>(file)

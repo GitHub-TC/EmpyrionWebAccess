@@ -283,6 +283,7 @@ public class Startup
         }
 
         if(Program.AppSettings.UseHttpsRedirection) app.UseHttpsRedirection();
+        app.UseMiddleware<IdIconMiddleware>();
         app.UseStaticFiles();
         app.UseSpaStaticFiles();
         app.UseErrorHandlingMiddleware();
