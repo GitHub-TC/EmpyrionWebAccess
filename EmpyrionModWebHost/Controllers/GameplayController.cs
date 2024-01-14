@@ -353,6 +353,9 @@ WHERE type='table';
             });
 
             var nameIdMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
+            nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.SaveGameModPath, Configuration?.GetValue<string>("NameIdMappingFile"));
+            nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.ProgramPath,     Configuration?.GetValue<string>("NameIdMappingFile"));
+
             if (!string.IsNullOrEmpty(nameIdMappingFile) && File.Exists(nameIdMappingFile))
             {
                 using (var file = File.OpenRead(nameIdMappingFile))

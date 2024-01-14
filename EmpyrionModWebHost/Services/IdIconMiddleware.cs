@@ -19,7 +19,9 @@ namespace EmpyrionModWebHost.Services
         IDictionary<int, string> ReadIdIconMapping()
         {
             var idIconMappingFile = Configuration?.GetValue<string>("IdIconMappingFile");
-            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\IdIconMapping.json");
+            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.SaveGameModPath, Configuration?.GetValue<string>("IdIconMappingFile"));
+            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ProgramPath,     Configuration?.GetValue<string>("IdIconMappingFile"));
+            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ModPath,         @"EWALoader\EWA\IdIconMapping.json");
 
             try
             {
