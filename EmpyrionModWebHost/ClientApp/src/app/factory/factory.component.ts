@@ -86,7 +86,8 @@ export class FactoryComponent implements OnInit {
   GetName(mStack: ItemStackModel) {
     if (!this.mItemService || !this.mItemService.ItemInfo) return mStack.id;
 
-    let found = this.mItemService.ItemInfo.find(I => I.id == mStack.id);
+    let id = mStack.id == 5401 ? mStack.ammo * 100000 : mStack.id;
+    let found = this.mItemService.ItemInfo.find(I => I.id == id);
     return found ? found.name : mStack.id;
   }
 

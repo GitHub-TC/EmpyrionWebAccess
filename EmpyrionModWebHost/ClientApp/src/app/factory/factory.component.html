@@ -3,7 +3,7 @@
     In production: <b>{{Player?.BpInFactory}}</b> finished <b>{{RemainingTime | date : 'HH:mm:ss'}}</b><br />
   </div>
   <div *ngFor="let i of Resources?.itemStacks" style="float:left; display:block">
-    <img class="image" src="../../assets/Items/{{i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
+    <img class="image" src="../../assets/Items/{{i.id == 5401 ? i.ammo * 100000 : i.id}}.png" alt="{{i.id}}" title="{{GetName(i)}}" />
     <div *ngIf="!WithEdit" style="color:white">{{i.count}}</div>
     <mat-form-field *ngIf="WithEdit" style="margin-left:1em; margin-right:1em; width:10em">
       <input matInput IntegersOnly (change)="Changed=true" [(ngModel)]="i.count" type="number" placeholder="{{GetName(i)}}" />

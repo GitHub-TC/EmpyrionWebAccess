@@ -61,7 +61,8 @@ namespace EmpyrionModWebHost.Services
                 var iconFile = IdIconMapping.TryGetValue(id, out var icon) ? icon : id.ToString();
 
                 var iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName ?? string.Empty, @"SharedData\Content\Bundles\ItemIcons", $"{iconFile}.png");
-                if(!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", $"{iconFile}.png");
+                if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"DedicatedServer\EmpyrionAdminHelper\Items",           $"{iconFile}.png");
+                if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath,     @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", $"{iconFile}.png");
 
                 // Switch to default Tokenicon
                 if (id >= 100000 && !File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", "KeyCardBlack.png");
