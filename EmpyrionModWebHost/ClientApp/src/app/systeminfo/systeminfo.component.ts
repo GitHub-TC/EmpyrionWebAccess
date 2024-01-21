@@ -44,6 +44,7 @@ export class SysteminfoComponent implements OnInit {
 
   GetStateClass() {
     if (!this.CurrentSystemInfo.online) return "";
+    if (this.CurrentSystemInfo.online.indexOf("U") >= 0) return "update";
     if (this.CurrentSystemInfo.online.indexOf("o") >= 0) return "online";
     if (this.CurrentSystemInfo.online.indexOf("b") >= 0) return "backup";
     if (this.CurrentSystemInfo.online.indexOf("r") >= 0) return "restart";
@@ -56,6 +57,7 @@ export class SysteminfoComponent implements OnInit {
 
   GetStateDescription() {
     if (!this.CurrentSystemInfo.online) return "";
+    if (this.CurrentSystemInfo.online.indexOf("U") >= 0) return "update";
     if (this.CurrentSystemInfo.online.indexOf("o") >= 0) return "online";
     if (this.CurrentSystemInfo.online.indexOf("b") >= 0) return "backup";
     if (this.CurrentSystemInfo.online.indexOf("r") >= 0) return "restart";

@@ -68,6 +68,7 @@ export enum ActionType {
   saveGameCleanUp         = "Savegame CleanUp | [old player days] (default:30)",
   startEAH                = "EAH start|[command line] (default:last running or default path)",
   stopEAH                 = "EAH stop |",
+  checkForGameUpdate      = "EGS GameUpdateRestart|[minutes][branch]:[gameId] -> Example(default): 0;public;530870"
 }
 
 class SubTimetableAction{

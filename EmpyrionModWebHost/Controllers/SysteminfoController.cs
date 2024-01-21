@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
@@ -58,6 +59,7 @@ namespace EmpyrionModWebHost.Controllers
         public string StartCMD { get; set; }
         public string WelcomeMessage { get; set; }
         public string PlayerSteamInfoUrl { get; set; }
+        public string GameBuildId { get; set; }
     }
 
     [Authorize]
@@ -235,8 +237,12 @@ namespace EmpyrionModWebHost.Controllers
             CurrentSysteminfo.eahMemorySize       = EAHProcess?.PrivateMemorySize64 ?? 0;
             CurrentSysteminfo.eahProcessWithNoGUI = EAHProcessWithNoGUI;
 
-            SystemConfig.Current.ProcessInformation = ProcessInformation;
-            SystemConfig.Save();
+            SystemConfig.Load();
+            if (SystemConfig.Current.ProcessInformation == ProcessInformation)
+            {
+                SystemConfig.Current.ProcessInformation = ProcessInformation;
+                SystemConfig.Save();
+            }
         }
         private void UpdateComputerInfos()
         {
@@ -482,6 +488,48 @@ namespace EmpyrionModWebHost.Controllers
         {
             Logger.LogInformation("EWARestart");
             Program.Application.StopAsync();
+        }
+
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dateTime;
+        }
+
+        public async Task<bool> CheckForGameUpdate(string branch, int gameId)
+        {
+            try
+            {
+                using var steamHttp = new HttpClient() { BaseAddress = new Uri("https://api.steamcmd.net/v1/info/") };
+                var response = await steamHttp.GetAsync(gameId.ToString());
+                var content  = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode) throw new Exception($"NoSuccess: Url:{steamHttp.BaseAddress} GameId:{gameId} Response:{content}");
+
+                var json        = JObject.Parse(content);
+                var buildId     = json["data"][gameId.ToString()]["depots"]["branches"][branch]["buildid"].ToString();
+                var timeupdated = UnixTimeStampToDateTime(double.TryParse(json["data"][gameId.ToString()]["depots"]["branches"][branch]["timeupdated"].ToString(), out var unixtime) ? unixtime : 0);
+
+                SystemConfig.Load();
+                if (SystemConfig.Current.GameBuildId == buildId)
+                {
+                    Logger.LogInformation("CheckForGameUpdate(up to date): BuildId:{buildId} LastUpdate:{lastUpdate}", buildId, timeupdated);
+                    return false;
+                }
+
+                Logger.LogInformation("CheckForGameUpdate(update): BuildId:{installedBuildId}->{buildId} LastUpdate:{lastUpdate}", SystemConfig.Current.GameBuildId, buildId, timeupdated);
+                SystemConfig.Current.GameBuildId = buildId;
+                SystemConfig.Save();
+
+                return true;
+            }
+            catch (Exception error)
+            {
+                Logger.LogError("CheckForGameUpdate:{error}", error);
+            }
+
+            return false;
         }
     }
 

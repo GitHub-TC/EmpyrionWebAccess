@@ -71,6 +71,7 @@ namespace EmpyrionModWebHost.Controllers
         saveGameCleanUp,
         startEAH,
         stopEAH,
+        checkForGameUpdate,
     }
 
     public class TimetableAction : SubTimetableAction
@@ -302,9 +303,10 @@ namespace EmpyrionModWebHost.Controllers
                 case ActionType.saveGameCleanUp         : GameplayManager.Value.SaveGameCleanUp(int.TryParse(aAction.data, out int wipePlayerDays) ? wipePlayerDays : 30); break;
                 case ActionType.startEAH                : SysteminfoManager.Value.StartEAH(aAction.data); break;
                 case ActionType.stopEAH                 : SysteminfoManager.Value.StopEAH(); break;
+                case ActionType.checkForGameUpdate      : EGSUpdate(aAction); break;
             }
 
-            if (aAction.actionType != ActionType.restart) ExecSubActions(aAction);
+            if (aAction.actionType != ActionType.restart && aAction.actionType != ActionType.checkForGameUpdate) ExecSubActions(aAction);
         }
 
         private void DeletePlayerOnPlayfield(SubTimetableAction aAction)
@@ -321,13 +323,42 @@ namespace EmpyrionModWebHost.Controllers
                 SysteminfoManager.Value.SetState(SysteminfoManager.Value.CurrentSysteminfo.online, "r", aRunning);
         }
 
+        public void UpdateState(bool aRunning)
+        {
+            SysteminfoManager.Value.CurrentSysteminfo.online =
+                SysteminfoManager.Value.SetState(SysteminfoManager.Value.CurrentSysteminfo.online, "U", aRunning);
+        }
+
+        private void EGSUpdate(SubTimetableAction aAction)
+        {
+            var gameData = aAction.data?.Split(';').Select(i => i.Trim()).ToArray();
+            if (!SysteminfoManager.Value.CheckForGameUpdate(gameData?.Length >= 2 ? gameData[0] : "public", gameData?.Length >= 3 ? int.TryParse(gameData[1], out int gameId) ? gameId : 530870 : 530870).GetAwaiter().GetResult()) return;
+
+            UpdateState(true);
+            try
+            {
+                ExecEGSRestart(aAction);
+            }
+            catch (Exception Error)
+            {
+                Logger.LogError(Error, "EGSUpdate");
+            }
+
+            UpdateState(false);
+        }
 
         private void EGSRestart(SubTimetableAction aAction)
         {
             RestartState(true);
+            ExecEGSRestart(aAction);
+            RestartState(false);
+        }
+
+        private void ExecEGSRestart(SubTimetableAction aAction)
+        {
             try
             {
-                SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data, out int WaitMinutes) ? WaitMinutes : 0);
+                SysteminfoManager.Value.EGSStop(int.TryParse(aAction.data?.Split(';').FirstOrDefault(), out int WaitMinutes) ? WaitMinutes : 0);
 
                 Thread.Sleep(10000);
                 ExecSubActions(aAction);
@@ -338,8 +369,6 @@ namespace EmpyrionModWebHost.Controllers
             {
                 Logger.LogError(Error, "EGSRestart");
             }
-
-            RestartState(false);
         }
 
         private void ExecShell(SubTimetableAction aAction)
