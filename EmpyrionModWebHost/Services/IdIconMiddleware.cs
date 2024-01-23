@@ -95,7 +95,7 @@ namespace EmpyrionModWebHost.Services
                 }
 
                 // Switch to default Tokenicon
-                if (id >= 100000 && !File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", "KeyCardBlack.png");
+                if (id >= 100000 && !File.Exists(iconFilePath)) iconFilePath = SearchForImage("KeyCardBlack.png");
 
                 if (!File.Exists(iconFilePath))
                 {
