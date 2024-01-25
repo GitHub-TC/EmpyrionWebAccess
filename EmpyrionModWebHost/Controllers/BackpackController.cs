@@ -30,7 +30,7 @@
 
             var DelTime = DateTime.Now - new TimeSpan(aDays, 0, 0, 0);
 
-            DB.Backpacks.RemoveRange(DB.Backpacks.Where(B => B.Timestamp < DelTime));
+            DB.Backpacks.RemoveRange(DB.Backpacks.Where(B => B.Timestamp < DelTime && B.Timestamp != DateTime.MinValue));
 
             DB.SaveChanges();
             DB.Database.ExecuteSqlRaw("VACUUM;");
