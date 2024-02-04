@@ -466,6 +466,11 @@ In the meantime, all installed ModLoader mods are unreachable from the game.
 * A simple dll
 * A ZIP file with the files of a mod and their subdirectories - if necessary, the correct DLL must be selected here
 
+# Empyrion Steam Update Check
+- Updatecheck with sub command e.g. Run Shell
+  ![](EmpyrionModWebHost/Screenshots/SteamUpdateCheck.png)
+  "C:\steamcmd\SteamCMD\steamcmd.exe" +login anonymous +force_install_dir C:\steamcmd\empyrion.server +app_update 530870 -beta none +quit
+
 # Advanced configuration
 ## Use LetsEncrypt service
 LetsEncrypt provides a free and free way for fully valid HTTPS certificates
