@@ -236,6 +236,11 @@ Die Positionen von Strukturen oder Spielern können sich 'gemerkt' werden in dem
 
 Ein Warpfenster kann über das Gamepadsymbol aufgerufen werden. Eine zuvor 'gemerkte' Position wird dann hier ebenfalls angeboten.
 
+# Empyrion Steam Update Check
+- Updatecheck with sub command e.g. Run Shell
+  ![](EmpyrionModWebHost/Screenshots/SteamUpdateCheck.png)
+  "C:\steamcmd\SteamCMD\steamcmd.exe" +login anonymous +force_install_dir C:\steamcmd\empyrion.server +app_update 530870 -beta none +quit
+
 # Erweiterte Konfiguration
 ## LetsEncrypt Service nutzen
 ![](EmpyrionModWebHost/Screenshots/LetsEncryptSupport.png)
