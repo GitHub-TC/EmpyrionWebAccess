@@ -505,7 +505,11 @@ namespace EmpyrionModWebHost.Controllers
                 using var steamHttp = new HttpClient() { BaseAddress = new Uri("https://api.steamcmd.net/v1/info/") };
                 var response = await steamHttp.GetAsync(gameId.ToString());
                 var content  = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode) throw new Exception($"NoSuccess: Url:{steamHttp.BaseAddress} GameId:{gameId} Response:{content}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    Logger.LogError($"NoSuccess [{response.StatusCode}]: Url:{steamHttp.BaseAddress} GameId:{gameId} Response:{content}");
+                    return false;
+                }
 
                 var json        = JObject.Parse(content);
                 var buildId     = json["data"][gameId.ToString()]["depots"]["branches"][branch]["buildid"].ToString();
@@ -514,7 +518,7 @@ namespace EmpyrionModWebHost.Controllers
                 SystemConfig.Load();
                 if (SystemConfig.Current.GameBuildId == buildId)
                 {
-                    Logger.LogInformation("CheckForGameUpdate(up to date): BuildId:{buildId} LastUpdate:{lastUpdate}", buildId, timeupdated);
+                    Logger.LogDebug("CheckForGameUpdate(up to date): BuildId:{buildId} LastUpdate:{lastUpdate}", buildId, timeupdated);
                     return false;
                 }
 
