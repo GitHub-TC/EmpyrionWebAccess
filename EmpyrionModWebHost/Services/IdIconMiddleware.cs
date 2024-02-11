@@ -115,8 +115,8 @@ namespace EmpyrionModWebHost.Services
         private static string SearchForImage(string iconFile)
         {
             var iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName ?? string.Empty, @"SharedData\Content\Bundles\ItemIcons", iconFile);
-            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"DedicatedServer\EmpyrionAdminHelper\Items",           iconFile);
             if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath,     @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", iconFile);
+            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"DedicatedServer\EmpyrionAdminHelper\Items",           iconFile);
             return iconFilePath;
         }
     }
