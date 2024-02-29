@@ -291,7 +291,25 @@ namespace EmpyrionModWebHost.Controllers
         [HttpPost("SetFactionOfStuctures")]
         public IActionResult SetFactionOfStuctures([FromBody]SetFactionOfStucturesData aData)
         {
-            aData.EntityIds.ForEach(I => StructureManager.Request_ConsoleCommand(new PString($"faction entity '{aData.FactionAbbrev}' {I}")));
+            var currentPlayfield = string.Empty;
+
+            aData.EntityIds.ForEach(I =>
+            {
+                if(StructureManager.CurrentGlobalStructures.TryGetValue(I, out var S))
+                {
+                    if (currentPlayfield != S.Playfield)
+                    {
+                        try
+                        {
+                            StructureManager.Request_Load_Playfield(new PlayfieldLoad(20, S.Playfield, 0)).Wait();
+                            Thread.Sleep(2000); // wait for Playfield finish
+                            currentPlayfield = S.Playfield;
+                        }
+                        catch { }  // Playfield already loaded
+                    }
+                }
+                StructureManager.Request_ConsoleCommand(new PString($"faction entity '{aData.FactionAbbrev}' {I}"));
+            });
             return Ok();
         }
 
