@@ -15,7 +15,7 @@
     <Authors>ASTIC/TC</Authors>
     <Company />
     <Copyright>ASTIC/TC ©2024</Copyright>
-    <Version>7.2.8</Version>
+    <Version>7.3.1</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -25,7 +25,7 @@
     <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.</Description>
     <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
     <PackageReleaseNotes>GNU General Public License v3.0</PackageReleaseNotes>
-    <FileVersion>7.2.8.0</FileVersion>
+    <FileVersion>7.3.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,7 +38,7 @@
     <PackageReference Include="Certes" Version="3.0.4" />
     <PackageReference Include="Community.AspNetCore.ExceptionHandling.Mvc" Version="2.2.0" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="EmpyrionNetAPI" Version="6.3.1" />
+    <PackageReference Include="EmpyrionNetAPI" Version="6.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.0" />
@@ -66,7 +66,7 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Include="Telnet" Version="0.11.3" />
-    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    <PackageReference Include="YamlDotNet" Version="15.3.0" />
   </ItemGroup>
 
   <ItemGroup>

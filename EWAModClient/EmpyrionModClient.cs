@@ -195,12 +195,12 @@ namespace EWAModClient
             {
                 StartInfo = new ProcessStartInfo(HostFilename)
                 {
-                    UseShellExecute = CurrentConfig.Current.WithShellWindow,
-                    LoadUserProfile = true,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute  = CurrentConfig.Current.WithShellWindow,
+                    LoadUserProfile  = true,
+                    CreateNoWindow   = true,
+                    WindowStyle      = ProcessWindowStyle.Hidden,
                     WorkingDirectory = Path.GetDirectoryName(HostFilename),
-                    Arguments = string.Join(" ",
+                    Arguments        = string.Join(" ",
                         $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
                         $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
                         $"-GameDir \"{ProgramPath}\"",

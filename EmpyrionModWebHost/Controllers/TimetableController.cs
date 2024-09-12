@@ -378,6 +378,9 @@ namespace EmpyrionModWebHost.Controllers
 
             try
             {
+                int timeoutMinutes = -1;
+                if(aAction.data.StartsWith("#") && int.TryParse(aAction.data.Substring(1, aAction.data.IndexOf('#', 1) - 1), out var t)) timeoutMinutes = t; 
+
                 if (aAction.data.StartsWith("\""))
                 {
                     programCommand   = aAction.data.Substring(0, aAction.data.IndexOf('"', 1) + 1);
@@ -396,7 +399,9 @@ namespace EmpyrionModWebHost.Controllers
                 };
 
                 ExecProcess.Start();
-                ExecProcess.WaitForExit(60000);
+                if(timeoutMinutes == -1) ExecProcess.WaitForExit();
+                if(timeoutMinutes >=  0) ExecProcess.WaitForExit(timeoutMinutes * 60000);
+                else                     ExecProcess.WaitForExit(10 * 60000);
             }
             catch (Exception error)
             {
