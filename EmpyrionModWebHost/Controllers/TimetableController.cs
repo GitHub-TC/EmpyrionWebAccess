@@ -378,13 +378,20 @@ namespace EmpyrionModWebHost.Controllers
 
             try
             {
-                int timeoutMinutes = -1;
-                if(aAction.data.StartsWith("#") && int.TryParse(aAction.data.Substring(1, aAction.data.IndexOf('#', 1) - 1), out var t)) timeoutMinutes = t; 
+                var commandData = aAction.data;
 
-                if (aAction.data.StartsWith("\""))
+                int timeoutMinutes = -1;
+                if (commandData.StartsWith("#")) {
+                    var endTimeoutString = commandData.IndexOf('#', 1);
+                    if (int.TryParse(commandData.Substring(1, endTimeoutString - 1), out var t)) timeoutMinutes = t;
+
+                    commandData = commandData.Substring(endTimeoutString + 1);
+                }
+
+                if (commandData.StartsWith("\""))
                 {
-                    programCommand   = aAction.data.Substring(0, aAction.data.IndexOf('"', 1) + 1);
-                    programArguments = aAction.data.Substring(aAction.data.IndexOf('"', 1) + 1);
+                    programCommand   = commandData.Substring(0, commandData.IndexOf('"', 1) + 1);
+                    programArguments = commandData.Substring(commandData.IndexOf('"', 1) + 1);
                 }
 
                 var ExecProcess = new Process
