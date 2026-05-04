@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace EWAModClient
@@ -14,7 +15,9 @@ namespace EWAModClient
     public class Configuration
     {
     	public string StartWith { get; set; }
-        public string PathToModHost { get; set; } = @"..\EWA\EmpyrionModWebHost.exe";
+        public string PathToModHost { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? @"..\EWA\EmpyrionModWebHost.exe"
+            : @"../EWA/EmpyrionModWebHost";
         public string AdditionalArguments { get; set; }
         public bool AutostartModHost { get; set; } = true;
         public int AutostartModHostAfterNSeconds { get; set; } = 10;
@@ -72,7 +75,12 @@ namespace EWAModClient
             {
                 try
                 {
-                    try { HostProcess.CloseMainWindow(); } catch { }
+                    try {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                            HostProcess.CloseMainWindow();
+                        else
+                            HostProcess.Kill();
+                    } catch { }
                     CurrentConfig.Current.HostProcessId = 0;
                     CurrentConfig.Save();
 
@@ -194,21 +202,8 @@ namespace EWAModClient
             ProcessStartInfo StartInfo = null;
             try
             {
-                StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? HostFilename : CurrentConfig.Current.StartWith)
-                {
-                    UseShellExecute  = CurrentConfig.Current.WithShellWindow,
-                    LoadUserProfile  = true,
-                    CreateNoWindow   = true,
-                    WindowStyle      = ProcessWindowStyle.Hidden,
-                    WorkingDirectory = Path.GetDirectoryName(HostFilename),
-                    Arguments        = string.Join(" ",
-                    	$"{(string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? "" : $"\"{CurrentConfig.Current.PathToModHost}\"")}",
-                        $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
-                        $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
-                        $"-GameDir \"{ProgramPath}\"",
-                        Environment.GetCommandLineArgs()?.Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
-                        CurrentConfig.Current.AdditionalArguments ?? string.Empty),
-                };
+                var useShell = CurrentConfig.Current.WithShellWindow && RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+                StartInfo = BuildProcessStartInfo(HostFilename, useShell);
             }
             catch (Exception error)
             {
@@ -231,6 +226,69 @@ namespace EWAModClient
                 GameAPI.Console_Write($"ModClientDll: host start error '{HostFilename} -> {Error}' -> StartInfo:'{StartInfo.FileName}' in '{StartInfo.WorkingDirectory}' with '{StartInfo.Arguments}'");
                 HostProcess = null;
             }
+        }
+
+        private ProcessStartInfo BuildProcessStartInfo(string hostFilename, bool useShell)
+        {
+            string executable;
+            string hostArg;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                executable = string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? hostFilename : CurrentConfig.Current.StartWith;
+                hostArg    = string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? "" : $"\"{CurrentConfig.Current.PathToModHost}\"";
+            }
+            else
+            {
+                var dllPath = Path.ChangeExtension(hostFilename, ".dll");
+                if (File.Exists(dllPath))
+                {
+                    executable = "dotnet";
+                    hostArg    = $"\"{dllPath}\"";
+                }
+                else
+                {
+                    EnsureExecutable(hostFilename);
+                    executable = hostFilename;
+                    hostArg    = "";
+                }
+            }
+
+            var arguments = string.Join(" ",
+                hostArg,
+                $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
+                $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
+                $"-GameDir \"{ProgramPath}\"",
+                Environment.GetCommandLineArgs()?.Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
+                CurrentConfig.Current.AdditionalArguments ?? string.Empty).Trim();
+
+            return new ProcessStartInfo(executable)
+            {
+                UseShellExecute  = useShell,
+                LoadUserProfile  = RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
+                CreateNoWindow   = true,
+                WindowStyle      = ProcessWindowStyle.Hidden,
+                WorkingDirectory = Path.GetDirectoryName(hostFilename),
+                Arguments        = arguments,
+            };
+        }
+
+        private static void EnsureExecutable(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !File.Exists(path)) return;
+            try
+            {
+                var chmod = new Process
+                {
+                    StartInfo = new ProcessStartInfo("chmod", $"+x \"{path}\"")
+                    {
+                        UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true,
+                    }
+                };
+                chmod.Start();
+                chmod.WaitForExit(5000);
+            }
+            catch (Exception ex) { Console.WriteLine($"EnsureExecutable: {ex.Message}"); }
         }
 
         public static string GetDirWith(string aTestDir, string aTestFile)
@@ -382,7 +440,12 @@ namespace EWAModClient
                             if (HostProcess.HasExited) break;
                         }
 
-                        try { HostProcess.CloseMainWindow(); } catch { }
+                        try {
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                HostProcess.CloseMainWindow();
+                            else
+                                HostProcess.Kill();
+                        } catch { }
 
                         HostProcess = null;
                         CurrentConfig.Current.HostProcessId = 0;

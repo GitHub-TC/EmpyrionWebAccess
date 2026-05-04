@@ -1,35 +1,32 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Runtime.Serialization.Formatters.Binary;
+#nullable enable
+using System;
 using System.Collections.Generic;
-using SharedMemory;
+using System.IO.Pipes;
+using System.Threading;
 
 namespace EWAExtenderCommunication
 {
     public class ServerMessagePipe : IDisposable
     {
-        CircularBuffer mServer;
-        readonly Thread mServerCommThread;
-        private byte[] mDataBuffer;
+        Thread mServerCommThread;
         DateTime? mLastPing;
 
-        public Action<string> Log { get; set; }
+        public Action<string>? Log { get; set; }
         public string PipeName { get; }
-        public Action<object> Callback { get; set; }
+        public Action<object>? Callback { get; set; }
         public bool Exit { get; private set; }
+        public bool Connected { get; private set; }
 
         public ServerMessagePipe(string aPipeName)
         {
             PipeName = aPipeName;
-            mServerCommThread = new Thread(ServerCommunicationLoop);
+            mServerCommThread = new Thread(ServerCommunicationLoop) { IsBackground = true };
             mServerCommThread.Start();
         }
 
         private void ServerCommunicationLoop()
         {
-            var ShownErrors = new List<string>();
-            var tryCount = 0;
+            var shownErrors = new List<string>();
             while (!Exit)
             {
                 try
@@ -37,24 +34,13 @@ namespace EWAExtenderCommunication
                     ExecServerCommunication();
                 }
                 catch (ThreadAbortException) { return; }
-                catch (FileNotFoundException Error)
+                catch (Exception error)
                 {
-                    if (!ShownErrors.Contains(Error.Message) && tryCount++ > 60)
+                    if (!shownErrors.Contains(error.Message))
                     {
-                        ShownErrors.Add(Error.Message);
-                        Log?.Invoke($"Try to connect ExecServerCommunication. {PipeName} Reason: " + Error);
+                        shownErrors.Add(error.Message);
+                        Log?.Invoke($"Failed ExecServerCommunication. {PipeName} Reason: " + error);
                     }
-
-                    if (!Exit) Thread.Sleep(1000);
-                }
-                catch (Exception Error)
-                {
-                    if (!ShownErrors.Contains(Error.Message))
-                    {
-                        ShownErrors.Add(Error.Message);
-                        Log?.Invoke($"Failed ExecServerCommunication. {PipeName} Reason: " + Error);
-                    }
-
                     if (!Exit) Thread.Sleep(1000);
                 }
             }
@@ -63,62 +49,56 @@ namespace EWAExtenderCommunication
         private void ExecServerCommunication()
         {
             mLastPing = null;
-            using (mServer = new CircularBuffer(PipeName))
+            using var server = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
+            Log?.Invoke($"ServerPipe: {PipeName} waiting for connection");
+            server.WaitForConnection();
+
+            Log?.Invoke($"ServerPipe: {PipeName} connected");
+            if (Exit) return;
+
+            Connected = true;
+            mLastPing = DateTime.Now;
+
+            try
             {
-                long bufferSize = mServer.NodeBufferSize;
-
-                Log?.Invoke($"ServerPipe: {PipeName} connected {bufferSize}");
-                if (Exit) return;
-                if (bufferSize == 0)
+                while (!Exit && server.IsConnected)
                 {
-                    Thread.Sleep(1000);
-                    return;
+                    var message = ReadNextMessage(server);
+                    if (message != null)
+                    {
+                        mLastPing = DateTime.Now;
+                        if (message is ClientHostComData ping && ping.Command == ClientHostCommand.Ping)
+                            continue;
+                        Callback?.Invoke(message);
+                    }
+
+                    if (mLastPing.HasValue && (DateTime.Now - mLastPing.Value).TotalSeconds > 5) break;
                 }
-
-                mDataBuffer = new byte[bufferSize];
-
-                while (!Exit)
-                {
-                    var Message = ReadNextMessage();
-                    if (!mLastPing.HasValue || Message != null) mLastPing = DateTime.Now;
-                    if (Message != null) Callback?.Invoke(Message);
-
-                    if ((DateTime.Now - mLastPing.Value).TotalSeconds > 5) return;
-                }
+            }
+            finally
+            {
+                Connected = false;
             }
         }
 
-        private object ReadNextMessage()
+        private object? ReadNextMessage(NamedPipeServerStream server)
         {
             try
             {
-                using (var memStream = new MemoryStream())
-                {
-                    var dataLength = mServer.Read(mDataBuffer);
-                    if (dataLength == 0) return null;
-
-                    memStream.Write(mDataBuffer, 0, dataLength);
-                    memStream.Seek(0, SeekOrigin.Begin);
-                    return new BinaryFormatter().Deserialize(memStream);
-                }
+                return PipeProtocol.ReadMessage(server);
             }
-            catch (Exception Error)
+            catch (Exception error)
             {
-                Log?.Invoke("Failed ReadNextMessage. Reason: " + Error.Message);
+                Log?.Invoke("Failed ReadNextMessage. Reason: " + error.Message);
                 return null;
             }
         }
 
         public void Close()
         {
-            try
-            {
-                Exit = true;
-            }
-            catch (Exception Error)
-            {
-                Log?.Invoke($"CloseError {Error}");
-            }
+            try { Exit = true; }
+            catch (Exception error) { Log?.Invoke($"CloseError {error}"); }
         }
 
         public void Dispose()

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using ProtoBuf;
 
 namespace EWAExtenderCommunication
 {
@@ -15,21 +16,44 @@ namespace EWAExtenderCommunication
         GameTicks
     }
 
-    [Serializable]
+    [ProtoContract]
     public class ProcessInformation
     {
-        public int Id { get; set; }
-        public string CurrentDirecrory { get; set; }
-        public string Arguments { get; set; }
-        public string FileName { get; set; }
+        [ProtoMember(1)] public int Id { get; set; }
+        [ProtoMember(2)] public string CurrentDirecrory { get; set; }
+        [ProtoMember(3)] public string Arguments { get; set; }
+        [ProtoMember(4)] public string FileName { get; set; }
     }
 
-
-    [Serializable]
+    [ProtoContract]
     public class ClientHostComData
     {
+        [ProtoMember(1)]
         public ClientHostCommand Command { get; set; }
-        public object Data { get; set; }
-    }
 
+        // Typed wire-protocol backing fields (protobuf-net cannot serialize 'object' directly)
+        [ProtoMember(2)] public string DataString { get; set; }
+        [ProtoMember(3)] public ProcessInformation DataProcessInfo { get; set; }
+        [ProtoMember(4)] public ulong DataULong { get; set; }
+        [ProtoMember(5)] public bool DataULongSet { get; set; }
+
+        // Convenience property — maps to/from the typed fields above; not serialized directly
+        public object Data
+        {
+            get
+            {
+                if (DataProcessInfo != null) return DataProcessInfo;
+                if (DataString      != null) return DataString;
+                if (DataULongSet)            return DataULong;
+                return null;
+            }
+            set
+            {
+                DataString      = value as string;
+                DataProcessInfo = value as ProcessInformation;
+                if (value is ulong ul) { DataULong = ul; DataULongSet = true; }
+                else                   { DataULong = 0;  DataULongSet = false; }
+            }
+        }
+    }
 }

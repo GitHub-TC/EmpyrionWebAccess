@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmpyrionModWebHost", "Empyr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTestPlatform", "ClientTestPlatform\ClientTestPlatform.csproj", "{9B6C6E13-1225-4BA2-B8BA-8C95E723BC9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWAExtenderCommunication", "EWAExtenderCommunication\EWAExtenderCommunication.csproj", "{C356799B-60CF-4505-A492-D6F70891BCA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EWAExtenderCommunication", "EWAExtenderCommunication\EWAExtenderCommunication.csproj", "{C356799B-60CF-4505-A492-D6F70891BCA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWALoader", "EWALoader\EWALoader.csproj", "{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EWALoader", "EWALoader\EWALoader.csproj", "{09A9DA8F-B199-4CE6-916D-9AC7C9DC4B8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWAModClient", "EWAModClient\EWAModClient.csproj", "{CC76932D-33EF-4A9D-AFDE-4954AFE57676}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EWAModClient", "EWAModClient\EWAModClient.csproj", "{CC76932D-33EF-4A9D-AFDE-4954AFE57676}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{14BC3BBE-35BC-4E7F-824F-C8F913B9A068}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,9 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluffySpoon.AspNet.LetsEncrypt", "FluffySpoon.AspNet.LetsEncrypt\FluffySpoon.AspNet.LetsEncrypt.csproj", "{806271D6-DF87-41D0-8978-8B3E6A103029}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalStructureList", "GlobalStructureList\GlobalStructureList.csproj", "{D27A6C05-1331-4D5D-8238-BE3A6120E9CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GlobalStructureList", "GlobalStructureList\GlobalStructureList.csproj", "{D27A6C05-1331-4D5D-8238-BE3A6120E9CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalStructureList.UnitTests", "GlobalStructureList.UnitTests\GlobalStructureList.UnitTests.csproj", "{E109DBB5-7B8C-4AD6-B4B6-5CD0BCD188B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GlobalStructureList.UnitTests", "GlobalStructureList.UnitTests\GlobalStructureList.UnitTests.csproj", "{E109DBB5-7B8C-4AD6-B4B6-5CD0BCD188B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

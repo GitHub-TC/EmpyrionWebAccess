@@ -1,4 +1,5 @@
 ﻿using Eleon.Modding;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,7 @@ using System.Reflection;
 namespace EWAExtenderCommunication
 {
 
+    [ProtoContract]
     [Serializable]
     public class EmpyrionGameEventData
     {
@@ -26,10 +28,14 @@ namespace EWAExtenderCommunication
             }
         }
 
+        [ProtoMember(1)]
         public CmdId eventId;
+        [ProtoMember(2)]
         public ushort seqNr;
 
+        [ProtoMember(3)]
         byte[] serializedData;
+        [ProtoMember(4)]
         string serializedDataType;
 
         class ProtoBufCall<T>

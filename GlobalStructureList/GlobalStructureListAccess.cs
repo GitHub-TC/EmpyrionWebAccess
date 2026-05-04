@@ -1,7 +1,7 @@
 ﻿using Eleon.Modding;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 
 namespace EgsDbTools
 {
@@ -37,20 +37,20 @@ namespace EgsDbTools
             var dockedToList         = new Dictionary<int, List<int>>();
             SolarSystemData currentPlayfield = null;
 
-            var connectionString = new SQLiteConnectionStringBuilder()
+            var connectionString = new SqliteConnectionStringBuilder()
             {
-                JournalMode = SQLiteJournalModeEnum.Off,
-                ReadOnly    = true,
-                DataSource  = GlobalDbPath
+                Mode       = SqliteOpenMode.ReadOnly,
+                Cache      = SqliteCacheMode.Shared,
+                DataSource = GlobalDbPath
             };
 
-            using (var DbConnection = new SQLiteConnection(connectionString.ToString()))
+            using (var DbConnection = new SqliteConnection(connectionString.ToString()))
             {
                 DbConnection.Open();
 
                 var playfields = ReadPlayfields(DbConnection);
 
-                using (var cmd = new SQLiteCommand(DbConnection))
+                using (var cmd = DbConnection.CreateCommand())
                 {
                     cmd.CommandText =
 @"
@@ -178,20 +178,20 @@ ORDER BY pfid
 
         public GlobalStructureInfo ReadGlobalStructureInfo(Id id)
         {
-            var connectionString = new SQLiteConnectionStringBuilder()
+            var connectionString = new SqliteConnectionStringBuilder()
             {
-                JournalMode = SQLiteJournalModeEnum.Off,
-                ReadOnly    = true,
-                DataSource  = GlobalDbPath
+                Mode       = SqliteOpenMode.ReadOnly,
+                Cache      = SqliteCacheMode.Shared,
+                DataSource = GlobalDbPath
             };
 
-            using (var DbConnection = new SQLiteConnection(connectionString.ToString()))
+            using (var DbConnection = new SqliteConnection(connectionString.ToString()))
             {
                 DbConnection.Open();
 
                 var playfields = ReadPlayfields(DbConnection);
 
-                using (var cmd = new SQLiteCommand(DbConnection))
+                using (var cmd = DbConnection.CreateCommand())
                 {
                     cmd.CommandText =
 @"
@@ -302,11 +302,11 @@ WHERE Structures.entityid = " + id.id.ToString();
             public string SolarSystem { get; set; }
         }
 
-        private Dictionary<int, SolarSystemData> ReadPlayfields(SQLiteConnection dbConnection)
+        private Dictionary<int, SolarSystemData> ReadPlayfields(SqliteConnection dbConnection)
         {
             var result = new Dictionary<int, SolarSystemData>();
 
-            using (var cmd = new SQLiteCommand(dbConnection))
+            using (var cmd = dbConnection.CreateCommand())
             {
                 cmd.CommandText =
 @"
