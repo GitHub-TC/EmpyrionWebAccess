@@ -13,6 +13,7 @@ namespace EWAModClient
 {
     public class Configuration
     {
+    	public string StartWith { get; set; }
         public string PathToModHost { get; set; } = @"..\EWA\EmpyrionModWebHost.exe";
         public string AdditionalArguments { get; set; }
         public bool AutostartModHost { get; set; } = true;
@@ -193,7 +194,7 @@ namespace EWAModClient
             ProcessStartInfo StartInfo = null;
             try
             {
-                StartInfo = new ProcessStartInfo(HostFilename)
+                StartInfo = new ProcessStartInfo(string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? HostFilename : CurrentConfig.Current.StartWith)
                 {
                     UseShellExecute  = CurrentConfig.Current.WithShellWindow,
                     LoadUserProfile  = true,
@@ -201,6 +202,7 @@ namespace EWAModClient
                     WindowStyle      = ProcessWindowStyle.Hidden,
                     WorkingDirectory = Path.GetDirectoryName(HostFilename),
                     Arguments        = string.Join(" ",
+                    	$"{(string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? "" : $"\"{CurrentConfig.Current.PathToModHost}\"")}",
                         $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
                         $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
                         $"-GameDir \"{ProgramPath}\"",
