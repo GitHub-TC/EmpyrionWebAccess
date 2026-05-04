@@ -40,6 +40,11 @@ public class Startup
 
         services.AddCors();
 
+        services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 268435456; // 256 MB (2x default 128 MB)
+        });
+
         services.AddMvc(options =>
                 {
                     options.EnableEndpointRouting = false;
