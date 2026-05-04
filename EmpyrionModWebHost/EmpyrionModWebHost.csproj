@@ -13,8 +13,8 @@
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
     <Authors>ASTIC/TC</Authors>
     <Company />
-    <Copyright>ASTIC/TC ©2025</Copyright>
-    <Version>7.3.2</Version>
+    <Copyright>ASTIC/TC ©2026</Copyright>
+    <Version>8.0.0</Version>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject />
@@ -24,7 +24,7 @@
     <Description>A web frontend for managing an EmpyrionServer (similar to the EAH), as a MOD so that it can also be used seemless in game hosting.</Description>
     <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
     <PackageReleaseNotes>GNU General Public License v3.0</PackageReleaseNotes>
-    <FileVersion>7.3.2.0</FileVersion>
+    <FileVersion>8.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
