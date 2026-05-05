@@ -10,7 +10,7 @@ namespace EWAModClient
         public static string ProgramPath { get; private set; } = Environment.GetCommandLineArgs().Contains("-GameDir")
                                                                             ? Environment.GetCommandLineArgs().SkipWhile(A => string.Compare(A, "-GameDir", StringComparison.InvariantCultureIgnoreCase) != 0).Skip(1).FirstOrDefault()
                                                                             : GetDirWith(Directory.GetCurrentDirectory(), "BuildNumber.txt");
-        public static string ModPath { get; private set; } = Path.Combine(ProgramPath, @"Content\Mods");
+        public static string ModPath { get; private set; } = Path.Combine(ProgramPath, "Content", "Mods");
         public static string DedicatedFilename { get; private set; } = Environment.GetCommandLineArgs().Contains("-dedicated")
                                                                             ? Environment.GetCommandLineArgs().SkipWhile(A => string.Compare(A, "-dedicated", StringComparison.InvariantCultureIgnoreCase) != 0).Skip(1).FirstOrDefault()
                                                                             : "dedicated.yaml";

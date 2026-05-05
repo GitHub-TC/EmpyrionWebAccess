@@ -11,5 +11,6 @@
         public int ExportDatOutdatedInMinutes { get; set; } = 60;
         public int SleepBetweenEntityExportInSeconds { get; set; } = 10;
         public int PlayerOfflineWarpDelay { get; set; } = 60;
+        public string EAHPath { get; set; }
     }
 }

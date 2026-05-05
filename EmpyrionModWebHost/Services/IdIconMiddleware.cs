@@ -22,7 +22,7 @@ namespace EmpyrionModWebHost.Services
             var idIconMappingFile = Configuration?.GetValue<string>("IdIconMappingFile");
             idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.SaveGameModPath, Configuration?.GetValue<string>("IdIconMappingFile"));
             idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ProgramPath,     Configuration?.GetValue<string>("IdIconMappingFile"));
-            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ModPath,         @"EWALoader\EWA\IdIconMapping.json");
+            idIconMappingFile = File.Exists(idIconMappingFile) ? idIconMappingFile : Path.Combine(EmpyrionConfiguration.ModPath,         "EWALoader", "EWA", "IdIconMapping.json");
 
             try
             {
@@ -45,7 +45,7 @@ namespace EmpyrionModWebHost.Services
             var nameIdMappingFile = Configuration?.GetValue<string>("NameIdMappingFile");
             nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.SaveGameModPath, Configuration?.GetValue<string>("NameIdMappingFile"));
             nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.ProgramPath,     Configuration?.GetValue<string>("NameIdMappingFile"));
-            nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.ModPath,         @"EWALoader\EWA\NameIdMappingFile.json");
+            nameIdMappingFile = File.Exists(nameIdMappingFile) ? nameIdMappingFile : Path.Combine(EmpyrionConfiguration.ModPath,         "EWALoader", "EWA", "NameIdMappingFile.json");
 
             try
             {
@@ -114,9 +114,10 @@ namespace EmpyrionModWebHost.Services
 
         private static string SearchForImage(string iconFile)
         {
-            var iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName ?? string.Empty, @"SharedData\Content\Bundles\ItemIcons", iconFile);
-            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath,     @"EWALoader\EWA\ClientApp\dist\ClientApp\assets\Items", iconFile);
-            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, @"DedicatedServer\EmpyrionAdminHelper\Items",           iconFile);
+            var iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName ?? string.Empty, "SharedData", "Content", "Bundles", "ItemIcons", iconFile);
+            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ModPath,     "EWALoader", "EWA", "ClientApp", "dist", "ClientApp", "assets", "Items", iconFile);
+            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(EmpyrionConfiguration.ProgramPath, "DedicatedServer", "EmpyrionAdminHelper", "Items",           iconFile);
+            if (!File.Exists(iconFilePath)) iconFilePath = Path.Combine(Program.AppSettings?.EAHPath ?? string.Empty, "Items",                                    iconFile);
             return iconFilePath;
         }
     }

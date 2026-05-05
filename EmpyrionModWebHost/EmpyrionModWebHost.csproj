@@ -25,6 +25,8 @@
     <TypeScriptExperimentalDecorators>true</TypeScriptExperimentalDecorators>
     <PackageReleaseNotes>GNU General Public License v3.0</PackageReleaseNotes>
     <FileVersion>8.0.0.0</FileVersion>
+    <!-- Required so that dotnet restore includes linux-x64 assets for self-contained publish -->
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -189,7 +191,7 @@
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
   </Target>
 
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish" Condition="'$(SkipAngularBuild)' != 'true'">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
@@ -206,8 +208,17 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="CustomActionsAfterPublish" AfterTargets="AfterPublish">
+  <Target Name="CustomActionsAfterPublish" AfterTargets="AfterPublish" Condition="'$(SkipLinuxPublish)' != 'true'">
     <Move SourceFiles="$(ProjectDir)bin\EWALoader\EWA\EmpyrionModWebHost.exe" DestinationFiles="$(ProjectDir)bin\EWALoader\EWA\EmpyrionModWebHost.bin" />
+  </Target>
+
+  <!-- Publish self-contained Linux binary into a separate subfolder to avoid win-x64/linux-x64 DLL conflicts -->
+  <Target Name="PublishLinuxBinary" AfterTargets="AfterPublish" Condition="'$(SkipLinuxPublish)' != 'true'">
+    <PropertyGroup>
+      <_LinuxOutDir>$(ProjectDir)bin\EWALoader\EWA-linux</_LinuxOutDir>
+    </PropertyGroup>
+    <Message Importance="high" Text="=== Publishing self-contained linux-x64 binary to $(_LinuxOutDir) ===" />
+    <Exec Command="dotnet publish &quot;$(MSBuildProjectFullPath)&quot; -c Release -r linux-x64 --self-contained true -p:InvariantGlobalization=false -p:SkipAngularBuild=true -p:SkipLinuxPublish=true -o &quot;$(_LinuxOutDir)&quot; --no-restore" />
   </Target>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

@@ -11,8 +11,20 @@ namespace EWAExtenderCommunication
         ClientHostComData     = 2,
     }
 
-    internal static class PipeProtocol
+    public static class PipeProtocol
     {
+        public static int PipeNameToPort(string pipeName)
+        {
+            // FNV-1a 32-bit hash for deterministic port derivation
+            uint hash = 2166136261u;
+            foreach (char c in pipeName)
+            {
+                hash ^= (byte)c;
+                hash *= 16777619u;
+            }
+            return 49152 + (int)(hash % 16382);
+        }
+
         public static void WriteMessage(Stream stream, object message)
         {
             PipeMessageType tag = message switch

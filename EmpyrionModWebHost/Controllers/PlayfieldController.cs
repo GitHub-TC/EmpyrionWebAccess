@@ -339,7 +339,7 @@ namespace EmpyrionModWebHost.Controllers
                 catch (Exception Error)
                 {
                     Logger.LogError(Error, "LoadSpace: {0} to {1}", aPlayfieldname, PlayfieldMap);
-                    PlayfieldMap = Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA\ClientApp\dist\ClientApp\empty.png");
+                    PlayfieldMap = Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA", "ClientApp", "dist", "ClientApp", "empty.png");
                 }
             }
 

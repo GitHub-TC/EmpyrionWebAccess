@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Pipes;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace EWAExtenderCommunication
@@ -16,6 +18,7 @@ namespace EWAExtenderCommunication
         public Action<object>? Callback { get; set; }
         public bool Exit { get; private set; }
         public bool Connected { get; private set; }
+        public bool UseTcp { get; set; }
 
         public ServerMessagePipe(string aPipeName)
         {
@@ -49,44 +52,76 @@ namespace EWAExtenderCommunication
         private void ExecServerCommunication()
         {
             mLastPing = null;
-            using var server = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-
-            Log?.Invoke($"ServerPipe: {PipeName} waiting for connection");
-            server.WaitForConnection();
-
-            Log?.Invoke($"ServerPipe: {PipeName} connected");
-            if (Exit) return;
-
-            Connected = true;
-            mLastPing = DateTime.Now;
-
-            try
+            if (UseTcp)
             {
-                while (!Exit && server.IsConnected)
+                var port = PipeProtocol.PipeNameToPort(PipeName);
+                var listener = new TcpListener(IPAddress.Loopback, port);
+                listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                listener.Start();
+                Log?.Invoke($"ServerPipe: {PipeName} waiting for connection (TCP:{port})");
+                try
                 {
-                    var message = ReadNextMessage(server);
-                    if (message != null)
+                    using var client = listener.AcceptTcpClient();
+                    using var stream = client.GetStream();
+                    Log?.Invoke($"ServerPipe: {PipeName} connected (TCP:{port})");
+                    if (Exit) return;
+                    Connected = true;
+                    mLastPing = DateTime.Now;
+                    try
                     {
-                        mLastPing = DateTime.Now;
-                        if (message is ClientHostComData ping && ping.Command == ClientHostCommand.Ping)
-                            continue;
-                        Callback?.Invoke(message);
+                        while (!Exit && client.Connected)
+                        {
+                            var message = ReadNextMessage(stream);
+                            if (message != null)
+                            {
+                                mLastPing = DateTime.Now;
+                                if (message is ClientHostComData ping && ping.Command == ClientHostCommand.Ping)
+                                    continue;
+                                Callback?.Invoke(message);
+                            }
+                            if (mLastPing.HasValue && (DateTime.Now - mLastPing.Value).TotalSeconds > 5) break;
+                        }
                     }
-
-                    if (mLastPing.HasValue && (DateTime.Now - mLastPing.Value).TotalSeconds > 5) break;
+                    finally { Connected = false; }
                 }
+                finally { listener.Stop(); }
             }
-            finally
+            else
             {
-                Connected = false;
+                using var server = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                Log?.Invoke($"ServerPipe: {PipeName} waiting for connection");
+                server.WaitForConnection();
+                Log?.Invoke($"ServerPipe: {PipeName} connected");
+                if (Exit) return;
+                Connected = true;
+                mLastPing = DateTime.Now;
+                try
+                {
+                    while (!Exit && server.IsConnected)
+                    {
+                        var message = ReadNextMessage(server);
+                        if (message != null)
+                        {
+                            mLastPing = DateTime.Now;
+                            if (message is ClientHostComData ping && ping.Command == ClientHostCommand.Ping)
+                                continue;
+                            Callback?.Invoke(message);
+                        }
+                        if (mLastPing.HasValue && (DateTime.Now - mLastPing.Value).TotalSeconds > 5) break;
+                    }
+                }
+                finally
+                {
+                    Connected = false;
+                }
             }
         }
 
-        private object? ReadNextMessage(NamedPipeServerStream server)
+        private object? ReadNextMessage(System.IO.Stream stream)
         {
             try
             {
-                return PipeProtocol.ReadMessage(server);
+                return PipeProtocol.ReadMessage(stream);
             }
             catch (Exception error)
             {

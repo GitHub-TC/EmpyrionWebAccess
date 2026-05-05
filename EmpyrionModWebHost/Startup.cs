@@ -232,6 +232,35 @@ public class Startup
             //the following line tells the library to persist challenges in-memory. challenges are the "/.well-known" URL codes that LetsEncrypt will call.
             services.AddFluffySpoonLetsEncryptMemoryChallengePersistence();
         }
+
+        LogSettings(LogFileName);
+    }
+
+    private void LogSettings(string logFileName)
+    {
+        try {
+            File.AppendAllText(logFileName, $"Environment.CurrentDirectory: {Environment.CurrentDirectory}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.ProgramPath: {EmpyrionConfiguration.ProgramPath}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.DedicatedFilename: {EmpyrionConfiguration.DedicatedFilename}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.BuildVersion: {EmpyrionConfiguration.BuildVersion}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.ModName: {EmpyrionConfiguration.ModName}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.ModPath: {EmpyrionConfiguration.ModPath}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.SaveGameCachePath: {EmpyrionConfiguration.SaveGameCachePath}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.SaveGameModPath: {EmpyrionConfiguration.SaveGameModPath}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.SaveGamePath: {EmpyrionConfiguration.SaveGamePath}\n");
+            File.AppendAllText(logFileName, $"EmpyrionConfiguration.Version: {EmpyrionConfiguration.Version}\n");
+
+            File.AppendAllText(logFileName, $"AppSettings.EAHPath: {Program.AppSettings?.EAHPath}\n");
+            File.AppendAllText(logFileName, $"AppSettings.GlobalStructureUpdateInSeconds: {Program.AppSettings?.GlobalStructureUpdateInSeconds}\n");
+            File.AppendAllText(logFileName, $"AppSettings.BackupDirectory: {Program.AppSettings?.BackupDirectory}\n");
+            File.AppendAllText(logFileName, $"AppSettings.ExportDatOutdatedInMinutes: {Program.AppSettings?.ExportDatOutdatedInMinutes}\n");
+            File.AppendAllText(logFileName, $"AppSettings.HistoryLogUpdateInSeconds: {Program.AppSettings?.HistoryLogUpdateInSeconds}\n");
+            File.AppendAllText(logFileName, $"AppSettings.PlayerOfflineWarpDelay: {Program.AppSettings?.PlayerOfflineWarpDelay}\n");
+            File.AppendAllText(logFileName, $"AppSettings.SleepBetweenEntityExportInSeconds: {Program.AppSettings?.SleepBetweenEntityExportInSeconds}\n");
+        }
+        catch (Exception error) {
+            File.AppendAllText(LogFileName, $"ERROR: LogSettings -> {error}\n");
+        }
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

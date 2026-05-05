@@ -17,7 +17,7 @@ namespace EWAModClient
     	public string StartWith { get; set; }
         public string PathToModHost { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? @"..\EWA\EmpyrionModWebHost.exe"
-            : @"../EWA/EmpyrionModWebHost";
+            : @"../EWA-linux/EmpyrionModWebHost";
         public string AdditionalArguments { get; set; }
         public bool AutostartModHost { get; set; } = true;
         public int AutostartModHostAfterNSeconds { get; set; } = 10;
@@ -120,8 +120,8 @@ namespace EWAModClient
                 { typeof(ClientHostComData    ), M => HandleClientHostCommunication ((ClientHostComData)M) }
             };
 
-            OutServer = new ClientMessagePipe(CurrentConfig.Current.EmpyrionToModPipeName) { Log = GameAPI.Console_Write };
-            InServer = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName) { Log = GameAPI.Console_Write };
+            OutServer = new ClientMessagePipe(CurrentConfig.Current.EmpyrionToModPipeName) { Log = GameAPI.Console_Write, UseTcp = IsWineEnvironment() };
+            InServer  = new ServerMessagePipe(CurrentConfig.Current.ModToEmpyrionPipeName) { Log = GameAPI.Console_Write, UseTcp = IsWineEnvironment() };
             InServer.Callback = Msg =>
             {
                 if (InServerMessageHandler.TryGetValue(Msg.GetType(), out Action<object> Handler)) Handler(Msg);
@@ -202,7 +202,7 @@ namespace EWAModClient
             ProcessStartInfo StartInfo = null;
             try
             {
-                var useShell = CurrentConfig.Current.WithShellWindow && RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+                var useShell = CurrentConfig.Current.WithShellWindow && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !IsWineEnvironment();
                 StartInfo = BuildProcessStartInfo(HostFilename, useShell);
             }
             catch (Exception error)
@@ -215,11 +215,32 @@ namespace EWAModClient
 
             try
             {
+                var hostDir   = Path.GetDirectoryName(HostFilename);
+                var scriptLog = Path.Combine(hostDir, "EmpyrionModWebHost.sh.log");
+                var hostLog   = Path.Combine(hostDir, "EmpyrionModWebHost.log");
+                TryDeleteFile(scriptLog);
+                TryDeleteFile(hostLog);
+
                 HostProcess = new Process{ StartInfo = StartInfo };
+                // Do NOT set EnableRaisingEvents=true — DuplicateHandle fails under Wine spawning native Linux ELF
                 HostProcess.Start();
                 CurrentConfig.Current.HostProcessId = HostProcess.Id;
                 CurrentConfig.Save();
                 GameAPI.Console_Write($"ModClientDll: host started '{HostFilename}/{HostProcess.Id}' -> StartInfo:'{StartInfo.FileName}' in '{StartInfo.WorkingDirectory}' with '{StartInfo.Arguments}'");
+
+                new Thread(() => {
+                    Thread.Sleep(3000);
+                    try
+                    {
+                        if (File.Exists(scriptLog))
+                            foreach (var line in File.ReadAllLines(scriptLog))
+                                GameAPI.Console_Write($"[sh] {line}");
+                        if (File.Exists(hostLog))
+                            foreach (var line in File.ReadAllLines(hostLog))
+                                GameAPI.Console_Write($"[host] {line}");
+                    }
+                    catch (Exception ex) { GameAPI.Console_Write($"[host] log read error: {ex.Message}"); }
+                }) { IsBackground = true }.Start();
             }
             catch (Exception Error)
             {
@@ -232,11 +253,44 @@ namespace EWAModClient
         {
             string executable;
             string hostArg;
+            bool wineMode = IsWineEnvironment();
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !wineMode)
             {
                 executable = string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? hostFilename : CurrentConfig.Current.StartWith;
                 hostArg    = string.IsNullOrEmpty(CurrentConfig.Current.StartWith) ? "" : $"\"{CurrentConfig.Current.PathToModHost}\"";
+            }
+            else if (wineMode)
+            {
+                // Wine on Linux: spawn native Linux ELF binary via bash shell script
+                var hostDir    = Path.GetDirectoryName(hostFilename);
+                var binaryName = Path.GetFileNameWithoutExtension(hostFilename); // strip .exe
+
+                // Prefer a sibling "-linux" folder (e.g. EWA-linux\ next to EWA\)
+                var linuxDir          = hostDir + "-linux";
+                var linuxBinaryAlt    = Path.Combine(linuxDir, binaryName);
+                var linuxBinary       = File.Exists(linuxBinaryAlt)
+                    ? linuxBinaryAlt
+                    : Path.Combine(hostDir, binaryName);
+
+                WineChmodExecutable(linuxBinary);
+
+                var bash = FindNativeLinuxTool("/bin/bash", "/usr/bin/bash");
+                if (bash != null)
+                {
+                    var scriptPath = GenerateWineHostScript(hostFilename, linuxBinary);
+                    executable = bash;
+                    hostArg    = $"\"{WinePathToUnix(scriptPath)}\"";
+                    useShell   = false;
+                    GameAPI.Console_Write($"Wine-Umgebung: starte EWA Host via '{WinePathToUnix(scriptPath)}'");
+                }
+                else
+                {
+                    executable = linuxBinary;
+                    hostArg    = "";
+                    useShell   = false;
+                    GameAPI.Console_Write($"Wine-Umgebung: starte Linux-Binary '{WinePathToUnix(linuxBinary)}'");
+                }
             }
             else
             {
@@ -254,21 +308,27 @@ namespace EWAModClient
                 }
             }
 
-            var arguments = string.Join(" ",
+            var wineFlag = wineMode ? "-WineMode" : "";
+
+            var arguments = string.Join(" ", new[] {
                 hostArg,
                 $"-EmpyrionToModPipe {CurrentConfig.Current.EmpyrionToModPipeName}",
                 $"-ModToEmpyrionPipe {CurrentConfig.Current.ModToEmpyrionPipeName}",
-                $"-GameDir \"{ProgramPath}\"",
+                wineFlag,
+                $"-GameDir \"{(wineMode ? WinePathToUnix(ProgramPath) : ProgramPath)}\"",
                 Environment.GetCommandLineArgs()?.Aggregate(string.Empty, HandleQuoteWhenNotSwitchOrContainsQuote),
-                CurrentConfig.Current.AdditionalArguments ?? string.Empty).Trim();
+                CurrentConfig.Current.AdditionalArguments ?? string.Empty
+            }.Where(s => !string.IsNullOrEmpty(s))).Trim();
 
             return new ProcessStartInfo(executable)
             {
                 UseShellExecute  = useShell,
-                LoadUserProfile  = RuntimeInformation.IsOSPlatform(OSPlatform.Windows),
+                LoadUserProfile  = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !wineMode,
                 CreateNoWindow   = true,
                 WindowStyle      = ProcessWindowStyle.Hidden,
-                WorkingDirectory = Path.GetDirectoryName(hostFilename),
+                WorkingDirectory = string.IsNullOrEmpty(CurrentConfig.Current.StartWith)
+                                   ? Path.GetDirectoryName(hostFilename)
+                                   : ProgramPath,
                 Arguments        = arguments,
             };
         }
@@ -365,7 +425,14 @@ namespace EWAModClient
             try{ OutServer?.SendMessage(new ClientHostComData() { Command = ClientHostCommand.ProcessInformation }); } catch{}
 
             if (CurrentConfig.Current.AutostartModHostAfterNSeconds == 0 || !CurrentConfig.Current.AutostartModHost) return;
-            try { if (HostProcess != null && !HostProcess.HasExited) return; } catch { }
+
+            bool hostAlive;
+            if (IsWineEnvironment())
+                hostAlive = InServer?.Connected == true;
+            else
+                hostAlive = HostProcess != null && GetHasExited(HostProcess) == false;
+
+            if (hostAlive) { HostProcessAlive = null; return; }
 
             if (!HostProcessAlive.HasValue) HostProcessAlive = DateTime.Now;
             if ((DateTime.Now - HostProcessAlive.Value).TotalSeconds <= CurrentConfig.Current.AutostartModHostAfterNSeconds) return;
@@ -418,7 +485,7 @@ namespace EWAModClient
 
         private void UpdateEWA(ProcessInformation aProcessInformation)
         {
-            if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\Update\EWALoader\EWA"))) return;
+            if (!Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader", "EWA"))) return;
 
             try
             {
@@ -473,19 +540,27 @@ namespace EWAModClient
         {
             try
             {
-                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak")))
-                {
-                    Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak"), true);
-                }
+                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA.bak"      ))) Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA.bak"), true);
+                if (Directory.Exists(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA-linux.bak"))) Directory.Delete(Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA-linux.bak"), true);
 
                 Directory.Move(
-                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA"),
-                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA.bak")
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA.bak")
                     );
 
                 Directory.Move(
-                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\Update\EWALoader\EWA"),
-                    Path.Combine(EmpyrionConfiguration.ModPath, @"EWALoader\EWA")
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA-linux"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA-linux.bak")
+                    );
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader", "EWA"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA")
+                    );
+
+                Directory.Move(
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "Update", "EWALoader", "EWA-linux"),
+                    Path.Combine(EmpyrionConfiguration.ModPath, "EWALoader", "EWA-linux")
                     );
             }
             catch (Exception Error)
@@ -568,5 +643,71 @@ namespace EWAModClient
         public void Shutdown()
         {
         }
+
+        private static bool IsWineEnvironment()
+            => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+               (File.Exists(@"Z:\bin\bash") || File.Exists(@"Z:\usr\bin\bash"));
+
+        private static string FindNativeLinuxTool(params string[] unixPaths)
+        {
+            foreach (var unixPath in unixPaths)
+            {
+                var winePath = "Z:" + unixPath.Replace('/', '\\');
+                if (File.Exists(winePath)) return winePath;
+            }
+            return null;
+        }
+
+        private static string WinePathToUnix(string winePath)
+            => winePath.StartsWith("Z:") || winePath.StartsWith("z:")
+                ? winePath.Substring(2).Replace('\\', '/')
+                : winePath.Replace('\\', '/');
+
+        private static void WineChmodExecutable(string wineExePath)
+        {
+            var unixPath = WinePathToUnix(wineExePath);
+            if (!File.Exists(wineExePath)) return;
+            var bash = FindNativeLinuxTool("/bin/bash", "/usr/bin/bash");
+            if (bash == null) return;
+            try
+            {
+                using var p = Process.Start(new ProcessStartInfo(bash, $"-c \"chmod +x '{unixPath}'\"")
+                    { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true });
+                p?.WaitForExit(5000);
+                Console.WriteLine($"chmod +x '{unixPath}' -> exit {p?.ExitCode}");
+            }
+            catch (Exception ex) { Console.WriteLine($"WineChmodExecutable: {ex.Message}"); }
+        }
+
+        private static string GenerateWineHostScript(string wineExePath, string linuxBinaryWinePath)
+        {
+            var elfUnixPath    = WinePathToUnix(linuxBinaryWinePath);
+            var scriptWinePath = Path.ChangeExtension(wineExePath, ".sh");
+            var sb = new System.Text.StringBuilder();
+            sb.Append("#!/bin/bash\n");
+            sb.Append($"ELF=\"{elfUnixPath}\"\n");
+            sb.Append("LOG=\"$(dirname \"$ELF\")/EmpyrionModWebHost.sh.log\"\n");
+            sb.Append("{\n");
+            sb.Append("  echo \"[$(date)] Script gestartet\"\n");
+            sb.Append("  echo \"Args: $@\"\n");
+            sb.Append("  echo \"uname: $(uname -a)\"\n");
+            sb.Append("  echo \"ldd version: $(ldd --version 2>&1 | head -1)\"\n");
+            sb.Append("  echo \"ldd EmpyrionModWebHost:\"\n");
+            sb.Append("  ldd \"$ELF\" 2>&1\n");
+            sb.Append("  echo \"--- Start EmpyrionModWebHost ---\"\n");
+            sb.Append("  \"$ELF\" \"$@\" >> \"$LOG\" 2>&1\n");
+            sb.Append("  echo \"[$(date)] Exit: $?\"\n");
+            sb.Append("} >> \"$LOG\" 2>&1\n");
+            File.WriteAllText(scriptWinePath, sb.ToString());
+            return scriptWinePath;
+        }
+
+        private static bool GetHasExited(Process p)
+        {
+            try { return p.HasExited; }
+            catch { return true; }
+        }
+
+        private static void TryDeleteFile(string path) { try { if (File.Exists(path)) File.Delete(path); } catch { } }
     }
 }

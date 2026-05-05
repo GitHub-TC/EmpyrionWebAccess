@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace EWAExtenderCommunication
@@ -15,6 +17,7 @@ namespace EWAExtenderCommunication
         public Action<string>? Log { get; set; }
         public string PipeName { get; }
         public bool Exit { get; private set; }
+        public bool UseTcp { get; set; }
 
         public ClientMessagePipe(string aPipeName)
         {
@@ -31,25 +34,32 @@ namespace EWAExtenderCommunication
                 try
                 {
                     Log?.Invoke($"Try CommunicationLoop Connect {PipeName}");
-                    using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
-                    pipe.Connect(5000);
-
-                    Log?.Invoke($"CommunicationLoop Connected {PipeName}");
-
-                    new Thread(() =>
+                    if (UseTcp)
                     {
-                        while (!Exit)
-                        {
-                            Thread.Sleep(500);
-                            SendMessage(new ClientHostComData() { Command = ClientHostCommand.Ping });
-                        }
-                    }) { IsBackground = true }.Start();
-
-                    var pipeError = false;
-                    do
+                        var port = PipeProtocol.PipeNameToPort(PipeName);
+                        using var tcp = new TcpClient();
+                        tcp.Connect(IPAddress.Loopback, port);
+                        Log?.Invoke($"CommunicationLoop Connected {PipeName} (TCP:{port})");
+                        new Thread(() => {
+                            while (!Exit) { Thread.Sleep(500); SendMessage(new ClientHostComData() { Command = ClientHostCommand.Ping }); }
+                        }) { IsBackground = true }.Start();
+                        var pipeError = false;
+                        using var stream = tcp.GetStream();
+                        do { pipeError = SendMessageViaStream(stream, WaitForNextMessage()); }
+                        while (!pipeError && !Exit && tcp.Connected);
+                    }
+                    else
                     {
-                        pipeError = SendMessageViaPipe(pipe, WaitForNextMessage());
-                    } while (!pipeError && !Exit && pipe.IsConnected);
+                        using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+                        pipe.Connect(5000);
+                        Log?.Invoke($"CommunicationLoop Connected {PipeName}");
+                        new Thread(() => {
+                            while (!Exit) { Thread.Sleep(500); SendMessage(new ClientHostComData() { Command = ClientHostCommand.Ping }); }
+                        }) { IsBackground = true }.Start();
+                        var pipeError = false;
+                        do { pipeError = SendMessageViaPipe(pipe, WaitForNextMessage()); }
+                        while (!pipeError && !Exit && pipe.IsConnected);
+                    }
                 }
                 catch (ThreadAbortException) { return; }
                 catch (TimeoutException) { /* retry */ }
@@ -89,6 +99,13 @@ namespace EWAExtenderCommunication
                 Log?.Invoke($"CommError {PipeName} Reason: {error.Message}");
                 return true;
             }
+        }
+
+        private bool SendMessageViaStream(System.IO.Stream stream, object? message)
+        {
+            if (message == null || Exit) return false;
+            try { PipeProtocol.WriteMessage(stream, message); return false; }
+            catch (Exception error) { Log?.Invoke($"CommError {PipeName} Reason: {error.Message}"); return true; }
         }
 
         public void SendMessage(object aMessage)

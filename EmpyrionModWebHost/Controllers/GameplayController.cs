@@ -38,7 +38,7 @@ namespace EmpyrionModWebHost.Controllers
 
             OfflineWarpPlayer = new ConfigurationManager<ConcurrentDictionary<int, OfflineWarpPlayerData>>()
             {
-                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, @"EWA\DB\OfflineWarpPlayer.json")
+                ConfigFilename = Path.Combine(EmpyrionConfiguration.SaveGameModPath, "EWA", "DB", "OfflineWarpPlayer.json")
             };
 
             OfflineWarpPlayer.Load();
@@ -324,8 +324,8 @@ WHERE type='table';
                 if (_mItemInfo != null) return _mItemInfo;
 
                 var ConfigFilesPath = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content" , "Configuration");
-                var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, @"Extras\Localization.csv");
-                if (!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, @"Content\Extras\Localization.csv");
+                var LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Scenarios", EmpyrionConfiguration.DedicatedYaml.CustomScenarioName, "Extras", "Localization.csv");
+                if (!File.Exists(LocalizationFile)) LocalizationFile = Path.Combine(EmpyrionConfiguration.ProgramPath, "Content", "Extras", "Localization.csv");
 
                 try
                 {
