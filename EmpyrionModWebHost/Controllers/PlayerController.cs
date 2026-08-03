@@ -169,15 +169,40 @@ namespace EmpyrionModWebHost.Controllers
                     Player.Online = true;
                     DB.Players.Add(Player);
                 }
-                var count = await DB.SaveChangesAsync();
-
-                if (count > 0)
+                else
                 {
-                    UpdatePlayersQueue.AddOrUpdate(Player.Id, Player, (S, O) => Player);
-                    //PlayerHub?.RoleSendAsync(Player, "UpdatePlayer", JsonConvert.SerializeObject(Player));
+                    // Existing player — DB.Find() already tracks entity; EF detects changes.
+                    Player.Online = true;
+                    Player.LastOnline = DateTime.Now;
                 }
 
-                if (IsNewPlayer) SendWelcomeMessage(Player);
+                try
+                {
+                    var count = await DB.SaveChangesAsync();
+
+                    if (count > 0)
+                    {
+                        UpdatePlayersQueue.AddOrUpdate(Player.Id, Player, (S, O) => Player);
+                    }
+
+                    if (IsNewPlayer) SendWelcomeMessage(Player);
+                }
+                catch (Microsoft.Data.Sqlite.SqliteException ex) when (ex.SqliteErrorCode == 19)
+                {
+                    // UNIQUE constraint — parallel event beat us to the insert. Retry as update.
+                    Logger?.LogWarning(ex, "PlayerManager_Event_Player_Info: UNIQUE constraint for {@SteamId}, retrying as update", aPlayerInfo.steamId);
+                    DB.ChangeTracker.Clear();
+                    using var DB2 = new PlayerContext();
+                    var existing = DB2.Find<Player>(aPlayerInfo.steamId);
+                    if (existing != null)
+                    {
+                        DB2.Entry(existing).CurrentValues.SetValues(DB2.Entry(Player).CurrentValues);
+                        await DB2.SaveChangesAsync();
+                        UpdatePlayersQueue.AddOrUpdate(Player.Id, existing, (S, O) => existing);
+                        SendWelcomeMessage(existing);
+                    }
+                }
+
             }
             catch(Microsoft.Data.Sqlite.SqliteException sqliteError)
             {
