@@ -42,7 +42,7 @@ public class Startup
 
         services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
         {
-            options.MultipartBodyLengthLimit = 268435456; // 256 MB (2x default 128 MB)
+            options.MultipartBodyLengthLimit = 536870912; // 512 MB
         });
 
         services.AddMvc(options =>
